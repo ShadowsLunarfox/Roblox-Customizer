@@ -129,8 +129,8 @@ html[data-rc-background-active][data-rc-frost-page="trades"] :is(#content, main,
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
 }
 
-/* Page-specific styles own the account, profile, and Charts card surfaces. */
-html[data-rc-background-active][data-rc-frost-page]:not([data-rc-frost-page="catalog"]):not([data-rc-frost-page="avatar"]):not([data-rc-frost-page="community"]):not([data-rc-frost-page="community-search"]):not([data-rc-frost-page="community-create"]):not(:where([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"], [data-rc-frost-page="charts"])) :is(#content, main, [role="main"]) :is(
+/* Page-specific styles own the account, profile, Charts, and Robux card surfaces. */
+html[data-rc-background-active][data-rc-frost-page]:not([data-rc-frost-page="catalog"]):not([data-rc-frost-page="avatar"]):not([data-rc-frost-page="community"]):not([data-rc-frost-page="community-search"]):not([data-rc-frost-page="community-create"]):not(:where([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"], [data-rc-frost-page="account-settings"], [data-rc-frost-page="charts"], [data-rc-frost-page="robux"])) :is(#content, main, [role="main"]) :is(
   .card,
   .card-item,
   .item-card,

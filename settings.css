@@ -499,6 +499,10 @@ html[data-rc-background-active] .light-theme :is(#chat-container, [data-rc-chat-
 
 #HomeContainer .rc-home-game-card {
   box-sizing: border-box !important;
+  min-width: 0;
+  max-width: 100%;
+  height: auto !important;
+  max-height: none !important;
   padding: 6px !important;
   border: 1px solid rgb(255 255 255 / 13%) !important;
   border-radius: 10px !important;
@@ -506,6 +510,173 @@ html[data-rc-background-active] .light-theme :is(#chat-container, [data-rc-chat-
   background-image: none !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+}
+
+/* Native tile sizes do not include our padding. Fit the contents to the card. */
+#HomeContainer :is(.game-card, .hover-game-tile):has(> .rc-home-game-card) {
+  height: auto !important;
+  max-height: none !important;
+  min-width: 0;
+}
+
+/* Let every wide card fill its row when a peer's statistics wrap. */
+#HomeContainer :is(.wide-game-tile-game-grid, .wide-game-tile-carousel):has(.rc-home-game-card) {
+  grid-auto-rows: auto !important;
+  align-items: stretch;
+}
+
+#HomeContainer .hover-game-tile > .rc-home-game-card {
+  flex: 1;
+}
+
+#HomeContainer .hover-game-tile:has(> .rc-home-game-card) {
+  display: flex;
+  flex-direction: column;
+}
+
+#HomeContainer .horizontally-scrollable:has(.rc-home-game-card) {
+  height: auto !important;
+  max-height: none !important;
+}
+
+#HomeContainer .rc-home-game-card :is(.game-card-container, .game-card-link),
+#HomeContainer .rc-home-game-card > a[href*="/games/"] {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0;
+  height: auto !important;
+}
+
+#HomeContainer .rc-home-game-card > a[href*="/games/"]:not(.hidden, [hidden], .ng-hide),
+#HomeContainer .rc-home-game-card .game-card-link:not(.hidden, [hidden], .ng-hide) {
+  display: block !important;
+}
+
+#HomeContainer .rc-home-game-card :is(
+  .game-card-thumb-container, .game-card-thumb, .thumbnail-2d-container, .featured-game-icon-container,
+  thumbnail-2d, [data-testid="sdui-tile-image-container"]
+) {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0;
+  height: auto !important;
+  margin: 0 !important;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+#HomeContainer .rc-home-game-card :is(
+  .game-card-thumb-container, .game-card-thumb, .thumbnail-2d-container, .featured-game-icon-container,
+  thumbnail-2d, [data-testid="sdui-tile-image-container"]
+):not(.hidden, [hidden], .ng-hide) {
+  display: block !important;
+}
+
+#HomeContainer .rc-home-game-card :is(
+  .game-card-thumb-container, .game-card-thumb, .thumbnail-2d-container, .featured-game-icon-container,
+  thumbnail-2d, [data-testid="sdui-tile-image-container"]
+) :is(img, video),
+#HomeContainer .rc-home-game-card > a[href*="/games/"] > img {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+#HomeContainer .rc-home-game-card :is(
+  .game-card-thumb-container, .game-card-thumb, .thumbnail-2d-container, .featured-game-icon-container,
+  thumbnail-2d, [data-testid="sdui-tile-image-container"]
+) :is(img, video):not(.hidden, [hidden], .ng-hide) {
+  display: block !important;
+}
+
+/* Wide tiles otherwise size these wrappers from --home-feed-width, outside
+   the padded card, and keep a height cap that cuts off the metadata backing. */
+#HomeContainer .rc-home-game-card .featured-game-icon-container {
+  aspect-ratio: 16 / 9;
+  min-height: 0 !important;
+  max-height: none !important;
+}
+
+#HomeContainer .rc-home-game-card .featured-game-icon-container > .brief-game-icon,
+#HomeContainer .rc-home-game-card .featured-game-icon-container > .brief-game-icon > img {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0;
+  max-width: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  object-fit: cover;
+}
+
+#HomeContainer .rc-home-game-card :is(.info-container, .info-metadata-container, .wide-game-tile-metadata) {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0;
+  height: auto !important;
+  max-height: none !important;
+}
+
+#HomeContainer .rc-home-game-card .info-metadata-container {
+  float: none !important;
+}
+
+#HomeContainer .rc-home-game-card .wide-game-tile-metadata {
+  margin-bottom: 0 !important;
+}
+
+/* Reserve two title lines so short names keep the same rating position. */
+#HomeContainer .rc-home-game-card :is(
+  .game-card-name, .game-name, [data-testid="game-title"], [data-testid="sdui-tile-title"]
+):not(.shimmer, .hidden, [hidden], .ng-hide) {
+  box-sizing: border-box;
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2 !important;
+  line-clamp: 2;
+  width: 100% !important;
+  max-width: 100%;
+  min-width: 0;
+  height: auto !important;
+  min-height: 2.8em !important;
+  max-height: 2.8em !important;
+  margin: 8px 0 6px !important;
+  line-height: 1.4 !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+  overflow: hidden !important;
+  text-overflow: ellipsis;
+}
+
+#HomeContainer .rc-home-game-card :is(.game-card-info, [data-testid="game-tile-stats"]) {
+  box-sizing: border-box;
+  position: static !important;
+  width: 100% !important;
+  max-width: 100%;
+  min-width: 0;
+  height: auto !important;
+  min-height: 24px;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#HomeContainer .rc-home-game-card :is(.game-card-info, [data-testid="game-tile-stats"]):not(.hidden, [hidden], .ng-hide) {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+#HomeContainer .rc-home-game-card :is(.game-card-info, [data-testid="game-tile-stats"]) :is(.info-label, .vote-percentage-label, .playing-counts-label) {
+  max-width: 100%;
+  min-width: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-wrap: anywhere;
 }
 
 html[data-rc-hide-favorites] [data-rc-home-section="favorites"],

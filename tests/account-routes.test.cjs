@@ -90,6 +90,33 @@ for (const [name, script] of [['startup', startup], ['settings fallback', fallba
     }
   });
 
+  test(`${name} limits the Robux redesign to the purchase overview`, () => {
+    for (const url of ['/upgrades/robux', '/upgrades/robux/', '/upgrades/robux?ctx=navpopover', '/UPGRADES/ROBUX/']) {
+      assert.equal(harness(url, script).root.dataset.rcFrostPage, 'robux', url);
+    }
+    const env = harness('/upgrades/robux?ctx=navpopover', script);
+    for (const url of ['/upgrades/paymentmethods?ctx=subscription', '/upgrades/robux/checkout', '/upgrades/robux-extra', '/upgrades', '/newlogin', '/home']) {
+      env.location.href = new URL(url, 'https://www.roblox.com').href;
+      env.events.get('popstate')();
+      assert.equal(env.root.dataset.rcFrostPage, undefined, url);
+    }
+  });
+
+  test(`${name} styles account settings tabs without matching sign-in or other account URLs`, () => {
+    for (const url of ['/my/account#!/info', '/my/account/', '/MY/ACCOUNT?tab=info', '/my/account#!/security', '/my/account#!/privacy', '/my/account#!/billing']) {
+      assert.equal(harness(url, script).root.dataset.rcFrostPage, 'account-settings', url);
+    }
+    const env = harness('/my/account#!/info', script);
+    env.location.hash = '#!/security';
+    env.events.get('hashchange')();
+    assert.equal(env.root.dataset.rcFrostPage, 'account-settings');
+    for (const url of ['/NewLogin?ReturnUrl=%2Fmy%2Faccount', '/my/account-extra', '/my/account/security', '/account', '/home']) {
+      env.location.href = new URL(url, 'https://www.roblox.com').href;
+      env.events.get('popstate')();
+      assert.equal(env.root.dataset.rcFrostPage, undefined, url);
+    }
+  });
+
   test(`${name} retains page styling across native account tabs`, () => {
     for (const [url, expected, hashes] of [
       ['/users/156/friends', 'friends', ['#!/friends', '#!/followers', '#!/friend-requests']],

@@ -1,0 +1,208 @@
+/* Keep product data, billing copy, and checkout handlers in Roblox's native UI. */
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page {
+  --rc-robux-border: var(--color-stroke-default, rgb(128 128 128 / 30%));
+  --rc-robux-hover: var(--color-stroke-emphasis, rgb(128 128 128 / 55%));
+  --rc-robux-focus: var(--color-selection-start, #7fa6ff);
+  min-width: 0;
+  background: transparent !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page .buy-robux-background {
+  display: none !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page .buy-robux-content {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1000px;
+  min-width: 0;
+  padding: 24px 24px 40px !important;
+  gap: 28px;
+}
+
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page :where(
+  .buy-robux-content > div:has(> .text-section-title),
+  .buy-robux-section-header,
+  [data-testid^="subscription-tile-"],
+  .robux-section,
+  [data-section-type="PAYMENTS_PRODUCT_SECTION_TYPE_TRANSFERS"] > div,
+  .buy-robux-content [data-slot="card"] > div > div:has(> [aria-controls^="faq-panel-"])
+) {
+  box-sizing: border-box;
+  border: 1px solid var(--rc-robux-border) !important;
+  border-radius: 18px !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.68, var(--rc-glass-opacity, .62))) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page .buy-robux-content > div:has(> .text-section-title) {
+  padding: 30px 24px !important;
+  gap: 12px;
+}
+
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page .text-section-title {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: clamp(30px, 4vw, 44px);
+  line-height: 1.15;
+  letter-spacing: -.035em;
+  text-align: center;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page .text-section-subtitle {
+  font-size: 16px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page .buy-robux-section-header {
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 14px !important;
+  font-size: clamp(20px, 2.5vw, 26px);
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page .buy-robux-section-header > div {
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Only tiles blur in the carousel; keep its clipping and scrolling native. */
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page [data-testid^="subscription-tile-"] {
+  padding: 18px !important;
+  gap: 16px;
+}
+
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page [data-testid="carousel-track"] {
+  padding-block: 2px;
+}
+
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page .carousel-item {
+  max-width: 100%;
+}
+
+/* Regular packages have one backing per option, with no enclosing blur. */
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page [data-section-type="PAYMENTS_PRODUCT_SECTION_TYPE_PRODUCTS_LIST"] .robux-section:has(> [data-product-id]) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page [data-section-type="PAYMENTS_PRODUCT_SECTION_TYPE_PRODUCTS_LIST"] .robux-section > [data-product-id]:not([hidden]):not(.hidden):not(.ng-hide) {
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 0;
+  padding: 18px;
+  gap: 16px;
+  border: 1px solid var(--rc-robux-border);
+  border-radius: 16px;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.68, var(--rc-glass-opacity, .62))) !important;
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  transition: border-color .15s ease;
+}
+
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page [data-section-type="PAYMENTS_PRODUCT_SECTION_TYPE_PRODUCTS_LIST"] .robux-section > [data-product-id]:hover {
+  border-color: var(--rc-robux-hover);
+}
+
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page [data-testid="robux-amount-column"] {
+  width: auto !important;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page .robux-section > [data-product-id] > .foundation-web-button {
+  width: 100%;
+  min-width: 0 !important;
+  min-height: 44px;
+  height: auto !important;
+  padding: 8px 12px !important;
+  border-radius: 10px !important;
+  margin-top: auto;
+}
+
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page :is(
+  .robux-section > [data-product-id] > .foundation-web-button,
+  [data-testid^="subscription-tile-"] .foundation-web-button.bg-action-emphasis
+):not(:disabled):not([aria-disabled="true"]) {
+  background-color: #335fff !important;
+  color: #fff !important;
+  border-color: transparent !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page [data-testid^="subscription-tile-"] .foundation-web-button {
+  min-height: 44px;
+  height: auto !important;
+  border-radius: 10px !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page :is(
+  .foundation-web-button, .foundation-web-icon-button, a,
+  [role="button"][aria-controls^="faq-panel-"], [role="tab"]
+):focus-visible {
+  outline: 3px solid var(--rc-robux-focus) !important;
+  outline-offset: 3px;
+}
+
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page .buy-robux-content [data-slot="card"] > div > div:has(> [aria-controls^="faq-panel-"]) {
+  padding: 8px 18px !important;
+  border-radius: 14px !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page [role="button"][aria-controls^="faq-panel-"] {
+  min-height: 44px;
+  height: auto;
+  gap: 12px;
+  padding-block: 8px;
+}
+
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page :is(
+  [id^="faq-panel-"], .legal-disclosure-container, .legal-text-holder
+) {
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page [hidden] {
+  display: none !important;
+}
+
+@media (max-width: 679px) {
+  html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page .buy-robux-content {
+    padding: 16px 16px 28px !important;
+    gap: 22px;
+  }
+
+  html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page .buy-robux-content > div:has(> .text-section-title) {
+    padding: 24px 18px !important;
+  }
+
+  html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page .buy-robux-section-header {
+    padding: 12px 14px;
+  }
+
+  html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page [data-section-type="PAYMENTS_PRODUCT_SECTION_TYPE_PRODUCTS_LIST"] .robux-section:has(> [data-product-id]) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page .robux-section > [data-product-id] {
+    transition: none;
+  }
+}
