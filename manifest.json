@@ -1,0 +1,90 @@
+{
+  "manifest_version": 3,
+  "name": "Roblox Customizer",
+  "version": "1.26.116",
+  "description": "Customize Roblox backgrounds and frosted menus, expand friends, pin games to Home, and display Robux currency estimates.",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_title": "Roblox Customizer",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "24": "icons/icon-24.png",
+      "32": "icons/icon-32.png"
+    }
+  },
+  "permissions": ["storage", "declarativeNetRequestWithHostAccess"],
+  "host_permissions": [
+    "https://users.roblox.com/*",
+    "https://accountinformation.roblox.com/*",
+    "https://inventory.roblox.com/*",
+    "https://badges.roblox.com/*",
+    "https://games.roblox.com/*",
+    "https://apis.roblox.com/universes/v1/places/*",
+    "https://groups.roblox.com/*",
+    "https://gamejoin.roblox.com/*",
+    "https://ipwho.is/*",
+    "https://develop.roblox.com/*",
+    "https://api.fxtwitter.com/*",
+    "https://pbs.twimg.com/*",
+    "https://mosaic.fxtwitter.com/*",
+    "https://thumbnails.roblox.com/*",
+    "https://www.rolimons.com/*",
+    "https://www.youtube.com/*",
+    "https://i.ytimg.com/*",
+    "https://cdn.jsdelivr.net/*",
+    "https://latest.currency-api.pages.dev/*"
+  ],
+  "background": {
+    "service_worker": "badge-background.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/icon-48.png", "icons/icon-128.png"],
+      "matches": ["https://www.roblox.com/*", "https://roblox.com/*"]
+    }
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.roblox.com/*",
+        "https://roblox.com/*",
+        "https://create.roblox.com/*"
+      ],
+      "js": ["robux-currency-core.js", "robux-currency.js"],
+      "css": ["robux-currency.css"],
+      "all_frames": true,
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://www.roblox.com/*",
+        "https://roblox.com/*"
+      ],
+      "js": ["page.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://www.roblox.com/*",
+        "https://roblox.com/*"
+      ],
+      "css": ["startup.css", "friends.css", "settings.css", "game-page.css", "site-pages.css", "catalog-page.css", "catalog-item-page.css", "account-pages.css", "messages-page.css", "transactions-page.css", "community-directory.css", "profile-page.css", "avatar-page.css", "pinned-games.css"],
+      "js": ["startup.js", "js.js", "settings.js", "frosted-ui.js", "profile-page.js", "avatar-page.js", "catalog-item-page.js", "pinned-games-core.js", "pinned-games.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://www.roblox.com/*",
+        "https://roblox.com/*"
+      ],
+      "js": ["game-page.js"],
+      "run_at": "document_start"
+    }
+  ]
+}

@@ -1,0 +1,958 @@
+/* Keep Roblox's interface above the user's image or video. */
+html[data-rc-background-active],
+html[data-rc-background-active] body,
+html[data-rc-background-active] #wrap,
+html[data-rc-background-active] #rbx-body,
+html[data-rc-background-active] .rbx-body,
+html[data-rc-background-active] #content,
+html[data-rc-background-active] #container-main,
+html[data-rc-background-active] main.container-main,
+html[data-rc-background-active] .content,
+html[data-rc-background-active] .content-container,
+html[data-rc-background-active] #footer-container,
+html[data-rc-background-active] footer.container-footer,
+html[data-rc-background-active] #HomeContainer,
+html[data-rc-background-active] .home-container {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+html[data-rc-background-active] body {
+  isolation: isolate;
+}
+
+#rc-background-layer {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: #121317;
+}
+
+html:not([data-rc-background-active]) #rc-background-layer {
+  display: none;
+}
+
+#rc-background-layer .rc-background-media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: var(--rc-background-fit, cover);
+}
+
+#rc-background-layer .rc-background-shade {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / var(--rc-background-dim, .2));
+}
+
+/* The wallpaper reaches the full viewport behind the top bar, sidebar, and chat. */
+body.light-theme,
+html.light-theme body {
+  --rc-glass-color: 255 255 255;
+}
+
+#header .container-fluid,
+#header .rbx-navbar-header,
+#header .rbx-navbar,
+#header .rbx-navbar-right,
+#header #right-navigation-header,
+#left-navigation-container,
+#chat-container {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+#left-navigation-container .left-nav,
+#navigation.rbx-left-col,
+#left-navigation-container > .rbx-left-col {
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+}
+
+#header.rbx-header,
+#header.navbar-fixed-top {
+  background-color: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  border-bottom: 1px solid rgb(255 255 255 / 12%);
+}
+
+/* A separate layer keeps the header frosted without becoming a backdrop root
+   that clips the dropdown's blur to the height of the top bar. */
+#header.rbx-header::before,
+#header.navbar-fixed-top::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62));
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+}
+
+html[data-rc-background-active] #header .navbar-search {
+  background-color: transparent !important;
+}
+
+html[data-rc-background-active] #header #navbar-search-input {
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / 24%) !important;
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+}
+
+/* Let the wallpaper show through both versions of the header search dropdown. */
+html[data-rc-background-active] #header .navbar-search > .dropdown-menu,
+html[data-rc-background-active] #search-landing-root .search-landing-container {
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-page-panel-opacity, .31)) !important;
+  background-image: none !important;
+  border: 1px solid rgb(255 255 255 / 14%) !important;
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  box-shadow: 0 8px 28px rgb(0 0 0 / 24%) !important;
+}
+
+html[data-rc-background-active] #header .navbar-search .navbar-search-option,
+html[data-rc-background-active] #header .navbar-search .navbar-search-option > a {
+  background-color: transparent !important;
+}
+
+html[data-rc-background-active] #header .navbar-search .navbar-search-option:is(:hover, :focus-within, .selected, .new-selected) {
+  background-color: rgb(255 255 255 / 12%) !important;
+}
+
+html[data-rc-background-active] #header.light-theme .navbar-search .navbar-search-option:is(:hover, :focus-within, .selected, .new-selected),
+html[data-rc-background-active] .light-theme #header .navbar-search .navbar-search-option:is(:hover, :focus-within, .selected, .new-selected) {
+  background-color: rgb(0 0 0 / 10%) !important;
+}
+
+/* Keep carousel arrow backings translucent without changing thumbnails or pills. */
+html[data-rc-background-active] #search-landing-root .search-landing-container .horizontal-scroller .scroller {
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-image: none !important;
+}
+
+html[data-rc-background-active] #search-landing-root .search-landing-container .horizontal-scroller .scroller .spacer {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Header account menus can render under the navbar or in a React portal. */
+html[data-rc-background-active] :is(
+  #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu,
+  #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu,
+  [role="menu"]:has(.rc-settings-menu-entry, a[href*="/transactions"], a[href*="/redeem"])
+) {
+  --rc-header-menu-highlight: rgb(255 255 255 / 12%);
+  box-sizing: border-box;
+  max-width: calc(100vw - 24px);
+  max-height: min(420px, calc(100dvh - 80px));
+  padding: 6px !important;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--color-stroke-default, rgb(255 255 255 / 16%)) !important;
+  border-radius: 14px !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.5, var(--rc-glass-opacity, .62))) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  box-shadow: 0 10px 28px rgb(0 0 0 / 24%) !important;
+  color: var(--color-content-emphasis, inherit) !important;
+}
+
+/* Legacy popovers wrap the menu in another opaque box. */
+html[data-rc-background-active] .popover:has(
+  #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu, .rc-settings-menu-entry
+),
+html[data-rc-background-active] .popover:has(
+  #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu, .rc-settings-menu-entry
+) > .popover-content {
+  border: 0 !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+html[data-rc-background-active] .popover:has(
+  #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu, .rc-settings-menu-entry
+) > .arrow {
+  display: none !important;
+}
+
+html[data-rc-background-active] :is(
+  #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu,
+  #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu,
+  [role="menu"]:has(.rc-settings-menu-entry, a[href*="/transactions"], a[href*="/redeem"])
+) :is(div, ul, li, a, button, [role="menuitem"]) {
+  background-color: transparent !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+html[data-rc-background-active] :is(
+  #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu,
+  #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu,
+  [role="menu"]:has(.rc-settings-menu-entry, a[href*="/transactions"], a[href*="/redeem"])
+) :is(a, button, [role="menuitem"]:not(:has(a, button))) {
+  min-height: 40px;
+  padding: 10px 12px !important;
+  border-radius: 9px;
+  color: inherit !important;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-background-active] :is(
+  #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu,
+  #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu,
+  [role="menu"]:has(.rc-settings-menu-entry, a[href*="/transactions"], a[href*="/redeem"])
+) :is(a, button, [role="menuitem"]:not(:has(a, button))):not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible) {
+  background-color: var(--rc-header-menu-highlight) !important;
+}
+
+html[data-rc-background-active] :is(
+  #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu,
+  #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu,
+  [role="menu"]:has(.rc-settings-menu-entry, a[href*="/transactions"], a[href*="/redeem"])
+) :is(a, button, [role="menuitem"]:not(:has(a, button))):focus-visible {
+  outline: 2px solid var(--color-content-emphasis, #fff) !important;
+  outline-offset: -2px;
+}
+
+html[data-rc-background-active] .light-theme :is(
+  #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu,
+  #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu,
+  [role="menu"]:has(.rc-settings-menu-entry, a[href*="/transactions"], a[href*="/redeem"])
+),
+html.light-theme[data-rc-background-active] :is(
+  #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu,
+  #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu,
+  [role="menu"]:has(.rc-settings-menu-entry, a[href*="/transactions"], a[href*="/redeem"])
+) {
+  --rc-header-menu-highlight: rgb(0 0 0 / 8%);
+}
+
+#navigation.rbx-left-col,
+#left-navigation-container .left-nav,
+#left-navigation-container > .rbx-left-col {
+  border-right: 1px solid rgb(255 255 255 / 12%);
+}
+
+#left-navigation-container .left-nav > .flex,
+#left-navigation-container .left-nav > .flex > div,
+#left-navigation-container .left-nav nav,
+#navigation .rbx-scrollbar,
+#navigation .left-col-list,
+#navigation .simplebar-content {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Shared chat hosts must not become backdrop roots for their child windows. */
+html[data-rc-background-active] :is(#chat-container, #dialog-container, .react-chat-root, [data-rc-chat-host]) {
+  background-color: transparent !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+/* Each individual window gets one independent layer behind its content. */
+html[data-rc-background-active] [data-rc-chat-panel] {
+  isolation: isolate !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: rgb(255 255 255 / 14%) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 8px 28px rgb(0 0 0 / 24%) !important;
+}
+
+html[data-rc-background-active] [data-rc-chat-panel][data-rc-chat-static] {
+  position: relative !important;
+}
+
+html[data-rc-background-active] [data-rc-chat-panel]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-page-panel-opacity, .31)) !important;
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+}
+
+html[data-rc-background-active] :is(#chat-container, #chat-main, #dialog-container, [data-rc-chat-panel]) :is(
+  .chat-header, .chat-windows-header, .chat-body, .chat-friends-container,
+  .chat-friend-list, .chat-friends, .chat-search, .chat-disconnect,
+  .dialog-header, .dialog-member-header, .dialog-body,
+  .dialog-input-container
+) {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Clear full-width message row backing while keeping the message bubble. */
+html[data-rc-background-active] [data-rc-chat-panel] .dialog-message-container {
+  background-color: transparent !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+/* React's scrolling list and localized safety card have their own opaque
+   surfaces. Clear those surfaces as soon as they mount in each window. */
+html[data-rc-background-active] .react-chat-dialog-shell :is(
+  .react-chat-dialog-scroll > ul, .react-chat-osa-inline-card
+) {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Replacement headers and loading wrappers clear immediately when React
+   mounts them; deeper wrappers are marked by the scoped chat updater. */
+html[data-rc-background-active] [data-rc-chat-panel] > :is(
+  div, section, main, aside, header, footer, form, ul, button
+):not([data-rc-chat-panel], .dialog-message-container, .dialog-message, .chat-friend-container, [role="listitem"], [role="img"], [data-testid="chat-message"], [data-testid="message-bubble"]),
+html[data-rc-background-active] [data-rc-chat-surface] {
+  background-color: transparent !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+html[data-rc-background-active] :is(#chat-container, #chat-main, #dialog-container, [data-rc-chat-panel]) :is(.chat-search-input, .dialog-input),
+html[data-rc-background-active] [data-rc-chat-input] {
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / 24%) !important;
+  background-image: none !important;
+}
+
+html[data-rc-background-active] :is(#chat-container, [data-rc-chat-panel]) .chat-friend-container {
+  background-color: transparent !important;
+}
+
+html[data-rc-background-active] :is(#chat-container, [data-rc-chat-panel]) .chat-friend-container:is(:hover, :focus-within) {
+  background-color: rgb(255 255 255 / 12%) !important;
+}
+
+html[data-rc-background-active] .light-theme :is(#chat-container, [data-rc-chat-panel]) .chat-friend-container:is(:hover, :focus-within) {
+  background-color: rgb(0 0 0 / 10%) !important;
+}
+
+/* Only native game cards on Home get a frosted backing. Friend tiles are excluded. */
+#rc-home-greeting {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  min-width: 0;
+  min-height: 104px;
+  margin: 0 0 20px;
+  padding: 18px 22px;
+  grid-column: 1 / -1;
+  flex-basis: 100%;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 16px;
+  background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62));
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  color: #f7f7f8;
+  font-family: Arial, sans-serif;
+}
+
+#rc-home-greeting .rc-home-greeting-avatar {
+  box-sizing: border-box;
+  display: grid;
+  flex: 0 0 68px;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  overflow: hidden;
+  border: 2px solid rgb(255 255 255 / 30%);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 13%);
+}
+
+#rc-home-greeting .rc-home-greeting-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#rc-home-greeting .rc-home-greeting-avatar img[hidden],
+#rc-home-greeting [hidden] {
+  display: none !important;
+}
+
+#rc-home-greeting .rc-home-greeting-initial {
+  font-size: 30px;
+  font-weight: 700;
+}
+
+#rc-home-greeting .rc-home-greeting-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+#rc-home-greeting .rc-home-greeting-eyebrow {
+  color: rgb(255 255 255 / 66%);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+}
+
+#rc-home-greeting .rc-home-greeting-title {
+  margin: 0;
+  color: inherit;
+  font-size: clamp(21px, 2.4vw, 29px);
+  font-weight: 700;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+#rc-home-greeting .rc-home-greeting-username {
+  color: rgb(255 255 255 / 72%);
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+#rc-home-greeting .rc-home-greeting-clock {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  max-width: min(40%, 280px);
+  margin-left: auto;
+  padding-left: 20px;
+  border-left: 1px solid rgb(255 255 255 / 18%);
+  text-align: right;
+}
+
+#rc-home-greeting .rc-home-greeting-clock-label {
+  color: rgb(255 255 255 / 66%);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+}
+
+#rc-home-greeting .rc-home-greeting-time {
+  color: inherit;
+  font-size: clamp(20px, 2.2vw, 28px);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+#rc-home-greeting .rc-home-greeting-date {
+  color: rgb(255 255 255 / 86%);
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+@media (max-width: 600px) {
+  #rc-home-greeting {
+    gap: 13px;
+    min-height: 88px;
+    padding: 14px;
+  }
+
+  #rc-home-greeting .rc-home-greeting-avatar {
+    flex-basis: 54px;
+    width: 54px;
+    height: 54px;
+  }
+
+  #rc-home-greeting .rc-home-greeting-clock {
+    padding-left: 12px;
+  }
+
+  #rc-home-greeting .rc-home-greeting-clock-label {
+    font-size: 9px;
+  }
+
+  #rc-home-greeting .rc-home-greeting-time {
+    font-size: 18px;
+  }
+
+  #rc-home-greeting .rc-home-greeting-date {
+    font-size: 11px;
+  }
+}
+
+#HomeContainer .rc-home-game-card {
+  box-sizing: border-box !important;
+  padding: 6px !important;
+  border: 1px solid rgb(255 255 255 / 13%) !important;
+  border-radius: 10px !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+}
+
+html[data-rc-hide-favorites] [data-rc-home-section="favorites"],
+html[data-rc-hide-standout-games] [data-rc-home-section="standout"],
+html[data-rc-hide-recommended] [data-rc-recommended-section] {
+  display: none !important;
+}
+
+[data-rc-recommended-card] {
+  position: relative !important;
+}
+
+[data-rc-recommended-card][data-rc-recommended-hidden] {
+  display: none !important;
+}
+
+[data-rc-recommended-card] > .rc-hide-recommended-game {
+  position: absolute !important;
+  top: 9px !important;
+  right: 9px !important;
+  z-index: 5 !important;
+  min-width: 46px !important;
+  min-height: 28px !important;
+  padding: 4px 9px !important;
+  border: 1px solid rgb(255 255 255 / 35%) !important;
+  border-radius: 7px !important;
+  background: rgb(22 24 31 / 90%) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 32%) !important;
+  font: 700 12px/1.2 Arial, sans-serif !important;
+  text-align: center !important;
+  cursor: pointer !important;
+}
+
+[data-rc-recommended-card] > .rc-hide-recommended-game:hover,
+[data-rc-recommended-card] > .rc-hide-recommended-game:focus-visible {
+  background: #385dba !important;
+  outline: 2px solid #fff !important;
+  outline-offset: 1px !important;
+}
+
+.rc-settings-menu-entry {
+  cursor: pointer;
+}
+
+.rc-settings-menu-entry .rc-settings-menu-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  vertical-align: middle;
+}
+
+.rc-settings-menu-entry .rc-brand-icon {
+  display: block;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+#rc-settings-overlay,
+#rc-settings-overlay * {
+  box-sizing: border-box;
+}
+
+#rc-settings-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow: auto;
+  background: rgb(0 0 0 / 72%);
+  color: #f7f7f8;
+  font: 14px/1.45 Arial, sans-serif;
+}
+
+#rc-settings-overlay .rc-settings-dialog {
+  width: min(100%, 520px);
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+  padding: 24px;
+  border: 1px solid #42444d;
+  border-radius: 12px;
+  background: #1c1d24;
+  box-shadow: 0 22px 70px rgb(0 0 0 / 50%);
+}
+
+#rc-settings-overlay .rc-settings-heading,
+#rc-settings-overlay .rc-settings-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#rc-settings-overlay .rc-settings-heading {
+  justify-content: space-between;
+}
+
+#rc-settings-overlay .rc-settings-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+#rc-settings-overlay .rc-settings-brand .rc-brand-icon {
+  display: block;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  object-fit: contain;
+}
+
+#rc-settings-overlay h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 21px;
+  line-height: 1.3;
+}
+
+#rc-settings-overlay .rc-icon-button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #dedee3;
+  cursor: pointer;
+  font-size: 26px;
+  line-height: 1;
+}
+
+#rc-settings-overlay .rc-icon-button:hover,
+#rc-settings-overlay .rc-icon-button:focus-visible {
+  background: #333640;
+}
+
+#rc-settings-overlay .rc-settings-intro,
+#rc-settings-overlay .rc-settings-hint {
+  color: #b8bac5;
+}
+
+#rc-settings-overlay .rc-settings-intro {
+  margin: 8px 0 18px;
+}
+
+#rc-settings-overlay .rc-settings-field {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+  padding: 13px;
+  border: 1px solid #383b46;
+  border-radius: 8px;
+}
+
+#rc-settings-overlay .rc-default-source {
+  margin-bottom: 10px;
+}
+
+#rc-settings-overlay .rc-source-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#rc-settings-overlay .rc-settings-options {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 12px;
+}
+
+#rc-settings-overlay .rc-settings-glass {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #383b46;
+}
+
+#rc-settings-overlay .rc-settings-glass h3 {
+  grid-column: 1 / -1;
+  margin: 0 0 2px;
+  color: #fff;
+  font-size: 16px;
+}
+
+#rc-settings-overlay .rc-settings-home {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #383b46;
+}
+
+#rc-settings-overlay .rc-settings-home h3 {
+  margin: 0 0 12px;
+  color: #fff;
+  font-size: 16px;
+}
+
+#rc-settings-overlay .rc-settings-social {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #383b46;
+}
+
+#rc-settings-overlay .rc-settings-social h3 {
+  margin: 0 0 2px;
+  color: #fff;
+  font-size: 16px;
+}
+
+#rc-settings-overlay .rc-settings-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+#rc-settings-overlay .rc-settings-toggle input {
+  accent-color: #4479f2;
+}
+
+#rc-settings-overlay .rc-settings-hidden-recommendations {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #383b46;
+}
+
+#rc-settings-overlay .rc-settings-hidden-recommendations h4 {
+  margin: 0 0 3px;
+  color: #fff;
+  font-size: 14px;
+}
+
+#rc-settings-overlay .rc-settings-hidden-recommendations .rc-settings-hint {
+  margin: 0 0 9px;
+  font-size: 12px;
+}
+
+#rc-settings-overlay #rc-hidden-recommended-games {
+  display: grid;
+  gap: 6px;
+  max-height: 180px;
+  overflow: auto;
+}
+
+#rc-settings-overlay #rc-hidden-recommended-games .rc-settings-hint {
+  margin: 0;
+}
+
+#rc-settings-overlay .rc-hidden-recommended-game {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+  padding: 7px 9px;
+  border: 1px solid #414550;
+  border-radius: 7px;
+  background: #292c36;
+}
+
+#rc-settings-overlay .rc-hidden-recommended-game span {
+  overflow: hidden;
+  color: #f7f7f8;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#rc-settings-overlay .rc-hidden-recommended-game button {
+  flex: none;
+  padding: 5px 9px;
+  border: 1px solid #718ff0;
+  border-radius: 5px;
+  background: #334b91;
+  color: #fff;
+  font: 700 12px/1.2 Arial, sans-serif;
+  cursor: pointer;
+}
+
+#rc-settings-overlay .rc-hidden-recommended-game button:hover,
+#rc-settings-overlay .rc-hidden-recommended-game button:focus-visible {
+  background: #4565bf;
+}
+
+#rc-settings-overlay .rc-settings-friends {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
+  align-items: center;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+#rc-settings-overlay .rc-settings-friends label {
+  font-weight: 700;
+}
+
+#rc-settings-overlay .rc-settings-greetings,
+#rc-settings-overlay .rc-settings-clock {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
+  align-items: center;
+  gap: 10px 12px;
+  margin-top: 17px;
+  padding-top: 15px;
+  border-top: 1px solid #383b46;
+}
+
+#rc-settings-overlay .rc-settings-greetings h4,
+#rc-settings-overlay .rc-settings-greetings p,
+#rc-settings-overlay .rc-settings-clock h4,
+#rc-settings-overlay .rc-settings-clock p,
+#rc-settings-overlay .rc-settings-clock-toggles {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+#rc-settings-overlay .rc-settings-greetings h4,
+#rc-settings-overlay .rc-settings-clock h4 {
+  color: #fff;
+  font-size: 14px;
+}
+
+#rc-settings-overlay .rc-settings-greetings label,
+#rc-settings-overlay .rc-settings-clock > label {
+  font-weight: 700;
+}
+
+#rc-settings-overlay .rc-settings-clock-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 17px;
+}
+
+#rc-settings-overlay .rc-settings-greetings input[type="text"] {
+  width: 100%;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid #515561;
+  border-radius: 6px;
+  background: #292b35;
+  color: #fff;
+  font: inherit;
+}
+
+#rc-settings-overlay .rc-settings-greetings input[type="text"]::placeholder {
+  color: #a9acb8;
+}
+
+#rc-settings-overlay input[type="range"] {
+  width: 100%;
+  min-width: 0;
+}
+
+#rc-settings-overlay input[type="url"],
+#rc-settings-overlay input[type="file"],
+#rc-settings-overlay select {
+  width: 100%;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid #515561;
+  border-radius: 6px;
+  background: #292b35;
+  color: #fff;
+  font: inherit;
+}
+
+#rc-settings-overlay input[type="file"] {
+  padding: 6px;
+}
+
+#rc-settings-overlay input[type="file"]::file-selector-button {
+  margin-right: 10px;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: #454956;
+  color: #fff;
+  cursor: pointer;
+}
+
+#rc-settings-overlay input:disabled,
+#rc-settings-overlay select:disabled {
+  opacity: .55;
+}
+
+#rc-settings-overlay input[type="radio"],
+#rc-settings-overlay input[type="range"] {
+  accent-color: #4479f2;
+}
+
+#rc-settings-overlay #rc-settings-status {
+  min-height: 20px;
+  margin: 12px 0;
+  color: #b8e6c2;
+}
+
+#rc-settings-overlay #rc-settings-status.rc-error {
+  color: #ff9f9f;
+}
+
+#rc-settings-overlay .rc-action-spacer {
+  flex: 1;
+}
+
+#rc-settings-overlay .rc-button {
+  min-height: 36px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font: 700 13px/1.2 Arial, sans-serif;
+  white-space: nowrap;
+}
+
+#rc-settings-overlay .rc-button-secondary {
+  background: #383b46;
+}
+
+#rc-settings-overlay .rc-button-primary {
+  background: #3868e8;
+}
+
+#rc-settings-overlay .rc-button:hover {
+  filter: brightness(1.15);
+}
+
+#rc-settings-overlay .rc-button:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+
+@media (max-width: 540px) {
+  #rc-settings-overlay .rc-settings-dialog { padding: 18px; }
+  #rc-settings-overlay .rc-settings-actions { flex-wrap: wrap; }
+  #rc-settings-overlay .rc-action-spacer { flex-basis: 100%; }
+}

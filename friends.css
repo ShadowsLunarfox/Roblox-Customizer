@@ -1,0 +1,62 @@
+/* Arrange Roblox's own React friend tiles without replacing their behavior. */
+#HomeContainer .friend-carousel-container[data-rc-native-friends],
+#HomeContainer .friend-carousel-container[data-rc-native-friends] .react-friends-carousel-container,
+#HomeContainer .friend-carousel-container[data-rc-native-friends] .friends-carousel-container {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+#HomeContainer .friend-carousel-container [data-rc-native-friends-viewport] {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+#HomeContainer .friend-carousel-container [data-rc-native-friends-list] {
+  display: grid !important;
+  grid-template-columns: repeat(17, minmax(0, 1fr)) !important;
+  grid-template-rows: none !important;
+  grid-auto-rows: max-content !important;
+  grid-auto-flow: row !important;
+  column-gap: 0;
+  row-gap: 12px;
+  box-sizing: border-box;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: auto !important;
+  max-height: none !important;
+  padding: 0 !important;
+  transform: none !important;
+}
+
+#HomeContainer .friend-carousel-container [data-rc-native-friends-list] > [data-rc-native-friend-cell],
+#HomeContainer .friend-carousel-container [data-rc-native-friends-list] .friends-carousel-tile {
+  box-sizing: border-box;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  text-align: center;
+}
+
+#HomeContainer .friend-carousel-container [data-rc-native-friends-list] > [data-rc-native-friend-cell]:hover,
+#HomeContainer .friend-carousel-container [data-rc-native-friends-list] > [data-rc-native-friend-cell]:focus-within {
+  position: relative;
+  z-index: 2;
+}
+
+#HomeContainer .friend-carousel-container [data-rc-native-friends-list] > [data-rc-native-friends-hidden] {
+  display: none !important;
+}
+
+#HomeContainer .friend-carousel-container [data-rc-native-friends-list] .avatar-card {
+  margin-right: auto !important;
+  margin-left: auto !important;
+  max-width: calc(100% - 4px) !important;
+}
+
+#HomeContainer .friend-carousel-container [data-rc-native-friends-list] .avatar-card-image {
+  max-width: 100% !important;
+}

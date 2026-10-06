@@ -1,0 +1,1218 @@
+/* The same custom wallpaper remains visible around the game details. */
+
+/* Shared YouTube and X panels sit beside game, community, and profile content. */
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel) {
+  box-sizing: border-box;
+  position: absolute;
+  z-index: 1005;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  width: 350px;
+  height: min(820px, calc(100vh - 24px));
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 17%);
+  border-radius: 12px;
+  background: rgb(25 27 32 / 94%);
+  color: #f3f4f6;
+  box-shadow: 0 12px 36px rgb(0 0 0 / 30%);
+}
+
+html[data-rc-background-active] :is(#rc-x-feed-panel, #rc-youtube-feed-panel) {
+  background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62));
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px));
+  backdrop-filter: blur(var(--rc-glass-blur, 18px));
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel).rc-x-feed-floating {
+  position: fixed;
+  top: 56px;
+  right: 16px;
+  bottom: auto;
+  left: auto;
+  width: min(350px, calc(100vw - 32px));
+  height: min(620px, calc(100vh - 72px));
+}
+
+#rc-youtube-feed-panel.rc-x-feed-floating {
+  right: auto;
+  left: 16px;
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel).rc-x-feed-collapsed {
+  height: auto;
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel) .rc-x-feed-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 46px;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgb(255 255 255 / 12%);
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel) .rc-x-feed-title {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel) .rc-x-feed-toggle {
+  flex: none;
+  padding: 6px 9px;
+  border: 0;
+  border-radius: 6px;
+  background: rgb(255 255 255 / 15%);
+  color: inherit;
+  cursor: pointer;
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel) .rc-x-feed-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel).rc-x-feed-collapsed .rc-x-feed-body {
+  display: none;
+}
+
+/* When side space is limited, keep community and profile feeds in page flow. */
+:is(#rc-community-social-feeds, #rc-profile-social-feeds) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: 12px;
+  margin: 12px 0;
+  clear: both;
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel):is(.rc-community-feed-inline, .rc-profile-feed-inline) {
+  position: relative;
+  z-index: auto;
+  top: auto;
+  left: auto;
+  width: 100%;
+  height: min(620px, 70vh);
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel):is(.rc-community-feed-inline, .rc-profile-feed-inline).rc-x-feed-collapsed {
+  height: auto;
+}
+
+:is(#rc-community-social-feeds, #rc-profile-social-feeds) #rc-youtube-feed-panel { order: 0; }
+:is(#rc-community-social-feeds, #rc-profile-social-feeds) #rc-x-feed-panel { order: 1; }
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel) .rc-x-feed-posts {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel) .rc-x-feed-status {
+  flex: none;
+  margin: 0;
+  padding: 10px 12px 0;
+  color: #d0d5dd;
+  font-size: 12px;
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel) .rc-x-feed-post {
+  display: block;
+  margin-bottom: 8px;
+  padding: 10px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 8px;
+  background: rgb(0 0 0 / 23%);
+  color: inherit;
+  text-decoration: none;
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel) .rc-x-feed-post:hover {
+  background: rgb(255 255 255 / 12%);
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel) .rc-x-feed-post time {
+  display: block;
+  margin-bottom: 6px;
+  color: #bdc5d0;
+  font-size: 11px;
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel) .rc-x-feed-post-text {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel) .rc-x-feed-media {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  margin-top: 8px;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel) .rc-x-feed-media[data-count="1"] {
+  grid-template-columns: 1fr;
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel) .rc-x-feed-media-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: rgb(0 0 0 / 15%);
+  color: #bdc5d0;
+  font-size: 11px;
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel) .rc-x-feed-media[data-count="1"] .rc-x-feed-media-item {
+  aspect-ratio: 16 / 9;
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel) .rc-x-feed-media-item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel) .rc-x-feed-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex: none;
+  padding: 10px 14px;
+  border-top: 1px solid rgb(255 255 255 / 12%);
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel) .rc-x-feed-footer > a {
+  color: #a9c7ff;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel) .rc-x-feed-retry {
+  flex: none;
+  padding: 5px 7px;
+  border: 0;
+  border-radius: 5px;
+  background: rgb(255 255 255 / 15%);
+  color: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+:is(#rc-x-feed-panel, #rc-youtube-feed-panel) .rc-x-feed-retry:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+html[data-rc-background-active] #game-detail-page,
+html[data-rc-background-active] #game-detail-page .rbx-tabs-horizontal,
+html[data-rc-background-active] #game-detail-page .rbx-tab-content,
+html[data-rc-background-active] #game-detail-page .tab-content,
+html[data-rc-background-active] #game-detail-page .tab-pane,
+html[data-rc-background-active] #game-detail-page #game-details-about-tab-container,
+html[data-rc-background-active] #game-detail-page .game-about-container,
+html[data-rc-background-active] #game-detail-page .container-header,
+html[data-rc-background-active] #game-detail-page .section-content-off {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Keep native sections readable while letting the wallpaper show through. */
+html[data-rc-background-active] #game-detail-page .section-content,
+html[data-rc-background-active] #game-detail-page .server-list-section,
+html[data-rc-background-active] #game-detail-page .social-links .contents {
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / .38) !important;
+  background-image: none !important;
+}
+
+html[data-rc-background-active] #game-detail-page > .section-content,
+html[data-rc-background-active] #game-detail-page .btr-game-main-container,
+html[data-rc-background-active] #game-detail-page .btr-mid-container,
+html[data-rc-background-active] #game-detail-page .tab-content > #about,
+html[data-rc-background-active] #game-detail-page > #rc-people-also-join,
+html[data-rc-background-active] #game-detail-page #game-badges-container,
+html[data-rc-background-active] #game-detail-page #game-instances,
+html[data-rc-background-active] #game-detail-page #running-game-instances-container,
+html[data-rc-background-active] #game-detail-page #store {
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+}
+
+/* The Servers pane already has glass; nested list panels should not darken it again. */
+html[data-rc-background-active] #game-detail-page #game-instances #running-game-instances-container,
+html[data-rc-background-active] #game-detail-page #game-instances .server-list-section,
+html[data-rc-background-active] #game-detail-page #game-instances > .section-content {
+  background-color: transparent !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+#game-detail-page #game-instances
+div:has(> div:has(> div > a[aria-label="Configure"][href*="/private-server/configure?"]))
+> div:has(.text-title-medium):has(img):not(.rc-private-server-card, .rc-private-server-native-card),
+#game-detail-page #game-instances [data-rc-private-server-list]
+> div:has(.text-title-medium):has(img):not(.rc-private-server-card, .rc-private-server-native-card) {
+  visibility: hidden !important;
+}
+
+/* The current Roblox list uses generic flex rows. game-page.js marks each private-server row. */
+.rc-private-server-card {
+  box-sizing: border-box !important;
+  display: grid !important;
+  grid-template-columns: 210px minmax(0, 1fr) !important;
+  grid-template-rows: 1fr auto !important;
+  align-items: stretch !important;
+  justify-content: stretch !important;
+  gap: 0 !important;
+  width: 100% !important;
+  min-height: 220px !important;
+  margin: 0 0 14px !important;
+  padding: 18px 20px !important;
+  border: 1px solid rgb(255 255 255 / 14%) !important;
+  border-radius: 8px !important;
+  background-color: rgb(255 255 255 / 4%) !important;
+}
+
+.rc-private-server-card.rc-private-server-collapsed {
+  display: none !important;
+}
+
+.rc-private-server-native-card {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  margin: 0 0 14px !important;
+  padding: 18px 20px !important;
+  border: 1px solid rgb(255 255 255 / 14%) !important;
+  border-radius: 8px !important;
+  background-color: rgb(255 255 255 / 4%) !important;
+}
+
+.rc-private-server-native-card.rc-private-server-collapsed {
+  display: none !important;
+}
+
+.rc-private-server-more {
+  width: 100%;
+  margin: 10px 0 16px;
+}
+
+.rc-private-server-more button {
+  display: block;
+  width: 100%;
+  min-height: 36px;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 14%);
+  color: #fff;
+  font: 600 14px Arial, sans-serif;
+  cursor: pointer;
+}
+
+.rc-private-server-more button:hover,
+.rc-private-server-more button:focus-visible {
+  background: rgb(255 255 255 / 22%);
+}
+
+.rc-private-server-card > .rc-private-server-native-main {
+  display: none !important;
+}
+
+.rc-private-server-summary {
+  box-sizing: border-box;
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  padding: 0 16px 8px 0;
+  border-right: 1px solid rgb(255 255 255 / 18%);
+}
+
+.rc-private-server-title {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.rc-private-server-avatar {
+  display: block;
+  width: 78px;
+  height: 78px;
+  margin: 7px auto 5px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.rc-private-server-owner {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.rc-private-server-count,
+.rc-private-server-status {
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+.rc-public-server-filters {
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+  width: 100%;
+  margin: 8px 0 16px;
+  padding: 14px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 6%);
+}
+
+.rc-public-server-filters[hidden] {
+  display: none !important;
+}
+
+.rc-public-server-filters label {
+  display: flex;
+  flex: 1 1 150px;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 130px;
+  color: inherit;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.rc-public-server-filters select,
+.rc-public-server-filters input,
+.rc-public-server-filter-reset,
+.rc-public-server-filter-search,
+.rc-public-server-filter-stop {
+  box-sizing: border-box;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 8px;
+  background: rgb(20 22 28 / 48%);
+  color: inherit;
+  font: inherit;
+}
+
+.rc-public-server-filters select {
+  width: 100%;
+  min-width: 0;
+}
+
+.rc-public-server-filters input {
+  width: 100%;
+}
+
+.rc-public-server-filter-reset,
+.rc-public-server-filter-search,
+.rc-public-server-filter-stop {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.rc-public-server-filter-reset:hover,
+.rc-public-server-filter-reset:focus-visible,
+.rc-public-server-filter-search:hover:not(:disabled),
+.rc-public-server-filter-stop:hover {
+  background: rgb(255 255 255 / 15%);
+}
+
+.rc-public-server-filter-search {
+  background: rgb(51 95 195 / 75%);
+}
+
+.rc-public-server-filter-search:disabled {
+  opacity: .55;
+  cursor: default;
+}
+
+.rc-public-server-filter-stop[hidden] {
+  display: none !important;
+}
+
+.rc-public-server-filters :is(select, input, button):focus-visible,
+.rc-public-server-pagination button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.rc-public-server-filter-count {
+  flex: 1 1 150px;
+  align-self: center;
+  text-align: right;
+  font-size: 12px;
+  opacity: .78;
+}
+
+#game-detail-page #running-game-instances-container [data-rc-server-filtered],
+#game-detail-page #running-game-instances-container [data-rc-server-page-hidden] {
+  display: none !important;
+}
+
+#game-detail-page [data-rc-public-server-grid] {
+  display: flex !important;
+  flex-wrap: wrap;
+}
+
+.rc-public-server-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+  margin: 12px 0 16px;
+}
+
+.rc-public-server-pagination button {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 8px;
+  background: rgb(20 22 28 / 48%);
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rc-public-server-pagination button:hover:not(:disabled) {
+  background: rgb(255 255 255 / 15%);
+}
+
+.rc-public-server-pagination button:disabled {
+  opacity: .45;
+  cursor: default;
+}
+
+.rc-public-server-page-number {
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.rc-public-server-page-message {
+  flex: 1 1 200px;
+  font-size: 12px;
+  opacity: .8;
+}
+
+.rc-public-server-page-message:empty {
+  display: none;
+}
+
+#game-detail-page #game-instances [data-rc-native-server-controls] {
+  display: none !important;
+}
+
+#game-detail-page [data-rc-private-server-load-more] {
+  display: none !important;
+}
+
+.rc-server-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 100%;
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.rc-server-metrics > span,
+.rc-server-metrics > button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 7px;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 7px;
+  background: rgb(255 255 255 / 8%);
+  color: inherit;
+}
+
+.rc-server-metrics > button {
+  cursor: pointer;
+  font: inherit;
+}
+
+.rc-server-metrics > button:hover:not(:disabled) {
+  background: rgb(255 255 255 / 16%);
+}
+
+.rc-server-metrics > button:disabled {
+  cursor: default;
+  opacity: .65;
+}
+
+.rc-server-metrics > span[hidden] {
+  display: none !important;
+}
+
+.rc-server-metrics .rc-server-latency::before {
+  width: 7px;
+  height: 7px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  content: '';
+}
+
+.rc-server-metrics[data-rc-latency="low"] .rc-server-latency {
+  border-color: rgb(69 216 235 / 45%);
+  background: rgb(69 216 235 / 13%);
+  color: #65e8f5;
+}
+
+.rc-server-metrics[data-rc-latency="medium"] .rc-server-latency {
+  border-color: rgb(255 165 65 / 48%);
+  background: rgb(255 165 65 / 14%);
+  color: #ffba68;
+}
+
+.rc-server-metrics[data-rc-latency="high"] .rc-server-latency {
+  border-color: rgb(255 95 95 / 48%);
+  background: rgb(255 95 95 / 14%);
+  color: #ff8585;
+}
+
+#game-detail-page #game-instances .server-list-section .card-item > .rc-server-metrics,
+.rc-private-server-native-card > .rc-server-metrics {
+  width: 100%;
+}
+
+.rc-private-server-actions {
+  box-sizing: border-box;
+  grid-column: 1;
+  grid-row: 2;
+  display: flex !important;
+  justify-content: flex-start !important;
+  width: 100%;
+  min-width: 0;
+  padding-right: 16px;
+  border-right: 1px solid rgb(255 255 255 / 18%);
+}
+
+.rc-private-server-actions > div:last-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.rc-private-server-proxy button {
+  width: 100%;
+  min-height: 36px;
+  border: 0;
+  border-radius: 7px;
+  background: #5367b3;
+  color: #fff;
+  font: 600 13px Arial, sans-serif;
+  cursor: pointer;
+}
+
+.rc-private-server-proxy button:hover,
+.rc-private-server-proxy button:focus-visible {
+  background: #6479cb;
+}
+
+.rc-private-server-roster {
+  box-sizing: border-box;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 8px;
+  min-width: 0;
+  padding: 8px 0 8px 20px;
+}
+
+.rc-private-server-roster img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.rc-private-server-roster-count {
+  font-size: 13px;
+  opacity: .8;
+}
+
+html[data-rc-background-active] .rc-private-server-card {
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / .28) !important;
+  background-image: none !important;
+}
+
+html[data-rc-background-active] .rc-private-server-native-card {
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / .28) !important;
+  background-image: none !important;
+}
+
+@media (max-width: 640px) {
+  .rc-public-server-filters label {
+    flex-basis: 100%;
+  }
+
+  .rc-public-server-filters select {
+    width: 100%;
+  }
+
+  .rc-public-server-filter-count {
+    flex-basis: 100%;
+    text-align: left;
+  }
+
+  .rc-private-server-card {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto auto auto !important;
+  }
+
+  .rc-private-server-summary,
+  .rc-private-server-actions {
+    grid-column: 1;
+    border-right: 0;
+  }
+
+  .rc-private-server-roster {
+    grid-column: 1;
+    grid-row: 3;
+    min-height: 70px;
+    margin-top: 14px;
+    padding: 14px 0 0;
+    border-top: 1px solid rgb(255 255 255 / 18%);
+  }
+}
+
+/* Put a readable frosted panel behind About instead of text on bare wallpaper. */
+html[data-rc-background-active] #game-detail-page .btr-mid-container,
+html[data-rc-background-active] #game-detail-page .tab-content > #about,
+html[data-rc-background-active] #game-detail-page > #rc-people-also-join {
+  box-sizing: border-box;
+  padding: 20px !important;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 12px;
+}
+
+/* Give the native game description, activity, and social links distinct levels. */
+#game-detail-page #about :is(.game-description-container, .game-stat-container, .social-links) {
+  box-sizing: border-box;
+  min-width: 0;
+  margin: 0 0 16px !important;
+  padding: 18px 20px !important;
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 12px;
+  background-color: rgb(255 255 255 / 5%);
+  box-shadow: inset 0 1px rgb(255 255 255 / 9%), 0 8px 20px rgb(0 0 0 / 12%);
+}
+
+html[data-rc-background-active] #game-detail-page #about
+  :is(.game-description-container, .game-stat-container, .social-links) {
+  background-color: rgb(255 255 255 / 6%) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+#game-detail-page #about .game-description-container { border-left: 3px solid #74b8ff; }
+#game-detail-page #about .game-stat-container { border-left: 3px solid #75d7a5; }
+#game-detail-page #about .social-links { border-left: 3px solid #c4a3ff; }
+
+#game-detail-page #about .game-description-container .game-description {
+  max-width: 75ch;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+#game-detail-page #about .game-stat-container > ul {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+}
+
+#game-detail-page #about .game-stat-container > ul::before,
+#game-detail-page #about .game-stat-container > ul::after {
+  display: none !important;
+  content: none !important;
+}
+
+#game-detail-page #about .game-stat-container :is(.game-stat, li) {
+  box-sizing: border-box;
+  float: none !important;
+  width: auto !important;
+  min-width: 0;
+  margin: 0 !important;
+  padding: 12px 14px !important;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 10px;
+  background: rgb(0 0 0 / 12%);
+}
+
+#game-detail-page #about .game-stat-container [data-rc-live-players] {
+  border-color: rgb(117 215 165 / 45%);
+  background: rgb(117 215 165 / 13%);
+  box-shadow: inset 0 1px rgb(255 255 255 / 10%);
+}
+
+html[data-rc-background-active] #game-detail-page #about .social-links .contents {
+  background-color: transparent !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+#game-detail-page #about .social-links a[href] {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 6px 12px;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 9px;
+  background: rgb(255 255 255 / 8%);
+  text-decoration: none;
+}
+
+#game-detail-page #about .social-links a[href]:is(:hover, :focus-visible) {
+  background: rgb(255 255 255 / 15%);
+}
+
+@media (max-width: 700px) {
+  #game-detail-page #about :is(.game-description-container, .game-stat-container, .social-links) {
+    padding: 14px !important;
+  }
+
+  #game-detail-page #about .game-stat-container > ul {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+}
+
+/* Inset the native Store content and give its cards room inside the panel. */
+#game-detail-page .tab-content > #store {
+  box-sizing: border-box !important;
+  min-width: 0;
+  padding: 20px 24px 24px !important;
+}
+
+#game-detail-page .tab-content > #store > :not(script, style) {
+  box-sizing: border-box;
+  max-width: 100%;
+  zoom: .9;
+}
+
+#game-detail-page #store .rc-store-category {
+  position: relative;
+  min-width: 0;
+  margin: 14px 0 18px;
+  padding: 14px 16px 16px;
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 12px;
+  background: rgb(0 0 0 / 9%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 7%), 0 5px 16px rgb(0 0 0 / 9%);
+}
+
+html[data-rc-background-active] #game-detail-page #store .rc-store-category {
+  border-color: rgb(255 255 255 / 20%);
+  background: rgb(var(--rc-glass-color, 20 22 28) / .2);
+  -webkit-backdrop-filter: blur(10px) saturate(1.1);
+  backdrop-filter: blur(10px) saturate(1.1);
+}
+
+#game-detail-page #store .rc-store-section-title {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 0 14px !important;
+  padding: 0 0 10px 12px !important;
+  border-bottom: 1px solid rgb(255 255 255 / 17%);
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  line-height: 1.35;
+}
+
+#game-detail-page #store .rc-store-section-title::before {
+  position: absolute;
+  top: 1px;
+  bottom: 11px;
+  left: 0;
+  width: 3px;
+  border-radius: 3px;
+  background: #62b8ff;
+  content: "";
+}
+
+#game-detail-page #store [data-rc-store-section="passes"] .rc-store-section-title::before {
+  background: #bc91ff;
+}
+
+#game-detail-page #store [data-rc-store-section="products"] .rc-store-section-title::before {
+  background: #ffc36a;
+}
+
+/* Give Servers a little more breathing room and scale its contents inward. */
+#game-detail-page .tab-content > #game-instances {
+  box-sizing: border-box !important;
+  min-width: 0;
+  padding: 16px 20px 20px !important;
+  border-radius: 12px !important;
+}
+
+#game-detail-page .tab-content > #game-instances > :not(script, style) {
+  box-sizing: border-box;
+  max-width: 100%;
+  zoom: .92;
+}
+
+html[data-rc-background-active] #game-detail-page .tab-content > :is(#store, #game-instances) {
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 12px;
+}
+
+/* BTRoblox places the native main section inside its own outer panel. */
+html[data-rc-background-active] #game-detail-page .btr-game-main-container > .game-main-content {
+  background-color: transparent !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Keep the game thumbnail inset inside its header panel instead of touching its edges. */
+#game-detail-page #game-details-carousel-container {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 8px;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+#game-detail-page #game-details-carousel-container [data-testid="carousel"] {
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 11px;
+  background: rgb(0 0 0 / 12%);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 20%);
+}
+
+#game-detail-page #game-details-carousel-container .thumbnail-2d-container.carousel-item {
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+#game-detail-page #game-details-carousel-container .thumbnail-2d-container.carousel-item img {
+  display: block;
+  max-width: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+}
+
+html[data-rc-background-active] #game-detail-page .badge-row,
+html[data-rc-background-active] #game-detail-page .server-list-section .card-item {
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / .28) !important;
+  background-image: none !important;
+}
+
+/* Only gray badges after Roblox confirms the signed-in user has not earned them. */
+#game-detail-page .badge-row[data-rc-badge-owned="false"] .badge-image {
+  filter: grayscale(1) !important;
+  opacity: .6 !important;
+}
+
+#game-detail-page .badge-row[data-rc-badge-owned="true"],
+#game-detail-page .badge-row[data-rc-badge-owned="true"] .badge-image,
+#game-detail-page .badge-row[data-rc-badge-owned="true"] .badge-image img {
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+#game-detail-page .badge-row .rc-badge-earned-date {
+  display: block;
+  margin-top: 5px;
+  color: inherit;
+  font-size: 12px;
+  line-height: 1.35;
+  opacity: .8;
+}
+
+/* Show Roblox's native About, Store, and Servers panes together. */
+#game-detail-page #horizontal-tabs {
+  display: none !important;
+}
+
+#game-detail-page .tab-content:has(> :is(#about, #store, #game-instances)) {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 20px;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+#game-detail-page .tab-content > :is(#about, #store, #game-instances) {
+  display: block !important;
+  position: relative !important;
+  float: none !important;
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: none !important;
+}
+
+#game-detail-page .tab-content > #about { order: 1; }
+#game-detail-page .tab-content > #store { order: 2; }
+#game-detail-page .tab-content > #game-instances { order: 3; }
+
+/* BTRoblox leaves recommendations in About, so place that pane last. */
+body.btr-gamedetails #game-detail-page .tab-content > #about,
+#game-detail-page .tab-content > #about:has(#btr-recommendations-wrapper) { order: 4; }
+
+/* Show a copy of native recommendations below the tabs without moving React's DOM. */
+#game-detail-page #about .rc-recommendations-source {
+  display: none !important;
+}
+
+#game-detail-page > #rc-people-also-join {
+  clear: both;
+  float: none;
+  width: 100%;
+  margin-top: 20px;
+}
+
+#game-detail-page .tab-content > :is(#about, #store, #game-instances)::before {
+  display: block;
+  margin: 0 0 12px;
+  color: inherit;
+  font: 700 20px/1.3 Arial, sans-serif;
+}
+
+#game-detail-page .tab-content > #about::before { content: "About"; }
+#game-detail-page .tab-content > #store::before { content: "Store"; }
+#game-detail-page .tab-content > #game-instances::before { content: "Servers"; }
+
+body.btr-gamedetails #game-detail-page .tab-content > #about::before,
+#game-detail-page .tab-content > #about:has(#btr-recommendations-wrapper)::before {
+  display: none;
+}
+
+#game-detail-page #rc-rolimons-panel {
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 22px;
+  padding: 16px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 10px;
+  background: rgb(0 0 0 / 12%);
+}
+
+html[data-rc-background-active] #game-detail-page #rc-rolimons-panel {
+  background: rgb(var(--rc-glass-color, 20 22 28) / .3);
+}
+
+#game-detail-page .rc-rolimons-heading,
+#game-detail-page .rc-rolimons-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+#game-detail-page .rc-rolimons-heading {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+#game-detail-page .rc-rolimons-heading h3 {
+  min-width: 0;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+#game-detail-page .rc-rolimons-actions {
+  flex: 0 0 auto;
+  margin-left: auto;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+#game-detail-page .rc-rolimons-toggle,
+#game-detail-page .rc-rolimons-external {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 6px;
+  background: rgb(255 255 255 / 10%);
+  color: inherit;
+  font: 600 13px/1 Arial, sans-serif;
+  line-height: 1;
+  vertical-align: middle;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#game-detail-page .rc-rolimons-toggle {
+  appearance: none;
+}
+
+#game-detail-page .rc-rolimons-toggle:hover,
+#game-detail-page .rc-rolimons-toggle:focus-visible,
+#game-detail-page .rc-rolimons-external:hover,
+#game-detail-page .rc-rolimons-external:focus-visible {
+  background: rgb(255 255 255 / 18%);
+}
+
+#game-detail-page .rc-rolimons-content:not([hidden]) {
+  margin-top: 14px;
+}
+
+#game-detail-page .rc-rolimons-content[hidden] {
+  display: none !important;
+}
+
+#game-detail-page .rc-rolimons-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgb(255 255 255 / 15%);
+}
+
+#game-detail-page .rc-rolimons-tab {
+  min-height: 34px;
+  padding: 7px 13px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 6px;
+  background: rgb(255 255 255 / 7%);
+  color: inherit;
+  font: 600 13px Arial, sans-serif;
+  cursor: pointer;
+}
+
+#game-detail-page .rc-rolimons-tab:hover,
+#game-detail-page .rc-rolimons-tab:focus-visible,
+#game-detail-page .rc-rolimons-tab.rc-rolimons-tab-active {
+  background: rgb(0 162 255 / 55%);
+  border-color: rgb(0 162 255 / 75%);
+}
+
+#game-detail-page .rc-rolimons-results {
+  min-height: 110px;
+  padding-top: 12px;
+}
+
+#game-detail-page .rc-rolimons-results h4 {
+  margin: 8px 0 10px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+#game-detail-page .rc-rolimons-card-grid,
+#game-detail-page .rc-rolimons-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(210px, 100%), 1fr));
+  gap: 8px;
+}
+
+#game-detail-page .rc-rolimons-data-group + .rc-rolimons-data-group {
+  margin-top: 20px;
+}
+
+#game-detail-page .rc-rolimons-data-card,
+#game-detail-page .rc-rolimons-stat-card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid rgb(255 255 255 / 13%);
+  border-radius: 7px;
+  background: rgb(255 255 255 / 6%);
+  color: inherit;
+  text-decoration: none;
+}
+
+#game-detail-page .rc-rolimons-data-card:hover {
+  background: rgb(255 255 255 / 12%);
+}
+
+#game-detail-page .rc-rolimons-data-card img {
+  width: 48px;
+  height: 48px;
+  border-radius: 7px;
+  object-fit: cover;
+}
+
+#game-detail-page .rc-rolimons-data-card strong,
+#game-detail-page .rc-rolimons-stat-card strong {
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+
+#game-detail-page .rc-rolimons-data-card span,
+#game-detail-page .rc-rolimons-stat-card span,
+#game-detail-page .rc-rolimons-stat-card small {
+  font-size: 12px;
+  line-height: 1.35;
+  opacity: .8;
+}
+
+#game-detail-page .rc-rolimons-note,
+#game-detail-page .rc-rolimons-empty,
+#game-detail-page .rc-rolimons-loading {
+  margin: 10px 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+#game-detail-page .rc-rolimons-results > .rc-rolimons-external {
+  display: inline-flex;
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  #game-detail-page #game-details-carousel-container { padding: 6px; }
+  #game-detail-page #rc-rolimons-panel { padding: 12px; }
+  #game-detail-page .rc-rolimons-heading { align-items: flex-start; flex-direction: column; }
+  #game-detail-page .rc-rolimons-actions { width: 100%; margin-left: 0; justify-content: flex-end; }
+  #game-detail-page #store .rc-store-category { padding: 12px; }
+}

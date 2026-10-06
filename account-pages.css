@@ -1,0 +1,839 @@
+/* Native account pages share the customizer's wallpaper and glass preferences.
+   Keep selectors inside their route and content area so chat and dialogs retain
+   Roblox's own behavior. Angular's hidden and responsive variants stay native. */
+html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content {
+  --rc-account-border: var(--color-stroke-default, rgb(128 128 128 / 30%));
+  --rc-account-hover: var(--color-state-hover, rgb(128 128 128 / 14%));
+  --rc-account-selected: var(--color-state-press, rgb(128 128 128 / 22%));
+  --rc-account-focus: var(--color-selection-start, #7fa6ff);
+  max-width: 1200px;
+}
+
+/* Transparent layout wrappers allow the wallpaper to reach the actual panels. */
+html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(
+  #friends-container, #friends-web-app, .friends-content,
+  .friends-list-container, .friend-requests-container,
+  #messages-container, #messages-web-app, .messages-container, .roblox-messages-container,
+  #inventory-container, #item-recommendations-container, .assets-explorer-main-content, .current-items,
+  #trade-system, #trades-container, #trades-web-app, .trade-container,
+  .page-content, .tab-content, .rbx-tab-content, .rbx-tabs-horizontal, .horizontal-tabs
+) {
+  min-width: 0;
+  background-color: transparent !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Headers, tab bars and the account tools use the same restrained glass frame. */
+html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(
+  .container-header, .content-header, .section-header, .page-content > h1,
+  .rbx-tabs-horizontal > .nav-tabs, .horizontal-tabs > .nav-tabs,
+  .messages-toolbar, .message-toolbar, .messages-action-bar, .inbox-buttons,
+  .trade-list-header, .trade-filter
+) {
+  box-sizing: border-box;
+  gap: 12px;
+  height: auto !important;
+  min-height: 48px;
+  margin-bottom: 16px !important;
+  padding: 14px 16px !important;
+  border: 1px solid var(--rc-account-border) !important;
+  border-radius: 14px !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+}
+
+html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) {
+  padding: 0 !important;
+  border: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.container-header, .content-header, .section-header) :is(h1, h2, h3) {
+  margin: 0 !important;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) > .nav-tabs:not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]) {
+  display: flex;
+  gap: 4px;
+  padding: 6px !important;
+}
+
+html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) > .nav-tabs::before,
+html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) > .nav-tabs::after {
+  content: none !important;
+  display: none !important;
+}
+
+html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) > .nav-tabs > .rbx-tab {
+  flex: 1 1 0;
+  float: none !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+
+html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) .rbx-tab-heading {
+  margin-bottom: 0 !important;
+  border-radius: 10px;
+  background-color: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  min-height: 42px;
+  padding: 10px 12px !important;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) :is(.rbx-tab.active .rbx-tab-heading, .rbx-tab-heading.active, .rbx-tab-heading[aria-selected="true"]) {
+  background-color: var(--rc-account-selected) !important;
+}
+
+html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(button, a, input, select, textarea, [tabindex="0"]):focus-visible {
+  outline: 2px solid var(--rc-account-focus) !important;
+  outline-offset: 3px;
+}
+
+html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.input-dropdown-btn, .input-field, select.form-control) {
+  min-height: 40px;
+  border-color: var(--rc-account-border) !important;
+  border-radius: 10px !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / 28%) !important;
+}
+
+/* A native hidden attribute keeps its meaning after flex/grid enhancement. */
+html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content [hidden]:not([hidden="until-found"]) {
+  display: none !important;
+}
+
+/* Menus need readable backing and a layer above the next glass panel. */
+html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.container-header, .inbox-buttons, .trade-list-container, .trades-list, .avatar-card-container):has(.open, [aria-expanded="true"]) {
+  position: relative;
+  z-index: 20;
+  background-color: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Frost a separate backing while open, allowing the menu's blur to extend
+   beyond its parent instead of being clipped to the header or card. */
+html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.container-header, .inbox-buttons, .trade-list-container, .trades-list, .avatar-card-container):has(.open, [aria-expanded="true"])::before {
+  content: "" !important;
+  display: block !important;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62));
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content .category-tabs:has(.menu-option:hover, .menu-option:focus-within) {
+  position: relative;
+  z-index: 20;
+}
+
+html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.dropdown-menu, .category-tabs .menu-secondary-container) {
+  box-sizing: border-box;
+  max-width: min(360px, calc(100vw - 32px));
+  padding: 6px !important;
+  border: 1px solid var(--rc-account-border) !important;
+  border-radius: 12px !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.88, var(--rc-glass-opacity, .62))) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 22%) !important;
+  color: var(--color-content-emphasis, inherit) !important;
+}
+
+html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content .dropdown-menu {
+  max-height: min(360px, calc(100dvh - 120px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content .category-tabs .menu-secondary {
+  width: 100%;
+  margin: 0;
+  border: 0 !important;
+  background-color: transparent !important;
+}
+
+html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content .dropdown-menu > li > :is(a, button) {
+  min-height: 40px;
+  padding: 10px 12px !important;
+  border-radius: 8px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content .dropdown-menu > li:not(.disabled):not(.active):not([aria-disabled="true"]) > :is(a, button):not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible) {
+  background-color: var(--rc-account-hover) !important;
+}
+
+/* Request cards retain the native avatars, menus, and accept/ignore handlers. */
+html[data-rc-background-active][data-rc-frost-page="friends"] #content .friends-subtitle {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="friends"] #content .friends-content > .container-header {
+  flex-direction: row !important;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+html[data-rc-background-active][data-rc-frost-page="friends"] #content .friends-content > .container-header .friends-subtitle {
+  flex: 1 1 200px;
+  width: auto;
+}
+
+html[data-rc-background-active][data-rc-frost-page="friends"] #content .friends-filter {
+  flex: 1 1 240px;
+  float: none !important;
+  margin: 0 0 0 auto !important;
+  padding: 0 !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="friends"] #content .friends-filter-searchbar-container {
+  box-sizing: border-box;
+  width: 100% !important;
+  height: 42px !important;
+  margin: 0 !important;
+  padding: 8px 10px !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="friends"] #content .ignore-button {
+  position: static !important;
+  align-self: flex-end;
+  width: auto !important;
+  max-width: 100%;
+  min-height: 40px;
+  margin: 0 !important;
+  white-space: normal;
+}
+
+/* Roblox paginates connections in groups of 18. Cap the responsive grid at
+   three columns so full pages fill every row instead of leaving two gaps. */
+html[data-rc-background-active][data-rc-frost-page="friends"] #content .avatar-cards:not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, max(280px, calc((100% - 32px) / 3))), 1fr));
+  gap: 16px;
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none;
+}
+
+/* Native clearfix pseudo-elements must not occupy the new grid/flex cells. */
+html[data-rc-background-active][data-rc-frost-page="friends"] #content :is(.avatar-cards, .avatar-card-btns)::before,
+html[data-rc-background-active][data-rc-frost-page="friends"] #content :is(.avatar-cards, .avatar-card-btns)::after,
+html[data-rc-background-active][data-rc-frost-page="friends"] #content .container-header::before,
+html[data-rc-background-active][data-rc-frost-page="friends"] #content .container-header::after,
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content .current-items > .container-header::before,
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content .current-items > .container-header::after,
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content #assetsItems::before,
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content #assetsItems::after {
+  content: none !important;
+  display: none !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="friends"] #content .avatar-cards > .avatar-card {
+  box-sizing: border-box;
+  float: none !important;
+  width: 100% !important;
+  min-width: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="friends"] #content .avatar-card-container,
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content #assetsItems .item-card-container,
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.messages, .messages-list, .message-list, .message-detail, .message-compose),
+html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trades-list, .trades-list-detail, .trade-list-container, .trade-details-container, .trade-list, .trade-details) {
+  box-sizing: border-box;
+  min-width: 0;
+  border: 1px solid var(--rc-account-border) !important;
+  border-radius: 14px !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  box-shadow: 0 4px 18px rgb(0 0 0 / 12%) !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="friends"] #content .avatar-card-container:not(.hidden, [hidden]) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+html[data-rc-background-active][data-rc-frost-page="friends"] #content :is(.avatar-card-content, .avatar-card-caption, .avatar-card-btns) {
+  background-color: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="friends"] #content .avatar-card-caption {
+  min-width: 0;
+  padding-right: 12px !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="friends"] #content .avatar-card-btns:not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]) {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+  padding: 12px !important;
+  border-color: var(--rc-account-border) !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="friends"] #content .avatar-card-btns :is(.accept-friend, .ignore-friend) {
+  flex: 1;
+  float: none !important;
+  width: auto !important;
+  min-width: 0;
+  min-height: 40px;
+  margin: 0 !important;
+  padding: 8px 12px !important;
+  border-radius: 10px !important;
+  white-space: normal;
+}
+
+/* Inbox panels use the lighter page tint so the wallpaper remains visible.
+   Apply blur once per panel; native summary and reader backings stay clear. */
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.messages, .messages-list, .message-list, .message-detail, .message-compose) {
+  margin-bottom: 16px;
+  padding: 12px !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-page-panel-opacity, .31)) !important;
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(
+  .container-header, .content-header, .section-header,
+  .rbx-tabs-horizontal > .nav-tabs, .horizontal-tabs > .nav-tabs,
+  .inbox-buttons, .messages-toolbar, .message-toolbar, .messages-action-bar
+):not(:has(.open, [aria-expanded="true"])) {
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-page-panel-opacity, .31)) !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(
+  .container-header, .inbox-buttons
+):has(.open, [aria-expanded="true"])::before {
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-page-panel-opacity, .31));
+}
+
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(
+  #messages-container, #messages-web-app, .messages-container,
+  .roblox-messages-container, [ng-controller="messagesController"]
+):not(.messages, .messages-list, .message-list, .message-detail, .message-compose) {
+  background-color: transparent !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.messages, .messages-list, .message-list) :is(.messages, .messages-list, .message-list, .section-content),
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.message-detail, .message-compose) :is(.section-content, .message-body, .message-detail-body, .message-header, .message-content),
+html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trade-list-container, .trade-details-container) :is(.trades-list, .trades-list-detail, .trade-list, .trade-details, .section-content, .trade-list-header, .trade-list-body),
+html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trades-list, .trades-list-detail, .trade-list, .trade-details) :is(.section-content, .trade-list-header) {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background-color: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.messages, .messages-list, .message-list) :is(.messageDivider, .message-row, .message-summary, .message-container, .roblox-message-summary) {
+  background-color: transparent !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+/* Roblox's summary and reader markup has additional opaque inner surfaces. */
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(
+  .messageDivider, .message-row, .message-summary, .roblox-message-summary
+) :is(
+  .message-summary-body, .message-summary-content, .message-summary-date,
+  .message-summary-username, .message-checkbox, .messageCheckbox, .subject
+),
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.message-detail, .message-compose) :is(
+  .section-content, .container-header, .message-header, .message-detail-header,
+  .message-body, .message-detail-body, .message-content, .body,
+  .roblox-send-message-subject, .message-actions
+) {
+  background-color: transparent !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.messages, .messages-list, .message-list) :is(.messages, .messages-list, .message-list) {
+  margin-bottom: 0;
+  padding: 0 !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.inbox-buttons, .messages-toolbar, .message-toolbar, .messages-action-bar) {
+  flex-wrap: wrap;
+}
+
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.inbox-buttons, .messages-toolbar, .message-toolbar, .messages-action-bar) button {
+  min-height: 40px;
+  white-space: normal;
+}
+
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.inbox-buttons, .message-actions) :is(
+  .btn-control-sm, .btn-control-md, .btn-generic-more-sm, .roblox-message-large-btn
+) {
+  border-color: var(--rc-account-border) !important;
+  border-radius: 8px !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / 22%) !important;
+  background-image: none !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.inbox-buttons, .message-actions) :is(
+  .btn-control-sm, .btn-control-md, .btn-generic-more-sm, .roblox-message-large-btn
+):not(:disabled, .disabled, [aria-disabled="true"]):is(:hover, :focus-visible) {
+  background-color: var(--rc-account-hover) !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.message-compose, .message-detail) :is(
+  .input-field, .form-control, textarea
+) {
+  max-width: 100%;
+  border-color: var(--rc-account-border) !important;
+  border-radius: 10px !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / 24%) !important;
+  background-image: none !important;
+  color: var(--color-content-emphasis, inherit) !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.messageDivider, .message-row, .message-summary) {
+  box-sizing: border-box;
+  min-height: 64px;
+  padding: 14px 12px !important;
+  border-bottom: 1px solid var(--rc-account-border) !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.messageDivider, .message-row, .message-summary):last-child {
+  border-bottom: 0 !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.messageDivider, .message-row, .message-summary):is(:hover, :focus-within),
+html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trade-row, .trade-list-item):is(:hover, :focus-within) {
+  background-color: var(--rc-account-hover) !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.messageDivider, .message-row, .message-summary):is(.selected, .active, .checked, [aria-selected="true"]),
+html[data-rc-background-active][data-rc-frost-page="messages"] #content .messageDivider:has(input[type="checkbox"]:checked),
+html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trade-row, .trade-list-item):is(.selected, .active, [aria-selected="true"]) {
+  background-color: var(--rc-account-selected) !important;
+  box-shadow: inset 3px 0 0 var(--rc-account-focus) !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.messageDivider, .message-row, .message-summary):is(.unread, .message-unread) :is(.message-subject, .message-sender, .subject, .message-summary-username) {
+  font-weight: 700;
+}
+
+html[data-rc-background-active][data-rc-frost-page="messages"] #content .messageDivider:not(.read) :is(.subject, .message-summary-username) {
+  font-weight: 700;
+}
+
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.message-body, .message-detail-body, .message-content) {
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-background-active][data-rc-frost-page="messages"] #content .message-detail .body {
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.message-body, .message-detail-body) :is(img, video) {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Inventory retains the native desktop category menu and mobile dropdowns. */
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content .category-tabs .menu-vertical {
+  box-sizing: border-box;
+  position: relative;
+  z-index: 0;
+  padding: 6px !important;
+  border: 1px solid var(--rc-account-border) !important;
+  border-radius: 14px !important;
+  background-color: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* A separate sidebar backing lets flyouts blur the wallpaper beyond its edge. */
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content .category-tabs .menu-vertical::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+}
+
+/* Inventory menus honor the chosen opacity instead of forcing nearly solid glass. */
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content :is(.dropdown-menu, .category-tabs .menu-secondary-container) {
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content .category-tabs .menu-secondary-container {
+  min-width: 174px;
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content .category-tabs .menu-secondary {
+  box-shadow: none !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content .category-tabs :is(.menu-option-content, .menu-secondary-option) {
+  min-height: 40px;
+  border-radius: 8px;
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content .category-tabs .menu-secondary-option {
+  width: 100%;
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content .category-tabs :is(.menu-option.active > .menu-option-content, .menu-secondary-option.active) {
+  background-color: var(--rc-account-selected) !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content .assets-explorer-title {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content .current-items > .container-header:not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content .current-items > .container-header .header-content {
+  float: none !important;
+  margin-top: 0 !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content .breadcrumb-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content #assetsItems:not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr));
+  gap: 16px;
+  float: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none;
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content #assetsItems > .item-card {
+  float: none !important;
+  width: 100% !important;
+  min-width: 0;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content #assetsItems .item-card-container:not(.hidden, [hidden]) {
+  display: flex;
+  flex-direction: column;
+  width: 100% !important;
+  max-width: none !important;
+  height: 100% !important;
+  padding: 10px !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content #assetsItems .item-card-thumb-container,
+html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) .item-card-thumb-container {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / 22%);
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content #assetsItems :is(.item-card-thumb, .thumbnail-2d-container):not(.hidden, [hidden]),
+html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.item-card-thumb, .thumbnail-2d-container):not(.hidden, [hidden]) {
+  display: block;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content #assetsItems .thumbnail-2d-container img,
+html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) .thumbnail-2d-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content #assetsItems .item-card-name:not(.hidden, [hidden]),
+html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) .item-card-name:not(.hidden, [hidden]) {
+  display: block !important;
+  -webkit-line-clamp: unset !important;
+  line-clamp: none !important;
+  height: auto !important;
+  min-height: 40px;
+  max-height: none !important;
+  margin: 10px 0 6px;
+  font-size: 14px !important;
+  line-height: 1.4;
+  white-space: normal;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content #assetsItems .item-card-price {
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+/* Native price rows have a fixed 20/21px height. Let the row include its
+   padding and full label so Off Sale text and Robux icons cannot be clipped. */
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content :is(#assetsItems, #item-recommendations-container) .item-card-price {
+  flex-shrink: 0;
+  height: auto !important;
+  min-height: 20px;
+  max-height: none !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content .pager-holder {
+  float: none !important;
+  width: 100%;
+  margin-top: 18px;
+}
+
+/* A compact glass backing keeps the native arrows and page label readable. */
+html[data-rc-background-active][data-rc-frost-page="friends"] #content .pager,
+html[data-rc-background-active][data-rc-frost-page="friends"] #content .pager-holder:not(:has(.pager)),
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content .pager-holder .pager,
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content .pager-holder:not(:has(.pager)) {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 8px 12px !important;
+  border: 1px solid var(--rc-account-border) !important;
+  border-radius: 12px !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  box-shadow: 0 4px 18px rgb(0 0 0 / 12%);
+}
+
+/* Recommendations render outside #assetsItems and have their own opaque layer. */
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content #item-recommendations-container .recommendations-container {
+  box-sizing: border-box;
+  padding: 12px !important;
+  border: 1px solid var(--rc-account-border) !important;
+  border-radius: 14px !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  box-shadow: 0 4px 18px rgb(0 0 0 / 12%) !important;
+}
+
+/* Keep one glass backing while preserving the native recommendation carousel. */
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content #item-recommendations-container .recommendations-container :is(.container-header, .recommended-items-slider, .item-cards, .item-card-container, .item-card-thumb, .thumbnail-2d-container) {
+  background-color: transparent !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content #item-recommendations-container .recommendations-container .container-header {
+  padding: 0 !important;
+  margin-bottom: 12px !important;
+  border: 0 !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content #item-recommendations-container .recommendations-container :is(.item-card, .item-card-container) {
+  height: auto !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="inventory"] #content #item-recommendations-container .item-card-thumb-container {
+  height: auto !important;
+  aspect-ratio: 1;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / 22%) !important;
+}
+
+/* Trades remain two native panes; clear only their inner layout surfaces. */
+html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trades-list, .trades-list-detail, .trade-list-container, .trade-details-container, .trade-list, .trade-details) {
+  margin-bottom: 16px;
+  padding: 14px !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trades-list, .trades-list-detail, .trade-list-container, .trade-details-container) :is(.trades-list, .trades-list-detail, .trade-list, .trade-details) {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background-color: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+  margin-bottom: 0;
+  padding: 0 !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trades-list, .trade-list-container) .trade-list-header {
+  padding: 0 !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trade-row, .trade-list-item) {
+  box-sizing: border-box;
+  min-height: 64px;
+  padding: 12px !important;
+  border-bottom: 1px solid var(--rc-account-border) !important;
+  border-radius: 8px;
+  background-color: transparent !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.trade-items, .item-cards) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.trade-items, .item-cards):not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]):has(> .item-card, > [trade-item-card]) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 130px), 1fr));
+  gap: 12px;
+  width: 100%;
+  margin: 12px 0 !important;
+  padding: 0 !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.trade-items, .item-cards)::before,
+html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.trade-items, .item-cards)::after {
+  content: none !important;
+  display: none !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.item-card, [trade-item-card]) {
+  float: none !important;
+  width: 100% !important;
+  min-width: 0;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) .item-card-container:not(.hidden, [hidden]) {
+  display: flex;
+  flex-direction: column;
+  width: 100% !important;
+  max-width: none !important;
+  height: 100% !important;
+  padding: 0 !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.trade-value, .trade-total, .trade-summary, .robux-line) {
+  box-sizing: border-box;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--rc-account-border);
+  border-radius: 10px;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / 28%) !important;
+  overflow-wrap: anywhere;
+}
+
+/* Empty states remain readable against either an image or a video background. */
+html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.section-content-off, .empty-content-message, .no-messages, .no-trades) {
+  box-sizing: border-box;
+  padding: 32px 20px !important;
+  border: 1px solid var(--rc-account-border);
+  border-radius: 14px;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  color: var(--color-content-default, inherit) !important;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.messages, .messages-list, .message-list) :is(.section-content-off, .no-messages),
+html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trades-list, .trades-list-detail, .trade-list-container, .trade-details-container) :is(.section-content-off, .no-trades) {
+  border: 0;
+  background-color: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+@media (max-width: 767px) {
+  html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) .rbx-tab-heading {
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+  }
+
+  html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.container-header, .content-header, .section-header) {
+    padding: 12px !important;
+  }
+
+  html[data-rc-background-active][data-rc-frost-page="friends"] #content .friends-filter {
+    flex-basis: 100%;
+  }
+
+  html[data-rc-background-active][data-rc-frost-page="inventory"] #content #assetsItems:not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]) {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 130px), 1fr));
+    gap: 12px;
+  }
+
+  html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trades-list, .trades-list-detail, .trade-list-container, .trade-details-container) {
+    float: none !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.trade-items, .item-cards):not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]):has(> .item-card, > [trade-item-card]) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Four connection tabs get enough room for full labels on phone screens. */
+@media (max-width: 480px) {
+  html[data-rc-background-active][data-rc-frost-page="friends"] #content :is(.rbx-tabs-horizontal, .horizontal-tabs) > .nav-tabs {
+    flex-wrap: wrap;
+  }
+
+  html[data-rc-background-active][data-rc-frost-page="friends"] #content :is(.rbx-tabs-horizontal, .horizontal-tabs) > .nav-tabs > .rbx-tab {
+    flex-basis: calc(50% - 2px);
+  }
+}

@@ -1,0 +1,370 @@
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) {
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+  padding-inline: 0;
+  container: rc-game-actions / inline-size;
+}
+
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)::before,
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)::after {
+  display: none;
+}
+
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > li {
+  position: relative;
+  top: auto;
+  bottom: auto;
+  float: none;
+  flex: 0 1 auto;
+  min-width: 0;
+  margin: 0;
+}
+
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .rc-game-pin-control {
+  order: 0;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  list-style: none;
+}
+
+#rc-pin-game {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-width: 56px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+#rc-pin-game svg { width: 28px; height: 28px; }
+#rc-pin-game .icon-label { font-size: 12px; line-height: 16px; white-space: nowrap; }
+#rc-pin-game[aria-pressed="true"] { color: #8bc4ff; }
+#rc-pin-game:disabled { opacity: .55; cursor: wait; }
+
+/* Keep the native buttons in place while replacing their float-based layout. */
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
+  > :is(.game-favorite-button-container, .game-follow-button-container) {
+  flex: 0 0 56px;
+  width: 56px;
+  min-width: 56px;
+  max-width: 56px;
+  overflow: visible;
+}
+
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
+  :is(.game-favorite-button-container, .game-follow-button-container) .tooltip-container {
+  display: block;
+  width: 100%;
+}
+
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .game-favorite-button-container { order: 1; }
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .game-follow-button-container { order: 2; }
+
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
+  :is(.favorite-button, .follow-button) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 56px;
+  max-width: none;
+  text-align: center;
+}
+
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
+  :is(.favorite-button, .follow-button) > :is(a, button) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
+  :is(.icon-favorite, .icon-follow-game, .icon-notifications-bell) {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+}
+
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .icon-label {
+  margin: 0;
+  padding: 0;
+  display: block;
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .voting-panel {
+  order: 3;
+  flex: 1 1 110px;
+  width: auto;
+  min-width: 80px;
+  max-width: 110px;
+}
+
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .users-vote {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: 28px auto;
+  gap: 4px 0;
+  height: auto;
+  padding: 0;
+}
+
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .users-vote :is(.upvote, .downvote) {
+  position: static;
+  display: flex;
+  align-items: center;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  height: 28px;
+  margin: 0;
+}
+
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .users-vote .upvote { grid-area: 1 / 1; }
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .users-vote .downvote { grid-area: 1 / 2; justify-content: flex-end; }
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .users-vote .vote-details {
+  grid-area: 2 / 1 / auto / -1;
+  width: 100%;
+  min-width: 0;
+}
+
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .vote-details .vote-container {
+  height: 2px;
+  margin: 0 0 4px;
+}
+
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .vote-numbers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  font-size: 11px;
+  line-height: 14px;
+}
+
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .vote-numbers::before,
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .vote-numbers::after { display: none; }
+
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
+  .vote-numbers :is(.count-left, .count-right, .vote-text) {
+  float: none;
+  min-width: 0;
+  padding: 0;
+  font-size: 11px;
+  line-height: 14px;
+  white-space: nowrap;
+}
+
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .social-media-share {
+  order: 4;
+  flex: 0 0 32px;
+  width: 32px;
+  min-width: 32px;
+  max-width: 32px;
+  height: auto;
+}
+
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .share-game-container {
+  position: relative;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  width: 100%;
+}
+
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .social-media-share:empty {
+  display: none;
+}
+
+/* A game sidebar can be narrow even on a wide desktop monitor. */
+@container rc-game-actions (max-width: 340px) {
+  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
+    > :is(.game-favorite-button-container, .game-follow-button-container) {
+    flex-basis: 48px;
+    width: 48px;
+    min-width: 48px;
+    max-width: 48px;
+  }
+  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
+    :is(.favorite-button, .follow-button) { width: 48px; }
+  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .icon-label { font-size: 11px; }
+  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .social-media-share {
+    flex-basis: 28px;
+    width: 28px;
+    min-width: 28px;
+    max-width: 28px;
+  }
+}
+
+@container rc-game-actions (max-width: 280px) {
+  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
+    > :is(.game-favorite-button-container, .game-follow-button-container) {
+    flex-basis: 40px;
+    width: 40px;
+    min-width: 40px;
+    max-width: 40px;
+  }
+  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
+    :is(.favorite-button, .follow-button) { width: 40px; }
+  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .icon-label,
+  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
+    .vote-numbers :is(.count-left, .count-right, .vote-text) { font-size: 10px; }
+  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .voting-panel { min-width: 72px; }
+}
+
+#rc-pinned-games {
+  box-sizing: border-box;
+  clear: both;
+  width: 100%;
+  min-width: 0;
+  grid-column: 1 / -1;
+  flex-basis: 100%;
+  margin: 20px 0 28px;
+  color: inherit;
+}
+
+#rc-pinned-games .rc-pinned-games-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+#rc-pinned-games h2 { margin: 0; color: inherit; font-size: 22px; font-weight: 700; }
+#rc-pinned-games .rc-pinned-games-count { opacity: .7; font-size: 13px; white-space: nowrap; }
+#rc-pinned-games .rc-pinned-games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 158px), 1fr));
+  align-items: stretch;
+  gap: 14px;
+}
+
+#rc-pinned-games .rc-pinned-game-card {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid rgb(128 128 128 / 25%);
+  border-radius: 12px;
+  background: rgb(128 128 128 / 10%);
+}
+
+html[data-rc-background-active] #rc-pinned-games .rc-pinned-game-card,
+html[data-rc-background-active] #rc-pinned-games-notification {
+  border-color: rgb(255 255 255 / 15%);
+  background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62));
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  color: #f7f7f8;
+}
+
+#rc-pinned-games .rc-pinned-game-details { display: block; min-width: 0; color: inherit; text-decoration: none; }
+#rc-pinned-games .rc-pinned-game-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgb(128 128 128 / 18%);
+  font-size: 44px;
+  font-weight: 700;
+}
+#rc-pinned-games .rc-pinned-game-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+#rc-pinned-games h3 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  min-height: 40px;
+  margin: 10px 2px;
+  color: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+#rc-pinned-games .rc-pinned-game-join {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  margin-top: auto;
+  border-radius: 8px;
+  background: #335fff;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+#rc-pinned-games .rc-pinned-game-join:hover { background: #244de0; }
+#rc-pinned-games .rc-pinned-game-remove {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 30%);
+  border-radius: 50%;
+  background: rgb(20 22 28 / 80%);
+  color: #fff;
+  font: 22px/1 Arial, sans-serif;
+  cursor: pointer;
+}
+#rc-pinned-games .rc-pinned-game-remove:hover { background: #a53545; }
+#rc-pinned-games .rc-pinned-games-empty { margin: 0; opacity: .75; }
+#rc-pinned-games [hidden], #rc-pinned-games-notification[hidden] { display: none !important; }
+:is(#rc-pin-game, #rc-pinned-games a, #rc-pinned-games button):focus-visible { outline: 2px solid #8bc4ff; outline-offset: 3px; }
+
+#rc-pinned-games-notification {
+  position: fixed;
+  z-index: 2147483647;
+  bottom: 28px;
+  left: 50%;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  box-sizing: border-box;
+  transform: translateX(-50%);
+  padding: 14px 22px;
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 12px;
+  background: #25272c;
+  color: #fff;
+  box-shadow: 0 8px 30px rgb(0 0 0 / 30%);
+  font: 600 14px/1.5 Arial, sans-serif;
+  text-align: center;
+  pointer-events: none;
+}
+
+@media (max-width: 600px) {
+  #rc-pinned-games .rc-pinned-games-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  #rc-pinned-games h2 { font-size: 20px; }
+}

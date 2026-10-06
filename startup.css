@@ -1,0 +1,17 @@
+/* Preserve geometry while the first avatar frame is being restyled. */
+html[data-rc-avatar-boot="pending"] :is(#content, #avatar-container, #avatar-editor, .avatar-editor-container),
+html[data-rc-avatar-boot="pending"] :is(#content, #avatar-container, #avatar-editor, .avatar-editor-container) * {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Layout corrections take effect in the same frame, without native transitions. */
+html[data-rc-frost-page="avatar"] :is(
+  [data-rc-avatar-page], [data-rc-avatar-studio], [data-rc-avatar-view-column],
+  [data-rc-avatar-item-column], [data-rc-avatar-nav-path],
+  [data-rc-avatar-content-path], [data-rc-avatar-subcategory-path],
+  [data-rc-avatar-main-row], [data-rc-avatar-subcategories], #rc-avatar-2d
+) {
+  transition: none !important;
+  animation: none !important;
+}
