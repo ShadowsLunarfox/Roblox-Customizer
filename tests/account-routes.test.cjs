@@ -78,6 +78,18 @@ for (const [name, script] of [['startup', startup], ['settings fallback', fallba
     }
   });
 
+  test(`${name} styles report-abuse routes without matching sign-in or unrelated report URLs`, () => {
+    for (const url of ['/report-abuse', '/report-abuse/', '/report-abuse/?targetId=118155665728354&abuseVector=place']) {
+      assert.equal(harness(url, script).root.dataset.rcFrostPage, 'report-abuse', url);
+    }
+    const env = harness('/report-abuse/', script);
+    for (const url of ['/newlogin?ReturnUrl=%2Freport-abuse', '/report-abuse-extra', '/report-abuse/details', '/home']) {
+      env.location.href = new URL(url, 'https://www.roblox.com').href;
+      env.events.get('popstate')();
+      assert.equal(env.root.dataset.rcFrostPage, undefined, url);
+    }
+  });
+
   test(`${name} retains page styling across native account tabs`, () => {
     for (const [url, expected, hashes] of [
       ['/users/156/friends', 'friends', ['#!/friends', '#!/followers', '#!/friend-requests']],
@@ -134,16 +146,48 @@ test('user-specific routes honor cached visual preferences and wallpaper can sti
 
 test('Home visibility preferences are cached independently and missing flags remain visible', () => {
   const oldCache = harness('/home', startup, { version: 1, hideRecommended: true });
-  assert.equal(oldCache.root.hasAttribute('data-rc-hide-recommended'), true);
+  assert.equal(oldCache.root.hasAttribute('data-rc-hide-recommended-upper'), true);
+  assert.equal(oldCache.root.hasAttribute('data-rc-hide-recommended-lower'), true);
   assert.equal(oldCache.root.hasAttribute('data-rc-hide-favorites'), false);
   assert.equal(oldCache.root.hasAttribute('data-rc-hide-standout-games'), false);
   const env = harness('/home', startup, {
-    version: 1, hideFavorites: true, hideStandoutGames: false, hideRecommended: true
+    version: 1, hideFavorites: true, hideStandoutGames: false,
+    hideRecommended: true, hideRecommendedUpper: false, hideRecommendedLower: true
   });
   assert.equal(env.root.hasAttribute('data-rc-hide-favorites'), true);
   assert.equal(env.root.hasAttribute('data-rc-hide-standout-games'), false);
-  env.startup.setPreferences({ hideFavorites: false, hideStandoutGames: true, hideRecommended: false });
+  assert.equal(env.root.hasAttribute('data-rc-hide-recommended-upper'), false, 'An explicit upper preference overrides the legacy switch');
+  assert.equal(env.root.hasAttribute('data-rc-hide-recommended-lower'), true);
+  env.startup.setPreferences({ hideFavorites: false, hideStandoutGames: true,
+    hideRecommendedUpper: true, hideRecommendedLower: false });
   assert.equal(env.root.hasAttribute('data-rc-hide-favorites'), false);
   assert.equal(env.root.hasAttribute('data-rc-hide-standout-games'), true);
+  assert.equal(env.root.hasAttribute('data-rc-hide-recommended-upper'), true);
+  assert.equal(env.root.hasAttribute('data-rc-hide-recommended-lower'), false);
   assert.equal(env.root.hasAttribute('data-rc-hide-recommended'), false);
+  const defaults = harness('/home', startup, { version: 1 });
+  assert.equal(defaults.root.hasAttribute('data-rc-hide-recommended-upper'), false);
+  assert.equal(defaults.root.hasAttribute('data-rc-hide-recommended-lower'), false);
+});
+
+test('Saved recommendation preferences migrate without overriding independent choices', () => {
+  const defaultsStart = settings.indexOf('  const DEFAULTS =');
+  const defaultsEnd = settings.indexOf('  let settings =', defaultsStart);
+  const normalizeStart = settings.indexOf('  function currentSettings(');
+  const normalizeEnd = settings.indexOf('  function syncFrostPage()', normalizeStart);
+  assert.ok(defaultsStart >= 0 && defaultsEnd > defaultsStart && normalizeStart >= 0 && normalizeEnd > normalizeStart);
+  const normalize = vm.runInNewContext(`${settings.slice(defaultsStart, defaultsEnd)}\n${settings.slice(normalizeStart, normalizeEnd)}\ncurrentSettings`);
+  for (const [saved, upper, lower] of [
+    [undefined, false, false],
+    [{ hideRecommended: true, hiddenRecommendedGames: [{ placeId: '102', name: 'Hidden game' }] }, true, true],
+    [{ hideRecommended: false }, false, false],
+    [{ hideRecommended: true, hideRecommendedUpper: false }, false, true],
+    [{ hideRecommendedUpper: true, hideRecommendedLower: false }, true, false]
+  ]) {
+    const normalized = normalize(saved);
+    assert.equal(normalized.hideRecommendedUpper, upper);
+    assert.equal(normalized.hideRecommendedLower, lower);
+    assert.equal(Object.hasOwn(normalized, 'hideRecommended'), false);
+    if (saved?.hiddenRecommendedGames) assert.equal(normalized.hiddenRecommendedGames, saved.hiddenRecommendedGames);
+  }
 });

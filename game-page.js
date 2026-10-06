@@ -11,7 +11,7 @@
   const NON_PUBLIC_SERVER_SECTION_SELECTOR = PRIVATE_SERVER_SECTION_SELECTOR
     + ', #friends-game-instances-container';
   const PRIVATE_SERVER_RENDER_SELECTOR = '.rc-private-server-summary, .rc-private-server-roster, '
-    + '.rc-private-server-proxy, .rc-private-server-more, .rc-server-metrics';
+    + '.rc-private-server-proxy, .rc-private-server-more, .rc-private-server-loading, .rc-server-metrics';
   const initialized = new WeakMap();
   let timer = 0;
   let running = false;
@@ -65,8 +65,6 @@
   const badgeDateTimeFormatter = new Intl.DateTimeFormat('en-US', {
     dateStyle: 'medium', timeStyle: 'short'
   });
-
-  const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 
   function placeIdFromPath() {
     return location.pathname.match(/^\/games\/(\d+)(?:\/|$)/)?.[1] || null;
@@ -1536,12 +1534,60 @@
     return pagination;
   }
 
+  function syncPublicServerVisibility(page, grid, cards, matching, visible, sorted) {
+    const items = new Map();
+    const groups = new Set();
+    for (const card of cards) {
+      let item = card;
+      // Hide a layout wrapper only when it belongs to this one server.
+      // Roblox can also put several cards inside the same grid child.
+      while (grid && item.parentElement && item.parentElement !== grid
+        && grid.contains(item.parentElement)
+        && item.parentElement.querySelectorAll('.card-item').length === 1) {
+        item = item.parentElement;
+      }
+      items.set(card, item);
+      if (sorted && grid?.contains(item)) {
+        for (let group = item.parentElement; group && group !== grid; group = group.parentElement) {
+          groups.add(group);
+        }
+      }
+    }
+    const currentItems = new Set(items.values());
+    for (const item of page.querySelectorAll(
+      '[data-rc-server-filtered], [data-rc-server-page-hidden], [data-rc-public-server-item]')) {
+      if (currentItems.has(item)) continue;
+      item.removeAttribute('data-rc-server-filtered');
+      item.removeAttribute('data-rc-server-page-hidden');
+      item.removeAttribute('data-rc-public-server-item');
+      item.style.removeProperty('order');
+    }
+    for (const group of page.querySelectorAll('[data-rc-public-server-group]')) {
+      if (!groups.has(group)) group.removeAttribute('data-rc-public-server-group');
+    }
+    for (const previousGrid of page.querySelectorAll('[data-rc-public-server-grid]')) {
+      if (previousGrid !== grid || !sorted) previousGrid.removeAttribute('data-rc-public-server-grid');
+    }
+    grid?.toggleAttribute('data-rc-public-server-grid', sorted);
+    for (const group of groups) group.setAttribute('data-rc-public-server-group', '');
+    const matches = new Set(matching);
+    const order = new Map(matching.map((card, index) => [card, index]));
+    for (const [card, item] of items) {
+      item.setAttribute('data-rc-public-server-item', '');
+      item.toggleAttribute('data-rc-server-filtered', !matches.has(card));
+      item.toggleAttribute('data-rc-server-page-hidden', matches.has(card) && !visible.has(card));
+      if (sorted) item.style.order = String(order.get(card) ?? cards.length);
+      else item.style.removeProperty('order');
+    }
+  }
+
   function syncPublicServerFilters(page, publicContainer, cards) {
     let toolbar = page.querySelector('.rc-public-server-filters');
     let pagination = page.querySelector('.rc-public-server-pagination');
     if (!publicContainer) {
       toolbar?.remove();
       pagination?.remove();
+      syncPublicServerVisibility(page, null, [], [], new Set(), false);
       return;
     }
     // Recreate listeners when Roblox replaces the native container.
@@ -1613,19 +1659,8 @@
     state.page = Math.min(state.page, Math.max(0, pages - 1));
     const start = state.page * PUBLIC_SERVER_PAGE_SIZE;
     const visible = new Set(matching.slice(start, start + PUBLIC_SERVER_PAGE_SIZE));
-    const matches = new Set(matching);
     const sorted = publicServerFilter.playerSort !== 'default';
-    grid?.toggleAttribute('data-rc-public-server-grid', sorted);
-    const order = new Map(matching.map((card, index) => [card, index]));
-    for (const card of cards) {
-      let item = card;
-      while (grid && item.parentElement && item.parentElement !== grid
-        && grid.contains(item.parentElement)) item = item.parentElement;
-      item.toggleAttribute('data-rc-server-filtered', !matches.has(card));
-      item.toggleAttribute('data-rc-server-page-hidden', matches.has(card) && !visible.has(card));
-      if (sorted) item.style.order = String(order.get(card) ?? cards.length);
-      else item.style.removeProperty('order');
-    }
+    syncPublicServerVisibility(page, grid, cards, matching, visible, sorted);
     setText(toolbar.querySelector('.rc-public-server-filter-count'),
       matching.length ? `${start + 1}\u2013${start + visible.size} of ${matching.length} matches loaded`
         : `0 matches in ${cards.length} loaded servers`);
@@ -1666,33 +1701,43 @@
       return;
     }
     const scope = publicContainer;
+    const containsServerContent = node => node.matches('.card-item')
+      || !!node.querySelector('.card-item, .rc-public-server-filters, .rc-public-server-pagination');
     for (const control of pane.querySelectorAll('[data-rc-native-server-controls], [data-rc-native-server-sort]')) {
       if (!scope.contains(control) || control.closest(NON_PUBLIC_SERVER_SECTION_SELECTOR)) {
         control.removeAttribute('data-rc-native-server-controls');
         control.removeAttribute('data-rc-native-server-sort');
+      } else if (containsServerContent(control)) {
+        // React may populate a previously empty control group with the server list.
+        control.removeAttribute('data-rc-native-server-controls');
       }
     }
     const text = node => (node?.textContent || '').replace(/\s+/g, ' ').trim();
     const nodes = [...scope.querySelectorAll('label, span, div')]
-      .filter(node => !node.closest(NON_PUBLIC_SERVER_SECTION_SELECTOR));
+      .filter(node => !node.closest(NON_PUBLIC_SERVER_SECTION_SELECTOR)
+        && !node.closest('.rc-public-server-filters, .rc-public-server-pagination')
+        && !containsServerContent(node));
     const sortLabel = nodes.find(node => /^Sort By:?$/i.test(text(node)));
     const excludeLabel = nodes.find(node => /^Exclude Full Servers$/i.test(text(node)));
     const findWrapper = (node, selector) => {
       for (let current = node, depth = 0;
         current && current !== scope && depth < 5;
         current = current.parentElement, depth += 1) {
-        if (current.matches(selector) || current.querySelector(selector)) return current;
+        const control = current.matches(selector) ? current : current.querySelector(selector);
+        if (control) return containsServerContent(current) ? control : current;
       }
       return node;
     };
     const sort = findWrapper(sortLabel, 'select');
     const exclude = findWrapper(excludeLabel, 'input[type="checkbox"]');
+    sortLabel?.setAttribute('data-rc-native-server-controls', '');
+    excludeLabel?.setAttribute('data-rc-native-server-controls', '');
     const nativeSort = sort?.matches('select') ? sort : sort?.querySelector('select');
     nativeSort?.setAttribute('data-rc-native-server-sort', '');
     if (sort && exclude) {
       let group = sort;
       while (group && group !== scope && !group.contains(exclude)) group = group.parentElement;
-      if (group && group !== scope && !group.querySelector('.card-item') && text(group).length < 300) {
+      if (group && group !== scope && !containsServerContent(group) && text(group).length < 300) {
         group.setAttribute('data-rc-native-server-controls', '');
       } else {
         sort.setAttribute('data-rc-native-server-controls', '');
@@ -1735,12 +1780,6 @@
       card.dataset.rcServerCountryState = countryCode ? 'known'
         : countryState?.pending ? 'pending' : 'unknown';
       renderServerMetrics(card, details, id ? { placeId, id } : null);
-    }
-    for (const card of page.querySelectorAll('[data-rc-server-filtered], [data-rc-server-page-hidden]')) {
-      if (!publicContainer?.contains(card)) {
-        card.removeAttribute('data-rc-server-filtered');
-        card.removeAttribute('data-rc-server-page-hidden');
-      }
     }
     syncPublicServerFilters(page, publicContainer, publicCards);
     if (!serverIds.size || publicStatusRequest || Date.now() < publicStatusRetryAfter
@@ -2170,19 +2209,17 @@
     else loadRobloxGameTab(panel, tabId);
   }
 
-  function waitForServerContent(page, timeout = 15_000) {
-    const pane = page.querySelector('#game-instances');
-    if (!pane) return Promise.resolve(false);
+  function waitForGamePaneContent(page, selector, ready, timeout = 15_000) {
+    const pane = page.querySelector(selector);
+    const placeId = placeIdFromPath();
+    const current = () => pane?.isConnected && pageMatchesPath(page) && placeIdFromPath() === placeId;
+    if (!current()) return Promise.resolve(false);
+    if (ready(pane)) return Promise.resolve(true);
 
     return new Promise(resolve => {
-      const startedAt = Date.now();
-      let changedAt = startedAt;
       let finished = false;
       let timeoutTimer = 0;
       let inspectTimer = 0;
-      const observer = new MutationObserver(() => { changedAt = Date.now(); });
-      observer.observe(pane, { childList: true, characterData: true, subtree: true });
-
       const finish = ready => {
         if (finished) return;
         finished = true;
@@ -2191,34 +2228,39 @@
         clearTimeout(inspectTimer);
         resolve(ready);
       };
-
-      timeoutTimer = setTimeout(() => finish(false), timeout);
       const inspect = () => {
         if (finished) return;
-        if (!pane.isConnected || !pageMatchesPath(page)) {
-          finish(false);
-          return;
-        }
-
-        const text = (pane.innerText || pane.textContent || '').toLowerCase();
-        const hasPrivateServers = pane.querySelector(PRIVATE_SERVER_CONFIGURE_SELECTOR);
-        const hasCreateControl = /create\s+(?:a\s+)?private server/.test(text);
-        const hasPrivateHeading = /your private servers|private servers/.test(text);
-        const hasEmptyPrivateState = /no private servers found|you don.t have any private servers/.test(text);
-        const hasContent = hasPrivateServers || hasEmptyPrivateState
-          || (hasCreateControl && hasPrivateHeading);
-        const minimumWaitElapsed = Date.now() - startedAt >= 3_000;
-        const contentSettled = Date.now() - changedAt >= 1_000;
-
-        if (hasContent && minimumWaitElapsed && contentSettled) {
-          finish(true);
-          return;
-        }
-        inspectTimer = setTimeout(inspect, 200);
+        if (!current()) finish(false);
+        else if (ready(pane)) finish(true);
       };
-
-      inspect();
+      const observer = new MutationObserver(inspect);
+      observer.observe(pane, { childList: true, characterData: true, subtree: true });
+      timeoutTimer = setTimeout(() => finish(false), timeout);
+      // Navigation can replace the entire pane without mutating its descendants.
+      const checkRoute = () => {
+        inspect();
+        if (finished) return;
+        inspectTimer = setTimeout(checkRoute, 200);
+      };
+      checkRoute();
     });
+  }
+
+  function waitForServerContent(page, timeout = 15_000) {
+    return waitForGamePaneContent(page, '#game-instances', pane => {
+      const text = (pane.textContent || '').toLowerCase();
+      return !!pane.querySelector(PRIVATE_SERVER_CONFIGURE_SELECTOR)
+        || !!pane.querySelector('#running-game-instances-container .card-item, '
+          + '#private-server-container .card-item, #private-game-instances-container .card-item')
+        || /no private servers found|you don.t have any private servers|no (?:public |running )?servers (?:found|available)|no running experiences/.test(text)
+        || /create\s+(?:a\s+)?private server/.test(text) && /your private servers|private servers/.test(text);
+    }, timeout);
+  }
+
+  function waitForStoreContent(page) {
+    return waitForGamePaneContent(page, '#store', pane =>
+      !!pane.querySelector('.card-item, .item-card-container, a[href], button')
+      || /no (?:passes|game passes|products|subscriptions)|does not (?:have|sell)/i.test(pane.textContent), 1500);
   }
 
   function syncRolimonsPanel() {
@@ -2386,6 +2428,25 @@
     if (serverId) privateSourcesById.set(serverId, source);
   }
 
+  function syncPrivateServerLoading(list, pending) {
+    let status = [...list.children].find(child => child.classList.contains('rc-private-server-loading'));
+    if (!pending) {
+      status?.remove();
+      return;
+    }
+    if (!status) {
+      status = document.createElement('p');
+      status.className = 'rc-private-server-loading';
+      status.setAttribute('role', 'status');
+      status.setAttribute('aria-live', 'polite');
+      if (list.firstElementChild) list.firstElementChild.before(status);
+      else list.append(status);
+    }
+    setText(status, Date.now() < privateRetryAfter
+      ? 'Private server details are unavailable. Retrying...'
+      : 'Loading private server details...');
+  }
+
   function syncPrivateServers() {
     const page = document.querySelector('#game-detail-page') || document;
     const placeId = Number(location.pathname.match(/^\/games\/(\d+)(?:\/|$)/)?.[1]);
@@ -2398,6 +2459,7 @@
       privateFetchedSourceVersion = -1;
       privateSourcesById.clear();
       privateFetchedAt = 0;
+      privateRetryAfter = 0;
       privateDetails.clear();
       privateDetailsByName.clear();
       privateQueriedIds = new Set();
@@ -2420,7 +2482,15 @@
       const list = ownerRow?.parentElement;
       if (!ownerRow || !list) continue;
       list.setAttribute('data-rc-private-server-list', '');
-      if (!privateListOwners.has(list)) privateListOwners.set(list, { ownerRow, serverId, configure });
+      if (!privateListOwners.has(list)) privateListOwners.set(list, { ownerRow, ownerActions, serverId, configure });
+    }
+    // Shared private servers can have a Join button without an owner's Configure link.
+    for (const row of page.querySelectorAll('.card-item')) {
+      if (!row.closest('#private-server-container, #private-game-instances-container')) continue;
+      const list = row.parentElement;
+      if (!list || privateListOwners.has(list)) continue;
+      list.setAttribute('data-rc-private-server-list', '');
+      privateListOwners.set(list, { ownerRow: null, ownerActions: null, serverId: 0, configure: null });
     }
 
     const privateRows = new Map();
@@ -2428,8 +2498,7 @@
     for (const list of privateListOwners.keys()) {
       const rows = [...list.children].filter(candidate => {
         if (candidate.classList.contains('rc-private-server-more')) return false;
-        return !!candidate.querySelector('.text-title-medium')
-          && !!candidate.querySelector('.thumbnail-2d-container img, img');
+        return candidate.matches('.card-item') || !!candidate.querySelector('.text-title-medium');
       });
       privateRows.set(list, rows);
       for (const row of rows) {
@@ -2437,8 +2506,9 @@
         if (name) privateNameCounts.set(name, (privateNameCounts.get(name) || 0) + 1);
       }
     }
-    for (const [list, { ownerRow, serverId, configure }] of privateListOwners) {
+    for (const [list, { ownerRow, ownerActions, serverId, configure }] of privateListOwners) {
       const rows = privateRows.get(list);
+      serverLists.set(list, []);
       for (const row of rows) {
         if (processedRows.has(row)) continue;
         const main = row.firstElementChild;
@@ -2446,11 +2516,10 @@
         const nativeAvatar = row.querySelector('.thumbnail-2d-container img')
           || [...row.querySelectorAll('img')].find(image =>
             !image.closest('.rc-private-server-summary, .rc-private-server-roster'));
-        if (!main || !nativeName || !nativeAvatar) continue;
-        const name = nativeName.textContent.trim();
+        const name = nativeName?.textContent.trim() || '';
         const nameKey = name.toLowerCase();
         const rowServerId = privateServerIdFromRow(row) || (row === ownerRow ? serverId : 0);
-        const nativeStatus = main.querySelector('.text-body-medium')?.textContent.trim() || '';
+        const nativeStatus = main?.querySelector('.text-body-medium')?.textContent.trim() || '';
         const nativeCount = privateServerNativeText(row).match(/\b\d+\s+of\s+\d+\s+people\s+max\b/i)?.[0] || '';
         const nativeImages = [...row.querySelectorAll('img')]
           .filter(image => !image.closest(PRIVATE_SERVER_RENDER_SELECTOR))
@@ -2463,6 +2532,15 @@
         }
         const details = rowServerId ? privateDetails.get(rowServerId)
           : privateNameCounts.get(nameKey) === 1 ? privateDetailsByName.get(nameKey) : null;
+        const ready = main && name && nativeAvatar?.getAttribute('src')?.trim()
+          && Number.isSafeInteger(details?.id) && details.id > 0
+          && typeof details.name === 'string' && details.name.trim()
+          && typeof details.ownerName === 'string' && Array.isArray(details.playerImages);
+        row.toggleAttribute('data-rc-private-server-pending', !ready);
+        if (!ready) {
+          row.removeAttribute('data-rc-private-server-ready');
+          continue;
+        }
         const nativeControls = [...row.querySelectorAll('button, a[href], [role="button"]')]
           .filter(control => !control.closest('.rc-private-server-proxy, .rc-private-server-summary'));
         const joinControl = nativeControls.find(control =>
@@ -2496,6 +2574,7 @@
         if (!actions) {
           row.classList.add('rc-private-server-native-card');
           renderServerMetrics(row, combinedServerMetrics(row, details));
+          row.setAttribute('data-rc-private-server-ready', '');
           processedRows.add(row);
           if (!serverLists.has(list)) serverLists.set(list, []);
           serverLists.get(list).push(row);
@@ -2575,10 +2654,15 @@
             roster.append(label);
           }
         }
+        // Reveal the card only after its summary, avatar, controls and roster are populated.
+        row.setAttribute('data-rc-private-server-ready', '');
       }
     }
 
-    for (const [list, rows] of serverLists) limitPrivateServerCards(list, rows, placeId);
+    for (const [list, rows] of serverLists) {
+      limitPrivateServerCards(list, rows, placeId);
+      syncPrivateServerLoading(list, privateRows.get(list).length > rows.length);
+    }
 
     if (!serverIds.size && !serverNames.size || privateRequest || Date.now() < privateRetryAfter) return;
     const requestedIds = [...serverIds].slice(0, 100);
@@ -2600,6 +2684,7 @@
       if (chrome.runtime.lastError || !Array.isArray(response?.servers)) {
         privateRetryAfter = Date.now() + 30_000;
         setTimeout(schedule, 30_000);
+        syncPrivateServers();
         return;
       }
       privateDetails.clear();
@@ -2618,13 +2703,15 @@
       privateQueriedNames = requestedNames;
       privateFetchedAt = Date.now();
       privateFetchedSourceVersion = sourceVersion;
+      privateRetryAfter = 0;
       setTimeout(schedule, 90_000);
+      syncPrivateServers();
       schedule();
     });
   }
 
   async function initialize() {
-    if (running || document.readyState !== 'complete') return;
+    if (running || document.readyState === 'loading') return;
     const state = currentPage();
     if (!state || initialized.get(state.page) === state.placeId) return;
 
@@ -2637,12 +2724,9 @@
         state.links[0].click();
       }
 
-      for (let attempt = 0; attempt < 50 && !aboutReady(state.page); attempt++) {
+      if (!await waitForGamePaneContent(state.page, '#about', () => aboutReady(state.page), 10_000)) {
         if (!state.page.isConnected || !pageMatchesPath(state.page)
           || placeIdFromPath() !== state.placeId) return;
-        await pause(200);
-      }
-      if (!aboutReady(state.page)) {
         setTimeout(schedule, 2000);
         return;
       }
@@ -2657,7 +2741,7 @@
           if (!state.page.isConnected || !pageMatchesPath(state.page)
             || placeIdFromPath() !== state.placeId) return;
           syncPrivateServers();
-        } else await pause(1500);
+        } else await waitForStoreContent(state.page);
       }
 
       // Return to About so Roblox keeps its description, badges and related
@@ -2665,13 +2749,9 @@
       if (!state.page.isConnected || !pageMatchesPath(state.page)
         || placeIdFromPath() !== state.placeId) return;
       state.links[0].click();
-      await pause(300);
-      for (let attempt = 0; attempt < 50 && !aboutReady(state.page); attempt++) {
+      if (!await waitForGamePaneContent(state.page, '#about', () => aboutReady(state.page), 10_000)) {
         if (!state.page.isConnected || !pageMatchesPath(state.page)
           || placeIdFromPath() !== state.placeId) return;
-        await pause(200);
-      }
-      if (!aboutReady(state.page)) {
         setTimeout(schedule, 2000);
         return;
       }
@@ -2732,6 +2812,7 @@
   window.addEventListener('resize', schedule);
   window.addEventListener('popstate', schedule);
   window.addEventListener('hashchange', schedule);
+  document.addEventListener('DOMContentLoaded', schedule, { once: true });
   syncPrivateServers();
   schedule();
 })();

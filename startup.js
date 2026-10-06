@@ -13,6 +13,7 @@
     [/^\/users\/(?:\d+\/)?inventory(?:\/|$)/i, 'inventory'],
     [/^\/trades(?:\/|$)/i, 'trades'],
     [/^\/transactions\/?$/i, 'transactions'],
+    [/^\/report-abuse\/?$/i, 'report-abuse'],
     [/^\/search\/(?:communities|groups)\/?$/i, 'community-search'],
     [/^\/(?:communities|groups)\/create\/?$/i, 'community-create'],
     [/^\/(?:communities|groups)\/\d+(?:\/|$)/i, 'community'],
@@ -38,7 +39,12 @@
     root.style.setProperty('--rc-glass-opacity', String(opacity / 100));
     root.style.setProperty('--rc-page-panel-opacity', String(opacity / 200));
     root.toggleAttribute('data-rc-background-active', visuals.backgroundActive === true);
-    root.toggleAttribute('data-rc-hide-recommended', visuals.hideRecommended === true);
+    root.removeAttribute('data-rc-hide-recommended');
+    for (const part of ['Upper', 'Lower']) {
+      const value = visuals[`hideRecommended${part}`];
+      root.toggleAttribute(`data-rc-hide-recommended-${part.toLowerCase()}`,
+        typeof value === 'boolean' ? value : visuals.hideRecommended === true);
+    }
     root.toggleAttribute('data-rc-hide-favorites', visuals.hideFavorites === true);
     root.toggleAttribute('data-rc-hide-standout-games', visuals.hideStandoutGames === true);
   }
@@ -101,7 +107,10 @@
         glassOpacity: bounded(settings.glassOpacity, 25, 90, 62),
         backgroundActive: (settings.source === 'url' && !!settings.url)
           || (settings.source === 'file' && !!settings.fileKey),
-        hideRecommended: settings.hideRecommended === true,
+        hideRecommendedUpper: typeof settings.hideRecommendedUpper === 'boolean'
+          ? settings.hideRecommendedUpper : settings.hideRecommended === true,
+        hideRecommendedLower: typeof settings.hideRecommendedLower === 'boolean'
+          ? settings.hideRecommendedLower : settings.hideRecommended === true,
         hideFavorites: settings.hideFavorites === true,
         hideStandoutGames: settings.hideStandoutGames === true
       };

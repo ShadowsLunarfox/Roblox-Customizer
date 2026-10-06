@@ -74,7 +74,7 @@
         "https://www.roblox.com/*",
         "https://roblox.com/*"
       ],
-      "css": ["startup.css", "friends.css", "settings.css", "game-page.css", "site-pages.css", "catalog-page.css", "catalog-item-page.css", "account-pages.css", "messages-page.css", "transactions-page.css", "community-directory.css", "profile-page.css", "avatar-page.css", "pinned-games.css"],
+      "css": ["startup.css", "friends.css", "settings.css", "game-page.css", "site-pages.css", "charts-page.css", "catalog-page.css", "catalog-item-page.css", "account-pages.css", "messages-page.css", "transactions-page.css", "report-abuse.css", "community-directory.css", "profile-page.css", "avatar-page.css", "pinned-games.css"],
       "js": ["startup.js", "js.js", "settings.js", "frosted-ui.js", "profile-page.js", "avatar-page.js", "catalog-item-page.js", "pinned-games-core.js", "pinned-games.js"],
       "run_at": "document_start"
     },

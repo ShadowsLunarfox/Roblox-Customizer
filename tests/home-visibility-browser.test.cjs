@@ -22,7 +22,7 @@ function fixture() {
       <section id="standout"><div><h2>Standout Games: Island Exploration</h2><p>Curated games washed up on new shores</p></div><ul>${card(101, 'Island game')}</ul></section>
       <section id="recommended"><h2><span>Recommended For You</span></h2><ul>${card(102, 'Hidden game')}${card(103, 'Favorites')}${card(104, 'Standout Games')}</ul></section>
       <section id="standout-two"><div class="game-home-page-carousel-title">Standout Games: Racing</div><ul>${card(105, 'Racing game')}</ul></section>
-      <section id="recommended-two"><h2>Recommended For You</h2><ul>${card(106, 'Another recommendation')}</ul></section>
+      <section id="recommended-two" class="game-grid-container"><h2>Recommended Games</h2><ul>${card(106, 'Another recommendation')}</ul></section>
       <section id="continue"><h2>Continue</h2><ul>${card(107, 'Recommended For You')}</ul></section>
     </div>
   </main>
@@ -96,13 +96,13 @@ test('Home hide switches are independent, persistent, and handle native carousel
   const url=`http://127.0.0.1:${server.address().port}/home`;
   await browser.send('Page.navigate',{url});
   await browser.waitFor("document.querySelector('#recommended-two[data-rc-home-section]') && document.querySelector('.rc-settings-menu-entry')");
-  const sections={favorites:'favorites',standout:'standout','standout-two':'standout',recommended:'recommended','recommended-two':'recommended'};
-  for(const [id,kind] of Object.entries(sections))assert.equal(await browser.evaluate(`document.getElementById(${JSON.stringify(id)}).dataset.rcHomeSection`),kind);
+  const sections={favorites:'favorites',standout:'standout','standout-two':'standout',recommended:'upper','recommended-two':'lower'};
+  for(const [id,kind] of Object.entries(sections))assert.equal(await browser.evaluate(`document.getElementById(${JSON.stringify(id)}).dataset.${['upper','lower'].includes(kind)?'rcRecommendedSection':'rcHomeSection'}`),kind);
   const assertVisibility=async hidden=>{
     for(const [id,kind] of Object.entries(sections))assert.equal(await browser.evaluate(`getComputedStyle(document.getElementById(${JSON.stringify(id)})).display==='none'`),hidden.includes(kind),id);
     for(const id of ['friends','rc-pinned-games','continue','shared-sorts'])assert.equal(await browser.evaluate(`getComputedStyle(document.getElementById('${id}')).display==='none'`),false,`${id} stays visible`);
   };
-  const controls={favorites:['#rc-hide-favorites','hideFavorites'],standout:['#rc-hide-standout-games','hideStandoutGames'],recommended:['#rc-hide-recommended','hideRecommended']};
+  const controls={favorites:['#rc-hide-favorites','hideFavorites'],standout:['#rc-hide-standout-games','hideStandoutGames'],upper:['#rc-hide-recommended-upper','hideRecommendedUpper'],lower:['#rc-hide-recommended-lower','hideRecommendedLower']};
   await assertVisibility([]);
   assert.equal(await browser.evaluate("document.querySelector('[data-rc-recommended-place-id=\"102\"]').hasAttribute('data-rc-recommended-hidden')"),true,'Existing individual recommendation hiding is preserved');
   assert.equal(await browser.evaluate("document.querySelector('#continue .rc-hide-recommended-game')"),null,'Game names do not classify unrelated sections');
@@ -124,6 +124,13 @@ test('Home hide switches are independent, persistent, and handle native carousel
   assert.equal(await browser.evaluate("JSON.parse(localStorage.getItem('customBackground')).friendRows"),4,'Other Home preferences survive setting changes');
   await browser.click('#rc-done');
   await browser.waitFor("!document.querySelector('#rc-settings-overlay')");
+  // Both parts keep their identity while hidden, empty, or remounted by Roblox.
+  await browser.evaluate("document.querySelector('#recommended-two ul').replaceChildren();document.querySelector('#recommended').outerHTML=document.querySelector('#recommended').outerHTML");
+  await browser.waitFor("document.querySelector('#recommended').dataset.rcRecommendedSection==='upper' && document.querySelector('#recommended-two').dataset.rcRecommendedSection==='lower'");
+  await assertVisibility(Object.keys(controls));
+  await browser.evaluate("document.querySelector('#recommended-two ul').innerHTML='<li class=\"game-card-container\"><a href=\"https://www.roblox.com/games/106/Game\"><div class=\"game-card-name\">Another recommendation</div></a></li>'");
+  await browser.waitFor("document.querySelector('#recommended-two [data-rc-recommended-place-id=\"106\"]')");
+  assert.equal(await browser.evaluate("!!document.querySelector('#recommended-two .rc-hide-recommended-game')"),true,'Late lower cards support individual hiding');
   await browser.evaluate("const late=document.createElement('section');late.id='standout-late';late.className='game-sort-carousel-container';late.innerHTML='<h2>Standout Games: Adventure</h2>';document.querySelector('#shared-sorts').append(late)");
   await browser.waitFor("document.querySelector('#standout-late').dataset.rcHomeSection==='standout'");
   assert.equal(await browser.evaluate("getComputedStyle(document.querySelector('#standout-late')).display"),'none','Late-loading and empty native carousels obey the switch');
@@ -136,7 +143,20 @@ test('Home hide switches are independent, persistent, and handle native carousel
   await browser.click('.rc-settings-menu-entry');
   for(const [selector] of Object.values(controls))assert.equal(await browser.evaluate(`document.querySelector('${selector}').checked`),true,'Checkboxes reflect saved state after refresh');
   const cache=await browser.evaluate("JSON.parse(localStorage.getItem('roblox-customizer-visuals-v1'))");
-  assert.equal(cache.hideFavorites,true);assert.equal(cache.hideStandoutGames,true);assert.equal(cache.hideRecommended,true);
+  assert.equal(cache.hideFavorites,true);assert.equal(cache.hideStandoutGames,true);assert.equal(cache.hideRecommendedUpper,true);assert.equal(cache.hideRecommendedLower,true);
+  // Separate choices survive an actual reload, then a legacy saved value hides both parts.
+  await browser.click('#rc-hide-recommended-upper');
+  await browser.waitFor("JSON.parse(localStorage.getItem('customBackground')).hideRecommendedUpper===false");
+  await assertVisibility(['favorites','standout','lower']);
+  await browser.send('Page.reload');
+  await browser.waitFor("document.querySelector('#recommended-two').dataset.rcRecommendedSection==='lower' && document.querySelector('.rc-settings-menu-entry')");
+  await assertVisibility(['favorites','standout','lower']);
+  await browser.click('.rc-settings-menu-entry');
+  assert.equal(await browser.evaluate("document.querySelector('#rc-hide-recommended-upper').checked"),false);
+  assert.equal(await browser.evaluate("document.querySelector('#rc-hide-recommended-lower').checked"),true);
+  await browser.evaluate("const legacy=JSON.parse(localStorage.getItem('customBackground'));delete legacy.hideRecommendedUpper;delete legacy.hideRecommendedLower;legacy.hideRecommended=true;chrome.storage.local.set({customBackground:legacy})");
+  await browser.waitFor("document.querySelector('#rc-hide-recommended-upper').checked && document.querySelector('#rc-hide-recommended-lower').checked");
+  await assertVisibility(Object.keys(controls));
   // A second Roblox tab updates both the page and an already-open settings dialog.
   const created=await browser.send('Target.createTarget',{url});
   const otherTarget=(await(await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find(tab=>tab.id===created.targetId);
@@ -146,7 +166,7 @@ test('Home hide switches are independent, persistent, and handle native carousel
   await other.waitFor("JSON.parse(localStorage.getItem('customBackground')).hideFavorites===false");
   await browser.send('Page.bringToFront');
   await browser.waitFor("!document.querySelector('#rc-hide-favorites').checked");
-  await assertVisibility(['standout','recommended']);
+  await assertVisibility(['standout','upper','lower']);
   // Home-only markers are cleared if Roblox reuses the DOM while changing routes.
   await browser.click('#rc-done');
   await browser.evaluate("history.pushState({},'', '/charts');dispatchEvent(new PopStateEvent('popstate'))");
@@ -154,6 +174,6 @@ test('Home hide switches are independent, persistent, and handle native carousel
   await assertVisibility([]);
   await browser.evaluate("history.pushState({},'', '/home');dispatchEvent(new PopStateEvent('popstate'))");
   await browser.waitFor("document.querySelector('#recommended-two').dataset.rcHomeSection==='recommended'");
-  await assertVisibility(['standout','recommended']);
+  await assertVisibility(['standout','upper','lower']);
   assert.deepEqual(browser.errors,[],'Settings and carousel mutations should not throw browser errors');
 });

@@ -8,7 +8,8 @@
     source: 'none', url: '', urlType: 'auto', fileKey: '', fileName: '',
     fit: 'cover', dim: 20, glassBlur: 18, glassOpacity: 62,
     hideFavorites: false, hideStandoutGames: false,
-    hideRecommended: false, hiddenRecommendedGames: [], friendRows: 3,
+    hideRecommendedUpper: false, hideRecommendedLower: false,
+    hiddenRecommendedGames: [], friendRows: 3,
     greetingMorning: '', greetingAfternoon: '', greetingEvening: '',
     clockShowSeconds: true, clockShowDate: true, clockHour12: false,
     hideXFeed: false, hideYouTubeFeed: false
@@ -39,11 +40,18 @@
   const HOME_VISIBILITY = [
     { key: 'hideFavorites', id: 'rc-hide-favorites', attribute: 'data-rc-hide-favorites' },
     { key: 'hideStandoutGames', id: 'rc-hide-standout-games', attribute: 'data-rc-hide-standout-games' },
-    { key: 'hideRecommended', id: 'rc-hide-recommended', attribute: 'data-rc-hide-recommended' }
+    { key: 'hideRecommendedUpper', id: 'rc-hide-recommended-upper', attribute: 'data-rc-hide-recommended-upper' },
+    { key: 'hideRecommendedLower', id: 'rc-hide-recommended-lower', attribute: 'data-rc-hide-recommended-lower' }
   ];
 
   function currentSettings(value) {
     const saved = { ...value };
+    // The old switch hid every recommendation section. Preserve that choice
+    // until each new switch has its own saved preference.
+    for (const key of ['hideRecommendedUpper', 'hideRecommendedLower']) {
+      saved[key] = typeof saved[key] === 'boolean' ? saved[key] : saved.hideRecommended === true;
+    }
+    delete saved.hideRecommended;
     delete saved.clockShowTimeZone;
     delete saved.clockDateFormat;
     delete saved.clockTimeZone;
@@ -66,6 +74,7 @@
       : /^\/users\/(?:\d+\/)?inventory(?:\/|$)/i.test(path) ? 'inventory'
       : /^\/trades(?:\/|$)/i.test(path) ? 'trades'
       : /^\/transactions\/?$/i.test(path) ? 'transactions'
+      : /^\/report-abuse\/?$/i.test(path) ? 'report-abuse'
       : /^\/search\/(?:communities|groups)\/?$/i.test(path) ? 'community-search'
       : /^\/(?:communities|groups)\/create\/?$/i.test(path) ? 'community-create'
       : /^\/(?:communities|groups)\/\d+(?:\/|$)/i.test(path) ? 'community'
@@ -274,7 +283,7 @@
     if (title.length > 200) return '';
     if (/^Favorites\s*[→›»>]?\s*$/i.test(title)) return 'favorites';
     if (/^Standout Games(?=\s|:|$)/i.test(title)) return 'standout';
-    if (/^Recommended For You(?=\s|[→›»:]|$)/i.test(title)) return 'recommended';
+    if (/^Recommended (?:For You|Games)(?=\s|[→›»:]|$)/i.test(title)) return 'recommended';
     return '';
   }
 
@@ -282,7 +291,7 @@
     const sections = new Map();
     const protectedSections = '.friend-carousel-container, #rc-pinned-games, #rc-home-greeting, #rc-settings-overlay';
     const headingSelector = 'h1, h2, h3, h4, [role="heading"], .game-home-page-carousel-title, .game-carousel-title';
-    const labelledTitles = '[aria-label^="Favorites" i], [aria-label^="Standout Games" i], [aria-label^="Recommended For You" i]';
+    const labelledTitles = '[aria-label^="Favorites" i], [aria-label^="Standout Games" i], [aria-label^="Recommended For You" i], [aria-label^="Recommended Games" i]';
     for (const heading of home.querySelectorAll(`${headingSelector}, ${labelledTitles}, span, div`)) {
       if (heading.closest(`${protectedSections}, ${cardSelector}`) || heading.childElementCount > 3) continue;
       const kind = homeSectionKind(heading.getAttribute('aria-label') || heading.textContent);
@@ -305,9 +314,17 @@
       section.removeAttribute('data-rc-home-section');
       section.removeAttribute('data-rc-recommended-section');
     }
+    let recommendedPart = 'upper';
     for (const [section, kind] of sections) {
       if (section.getAttribute('data-rc-home-section') !== kind) section.setAttribute('data-rc-home-section', kind);
-      section.toggleAttribute('data-rc-recommended-section', kind === 'recommended');
+      if (kind === 'recommended') {
+        // DOM order remains stable when a section is hidden or has not loaded
+        // its cards yet; visual coordinates would misclassify those sections.
+        if (section.getAttribute('data-rc-recommended-section') !== recommendedPart) {
+          section.setAttribute('data-rc-recommended-section', recommendedPart);
+        }
+        recommendedPart = 'lower';
+      } else section.removeAttribute('data-rc-recommended-section');
     }
   }
 
@@ -774,7 +791,8 @@
     clearTimeout(urlTimer);
     urlTimer = 0;
     changeSettings({ ...DEFAULTS, glassBlur: settings.glassBlur,
-      glassOpacity: settings.glassOpacity, hideRecommended: settings.hideRecommended,
+      glassOpacity: settings.glassOpacity,
+      hideRecommendedUpper: settings.hideRecommendedUpper, hideRecommendedLower: settings.hideRecommendedLower,
       hideFavorites: settings.hideFavorites, hideStandoutGames: settings.hideStandoutGames,
       hiddenRecommendedGames: settings.hiddenRecommendedGames,
       friendRows: settings.friendRows,
@@ -853,9 +871,13 @@
             <input id="rc-hide-standout-games" type="checkbox">
             Hide Standout Games
           </label>
-          <label for="rc-hide-recommended" class="rc-settings-toggle">
-            <input id="rc-hide-recommended" type="checkbox">
-            Hide Recommended For You
+          <label for="rc-hide-recommended-upper" class="rc-settings-toggle">
+            <input id="rc-hide-recommended-upper" type="checkbox">
+            Hide upper Recommended Games
+          </label>
+          <label for="rc-hide-recommended-lower" class="rc-settings-toggle">
+            <input id="rc-hide-recommended-lower" type="checkbox">
+            Hide lower Recommended Games
           </label>
           <div class="rc-settings-hidden-recommendations">
             <h4>Hidden recommendations</h4>

@@ -510,7 +510,8 @@ html[data-rc-background-active] .light-theme :is(#chat-container, [data-rc-chat-
 
 html[data-rc-hide-favorites] [data-rc-home-section="favorites"],
 html[data-rc-hide-standout-games] [data-rc-home-section="standout"],
-html[data-rc-hide-recommended] [data-rc-recommended-section] {
+html[data-rc-hide-recommended-upper] [data-rc-recommended-section="upper"],
+html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
   display: none !important;
 }
 

@@ -1,0 +1,303 @@
+/* Charts keeps Roblox's scrolling handlers, filter state, and game links. */
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app {
+  --rc-charts-border: var(--color-stroke-default, rgb(128 128 128 / 30%));
+  --rc-charts-hover: var(--color-stroke-emphasis, rgb(128 128 128 / 55%));
+  --rc-charts-focus: var(--color-selection-start, #7fa6ff);
+  min-width: 0;
+  background-color: transparent !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app :is(
+  .games-page-container, .charts-sdui-page, .section, .sticky-header-sorts,
+  .body-sorts, .games-list-container, .game-sort-carousel-wrapper,
+  .game-sort-detail-container, .game-sort-detail-grid-container,
+  .horizontal-scroller, .horizontal-scroll-window, .horizontally-scrollable,
+  .game-card, .game-tile
+) {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app :is(
+  .games-list-header, .charts-sdui-page h1
+) {
+  box-sizing: border-box;
+  margin: 0 10px 16px !important;
+  padding: 20px !important;
+  border: 1px solid var(--rc-charts-border) !important;
+  border-radius: 18px !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app :is(
+  .games-list-header h1, .charts-sdui-page h1
+) {
+  font-size: clamp(26px, 3vw, 34px);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -.025em;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-list-header h1 {
+  margin: 0 !important;
+}
+
+/* Frost a separate backing so a filter menu can blur beyond the toolbar. */
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .filters-container {
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid var(--rc-charts-border);
+  border-radius: 16px;
+  background-color: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .filters-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62));
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .filters-container:has(.filters-modal-container) {
+  z-index: 40;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-page-container .filter-items-container {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .filter-select {
+  min-height: 40px;
+  height: auto !important;
+  max-width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--rc-charts-border) !important;
+  border-radius: 10px !important;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .filter-select:not(.btn-primary-md) {
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / 28%) !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .filter-select.btn-primary-md:not(:disabled, [aria-disabled="true"]) {
+  border-color: #5278ff !important;
+  background: linear-gradient(135deg, #4269ef, #3359d6) !important;
+  color: #fff !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .filter-select.btn-primary-md .icon-expand-arrow-selected {
+  filter: brightness(0) invert(1);
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .filters-modal-container {
+  box-sizing: border-box;
+  width: min(360px, calc(100vw - 48px));
+  min-width: 0 !important;
+  max-width: calc(100vw - 48px) !important;
+  border: 1px solid var(--rc-charts-border) !important;
+  border-radius: 14px !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.9, var(--rc-glass-opacity, .62))) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  box-shadow: 0 16px 40px rgb(0 0 0 / 24%) !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .filters-modal-container :is(
+  .header-container, .filter-options-container, .action-buttons-container, .filter-option
+) {
+  background-color: transparent !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .filters-modal-container .filter-option:is(:hover, :focus-visible, .selected-option) {
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / 18%) !important;
+}
+
+/* Section titles share one line with their native See All link when space permits. */
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-list-container .container-header {
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  height: auto !important;
+  margin-bottom: 12px !important;
+  background-color: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .sort-header {
+  margin: 0;
+  font-size: clamp(19px, 2vw, 22px);
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .see-all-link-icon {
+  padding: 7px 28px 7px 10px;
+  border: 1px solid var(--rc-charts-border);
+  border-radius: 9px;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / 28%);
+  white-space: nowrap;
+}
+
+/* One backing per game, rather than blur on both the list item and its card. */
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-page-carousel > .game-card {
+  flex: 0 0 164px;
+  width: 164px !important;
+  min-width: 164px;
+  height: auto !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-page-carousel > .game-card > .game-card-container {
+  display: flex;
+  flex-direction: column;
+  height: auto !important;
+  min-height: 240px;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-page-carousel > .game-card > .game-card-container > .game-card-link {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  height: auto !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app :is(
+  .game-card-container:not([data-testid="sentinel-tile"]), [data-testid="sdui-game-tile"]
+) {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 6px;
+  border: 1px solid var(--rc-charts-border) !important;
+  border-radius: 14px !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 12%);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app :is(
+  .game-card-container:not([data-testid="sentinel-tile"]), [data-testid="sdui-game-tile"]
+):hover {
+  border-color: var(--rc-charts-hover) !important;
+  box-shadow: 0 8px 22px rgb(0 0 0 / 20%);
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .game-card-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .game-card-thumb-container {
+  flex-shrink: 0;
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 10px !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .game-card-thumb-container .game-card-thumb {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app [data-testid="sdui-tile-image-container"] {
+  border-radius: 10px !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .game-card-name:not(.shimmer) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2 !important;
+  line-clamp: 2;
+  margin-top: 8px;
+  font-weight: 700;
+  font-size: 14px !important;
+  line-height: 1.4;
+  max-height: 2.8em;
+  min-height: 2.8em;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .game-card-info {
+  background-color: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .game-card-info .info-label {
+  font-size: 12px !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .scroller {
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .scroller .spacer {
+  background-color: transparent !important;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app :is(
+  a, button, [role="button"], [tabindex="0"]
+):focus-visible {
+  outline: 2px solid var(--rc-charts-focus) !important;
+  outline-offset: 3px;
+}
+
+html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app [hidden]:not([hidden="until-found"]) {
+  display: none !important;
+}
+
+@media (max-width: 543px) {
+  html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app :is(
+    .games-list-header, .charts-sdui-page h1
+  ) {
+    padding: 16px !important;
+    border-radius: 14px !important;
+  }
+
+  html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-list-container:not(.wide-game-tile-container) .horizontally-scrollable {
+    min-height: 245px;
+  }
+
+  html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-page-carousel > .game-card {
+    flex-basis: 154px;
+    width: 154px !important;
+    min-width: 154px;
+  }
+
+  html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-page-carousel > .game-card > .game-card-container {
+    min-height: 230px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app :is(
+    .game-card-container, [data-testid="sdui-game-tile"]
+  ) {
+    transition: none;
+  }
+}

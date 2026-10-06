@@ -268,11 +268,20 @@ html[data-rc-background-active] #game-detail-page #game-instances > .section-con
 }
 
 #game-detail-page #game-instances
-div:has(> div:has(> div > a[aria-label="Configure"][href*="/private-server/configure?"]))
-> div:has(.text-title-medium):has(img):not(.rc-private-server-card, .rc-private-server-native-card),
+div:has(> div > div > a[aria-label="Configure"][href*="/private-server/configure?"])
+> div:has(.text-title-medium):not([data-rc-private-server-ready]),
 #game-detail-page #game-instances [data-rc-private-server-list]
-> div:has(.text-title-medium):has(img):not(.rc-private-server-card, .rc-private-server-native-card) {
-  visibility: hidden !important;
+> div:has(.text-title-medium):not([data-rc-private-server-ready]),
+#game-detail-page :is(#private-server-container, #private-game-instances-container)
+.card-item:not([data-rc-private-server-ready]),
+#game-detail-page [data-rc-private-server-pending] {
+  display: none !important;
+}
+
+.rc-private-server-loading {
+  margin: 12px 0;
+  font-size: 13px;
+  opacity: .8;
 }
 
 /* The current Roblox list uses generic flex rows. game-page.js marks each private-server row. */
@@ -481,6 +490,10 @@ div:has(> div:has(> div > a[aria-label="Configure"][href*="/private-server/confi
 #game-detail-page [data-rc-public-server-grid] {
   display: flex !important;
   flex-wrap: wrap;
+}
+
+#game-detail-page [data-rc-public-server-group] {
+  display: contents !important;
 }
 
 .rc-public-server-pagination {
@@ -905,13 +918,197 @@ html[data-rc-background-active] #game-detail-page .btr-game-main-container > .ga
   backdrop-filter: none !important;
 }
 
-/* Keep the game thumbnail inset inside its header panel instead of touching its edges. */
+/* A single, balanced header around the native media and game controls. */
+#game-detail-page .game-main-content:has(> #game-details-carousel-container) {
+  box-sizing: border-box !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, .48fr);
+  align-items: stretch;
+  gap: 24px;
+  width: 100% !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 20px !important;
+  border: 1px solid rgb(255 255 255 / 14%) !important;
+  border-radius: 22px !important;
+  color: #f4f6fb !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-image: linear-gradient(135deg, rgb(255 255 255 / 5%), transparent 60%) !important;
+  box-shadow: 0 18px 48px rgb(0 0 0 / 22%), inset 0 1px 0 rgb(255 255 255 / 6%);
+}
+
+#game-detail-page .game-main-content:has(> #game-details-carousel-container)::before,
+#game-detail-page .game-main-content:has(> #game-details-carousel-container)::after,
+#game-detail-page .game-main-content > #game-details-invite-link-expired-modal-container:empty {
+  display: none !important;
+}
+
+#game-detail-page .game-main-content:has(> #game-details-carousel-container) > .game-calls-to-action {
+  box-sizing: border-box !important;
+  position: relative !important;
+  inset: auto !important;
+  float: none !important;
+  display: flex !important;
+  flex-direction: column;
+  justify-content: center;
+  gap: 24px;
+  width: auto !important;
+  min-width: 0;
+  max-width: none;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 10px 4px !important;
+}
+
+#game-detail-page .game-main-content:has(> #game-details-carousel-container) .game-title-container {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#game-detail-page .game-main-content:has(> #game-details-carousel-container) .game-name {
+  margin: 0 0 12px !important;
+  font-size: clamp(26px, 2.6vw, 34px) !important;
+  font-weight: 800 !important;
+  color: inherit !important;
+  line-height: 1.12 !important;
+  letter-spacing: -.035em;
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+}
+
+#game-detail-page .game-main-content:has(> #game-details-carousel-container) .game-creator {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin: 0 !important;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+#game-detail-page .game-main-content:has(> #game-details-carousel-container) .game-creator .text-label {
+  color: inherit !important;
+  opacity: .65;
+}
+
+#game-detail-page .game-main-content:has(> #game-details-carousel-container) .game-creator .text-name {
+  min-width: 0;
+  width: auto;
+  color: inherit !important;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+#game-detail-page .game-main-content:has(> #game-details-carousel-container) #game-age-recommendation-container:has(> *) {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 14px;
+  padding: 6px 10px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 8px;
+  background: rgb(255 255 255 / 5%);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+#game-detail-page .game-main-content:has(> #game-details-carousel-container)
+#game-age-recommendation-container :is(a, button, p, span) {
+  color: inherit !important;
+}
+
+#game-detail-page .game-main-content:has(> #game-details-carousel-container) .game-buttons-container {
+  position: static !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#game-detail-page .game-main-content:has(> #game-details-carousel-container) #game-details-play-button-container .btn-common-play-game-lg {
+  width: 100% !important;
+  min-height: 56px;
+  border-radius: 12px !important;
+  transition: background-color .15s, box-shadow .15s, transform .15s;
+}
+
+#game-detail-page .game-main-content:has(> #game-details-carousel-container)
+#game-details-play-button-container .btn-common-play-game-lg:not(:disabled):not([aria-disabled="true"]) {
+  border: 1px solid rgb(255 255 255 / 16%) !important;
+  color: #fff !important;
+  background: linear-gradient(135deg, #4772ff, #355cf3) !important;
+  box-shadow: 0 6px 20px rgb(42 82 231 / 24%);
+}
+
+#game-detail-page .game-main-content:has(> #game-details-carousel-container)
+#game-details-play-button-container .btn-common-play-game-lg:not(:disabled):not([aria-disabled="true"]):hover {
+  box-shadow: 0 8px 24px rgb(42 82 231 / 38%);
+  transform: translateY(-1px);
+}
+
+#game-detail-page .game-main-content:has(> #game-details-carousel-container)
+#game-details-play-button-container .btn-common-play-game-lg:focus-visible {
+  outline: 2px solid #a9c7ff;
+  outline-offset: 4px;
+}
+
+#game-detail-page .game-main-content:has(> #game-details-carousel-container) .favorite-follow-vote-share {
+  box-sizing: border-box;
+  margin: 14px 0 0 !important;
+  padding: 14px 0 0 !important;
+  border-top: 1px solid rgb(255 255 255 / 12%);
+}
+
+#game-detail-page .game-main-content:has(> #game-details-carousel-container)
+.favorite-follow-vote-share :is(a, .icon-label, .vote-text, .vote-numbers, .count-left, .count-right) {
+  color: inherit !important;
+}
+
+/* The media keeps its native carousel, video controls, and 16:9 sizing. */
 #game-detail-page #game-details-carousel-container {
   box-sizing: border-box;
   min-width: 0;
   padding: 8px;
   overflow: hidden;
   border-radius: 14px;
+}
+
+#game-detail-page .game-main-content > #game-details-carousel-container {
+  float: none !important;
+  align-self: center;
+  width: 100% !important;
+  max-width: none !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 1px solid rgb(255 255 255 / 13%);
+  border-radius: 16px;
+  background: rgb(0 0 0 / 18%);
+  box-shadow: 0 6px 22px rgb(0 0 0 / 18%);
+}
+
+#game-detail-page .game-main-content > #game-details-carousel-container [data-testid="carousel"] {
+  border: 0;
+  border-radius: inherit;
+  box-shadow: none;
+}
+
+@media (max-width: 800px) {
+  #game-detail-page .game-main-content:has(> #game-details-carousel-container) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    padding: 16px !important;
+    border-radius: 18px !important;
+  }
+  #game-detail-page .game-main-content:has(> #game-details-carousel-container) > .game-calls-to-action {
+    gap: 20px;
+    padding: 0 2px 4px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #game-detail-page .game-main-content:has(> #game-details-carousel-container)
+  #game-details-play-button-container .btn-common-play-game-lg { transition: none; }
 }
 
 #game-detail-page #game-details-carousel-container [data-testid="carousel"] {

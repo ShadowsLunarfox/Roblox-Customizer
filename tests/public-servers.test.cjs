@@ -24,6 +24,7 @@ function environment(count = 0) {
   const timers = new Map();
   const requests = [];
   let timerId = 0;
+  let clockOffset = 0;
   const notify = target => {
     for (const observer of [...observers]) {
       if (observer.root?.contains(target)) observer.callback([]);
@@ -187,6 +188,7 @@ function environment(count = 0) {
   };
   const location = { pathname: '/games/123/Test', href: 'https://www.roblox.com/games/123/Test' };
   const context = vm.createContext({ document, location, URL, Intl, Element, AbortController,
+    Date: class extends Date { static now() { return Date.now() + clockOffset; } },
     NodeFilter: { SHOW_TEXT: 4 },
     chrome: { runtime: { lastError: null, sendMessage(message, callback) { requests.push({ message, callback }); } } },
     HTMLSelectElement: Select, Event: class { constructor(type, options) { this.type = type; Object.assign(this, options); } },
@@ -224,6 +226,7 @@ function environment(count = 0) {
   };
   return { api, document, page, container, heading, grid, card, sync, visible, loader,
     Element, Select, timers, location, requests,
+    advanceTime(ms) { clockOffset += ms; },
     mutate(records) {
       for (const observer of [...observers]) if (observer.root === document) observer.callback(records);
     },
@@ -263,6 +266,75 @@ test('player ranges combine with country and ping, include zero, and exclude unk
   assert.equal(api.publicServerPlayerCount(textCard), 0);
   textCard.textContent = 'Players unavailable';
   assert.equal(api.publicServerPlayerCount(textCard), null);
+});
+
+test('filters and Search keep matching cards visible inside a shared list wrapper', async () => {
+  const env = environment(12);
+  const group = new env.Element('div');
+  group.append(...env.grid.children);
+  env.grid.append(group);
+  env.api.filter.maxPlayers = '5';
+  env.sync();
+  const rendered = () => [...env.api.publicServerCards(env.container)].filter(card =>
+    !card.closest('[data-rc-server-filtered], [data-rc-server-page-hidden]'));
+  assert.deepEqual(rendered().map(env.api.publicServerPlayerCount), [0, 1, 2, 3, 4, 5]);
+  await env.api.searchPublicServers(env.page, env.container);
+  assert.match(env.page.querySelector('.rc-public-server-page-message').textContent, /Found 6/);
+  assert.deepEqual(rendered().map(env.api.publicServerPlayerCount), [0, 1, 2, 3, 4, 5]);
+  env.page.querySelector('.rc-public-server-filter-reset').click();
+  env.sync();
+  assert.deepEqual(rendered().map(env.api.publicServerPlayerCount), [0, 1, 2, 3, 4, 5, 6, 7]);
+  await env.api.navigatePublicServerPage(env.page, env.container, 1);
+  assert.deepEqual(rendered().map(env.api.publicServerPlayerCount), [8, 9, 10, 11]);
+});
+
+test('list replacement clears visibility left on an old server wrapper', () => {
+  const env = environment(1);
+  const wrapper = new env.Element('div');
+  wrapper.append(...env.grid.children);
+  env.grid.append(wrapper);
+  env.api.filter.minPlayers = '1';
+  env.sync();
+  assert.equal(wrapper.hasAttribute('data-rc-server-filtered'), true);
+  const replacementGrid = new env.Element('ul', { className: 'card-list' });
+  replacementGrid.append(env.card(5));
+  wrapper.replaceChildren(replacementGrid);
+  env.sync();
+  assert.equal(wrapper.hasAttribute('data-rc-server-filtered'), false);
+  assert.equal(replacementGrid.children[0].closest('[data-rc-server-filtered], [data-rc-server-page-hidden]'), null);
+});
+
+test('native control hiding releases a wrapper after Roblox adds public cards to it', () => {
+  const env = environment();
+  sharedServerSections(env);
+  const group = new env.Element('div');
+  const sort = new env.Element('div');
+  sort.append(new env.Element('span', { text: 'Sort By' }), new env.Select('select'));
+  const exclude = new env.Element('div');
+  const checkbox = new env.Element('input');
+  checkbox.setAttribute('type', 'checkbox');
+  exclude.append(new env.Element('span', { text: 'Exclude Full Servers' }), checkbox);
+  group.append(sort, exclude, env.grid);
+  env.container.append(group);
+  env.api.hideNativePublicServerControls(env.page, env.container);
+  assert.equal(group.hasAttribute('data-rc-native-server-controls'), true);
+  env.grid.append(env.card(5));
+  env.api.hideNativePublicServerControls(env.page, env.container);
+  assert.equal(group.hasAttribute('data-rc-native-server-controls'), false);
+  assert.equal(sort.hasAttribute('data-rc-native-server-controls'), true);
+  assert.equal(exclude.hasAttribute('data-rc-native-server-controls'), true);
+});
+
+test('native controls sharing a parent with cards cannot hide that parent', () => {
+  const env = environment(8);
+  sharedServerSections(env);
+  const group = new env.Element('div');
+  const label = new env.Element('span', { text: 'Sort By' });
+  group.append(label, new env.Select('select'), env.grid);
+  env.container.append(group);
+  env.api.hideNativePublicServerControls(env.page, env.container);
+  assert.equal(group.hasAttribute('data-rc-native-server-controls'), false);
+  assert.equal(label.hasAttribute('data-rc-native-server-controls'), true);
 });
 
 test('sorting handles both directions, and changing filters returns to the first matching page', async () => {
@@ -699,7 +771,7 @@ function privateServerFixture(env, id = 1234) {
   return { id, list, row, main, name, avatar, status, join, details };
 }
 
-test('private names and image attributes immediately refresh custom cards and invalidate cached details', () => {
+test('private cards wait for refreshed details after native names and image attributes change', () => {
   const env = environment();
   const server = privateServerFixture(env);
   env.api.syncPrivateServers();
@@ -715,12 +787,17 @@ test('private names and image attributes immediately refresh custom cards and in
     { type: 'attributes', target: server.avatar, attributeName: 'src' }
   ]);
   const summary = server.row.querySelector('.rc-private-server-summary');
+  assert.equal(server.row.hasAttribute('data-rc-private-server-ready'), false);
+  assert.equal(server.row.hasAttribute('data-rc-private-server-pending'), true);
+  assert.equal(summary.querySelector('.rc-private-server-title').textContent, 'Original server');
+  assert.equal(env.requests.length, 2, 'New source data refreshes details before the 90-second cache expires');
+  env.requests[1].callback({ servers: [server.details({ name: 'Updated server', playing: 3 })] });
   assert.equal(summary.querySelector('.rc-private-server-title').textContent, 'Updated server');
   assert.equal(summary.querySelector('.rc-private-server-avatar').src, server.avatar.src);
   assert.equal(summary.querySelector('.rc-private-server-avatar').srcset, server.avatar.srcset);
   assert.equal(summary.querySelector('.rc-private-server-count').textContent, '3 of 12 people max');
   assert.equal(server.row.classList.contains('rc-private-server-card'), true);
-  assert.equal(env.requests.length, 2, 'New source data refreshes details before the 90-second cache expires');
+  assert.equal(server.row.hasAttribute('data-rc-private-server-ready'), true);
 });
 
 test('late private-server responses from before a native update cannot restore old names or images', () => {
@@ -758,6 +835,9 @@ test('replaced native rows refresh the source for the same private server ID', (
   env.api.syncPrivateServers();
   assert.equal(env.api.privateDetails.has(server.id), false);
   assert.equal(env.requests.length, 2);
+  assert.equal(replacement.row.querySelector('.rc-private-server-summary'), null);
+  assert.equal(replacement.row.hasAttribute('data-rc-private-server-ready'), false);
+  env.requests[1].callback({ servers: [replacement.details({ name: 'Replacement server' })] });
   assert.equal(replacement.row.querySelector('.rc-private-server-title').textContent, 'Replacement server');
   assert.equal(replacement.row.querySelector('.rc-private-server-avatar').src, replacement.avatar.src);
 });
@@ -796,4 +876,80 @@ test('a wiped custom summary or roster is repaired even when the server details 
   assert.equal(server.row.querySelector('.rc-private-server-title').textContent, 'Original server');
   assert.deepEqual(roster.children.map(node => node.src), ['https://tr.rbxcdn.com/original-player.png']);
   assert.equal(env.requests.length, 1, 'Repairing custom markup must not invalidate the data cache');
+});
+
+test('private cards create no custom UI until their complete details response arrives', () => {
+  const env = environment();
+  const server = privateServerFixture(env);
+  env.api.syncPrivateServers();
+  env.api.syncPrivateServers();
+  assert.equal(env.requests.length, 1, 'Only one details request is in flight');
+  assert.deepEqual(Array.from(env.requests[0].message.serverIds), [server.id]);
+  assert.equal(server.row.hasAttribute('data-rc-private-server-pending'), true);
+  assert.equal(server.row.hasAttribute('data-rc-private-server-ready'), false);
+  assert.equal(server.row.querySelector('.rc-private-server-summary'), null);
+  assert.equal(server.row.querySelector('.rc-private-server-roster'), null);
+  assert.equal(server.row.classList.contains('rc-private-server-card'), false);
+  assert.equal(server.list.querySelector('.rc-private-server-loading').textContent, 'Loading private server details...');
+  env.requests[0].callback({ servers: [server.details()] });
+  assert.equal(server.row.hasAttribute('data-rc-private-server-ready'), true);
+  assert.equal(server.row.hasAttribute('data-rc-private-server-pending'), false);
+  assert.equal(server.row.querySelector('.rc-private-server-owner').textContent, 'Original owner');
+  assert.deepEqual(server.row.querySelector('.rc-private-server-roster').children.map(node => node.src),
+    ['https://tr.rbxcdn.com/original-player.png']);
+  assert.equal(server.list.querySelector('.rc-private-server-loading'), null);
+});
+
+for (const missing of ['name', 'image']) {
+  test(`private cards wait for a missing native ${missing} and a current details response`, () => {
+    const env = environment();
+    const server = privateServerFixture(env);
+    if (missing === 'name') server.name.textContent = '';
+    else server.avatar.removeAttribute('src');
+    env.api.syncPrivateServers();
+    env.requests[0].callback({ servers: [server.details()] });
+    assert.equal(server.row.querySelector('.rc-private-server-summary'), null);
+    assert.equal(server.row.hasAttribute('data-rc-private-server-ready'), false);
+    server.name.textContent = 'Original server';
+    server.avatar.src = 'https://tr.rbxcdn.com/original-avatar.png';
+    env.api.syncPrivateServers();
+    assert.equal(server.row.hasAttribute('data-rc-private-server-ready'), false);
+    assert.equal(env.requests.length, 2);
+    env.requests[1].callback({ servers: [server.details()] });
+    assert.equal(server.row.hasAttribute('data-rc-private-server-ready'), true);
+    assert.equal(server.row.querySelector('.rc-private-server-title').textContent, 'Original server');
+  });
+}
+
+test('shared private cards wait for an unambiguous server ID from the details response', () => {
+  const env = environment();
+  const server = privateServerFixture(env);
+  server.row.removeAttribute('data-private-server-id');
+  server.row.querySelector('a').remove();
+  env.api.syncPrivateServers();
+  assert.deepEqual(Array.from(env.requests[0].message.serverIds), []);
+  assert.deepEqual(Array.from(env.requests[0].message.serverNames), ['Original server']);
+  assert.equal(server.row.hasAttribute('data-rc-private-server-ready'), false);
+  env.requests[0].callback({ servers: [server.details()], uniqueNames: ['original server'] });
+  assert.equal(server.row.hasAttribute('data-rc-private-server-ready'), true);
+  assert.equal(server.row.querySelector('.rc-private-server-owner').textContent, 'Original owner');
+});
+
+test('a failed private details request keeps cards hidden and can recover after the retry deadline', () => {
+  const env = environment();
+  const server = privateServerFixture(env);
+  env.api.syncPrivateServers();
+  env.requests[0].callback({ error: 'Unavailable' });
+  assert.equal(server.row.querySelector('.rc-private-server-summary'), null);
+  assert.equal(server.row.hasAttribute('data-rc-private-server-pending'), true);
+  assert.match(server.list.querySelector('.rc-private-server-loading').textContent, /unavailable.*Retrying/);
+  env.api.syncPrivateServers();
+  assert.equal(env.requests.length, 1);
+  env.advanceTime(30_001);
+  env.api.syncPrivateServers();
+  assert.equal(env.requests.length, 2);
+  env.requests[1].callback({ servers: [server.details({ playing: 0, playerImages: [] })] });
+  assert.equal(server.row.hasAttribute('data-rc-private-server-ready'), true);
+  assert.equal(server.row.querySelector('.rc-private-server-roster-count').textContent, 'No players online');
+  assert.equal(server.list.querySelector('.rc-private-server-loading'), null);
 });
