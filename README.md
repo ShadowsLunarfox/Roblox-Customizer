@@ -19,7 +19,7 @@ A browser extension for Chrome and Edge that adds custom backgrounds, frosted pa
 ## 🌟 Features
 
 - **Animated backgrounds:** Use images, GIFs, or MP4 videos from a local file or HTTPS media URL. Choose whether the background fills the screen or shows the entire image, and adjust dimming.
-- **Frosted interface:** Tune glass blur and opacity for menus and page panels, with styling that follows Roblox's light or dark theme.
+- **Frosted interface:** Tune glass blur and opacity for menus and page panels, with styling that follows Roblox's light or dark theme. Interface features and layout improvements work with Roblox's default background; a custom wallpaper is optional.
 - **Theme-aware controls:** Text, icons, inputs, menus, and extension settings switch with Roblox's theme. Light panels retain a minimum backing opacity to keep text readable over dark wallpapers.
 - **Personalized Home:** Customize greetings and the clock, show up to three friend rows, and pin games. Hide Favorites, Standout Games, or the upper and lower recommendations separately; hide and restore individual recommended games.
 - **Game browsing tools:** View badge information and public/private server details. Search public servers by country, latency, ping, and player count, or sort by player count.
@@ -31,12 +31,14 @@ A browser extension for Chrome and Edge that adds custom backgrounds, frosted pa
 | Page or area | Route examples | What changes |
 | --- | --- | --- |
 | Home | `/home` | Greeting, clock, friends, pinned games, recommendation controls, and aligned game cards. |
-| Game details | `/games/{id}` | Media and play controls, information panels, badges, server cards and filters, and social feeds. |
+| Game details | `/games/{id}` | Media and play controls, Store product cards and purchase controls, information panels, badges, server cards and filters, and social feeds. |
+| Private-server configuration | `/private-server/configure/{id}` | Configuration panels, server name and link fields, access controls, and native save actions. |
+| Game passes & Badges | `/game-pass/{id}`, `/badges/{id}` | Responsive artwork and detail panels, native purchase controls, and related experience links. |
 | Charts | `/charts` | Game cards, browsing controls, and filter panels. |
 | Marketplace | `/catalog`, `/catalog/{id}`, `/bundles/{id}` | Browsing cards, item and bundle previews, details, and resale panels. |
 | Profiles & Avatar | `/users/{id}/profile`, `/my/avatar` | Profile sections, avatar previews, and editor panels. |
 | Friends & Inventory | `/users/{id}/friends`, `/users/{id}/inventory` | Tabs, search controls, and list/card styling. |
-| Account settings | `/my/account` | Settings navigation, account information, and form panels. |
+| Account settings | `/my/account` | Settings navigation, Account Info and Robux panels, edit controls, personal forms, and social network fields. |
 | Account & activity | `/plus`, `/my/messages`, `/trades`, `/transactions` | Membership, messaging, trading, and transaction panels. |
 | Communities | `/search/communities`, `/communities/{id}`, `/communities/create` | Search results, community pages, and creation forms; legacy group routes are also supported. |
 | Robux | `/upgrades/robux` | Purchase options and pricing panels. |
@@ -70,7 +72,7 @@ Changes apply immediately and save automatically.
 
 To update, replace the extension files with the new version, click the extension's reload button on the browser's extensions page, and refresh Roblox.
 
-To restore the default background, select **Roblox default background** or **Remove background** in the plugin settings. To disable or uninstall the extension, use the browser's extensions page.
+To restore the default background, select **Roblox default background** or **Remove background** in the plugin settings. Your other customizations remain active. To disable or uninstall the extension, use the browser's extensions page.
 
 ## 🛠️ Troubleshooting
 

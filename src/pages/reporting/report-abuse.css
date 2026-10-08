@@ -1,5 +1,5 @@
 /* Keep the native reporting form and its states inside one wallpaper-aware panel. */
-html[data-rc-background-active][data-rc-frost-page="report-abuse"] body #content {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] body #content {
   --rc-report-border: var(--color-stroke-default, rgb(128 128 128 / 32%));
   --rc-report-focus: var(--color-selection-start, var(--rc-focus, #7fa6ff));
   box-sizing: border-box !important;
@@ -19,9 +19,9 @@ html[data-rc-background-active][data-rc-frost-page="report-abuse"] body #content
 }
 
 /* Native templates may add their own root and section backings. */
-html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content > div,
-html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content > div > div,
-html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content > div,
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content > div > div,
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(
   #report-abuse-container, #report-abuse-web-app, .report-abuse-container,
   .report-abuse, .report-abuse-page, .section-content, .container-header,
   form
@@ -34,44 +34,44 @@ html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content :is(
   backdrop-filter: none !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content .container-header {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content .container-header {
   margin: 0 0 20px !important;
   padding: 0 !important;
   border: 0 !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content :is(h1, h2) {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(h1, h2) {
   margin: 0 0 16px;
   line-height: 1.25;
   letter-spacing: -.025em;
   overflow-wrap: anywhere;
 }
 
-html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content h1 {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content h1 {
   font-size: clamp(26px, 4vw, 34px);
 }
 
-html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content :is(p, label, .text-label, .text-description) {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(p, label, .text-label, .text-description) {
   line-height: 1.55;
   overflow-wrap: anywhere;
 }
 
-html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content :is(form, .form-group, .form-field) {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(form, .form-group, .form-field) {
   width: 100% !important;
   max-width: 100% !important;
   min-width: 0;
   box-sizing: border-box;
 }
 
-html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content :is(.form-group, .form-field) {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(.form-group, .form-field) {
   margin-bottom: 20px;
 }
 
-html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content :is(label, .text-label) {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(label, .text-label) {
   font-weight: 600;
 }
 
-html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(
   textarea, select, .input-dropdown-btn,
   input:not(:where([type="checkbox"], [type="radio"], [type="hidden"], [type="button"], [type="submit"], [type="reset"], [type="file"]))
 ) {
@@ -89,27 +89,27 @@ html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content :is(
   line-height: 1.5;
 }
 
-html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content textarea {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content textarea {
   height: auto;
   min-height: 160px !important;
   resize: vertical;
 }
 
-html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content select option {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content select option {
   background-color: rgb(var(--rc-glass-color, 20 22 28));
   color: inherit;
 }
 
-html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(
   input, select, textarea, .input-dropdown-btn
 ):is([aria-invalid="true"], .input-validation-error),
-html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content .has-error :is(
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content .has-error :is(
   input, select, textarea, .input-dropdown-btn
 ) {
   border-color: var(--color-system-alert, #ef7676) !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content .input-dropdown > .dropdown-menu {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content .input-dropdown > .dropdown-menu {
   box-sizing: border-box;
   max-width: 100%;
   max-height: min(320px, 50dvh);
@@ -121,7 +121,7 @@ html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content .inp
   box-shadow: 0 8px 24px rgb(0 0 0 / 22%);
 }
 
-html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(
   .btn-primary-md, .btn-primary-lg, .btn-control-md, .btn-control-lg,
   .btn-secondary-md, .btn-secondary-lg, button[type="submit"], input[type="submit"]
 ) {
@@ -134,7 +134,7 @@ html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content :is(
   overflow-wrap: anywhere;
 }
 
-html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(
   .btn-primary-md, .btn-primary-lg, button[type="submit"], input[type="submit"]
 ):not(:disabled, .disabled, [aria-disabled="true"]) {
   border: 1px solid #5278ff !important;
@@ -143,13 +143,13 @@ html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content :is(
   box-shadow: 0 4px 14px rgb(35 67 180 / 20%);
 }
 
-html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(
   .btn-primary-md, .btn-primary-lg, button[type="submit"], input[type="submit"]
 ):not(:disabled, .disabled, [aria-disabled="true"]):hover {
   background: linear-gradient(135deg, #5077fa, #4268e5) !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(
   button, input, select, textarea, a, [tabindex="0"]
 ):focus-visible {
   outline: 2px solid var(--rc-report-focus) !important;
@@ -157,12 +157,12 @@ html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content :is(
 }
 
 /* Preserve native visibility, validation colors, disabled controls, and dialogs. */
-html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content [hidden]:not([hidden="until-found"]) {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content [hidden]:not([hidden="until-found"]) {
   display: none !important;
 }
 
 @media (max-width: 600px) {
-  html[data-rc-background-active][data-rc-frost-page="report-abuse"] body #content {
+  html[data-rc-ui-active][data-rc-frost-page="report-abuse"] body #content {
     margin: 16px auto !important;
     border-radius: 16px !important;
   }

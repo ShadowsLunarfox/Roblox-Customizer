@@ -1,0 +1,224 @@
+/* Use Roblox's own Store cards, prices, pagination, and purchase handlers. */
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) {
+  min-width: 0;
+  color: var(--rc-text);
+}
+
+html[data-rc-ui-active] #game-detail-page #store > :not(script, style) {
+  zoom: 1;
+}
+
+html[data-rc-ui-active] #game-detail-page #store .rc-store-category {
+  background: var(--rc-inset-bg);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+html[data-rc-ui-active] #game-detail-page #store :is(.rc-store-section-title, h2, h3) {
+  color: var(--rc-text);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-cards:not(:where(.hidden, .ng-hide, [hidden])) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 144px), 1fr));
+  align-items: stretch;
+  gap: 16px;
+  width: 100%;
+  min-width: 0;
+  margin: 16px 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Native float clearers otherwise consume empty cells in the grid. */
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-cards::before,
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-cards::after {
+  content: none;
+  display: none;
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-cards > .list-item {
+  box-sizing: border-box;
+  float: none;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  height: 100%;
+  margin: 0;
+  padding: 10px;
+  border: 1px solid rgb(var(--rc-foreground-rgb) / 18%);
+  border-radius: 14px;
+  background: rgb(var(--rc-glass-color) / var(--rc-surface-opacity, .62)) !important;
+  color: var(--rc-text);
+  transition: border-color .15s ease, background-color .15s ease;
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card:hover {
+  border-color: var(--rc-control-border);
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-product-card-thumbnail {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--rc-inset-bg);
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-product-card-thumbnail :is(a, .thumbnail-2d-container) {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-product-card-thumbnail img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  border-radius: inherit;
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :is(.store-product-card-caption, .store-card-caption) {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :is(.store-product-card-name, .store-card-name) {
+  height: auto;
+  min-height: 2.8em;
+  margin: 0;
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--rc-text);
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-top: auto;
+  color: var(--rc-text-secondary);
+  line-height: 1.5;
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-price :is(.text-robux, [class^="icon-"]) {
+  float: none;
+  margin: 0;
+  color: inherit;
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-price::before,
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-price::after {
+  content: none;
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-footer {
+  height: auto;
+  margin-top: 0;
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-footer .PurchaseButton {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 40px;
+  height: auto;
+  padding: 9px 12px;
+  border-radius: 10px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .PurchaseButton:not(:disabled, .disabled, [aria-disabled="true"]) {
+  border-color: transparent;
+  background: #335fff;
+  color: #fff;
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .pending-badge {
+  max-width: calc(100% - 16px);
+  border: 1px solid var(--rc-control-border);
+  background: var(--rc-control-bg);
+  color: var(--rc-text);
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .pending-icon {
+  color: inherit;
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .overview-pagination-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .overview-pagination-container :is(button, a) {
+  border-radius: 8px;
+  min-width: 36px;
+  min-height: 36px;
+  color: var(--rc-text);
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .overview-pagination-container :is(button, a):not(:disabled, .disabled, [aria-disabled="true"]) {
+  background: var(--rc-control-bg);
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :is(a, button):focus-visible {
+  outline: 3px solid var(--rc-focus);
+  outline-offset: 3px;
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) [hidden]:not([hidden="until-found"]) {
+  display: none !important;
+}
+
+@media (max-width: 767px) {
+  html[data-rc-ui-active] #game-detail-page #store {
+    padding: 16px !important;
+  }
+
+  html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-cards {
+    gap: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card {
+    transition: none;
+  }
+}

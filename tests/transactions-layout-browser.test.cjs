@@ -13,7 +13,7 @@ function fixture() {
   const rows = ['Robux Stipends', 'Currency Purchases', 'Sales of Goods', 'Creator Rewards', 'Community Payouts', 'Roblox Adjustments', 'Total', 'Pending Robux']
     .map(label => `<tr><td>${label}</td><td><span class="icon-robux-16x16">⬡</span> <span class="text-robux">0</span><span class="rc-robux-equivalent">≈ RM 0.00 MYR</span></td></tr>`).join('');
   const summary = (id, className) => `<table id="${id}" class="${className}"><tbody><tr><th>Incoming Robux</th><th>Amount</th></tr>${rows}<tr><th>Outgoing Robux</th><th>Amount</th></tr><tr><td>Purchases</td><td>−⬡ 36<span class="rc-robux-equivalent">≈ RM 1.72 MYR</span></td></tr></tbody></table>`;
-  return `<!doctype html><html data-rc-background-active data-rc-frost-page="transactions"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  return `<!doctype html><html data-rc-ui-active data-rc-background-active data-rc-frost-page="transactions"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
     <style>body{margin:0;color:#fff;background:#25272c;font:14px Arial}#content{margin:24px auto}.rc-background-media{background:repeating-linear-gradient(45deg,#a44034 0 48px,#798572 48px 96px,#635476 96px 144px)}.summary,.transaction-summary,.transactions-summary{background:#25272c}table{width:100%;border-collapse:collapse}td,th{background:#25272c;padding:8px;text-align:left}h2{padding:16px;margin:0;font-size:20px}.container-header{padding:20px}.input-dropdown{position:relative}.dropdown-menu{display:none;position:absolute;list-style:none;background:#25272c;margin:0;top:100%;left:0}.open>.dropdown-menu{display:block}.dropdown-menu button{width:100%}.native-toggle{min-height:42px}#inactive[hidden]{display:none}</style>
     <link rel="stylesheet" href="/src/shared/theme.css"><link rel="stylesheet" href="/src/settings/settings.css"><link rel="stylesheet" href="/src/shared/site-pages.css"><link rel="stylesheet" href="/src/currency/robux-currency.css"><link rel="stylesheet" href="/src/pages/account/transactions-page.css">
     </head><body class="dark-theme"><div id="rc-background-layer"><div class="rc-background-media"></div></div><main id="container-main" class="container-main"><div id="content"><div id="transactions-page-container">
@@ -106,7 +106,7 @@ test('Transactions summary and history retain visible frost across layout and fi
   await browser.evaluate("document.querySelector('#nested-summary').outerHTML=document.querySelector('#nested-summary').outerHTML");
   assert.equal((await browser.evaluate(surfaces))['nested-summary'].blur,'none','Native remounts use the same single glass layer');
   await browser.evaluate("document.documentElement.removeAttribute('data-rc-background-active')");
-  for(const surface of Object.values(await browser.evaluate(surfaces)))assert.equal(surface.blur,'none','Disabling wallpaper restores native rendering');
+  assert.deepEqual(await browser.evaluate(surfaces),changed,'Removing wallpaper preserves transaction panels and appearance settings');
   await browser.evaluate("document.documentElement.setAttribute('data-rc-background-active','');document.documentElement.dataset.rcFrostPage='profile'");
   for(const surface of Object.values(await browser.evaluate(surfaces)))assert.equal(surface.blur,'none','Transactions frost is scoped to its route');
 });

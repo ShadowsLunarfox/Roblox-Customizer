@@ -48,9 +48,9 @@ html[data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-p
 html[data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-summary],
 html[data-rc-frost-page="profile"] :is(#content, main, [role="main"]) #user-profile-header-bg:not([data-rc-profile-summary]),
 html[data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-hero],
-html[data-rc-background-active][data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-banner],
-html[data-rc-background-active][data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-summary],
-html[data-rc-background-active][data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-hero] {
+html[data-rc-ui-active][data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-banner],
+html[data-rc-ui-active][data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-summary],
+html[data-rc-ui-active][data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-hero] {
   box-sizing: border-box;
   border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 17%) !important;
   border-radius: 16px !important;
@@ -86,7 +86,7 @@ html[data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-p
 }
 
 html[data-rc-frost-page="profile"] [data-rc-profile-banner-surface],
-html[data-rc-background-active][data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-banner-surface] {
+html[data-rc-ui-active][data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-banner-surface] {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -158,7 +158,7 @@ html[data-rc-frost-page="profile"] [data-rc-profile-section] :is(.section-conten
   min-width: 0;
 }
 
-html[data-rc-background-active][data-rc-frost-page="profile"] :is(#content, main, [role="main"])
+html[data-rc-ui-active][data-rc-frost-page="profile"] :is(#content, main, [role="main"])
   [data-rc-profile-section="friends"] :is(
     .container-header, [class*="section-header"], [class*="header-container"],
     [data-rc-profile-friends-header]
@@ -284,7 +284,7 @@ html[data-rc-frost-page="profile"] [data-rc-profile-section="experiences"]:is([d
   width: min(176px, calc((100% - 16px) / 2)) !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card] {
+html[data-rc-ui-active][data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card] {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(calc(var(--rc-surface-opacity, var(--rc-glass-opacity, .62)) * .6), var(--rc-surface-opacity-floor, 0))) !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -301,7 +301,7 @@ html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [dat
   padding: 0 !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card] :is(.item-card-container, .game-card-container, .item-card-caption, .game-card-name, .game-card-info) {
+html[data-rc-ui-active][data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card] :is(.item-card-container, .game-card-container, .item-card-caption, .game-card-name, .game-card-info) {
   border: 0 !important;
   background-color: transparent !important;
   background-image: none !important;
@@ -311,7 +311,7 @@ html[data-rc-background-active][data-rc-frost-page="profile"] :is([data-rc-profi
 }
 
 /* Collection thumbnail shells share the card's glass instead of opaque gray. */
-html[data-rc-background-active][data-rc-frost-page="profile"] [data-rc-profile-section="collections"] [data-rc-profile-card] :is([data-rc-profile-card-media], .thumbnail-2d-container) {
+html[data-rc-ui-active][data-rc-frost-page="profile"] [data-rc-profile-section="collections"] [data-rc-profile-card] :is([data-rc-profile-card-media], .thumbnail-2d-container) {
   background-color: transparent !important;
   background-image: none !important;
 }
@@ -441,7 +441,7 @@ html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [dat
   display: none !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-testid="carousel-scroll-arrow"] {
+html[data-rc-ui-active][data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-testid="carousel-scroll-arrow"] {
   border: 1px solid var(--color-stroke-default, rgb(128 128 128 / 30%));
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
 }

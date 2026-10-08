@@ -76,7 +76,7 @@ html[data-rc-frost-page="avatar"] [data-rc-avatar-studio] > :not(
   order: 0;
 }
 
-html[data-rc-background-active][data-rc-frost-page="avatar"] [data-rc-avatar-studio] > :is(
+html[data-rc-ui-active][data-rc-frost-page="avatar"] [data-rc-avatar-studio] > :is(
   [data-rc-avatar-view-column],
   [data-rc-avatar-item-column]
 ) {
@@ -88,7 +88,7 @@ html[data-rc-background-active][data-rc-frost-page="avatar"] [data-rc-avatar-stu
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
 }
 
-html[data-rc-background-active][data-rc-frost-page="avatar"] [data-rc-avatar-studio] > [data-rc-avatar-view-column] {
+html[data-rc-ui-active][data-rc-frost-page="avatar"] [data-rc-avatar-studio] > [data-rc-avatar-view-column] {
   padding: 14px !important;
   border-radius: 12px;
   background: linear-gradient(145deg, rgb(var(--rc-glass-color, 32 37 52) / max(.75, var(--rc-surface-opacity-floor, 0))), rgb(var(--rc-glass-color, 22 24 34) / max(.68, var(--rc-surface-opacity-floor, 0)))) !important;
@@ -196,7 +196,7 @@ html[data-rc-frost-page="avatar"] [data-rc-avatar-3d] canvas {
   color: var(--rc-text, #f5f6f7);
 }
 
-html[data-rc-background-active] #rc-avatar-2d {
+html[data-rc-ui-active] #rc-avatar-2d {
   background: linear-gradient(145deg, rgb(var(--rc-glass-color, 32 37 52) / max(.75, var(--rc-surface-opacity-floor, 0))), rgb(var(--rc-glass-color, 22 24 34) / max(.68, var(--rc-surface-opacity-floor, 0)))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);

@@ -108,6 +108,11 @@ test('Home hide switches are independent, persistent, and handle native carousel
   assert.equal(await browser.evaluate("document.querySelector('[data-rc-recommended-place-id=\"102\"]').hasAttribute('data-rc-recommended-hidden')"),true,'Existing individual recommendation hiding is preserved');
   assert.equal(await browser.evaluate("document.querySelector('#continue .rc-hide-recommended-game')"),null,'Game names do not classify unrelated sections');
   await browser.click('.rc-settings-menu-entry');
+  assert.equal(await browser.evaluate("document.documentElement.hasAttribute('data-rc-background-active')"),false,'Settings work on a fresh install without wallpaper');
+  await browser.evaluate("const blur=document.querySelector('#rc-glass-blur');blur.value='32';blur.dispatchEvent(new Event('input',{bubbles:true}));const opacity=document.querySelector('#rc-glass-opacity');opacity.value='85';opacity.dispatchEvent(new Event('input',{bubbles:true}))");
+  await browser.waitFor("JSON.parse(localStorage.getItem('customBackground')).glassBlur===32 && JSON.parse(localStorage.getItem('customBackground')).glassOpacity===85");
+  assert.match(await browser.evaluate("getComputedStyle(document.querySelector('[role=menu]')).backdropFilter"),/blur\(32px\)/,'Changing glass settings styles the menu without a wallpaper');
+  assert.notEqual(await browser.evaluate("getComputedStyle(document.body).backgroundColor"),'rgba(0, 0, 0, 0)','Roblox default background stays opaque');
   for(const [kind,[selector,key]] of Object.entries(controls)){
     assert.equal(await browser.evaluate(`document.querySelector('${selector}').checked`),false,'Existing users default to visible');
     await browser.click(selector);await browser.waitFor(`JSON.parse(localStorage.getItem('customBackground')).${key}===true`);
@@ -122,6 +127,8 @@ test('Home hide switches are independent, persistent, and handle native carousel
   await browser.click('#rc-remove');
   await browser.waitFor("JSON.parse(localStorage.getItem('customBackground')).source==='none'");
   await assertVisibility(Object.keys(controls));
+  assert.equal(await browser.evaluate("JSON.parse(localStorage.getItem('customBackground')).glassBlur"),32,'Removing wallpaper preserves appearance preferences');
+  assert.equal(await browser.evaluate("JSON.parse(localStorage.getItem('customBackground')).glassOpacity"),85);
   assert.equal(await browser.evaluate("JSON.parse(localStorage.getItem('customBackground')).friendRows"),4,'Other Home preferences survive setting changes');
   await browser.click('#rc-done');
   await browser.waitFor("!document.querySelector('#rc-settings-overlay')");
@@ -142,6 +149,8 @@ test('Home hide switches are independent, persistent, and handle native carousel
   await browser.waitFor("document.querySelector('#recommended-two[data-rc-home-section]') && document.querySelector('.rc-settings-menu-entry')");
   await assertVisibility(Object.keys(controls));
   await browser.click('.rc-settings-menu-entry');
+  assert.equal(await browser.evaluate("document.querySelector('#rc-glass-blur').value"),'32','Glass preference survives a reload with no background');
+  assert.match(await browser.evaluate("getComputedStyle(document.querySelector('[role=menu]')).backdropFilter"),/blur\(32px\)/);
   for(const [selector] of Object.values(controls))assert.equal(await browser.evaluate(`document.querySelector('${selector}').checked`),true,'Checkboxes reflect saved state after refresh');
   const cache=await browser.evaluate("JSON.parse(localStorage.getItem('roblox-customizer-visuals-v1'))");
   assert.equal(cache.hideFavorites,true);assert.equal(cache.hideStandoutGames,true);assert.equal(cache.hideRecommendedUpper,true);assert.equal(cache.hideRecommendedLower,true);
@@ -168,6 +177,12 @@ test('Home hide switches are independent, persistent, and handle native carousel
   await browser.send('Page.bringToFront');
   await browser.waitFor("!document.querySelector('#rc-hide-favorites').checked");
   await assertVisibility(['standout','upper','lower']);
+  await browser.evaluate("chrome.storage.local.set({customBackground:{...JSON.parse(localStorage.getItem('customBackground')),source:'file',fileKey:'missing-fixture-file',fileName:'missing.png'}})");
+  await browser.waitFor("!document.documentElement.hasAttribute('data-rc-background-active') && document.querySelector('#rc-settings-status').textContent.includes('unavailable')");
+  assert.match(await browser.evaluate("getComputedStyle(document.querySelector('[role=menu]')).backdropFilter"),/blur\(32px\)/,'A missing saved background cannot disable interface features');
+  await assertVisibility(['standout','upper','lower']);
+  await browser.click('#rc-remove');
+  await browser.waitFor("JSON.parse(localStorage.getItem('customBackground')).source==='none'");
   // Home-only markers are cleared if Roblox reuses the DOM while changing routes.
   await browser.click('#rc-done');
   await browser.evaluate("history.pushState({},'', '/charts');dispatchEvent(new PopStateEvent('popstate'))");

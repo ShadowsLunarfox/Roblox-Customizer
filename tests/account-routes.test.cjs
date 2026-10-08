@@ -46,6 +46,35 @@ function harness(url, script, cached = null) {
 }
 
 for (const [name, script] of [['startup', startup], ['settings fallback', fallback]]) {
+  test(`${name} enables interface customization on a fresh install without a wallpaper`, () => {
+    for (const route of ['/home', '/games/4623386862/Piggy', '/my/avatar', '/my/account',
+      '/catalog', '/charts', '/upgrades/robux', '/report-abuse', '/transactions',
+      '/game-pass/1903230850/Admin-Commands', '/badges/2526706651131685/You-played']) {
+      const env = harness(route, script);
+      assert.equal(env.root.hasAttribute('data-rc-ui-active'), true, route);
+      assert.equal(env.root.hasAttribute('data-rc-background-active'), false, route);
+    }
+  });
+
+  test(`${name} limits private-server configuration styling to native configuration routes`, () => {
+    const env = harness('/private-server/configure/4169319554', script);
+    for (const url of ['/private-server/configure/4169319554', '/private-server/configure/123/',
+      '/PRIVATE-SERVER/CONFIGURE/123', '/private-server/configure?privateServerId=4169319554']) {
+      env.location.href = new URL(url, 'https://www.roblox.com').href;
+      env.events.get('popstate')();
+      assert.equal(env.root.dataset.rcFrostPage, 'private-server-configure', url);
+      assert.equal(env.root.hasAttribute('data-rc-ui-active'), true);
+      assert.equal(env.root.hasAttribute('data-rc-background-active'), false);
+    }
+    for (const url of ['/private-server/configure/nope', '/private-server/configure/123oops',
+      '/private-server/configure/-123', '/private-server/configure/123/extra',
+      '/private-server/configure-extra/123', '/private-server', '/NewLogin', '/home']) {
+      env.location.href = new URL(url, 'https://www.roblox.com').href;
+      env.events.get('popstate')();
+      assert.equal(env.root.dataset.rcFrostPage, undefined, url);
+    }
+  });
+
   test(`${name} applies the product style to bundle routes and clears it after navigation`, () => {
     const env = harness('/bundles/33230277606065/R6', script);
     assert.equal(env.root.dataset.rcFrostPage, 'catalog');
@@ -58,6 +87,28 @@ for (const [name, script] of [['startup', startup], ['settings fallback', fallba
       env.location.href = new URL(url, 'https://www.roblox.com').href;
       env.events.get('popstate')();
       assert.equal(env.root.dataset.rcFrostPage, undefined, url);
+    }
+  });
+
+  test(`${name} styles game pass and badge details without enabling catalog previews`, () => {
+    const env = harness('/game-pass/1903230850/Admin-Commands', script);
+    for (const [url, expected] of [
+      ['/game-pass/1903230850/Admin-Commands', 'game-pass'],
+      ['/game-pass/123/', 'game-pass'],
+      ['/GAME-PASS/123', 'game-pass'],
+      ['/badges/2526706651131685/You-played', 'badge'],
+      ['/badges/123?ref=game', 'badge'],
+      ['/catalog/123/Item', 'catalog'],
+      ['/home', undefined],
+      ['/game-pass', undefined], ['/game-pass/nope', undefined],
+      ['/game-pass/123oops', undefined], ['/game-pass/-123', undefined],
+      ['/game-pass-extra/123', undefined], ['/badges', undefined],
+      ['/badges/nope', undefined], ['/badges/123oops', undefined],
+      ['/badges/-123', undefined], ['/badges-extra/123', undefined]
+    ]) {
+      env.location.href = new URL(url, 'https://www.roblox.com').href;
+      env.events.get('popstate')();
+      assert.equal(env.root.dataset.rcFrostPage, expected, url);
     }
   });
 
@@ -168,7 +219,14 @@ test('user-specific routes honor cached visual preferences and wallpaper can sti
   assert.equal(env.properties.get('--rc-glass-opacity'), '0.75');
   env.startup.setPreferences({ source: 'none', glassBlur: 18, glassOpacity: 62 });
   assert.equal(env.root.hasAttribute('data-rc-background-active'), false);
+  assert.equal(env.root.hasAttribute('data-rc-ui-active'), true);
+  assert.equal(env.properties.get('--rc-glass-blur'), '18px');
   assert.equal(env.root.dataset.rcFrostPage, 'inventory');
+  env.startup.setPreferences({ source: 'none', glassBlur: 32, glassOpacity: 85 });
+  assert.equal(env.properties.get('--rc-glass-blur'), '32px');
+  assert.equal(env.properties.get('--rc-glass-opacity'), '0.85');
+  assert.equal(env.root.hasAttribute('data-rc-background-active'), false);
+  assert.equal(env.root.hasAttribute('data-rc-ui-active'), true);
 });
 
 test('Home visibility preferences are cached independently and missing flags remain visible', () => {

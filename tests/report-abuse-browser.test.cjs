@@ -24,7 +24,7 @@ function fixture() {
     .input-dropdown{position:relative}.dropdown-menu{position:absolute;top:100%;left:0;display:none;list-style:none;margin:0;padding:0;background:#24262b;z-index:1000;width:100%}.open>.dropdown-menu{display:block}.dropdown-menu button{width:100%;padding:12px;background:transparent;border:0;text-align:left}
   </style>
   <link rel="stylesheet" href="/src/shared/theme.css"><link rel="stylesheet" href="/src/settings/settings.css"><link rel="stylesheet" href="/src/shared/site-pages.css"><link rel="stylesheet" href="/src/pages/reporting/report-abuse.css">
-  <script>localStorage.setItem('roblox-customizer-visuals-v1',JSON.stringify({version:1,backgroundActive:true,glassBlur:24,glassOpacity:78}));</script><script src="/src/shared/startup.js"></script>
+  <script>localStorage.setItem('roblox-customizer-visuals-v1',JSON.stringify({version:1,backgroundActive:false,glassBlur:24,glassOpacity:78}));</script><script src="/src/shared/startup.js"></script>
   </head><body class="dark-theme"><div id="rc-background-layer"><div class="rc-background-media"></div></div><main id="container-main"><div id="content">
     <div id="report-abuse-web-app"><div class="section-content">
       <div class="container-header"><h1>Report Abuse</h1></div>
@@ -148,7 +148,7 @@ test('Report form fits both themes and mobile widths while preserving native con
   await browser.click('#native-option');
   assert.equal(await browser.evaluate("document.querySelector('#native-reason').getAttribute('aria-expanded')"),'false','Native custom dropdown remains usable');
   await browser.evaluate("document.documentElement.removeAttribute('data-rc-background-active')");
-  assert.equal((await panel()).blur,'none','Removing the wallpaper restores native rendering');
+  assert.match((await panel()).blur,/blur\(24px\)/,'The report form stays styled without wallpaper');
   await browser.evaluate("document.documentElement.setAttribute('data-rc-background-active','');history.pushState({},'', '/home');dispatchEvent(new PopStateEvent('popstate'))");
   assert.equal((await panel()).blur,'none','Report styles are scoped to the report route');
   assert.deepEqual(browser.errors,[]);

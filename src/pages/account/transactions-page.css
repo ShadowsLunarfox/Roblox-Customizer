@@ -19,7 +19,7 @@ html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #tr
   overflow-wrap: anywhere;
 }
 
-html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(
+html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(
   .page-content, .tab-content, .transactions-container, .transaction-container,
   .section, .section-content, .summary, .transaction-summary, .transactions-summary
 ):not(table) {
@@ -31,7 +31,7 @@ html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content,
 }
 
 /* A separate backing leaves dropdowns free to blur the wallpaper themselves. */
-html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(
+html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(
   .container-header, .transactions-header, .transaction-header,
   .transactions-filters, .transaction-filters, .transactions-filter, .transaction-filter,
   .transactions-filters-container, .transaction-filters-container
@@ -52,7 +52,7 @@ html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content,
   overflow: visible;
 }
 
-html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(
+html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(
   .container-header, .transactions-header, .transaction-header,
   .transactions-filters, .transaction-filters, .transactions-filter, .transaction-filter,
   .transactions-filters-container, .transaction-filters-container
@@ -122,7 +122,7 @@ html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #tr
   margin: 0 !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.input-dropdown-btn, select, input:not([type="checkbox"], [type="radio"])) {
+html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.input-dropdown-btn, select, input:not([type="checkbox"], [type="radio"])) {
   box-sizing: border-box;
   min-width: 0;
   min-height: 42px;
@@ -142,8 +142,8 @@ html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #tr
   .transactions-filters-container, .transaction-filters-container, .input-group, .input-dropdown
 ):has(.open, [aria-expanded="true"], [data-state="open"]) { position: relative; z-index: 20; }
 
-html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.dropdown-menu, [role="listbox"]),
-html[data-rc-background-active][data-rc-frost-page="transactions"] body > [data-radix-popper-content-wrapper] :is([role="listbox"], [role="menu"]) {
+html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.dropdown-menu, [role="listbox"]),
+html[data-rc-ui-active][data-rc-frost-page="transactions"] body > [data-radix-popper-content-wrapper] :is([role="listbox"], [role="menu"]) {
   box-sizing: border-box;
   z-index: 30;
   min-width: 180px;
@@ -168,12 +168,12 @@ html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #tr
   overflow-wrap: anywhere;
 }
 
-html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.dropdown-menu > li > a, .dropdown-menu > li > button, [role="option"]):is(:hover, :focus-visible, [aria-selected="true"]) {
+html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.dropdown-menu > li > a, .dropdown-menu > li > button, [role="option"]):is(:hover, :focus-visible, [aria-selected="true"]) {
   background-color: var(--rc-transactions-hover) !important;
 }
 
 /* One glass layer per table keeps long histories inexpensive to paint. */
-html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) table {
+html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) table {
   box-sizing: border-box;
   width: 100% !important;
   max-width: 100%;
@@ -189,7 +189,7 @@ html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content,
 }
 
 /* Summary wrappers include their title; their tables share one glass surface. */
-html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(
+html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(
   .summary, .transaction-summary, .transactions-summary
 ):not(table):has(table) {
   box-sizing: border-box;
@@ -201,7 +201,7 @@ html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content,
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(
+html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(
   .summary, .transaction-summary, .transactions-summary
 ):not(table):has(table) table {
   border: 0 !important;
@@ -211,7 +211,7 @@ html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content,
   backdrop-filter: none !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(thead, tbody, tfoot, tr, th, td) {
+html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(thead, tbody, tfoot, tr, th, td) {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -224,7 +224,7 @@ html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #tr
   overflow-wrap: anywhere;
 }
 
-html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(th, td) {
+html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(th, td) {
   border-color: var(--rc-transactions-border) !important;
 }
 
@@ -237,7 +237,7 @@ html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #tr
   text-align: end;
 }
 
-html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions) tbody tr:hover {
+html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions) tbody tr:hover {
   background-color: var(--rc-transactions-hover) !important;
 }
 
@@ -258,7 +258,7 @@ html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #tr
   margin-block: 18px 24px;
 }
 
-html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.pager button, .pager a, .pagination button, .pagination a) {
+html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.pager button, .pager a, .pagination button, .pagination a) {
   min-width: 40px;
   min-height: 40px;
   border-radius: 10px !important;
@@ -277,7 +277,7 @@ html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #tr
 }
 
 @media (max-width: 640px) {
-  html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(
+  html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(
     .container-header, .transactions-header, .transaction-header,
     .transactions-filters, .transaction-filters, .transactions-filter, .transaction-filter,
     .transactions-filters-container, .transaction-filters-container

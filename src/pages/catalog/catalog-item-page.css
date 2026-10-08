@@ -1,5 +1,5 @@
 /* Catalog assets and bundles share the native item-details template. */
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   #item-container, #item-details, #item-details-container, .item-details-container,
   #resellers, #resellers-container, .resellers-container,
   #item-list-container-recommendations, #item-list-container-included-items, #item-recommendations-container, #recommendations-container, .recommendations-container
@@ -16,7 +16,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
 }
 
 /* Some templates nest these roots. Only the outer section owns the glass. */
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   #item-container, #item-details, #item-details-container, .item-details-container,
   #resellers, #resellers-container, .resellers-container,
   #item-list-container-recommendations, #item-list-container-included-items, #item-recommendations-container, #recommendations-container, .recommendations-container
@@ -33,7 +33,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
 }
 
 /* Clear structural backings while the native preview and purchase controls stay in place. */
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   #item-container, #item-details, #item-details-container, .item-details-container
 ) :is(
   .item-container, .item-details, .section, .section-content, .container-header,
@@ -53,7 +53,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
   box-shadow: none !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   #item-container, #item-details, #item-details-container, .item-details-container
 ) :is(.item-name, .item-name-container h1) {
   line-height: 1.3;
@@ -61,7 +61,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
   overflow-wrap: anywhere;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   #item-container, #item-details, #item-details-container, .item-details-container
 ) :is(.item-description, .item-description-text, .description-container) {
   line-height: 1.65;
@@ -296,7 +296,7 @@ html[data-rc-frost-page="catalog"] #content :is(
 }
 
 /* Clear older section wrappers behind the recommendations component. */
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(.section, .section-content):not(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(.section, .section-content):not(
   #item-container, #item-details, #item-details-container, .item-details-container,
   #resellers, #resellers-container, .resellers-container,
   #item-list-container-recommendations, #item-list-container-included-items, #item-recommendations-container, #recommendations-container, .recommendations-container
@@ -310,7 +310,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(.sect
   box-shadow: none !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   #resellers, #resellers-container, .resellers-container,
   #item-list-container-recommendations, #item-list-container-included-items, #item-recommendations-container, #recommendations-container, .recommendations-container
 ) :is(
@@ -329,7 +329,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
   box-shadow: none !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   #resellers, #resellers-container, .resellers-container,
   #item-list-container-recommendations, #item-list-container-included-items, #item-recommendations-container, #recommendations-container, .recommendations-container
 ) {
@@ -337,14 +337,14 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
   padding: 12px;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   #item-list-container-recommendations, #item-list-container-included-items, #item-recommendations-container, #recommendations-container, .recommendations-container
 ) :is(#item-list-container-recommendations, #item-list-container-included-items, #item-recommendations-container, #recommendations-container, .recommendations-container) {
   margin-top: 0;
   padding: 0;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   #resellers, #resellers-container, .resellers-container,
   #item-list-container-recommendations, #item-list-container-included-items, #item-recommendations-container, #recommendations-container, .recommendations-container
 ) :is(.container-header, .section-header) {
@@ -352,7 +352,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
 }
 
 /* Let each tile own its frost, with an inset darker thumbnail like the catalog cards. */
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   #item-list-container-recommendations, #item-list-container-included-items, #item-recommendations-container, #recommendations-container,
   #sponsored-catalog-items, #populated-sponsored-catalog-items, .recommendations-container
 ) {
@@ -364,7 +364,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
   box-shadow: none !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   #item-list-container-recommendations, #item-list-container-included-items, #item-recommendations-container, #recommendations-container,
   #sponsored-catalog-items, #populated-sponsored-catalog-items, .recommendations-container
 ) .item-card-container {
@@ -376,14 +376,14 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
   box-shadow: 0 4px 14px rgb(0 0 0 / 12%) !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   #item-list-container-recommendations, #item-list-container-included-items, #item-recommendations-container, #recommendations-container,
   #sponsored-catalog-items, #populated-sponsored-catalog-items, .recommendations-container
 ) .item-card-thumb-container {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(24%, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   #item-list-container-recommendations, #item-list-container-included-items, #item-recommendations-container, #recommendations-container,
   #sponsored-catalog-items, #populated-sponsored-catalog-items, .recommendations-container
 ) .item-card-container:is(:hover, :focus-within) {
@@ -391,7 +391,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
   box-shadow: 0 6px 18px rgb(0 0 0 / 20%) !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   #item-container, #item-details, #item-details-container, .item-details-container,
   #resellers, #resellers-container, .resellers-container,
   #item-list-container-recommendations, #item-list-container-included-items, #item-recommendations-container, #recommendations-container, .recommendations-container
@@ -576,7 +576,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
 #rc-catalog-item-2d .rc-item-preview-status:empty,
 #rc-catalog-item-3d-status:empty { display: none; }
 
-html[data-rc-background-active] [data-rc-item-studio] > :is([data-rc-item-3d], #rc-catalog-item-2d) {
+html[data-rc-ui-active] [data-rc-item-studio] > :is([data-rc-item-3d], #rc-catalog-item-2d) {
   border-color: rgb(var(--rc-foreground-rgb, 255 255 255) / 15%);
   background: linear-gradient(145deg, rgb(var(--rc-glass-color, 32 37 52) / max(.75, var(--rc-surface-opacity-floor, 0))), rgb(var(--rc-glass-color, 22 24 34) / max(.68, var(--rc-surface-opacity-floor, 0)))) !important;
   color: var(--rc-text, #f5f6f7);
@@ -793,13 +793,13 @@ html[data-rc-frost-page="catalog"] #item-info-container-frontend .item-details-s
   overflow-wrap: anywhere;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #item-info-container-frontend {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #item-info-container-frontend {
   --rc-item-info-text: var(--rc-text, #f5f6f7);
   --rc-item-info-muted: var(--rc-text-secondary, #c4c6ce);
   --rc-item-info-stroke: rgb(var(--rc-foreground-rgb, 255 255 255) / 16%);
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #item-info-container-frontend .item-details-section > :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #item-info-container-frontend .item-details-section > :is(
   .price-row-container, .item-info-row-container:has(.description-content)
 ) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
@@ -870,7 +870,7 @@ html[data-rc-frost-page="catalog"] #favorites-button[data-rc-item-spec-favorites
   background: transparent !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content #rc-catalog-item-specs {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content #rc-catalog-item-specs {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
@@ -1035,13 +1035,13 @@ html[data-rc-frost-page="catalog"] .shopping-cart-modal:has(.shopping-cart-items
   pointer-events: none;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] .shopping-cart-modal-container {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] .shopping-cart-modal-container {
   background-color: transparent !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] .shopping-cart-modal-container .shopping-cart-modal {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] .shopping-cart-modal-container .shopping-cart-modal {
   --rc-cart-stroke: rgb(var(--rc-foreground-rgb, 255 255 255) / 18%);
   position: relative;
   isolation: isolate;
@@ -1051,7 +1051,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] .shopping-cart-mod
   backdrop-filter: none !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] .shopping-cart-modal::before {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] .shopping-cart-modal::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -1063,7 +1063,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] .shopping-cart-mod
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content .shopping-cart-modal :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content .shopping-cart-modal :is(
   .shopping-cart-title-container, .scroll-container, .rbx-scrollbar,
   .shopping-cart-items-list, .shopping-cart-footer, .item-details-container
 ) {
@@ -1147,7 +1147,7 @@ html[data-rc-frost-page="catalog"] #content #asset-resale-data-container :is(
 }
 
 /* The section owns the glass; its heading and chart wrappers share that layer. */
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content #asset-resale-data-container [data-rc-market-section] :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content #asset-resale-data-container [data-rc-market-section] :is(
   .container-header, .section-content
 ) {
   background-color: transparent !important;
@@ -1173,7 +1173,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #content #asset-re
 [data-rc-market-section="chart"] .legend-text { color: var(--rc-market-muted); }
 
 /* The range selector and its popup each own a frosted surface. */
-html[data-rc-background-active][data-rc-frost-page="catalog"] #asset-resale-data-container .price-chart-range-dropdown > :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #asset-resale-data-container .price-chart-range-dropdown > :is(
   .input-dropdown-btn, .dropdown-menu
 ) {
   box-sizing: border-box;
@@ -1186,12 +1186,12 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #asset-resale-data
   color: var(--rc-market-text, var(--rc-text, #f5f6f7)) !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #asset-resale-data-container .price-chart-range-dropdown > .dropdown-menu {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #asset-resale-data-container .price-chart-range-dropdown > .dropdown-menu {
   padding: 6px !important;
   box-shadow: 0 10px 28px rgb(0 0 0 / 24%) !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #asset-resale-data-container .price-chart-range-dropdown .dropdown-menu :is(li, button, a) {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #asset-resale-data-container .price-chart-range-dropdown .dropdown-menu :is(li, button, a) {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -1200,11 +1200,11 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #asset-resale-data
   color: inherit !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #asset-resale-data-container .price-chart-range-dropdown .dropdown-menu > li > :is(button, a) {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #asset-resale-data-container .price-chart-range-dropdown .dropdown-menu > li > :is(button, a) {
   border-radius: 6px;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #asset-resale-data-container .price-chart-range-dropdown .dropdown-menu > li > :is(button, a):is(:hover, :focus-visible) {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #asset-resale-data-container .price-chart-range-dropdown .dropdown-menu > li > :is(button, a):is(:hover, :focus-visible) {
   background-color: rgb(var(--rc-foreground-rgb, 255 255 255) / 12%) !important;
 }
 
@@ -1416,7 +1416,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #asset-resale-data
 #asset-resale-data-container [data-rc-market-section="resellers"] .trade-button-container { margin: 0; }
 #asset-resale-data-container [data-rc-market-section="resellers"] .see-more-resellers { min-height: 40px; margin: 16px 0 0; border-radius: 8px; }
 
-html[data-rc-background-active] [data-rc-market-root] {
+html[data-rc-ui-active] [data-rc-market-root] {
   --rc-market-text: var(--rc-text, #f5f6f7);
   --rc-market-muted: var(--rc-text-secondary, #c4c6ce);
   --rc-market-stroke: rgb(var(--rc-foreground-rgb, 255 255 255) / 20%);
@@ -1426,16 +1426,16 @@ html[data-rc-background-active] [data-rc-market-root] {
   --rc-market-surface: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62)));
 }
 
-html[data-rc-background-active] #content #asset-resale-data-container [data-rc-market-section]:not([data-rc-market-section="chart"]) {
+html[data-rc-ui-active] #content #asset-resale-data-container [data-rc-market-section]:not([data-rc-market-section="chart"]) {
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
 }
 
 /* Separate ancestor backings let product tiles and popups blur the page behind them. */
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   #item-container, #item-details, #item-details-container, .item-details-container
 ):has(.price-chart-range-dropdown, .shopping-cart-modal, .item-card-container, #rc-catalog-item-specs),
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content #asset-resale-data-container [data-rc-market-section="chart"] {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content #asset-resale-data-container [data-rc-market-section="chart"] {
   position: relative;
   isolation: isolate;
   background-color: transparent !important;
@@ -1443,10 +1443,10 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #content #asset-re
   backdrop-filter: none !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   #item-container, #item-details, #item-details-container, .item-details-container
 ):has(.price-chart-range-dropdown, .shopping-cart-modal, .item-card-container, #rc-catalog-item-specs)::before,
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content #asset-resale-data-container [data-rc-market-section="chart"]::before {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content #asset-resale-data-container [data-rc-market-section="chart"]::before {
   content: "";
   display: block !important;
   position: absolute;
@@ -1460,7 +1460,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #content #asset-re
 }
 
 /* Nested item wrappers continue to share the outer wrapper's backing. */
-html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   #item-container, #item-details, #item-details-container, .item-details-container
 ):has(.price-chart-range-dropdown, .shopping-cart-modal, .item-card-container, #rc-catalog-item-specs) :is(
   #item-container, #item-details, #item-details-container, .item-details-container
@@ -1488,7 +1488,7 @@ html[data-rc-frost-page="catalog"] #content #asset-resale-data-container [data-r
   [data-rc-item-studio] { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   [data-rc-item-studio] > #rc-catalog-item-2d { grid-column: 1; }
 
-  html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
+  html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
     #item-container, #item-details, #item-details-container, .item-details-container,
     #resellers, #resellers-container, .resellers-container,
     #item-list-container-recommendations, #item-list-container-included-items, #item-recommendations-container, #recommendations-container, .recommendations-container
@@ -1496,7 +1496,7 @@ html[data-rc-frost-page="catalog"] #content #asset-resale-data-container [data-r
     border-radius: 12px !important;
   }
 
-  html[data-rc-background-active][data-rc-frost-page="catalog"] #content :is(
+  html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
     #resellers, #resellers-container, .resellers-container,
     #item-list-container-recommendations, #item-list-container-included-items, #item-recommendations-container, #recommendations-container, .recommendations-container
   ) {

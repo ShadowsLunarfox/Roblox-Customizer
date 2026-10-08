@@ -5,6 +5,9 @@
   const FROST_ROUTES = [
     [/^\/catalog(?:\/|$)/i, 'catalog'],
     [/^\/bundles\/\d+(?:\/|$)/i, 'catalog'],
+    [/^\/game-pass\/\d+(?:\/|$)/i, 'game-pass'],
+    [/^\/badges\/\d+(?:\/|$)/i, 'badge'],
+    [/^\/private-server\/configure(?:\/\d+)?\/?$/i, 'private-server-configure'],
     [/^\/users\/\d+\/profile(?:\/|$)/i, 'profile'],
     [/^\/plus(?:\/|$)/i, 'plus'],
     [/^\/my\/messages(?:\/|$)/i, 'messages'],
@@ -74,6 +77,8 @@
   function syncRoute() {
     const root = document.documentElement;
     if (!root) return;
+    // Interface features are available with Roblox's default background too.
+    if (!root.hasAttribute('data-rc-ui-active')) root.setAttribute('data-rc-ui-active', '');
     if (visualRoot !== root) {
       applyVisuals(cachedVisuals);
       visualRoot = root;

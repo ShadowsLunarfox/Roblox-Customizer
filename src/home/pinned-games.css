@@ -273,8 +273,8 @@
   background: rgb(128 128 128 / 10%);
 }
 
-html[data-rc-background-active] #rc-pinned-games .rc-pinned-game-card,
-html[data-rc-background-active] #rc-pinned-games-notification {
+html[data-rc-ui-active] #rc-pinned-games .rc-pinned-game-card,
+html[data-rc-ui-active] #rc-pinned-games-notification {
   border-color: rgb(var(--rc-foreground-rgb, 255 255 255) / 15%);
   background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62)));
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);

@@ -1,11 +1,11 @@
 /* Marketplace's React root keeps the native search, filters, and item links. */
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container {
   --rc-catalog-border: var(--color-stroke-default, rgb(var(--rc-foreground-rgb, 255 255 255) / 16%));
   --rc-catalog-hover: var(--color-stroke-emphasis, rgb(var(--rc-foreground-rgb, 255 255 255) / 32%));
   background-color: transparent !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container :is(
   #catalog-react-page, #catalog-content, #main-view, #react-items-container,
   #results, .results-container, .catalog-results
 ) {
@@ -14,7 +14,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
 }
 
 /* A separate backing lets filter popups blur outside the sticky header. */
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .catalog-header {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .catalog-header {
   isolation: isolate;
   box-sizing: border-box;
   margin-bottom: 16px;
@@ -28,7 +28,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
   box-shadow: 0 8px 24px rgb(0 0 0 / 14%);
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .catalog-header::before {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .catalog-header::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -40,7 +40,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container :is(
   .search-bars, .catalog-heading-container, .catalog-heading-actions,
   .catalog-search-options-top-bar, .topic-container, .catalog-search
 ) {
@@ -51,7 +51,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
   box-shadow: none !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container :is(
   .filter-select:not(.btn-primary-md), .topic-container button
 ) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(22%, var(--rc-surface-opacity-floor, 0))) !important;
@@ -59,7 +59,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
 }
 
 /* Each filter menu remains readable over the item grid. */
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container :is(.filters-modal-container, .dropdown-menu) {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container :is(.filters-modal-container, .dropdown-menu) {
   border: 1px solid var(--rc-catalog-border) !important;
   border-radius: 12px !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.5, var(--rc-surface-opacity, var(--rc-glass-opacity, .62)))) !important;
@@ -70,7 +70,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
 }
 
 /* The search category selector uses the native dropdown menu, not a filter modal. */
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu {
   box-sizing: border-box;
   max-width: calc(100vw - 32px);
   max-height: min(360px, calc(100dvh - 120px));
@@ -80,8 +80,8 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
   color: var(--color-content-emphasis, inherit) !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu > li,
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu :is(li > a, li > button, [role="option"]) {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu > li,
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu :is(li > a, li > button, [role="option"]) {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -89,7 +89,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
   box-shadow: none !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu :is(li > a, li > button, [role="option"]) {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu :is(li > a, li > button, [role="option"]) {
   min-height: 40px;
   padding: 10px 12px !important;
   border-radius: 8px;
@@ -98,13 +98,13 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
   overflow-wrap: anywhere;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu :is(
   li.active > a, li.active > button, [role="option"][aria-selected="true"]
 ) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(28%, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu :is(
   li:not(.disabled, [aria-disabled="true"]) > a:not([aria-disabled="true"]),
   li:not(.disabled, [aria-disabled="true"]) > button:not(:disabled, [aria-disabled="true"]),
   [role="option"]:not([aria-disabled="true"])
@@ -112,7 +112,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(18%, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .filters-modal-container :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .filters-modal-container :is(
   .header-container, .filter-options-container, .action-buttons-container, .filter-option
 ) {
   background-color: transparent !important;
@@ -122,11 +122,11 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
   box-shadow: none !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .filters-modal-container .filter-option:hover {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .filters-modal-container .filter-option:hover {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(18%, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container :is(
   #avatar-shop-keyword-input, .filters-modal-container input:not([type="radio"], [type="checkbox"])
 ) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(24%, var(--rc-surface-opacity-floor, 0))) !important;
@@ -136,7 +136,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
 }
 
 /* React's display:contents wrappers allow the actual products to be grid cells. */
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container #results > .item-cards-stackable {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container #results > .item-cards-stackable {
   display: grid !important;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr));
   gap: 16px;
@@ -145,13 +145,13 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
   list-style: none;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container #results > .item-cards-stackable::before,
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container #results > .item-cards-stackable::after {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container #results > .item-cards-stackable::before,
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container #results > .item-cards-stackable::after {
   content: none !important;
   display: none !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .catalog-item-container {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .catalog-item-container {
   box-sizing: border-box;
   float: none !important;
   width: 100% !important;
@@ -166,7 +166,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
 }
 
 /* One glass surface per product, including its thumbnail and description. */
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-container {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-container {
   box-sizing: border-box;
   display: flex !important;
   flex-direction: column;
@@ -184,7 +184,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-container > a.item-card-link {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-container > a.item-card-link {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -193,7 +193,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
   text-decoration: none;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-container :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-container :is(
   .item-card-link, .item-card-thumb-container, .item-card-thumb-container-inner,
   .thumbnail-2d-container, .item-card-caption
 ) {
@@ -204,7 +204,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
   box-shadow: none !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-thumb-container {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-thumb-container {
   width: 100% !important;
   height: auto !important;
   aspect-ratio: 1;
@@ -212,7 +212,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
   overflow: hidden;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-caption {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-caption {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -221,7 +221,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
   padding: 10px 3px 3px !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-name {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-name {
   height: auto !important;
   min-height: 2.8em;
   margin: 0 !important;
@@ -231,35 +231,35 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
   overflow-wrap: anywhere;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-price {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-price {
   margin-top: auto !important;
   padding-top: 5px;
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-container:hover {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-container:hover {
   border-color: var(--rc-catalog-hover) !important;
   box-shadow: 0 6px 20px rgb(0 0 0 / 20%);
 }
 
-html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container :is(a, button, input):focus-visible {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container :is(a, button, input):focus-visible {
   outline: 2px solid var(--color-action-emphasis-background, var(--rc-focus, #7fa6ff));
   outline-offset: 3px;
 }
 
 @media (max-width: 640px) {
-  html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .catalog-header {
+  html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .catalog-header {
     padding: 10px;
     border-radius: 12px;
   }
 
-  html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container #results > .item-cards-stackable {
+  html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container #results > .item-cards-stackable {
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 1fr));
     gap: 10px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-container {
+  html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-container {
     transition: none;
   }
 }

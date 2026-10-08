@@ -48,7 +48,7 @@ html[data-rc-background-active][data-rc-frost-page] :is(
 }
 
 /* Only content panels receive frost; the surrounding page stays clear. */
-html[data-rc-background-active][data-rc-frost-page] :is(#content, main, [role="main"]) :is(
+html[data-rc-ui-active][data-rc-frost-page] :is(#content, main, [role="main"]) :is(
   .container-header,
   .content-header,
   .section-header,
@@ -63,7 +63,7 @@ html[data-rc-background-active][data-rc-frost-page] :is(#content, main, [role="m
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page] :is(#content, main, [role="main"]) :is(
+html[data-rc-ui-active][data-rc-frost-page] :is(#content, main, [role="main"]) :is(
   .rbx-tabs-horizontal,
   .tabs-container,
   .tab-container
@@ -72,12 +72,12 @@ html[data-rc-background-active][data-rc-frost-page] :is(#content, main, [role="m
 }
 
 /* Marketplace and charts. */
-html[data-rc-background-active][data-rc-frost-page="catalog"] :is(#content, main, [role="main"]) :is(
+html[data-rc-ui-active][data-rc-frost-page="catalog"] :is(#content, main, [role="main"]) :is(
   .catalog-search,
   .catalog-filters,
   .search-options-container
 ),
-html[data-rc-background-active][data-rc-frost-page="charts"] :is(#content, main, [role="main"]) :is(
+html[data-rc-ui-active][data-rc-frost-page="charts"] :is(#content, main, [role="main"]) :is(
   .charts-filter-container,
   .charts-section-header
 ) {
@@ -87,18 +87,18 @@ html[data-rc-background-active][data-rc-frost-page="charts"] :is(#content, main,
 }
 
 /* Profile, friends, and messages. */
-html[data-rc-background-active][data-rc-frost-page="profile"] :is(#content, main, [role="main"]) :is(
+html[data-rc-ui-active][data-rc-frost-page="profile"] :is(#content, main, [role="main"]) :is(
   .profile-header,
   .profile-about,
   .profile-section,
   .profile-statistics
 ),
-html[data-rc-background-active][data-rc-frost-page="friends"] :is(#content, main, [role="main"]) :is(
+html[data-rc-ui-active][data-rc-frost-page="friends"] :is(#content, main, [role="main"]) :is(
   .friends-list-container,
   .friend-requests-container,
   .friends-section
 ),
-html[data-rc-background-active][data-rc-frost-page="messages"] :is(#content, main, [role="main"]) :is(
+html[data-rc-ui-active][data-rc-frost-page="messages"] :is(#content, main, [role="main"]) :is(
   .messages-list,
   .message-list,
   .message-detail,
@@ -110,17 +110,17 @@ html[data-rc-background-active][data-rc-frost-page="messages"] :is(#content, mai
 }
 
 /* Plus, avatar editor, inventory, and trade views. */
-html[data-rc-background-active][data-rc-frost-page="plus"] :is(#content, main, [role="main"]) :is(
+html[data-rc-ui-active][data-rc-frost-page="plus"] :is(#content, main, [role="main"]) :is(
   .subscription-container,
   .benefits-container
 ),
-html[data-rc-background-active][data-rc-frost-page="avatar"] :is(#content, main, [role="main"]) :is(
+html[data-rc-ui-active][data-rc-frost-page="avatar"] :is(#content, main, [role="main"]) :is(
   .avatar-editor-container
 ),
-html[data-rc-background-active][data-rc-frost-page="inventory"] :is(#content, main, [role="main"]) :is(
+html[data-rc-ui-active][data-rc-frost-page="inventory"] :is(#content, main, [role="main"]) :is(
   .inventory-category-container
 ),
-html[data-rc-background-active][data-rc-frost-page="trades"] :is(#content, main, [role="main"]) :is(
+html[data-rc-ui-active][data-rc-frost-page="trades"] :is(#content, main, [role="main"]) :is(
   .trade-list-container,
   .trade-details-container
 ) {
@@ -130,7 +130,7 @@ html[data-rc-background-active][data-rc-frost-page="trades"] :is(#content, main,
 }
 
 /* Page-specific styles own the account, profile, Charts, and Robux card surfaces. */
-html[data-rc-background-active][data-rc-frost-page]:not([data-rc-frost-page="catalog"]):not([data-rc-frost-page="avatar"]):not([data-rc-frost-page="community"]):not([data-rc-frost-page="community-search"]):not([data-rc-frost-page="community-create"]):not(:where([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"], [data-rc-frost-page="account-settings"], [data-rc-frost-page="charts"], [data-rc-frost-page="robux"])) :is(#content, main, [role="main"]) :is(
+html[data-rc-ui-active][data-rc-frost-page]:not([data-rc-frost-page="catalog"]):not([data-rc-frost-page="avatar"]):not([data-rc-frost-page="community"]):not([data-rc-frost-page="community-search"]):not([data-rc-frost-page="community-create"]):not(:where([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"], [data-rc-frost-page="account-settings"], [data-rc-frost-page="charts"], [data-rc-frost-page="robux"])) :is(#content, main, [role="main"]) :is(
   .card,
   .card-item,
   .item-card,
@@ -162,8 +162,8 @@ html[data-rc-background-active][data-rc-frost-page]:not([data-rc-frost-page="cat
 }
 
 /* Community pages use both group templates and newer React widgets. */
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container,
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container :is(
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container,
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container :is(
   .group-details-container,
   .group-details,
   .profile-header-with-cover,
@@ -175,7 +175,7 @@ html[data-rc-background-active][data-rc-frost-page="community"] #group-container
   background-image: none !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container :is(
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container :is(
   .group-profile-header,
   .group-section-content,
   .section-content,
@@ -191,7 +191,7 @@ html[data-rc-background-active][data-rc-frost-page="community"] #group-container
   .group-announcement-archive,
   .group-forums-categories
 ),
-html[data-rc-background-active][data-rc-frost-page="community"] .group-description-dialog .MuiDialog-paper {
+html[data-rc-ui-active][data-rc-frost-page="community"] .group-description-dialog .MuiDialog-paper {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
   background-image: none !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
@@ -201,7 +201,7 @@ html[data-rc-background-active][data-rc-frost-page="community"] .group-descripti
 }
 
 /* Inset community section titles and soften the glass header corners. */
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container :is(
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container :is(
   .container-header,
   .section-header,
   .content-header
@@ -213,7 +213,7 @@ html[data-rc-background-active][data-rc-frost-page="community"] #group-container
 }
 
 /* A widget gets one glass backing; its inner layout layers stay clear. */
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container :is(
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container :is(
   .group-section-content,
   .section-content,
   .group-profile-header,
@@ -243,8 +243,8 @@ html[data-rc-background-active][data-rc-frost-page="community"] #group-container
   .group-announcement-archive-card-content,
   .group-announcement-archive-copy
 ),
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-games .game-card .game-card-container,
-html[data-rc-background-active][data-rc-frost-page="community"] .group-description-dialog :is(.group-description-dialog-header, .group-description-dialog-body) {
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-games .game-card .game-card-container,
+html[data-rc-ui-active][data-rc-frost-page="community"] .group-description-dialog :is(.group-description-dialog-header, .group-description-dialog-body) {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -253,7 +253,7 @@ html[data-rc-background-active][data-rc-frost-page="community"] .group-descripti
 }
 
 /* React feeds need a full panel backing, including their headings and tabs. */
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container :is(
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container :is(
   .group-forums-updates,
   .group-announcement-archive,
   .group-forums-categories
@@ -262,13 +262,13 @@ html[data-rc-background-active][data-rc-frost-page="community"] #group-container
   padding: 12px !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container .rbx-tabs-horizontal :is(.nav-tabs, .rbx-tab-heading) {
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .rbx-tabs-horizontal :is(.nav-tabs, .rbx-tab-heading) {
   background-color: transparent !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container :is(
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container :is(
   .group-section-content,
   .section-content,
   .group-profile-header
@@ -279,7 +279,7 @@ html[data-rc-background-active][data-rc-frost-page="community"] #group-container
 }
 
 /* Community Store: responsive cards with readable names and aligned prices. */
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-store > .container-header {
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-store > .container-header {
   align-items: center !important;
   gap: 12px !important;
   min-height: 46px !important;
@@ -287,13 +287,13 @@ html[data-rc-background-active][data-rc-frost-page="community"] #group-container
   padding: 10px 14px !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-store > .container-header h2 {
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-store > .container-header h2 {
   margin: 0 !important;
   font-size: 18px !important;
   line-height: 1.3 !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-store .see-all-link-icon {
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-store .see-all-link-icon {
   flex-shrink: 0;
   padding: 6px 26px 6px 10px !important;
   border-radius: 8px !important;
@@ -303,13 +303,13 @@ html[data-rc-background-active][data-rc-frost-page="community"] #group-container
   text-decoration: none !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-store .see-all-link-icon::after {
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-store .see-all-link-icon::after {
   top: 50% !important;
   right: 8px !important;
   transform: translateY(-50%);
 }
 
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-store .item-cards-stackable:not(.ng-hide) {
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-store .item-cards-stackable:not(.ng-hide) {
   display: grid !important;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr));
   gap: 14px;
@@ -320,18 +320,18 @@ html[data-rc-background-active][data-rc-frost-page="community"] #group-container
 }
 
 /* Native float-clearing pseudo-elements must not occupy product grid cells. */
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-store .item-cards-stackable::before,
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-store .item-cards-stackable::after {
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-store .item-cards-stackable::before,
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-store .item-cards-stackable::after {
   content: none !important;
   display: none !important;
 }
 
 /* Angular keeps a custom-element wrapper around each native item card. */
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-store .item-cards-stackable > group-store-item {
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-store .item-cards-stackable > group-store-item {
   display: contents;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-store .item-card {
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-store .item-card {
   display: block !important;
   float: none !important;
   width: 100% !important;
@@ -341,7 +341,7 @@ html[data-rc-background-active][data-rc-frost-page="community"] #group-container
   padding: 0 !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-store .item-card-container {
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-store .item-card-container {
   box-sizing: border-box !important;
   display: flex !important;
   flex-direction: column;
@@ -361,7 +361,7 @@ html[data-rc-background-active][data-rc-frost-page="community"] #group-container
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-store .item-card-thumb-container {
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-store .item-card-thumb-container {
   flex-shrink: 0;
   width: 100% !important;
   height: auto !important;
@@ -370,7 +370,7 @@ html[data-rc-background-active][data-rc-frost-page="community"] #group-container
   border-radius: 10px !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-store :is(.item-card-thumb, .thumbnail-2d-container) {
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-store :is(.item-card-thumb, .thumbnail-2d-container) {
   display: block !important;
   width: 100% !important;
   min-width: 0 !important;
@@ -379,13 +379,13 @@ html[data-rc-background-active][data-rc-frost-page="community"] #group-container
   border-radius: 10px !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-store .thumbnail-2d-container img {
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-store .thumbnail-2d-container img {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-store .item-card-caption {
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-store .item-card-caption {
   display: flex !important;
   flex: 1;
   flex-direction: column;
@@ -393,7 +393,7 @@ html[data-rc-background-active][data-rc-frost-page="community"] #group-container
   padding: 10px 3px 3px !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-store .item-card-name {
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-store .item-card-name {
   display: block !important;
   -webkit-line-clamp: unset !important;
   line-clamp: none !important;
@@ -411,7 +411,7 @@ html[data-rc-background-active][data-rc-frost-page="community"] #group-container
   color: inherit !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-store .item-card-price {
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-store .item-card-price {
   display: flex !important;
   align-items: center;
   gap: 5px;
@@ -427,24 +427,24 @@ html[data-rc-background-active][data-rc-frost-page="community"] #group-container
   color: inherit !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-store .item-card-price :is(.icon-robux-16x16, .text-robux) {
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-store .item-card-price :is(.icon-robux-16x16, .text-robux) {
   flex-shrink: 0;
   margin: 0 !important;
   color: inherit !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-store .item-card-container:hover {
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-store .item-card-container:hover {
   border-color: var(--color-stroke-emphasis, rgb(var(--rc-foreground-rgb, 255 255 255) / 32%)) !important;
   box-shadow: 0 6px 20px rgb(0 0 0 / 22%);
 }
 
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-store :is(.item-card-container, .see-all-link-icon):focus-visible {
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-store :is(.item-card-container, .see-all-link-icon):focus-visible {
   outline: 2px solid var(--color-action-emphasis-background, var(--rc-focus, #7fa6ff)) !important;
   outline-offset: 3px;
 }
 
 /* Keep the complete community summary inside its glass panel. */
-html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-profile-header {
+html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-profile-header {
   box-sizing: border-box !important;
   height: auto !important;
   max-height: none !important;

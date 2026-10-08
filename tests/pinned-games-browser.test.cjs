@@ -10,7 +10,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 function fixture() {
   const voting = fs.readFileSync(path.join(__dirname, 'fixtures', 'game-voting.html'), 'utf8');
-  return `<!doctype html><html data-rc-background-active><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  return `<!doctype html><html data-rc-ui-active data-rc-background-active><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   ${process.env.PINNED_NATIVE_CSS ? '<link rel="stylesheet" href="/native.css">' : ''}
   <style>body{margin:0;background:#25272c;color:#f7f7f8;font:14px Arial}.wallpaper{position:fixed;inset:0;background:repeating-linear-gradient(45deg,#9d433a 0 60px,#758570 60px 120px,#655278 120px 180px);z-index:-1}main{width:min(1060px,calc(100% - 32px));margin:30px auto}h1,h2{margin:12px 0}.friend-carousel-container{padding:18px;border:1px solid #ffffff30;border-radius:12px;background:#25272c90;backdrop-filter:blur(18px)}.friends{display:flex;gap:20px}.friend{display:grid;gap:6px;text-align:center}.avatar{display:grid;place-items:center;width:58px;height:58px;border-radius:50%;background:#73818f}#game-detail-page{max-width:100%}.game-calls-to-action{width:min(360px,100%);margin:30px 0}.favorite-follow-vote-share{width:100%;box-sizing:border-box;padding:10px 0;margin:0;list-style:none}.favorite-follow-vote-share:after{content:'';display:block;clear:both}.game-main-content.follow-button-enabled .game-favorite-button-container{float:left;width:110px;white-space:nowrap}.favorite-button{text-align:center;width:55px}.icon-favorite{font-size:28px;height:28px;margin-bottom:4px}.icon-label{font-size:12px;line-height:16px}.voting-panel{float:left;width:110px}.social-media-share{float:right}.game-favorite-button-container a{display:block;color:inherit;text-decoration:none;cursor:pointer}@media(min-width:991px){.game-main-content.follow-button-enabled .game-favorite-button-container{width:calc(50% - 56px)}}@media(max-width:374px){.game-main-content.follow-button-enabled .game-favorite-button-container{max-width:75px}}#recommended{margin-top:30px}</style>
   <style>
@@ -208,7 +208,7 @@ test('Game pins appear beside Favorite, persist below Home friends, join nativel
   await browser.evaluate("document.documentElement.style.setProperty('--rc-glass-blur','32px')");
   assert.equal(await browser.evaluate("getComputedStyle(document.querySelector('.rc-pinned-game-card')).backdropFilter"), 'blur(32px) saturate(1.2)');
   await browser.evaluate("document.documentElement.removeAttribute('data-rc-background-active')");
-  assert.equal(await browser.evaluate("getComputedStyle(document.querySelector('.rc-pinned-game-card')).backdropFilter"), 'none');
+  assert.equal(await browser.evaluate("getComputedStyle(document.querySelector('.rc-pinned-game-card')).backdropFilter"), 'blur(32px) saturate(1.2)', 'Pinned cards keep their appearance without wallpaper');
   await browser.evaluate("chrome.storage.onChanged;localStorage.removeItem('pinnedGames');emit([])"); await pause(90);
   assert.equal(await browser.evaluate("document.querySelectorAll('.rc-pinned-game-card').length"), 0);
   assert.equal(await browser.evaluate("document.querySelector('.rc-pinned-games-empty').hidden"), false);

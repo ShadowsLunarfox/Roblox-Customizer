@@ -19,7 +19,7 @@
   box-shadow: 0 12px 36px rgb(0 0 0 / 30%);
 }
 
-html[data-rc-background-active] :is(#rc-x-feed-panel, #rc-youtube-feed-panel) {
+html[data-rc-ui-active] :is(#rc-x-feed-panel, #rc-youtube-feed-panel) {
   background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62)));
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px));
   backdrop-filter: blur(var(--rc-glass-blur, 18px));
@@ -221,36 +221,36 @@ html[data-rc-background-active] :is(#rc-x-feed-panel, #rc-youtube-feed-panel) {
   cursor: default;
 }
 
-html[data-rc-background-active] #game-detail-page,
-html[data-rc-background-active] #game-detail-page .rbx-tabs-horizontal,
-html[data-rc-background-active] #game-detail-page .rbx-tab-content,
-html[data-rc-background-active] #game-detail-page .tab-content,
-html[data-rc-background-active] #game-detail-page .tab-pane,
-html[data-rc-background-active] #game-detail-page #game-details-about-tab-container,
-html[data-rc-background-active] #game-detail-page .game-about-container,
-html[data-rc-background-active] #game-detail-page .container-header,
-html[data-rc-background-active] #game-detail-page .section-content-off {
+html[data-rc-ui-active] #game-detail-page,
+html[data-rc-ui-active] #game-detail-page .rbx-tabs-horizontal,
+html[data-rc-ui-active] #game-detail-page .rbx-tab-content,
+html[data-rc-ui-active] #game-detail-page .tab-content,
+html[data-rc-ui-active] #game-detail-page .tab-pane,
+html[data-rc-ui-active] #game-detail-page #game-details-about-tab-container,
+html[data-rc-ui-active] #game-detail-page .game-about-container,
+html[data-rc-ui-active] #game-detail-page .container-header,
+html[data-rc-ui-active] #game-detail-page .section-content-off {
   background-color: transparent !important;
   background-image: none !important;
 }
 
 /* Keep native sections readable while letting the wallpaper show through. */
-html[data-rc-background-active] #game-detail-page .section-content,
-html[data-rc-background-active] #game-detail-page .server-list-section,
-html[data-rc-background-active] #game-detail-page .social-links .contents {
+html[data-rc-ui-active] #game-detail-page .section-content,
+html[data-rc-ui-active] #game-detail-page .server-list-section,
+html[data-rc-ui-active] #game-detail-page .social-links .contents {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.38, var(--rc-surface-opacity-floor, 0))) !important;
   background-image: none !important;
 }
 
-html[data-rc-background-active] #game-detail-page > .section-content,
-html[data-rc-background-active] #game-detail-page .btr-game-main-container,
-html[data-rc-background-active] #game-detail-page .btr-mid-container,
-html[data-rc-background-active] #game-detail-page .tab-content > #about,
-html[data-rc-background-active] #game-detail-page > #rc-people-also-join,
-html[data-rc-background-active] #game-detail-page #game-badges-container,
-html[data-rc-background-active] #game-detail-page #game-instances,
-html[data-rc-background-active] #game-detail-page #running-game-instances-container,
-html[data-rc-background-active] #game-detail-page #store {
+html[data-rc-ui-active] #game-detail-page > .section-content,
+html[data-rc-ui-active] #game-detail-page .btr-game-main-container,
+html[data-rc-ui-active] #game-detail-page .btr-mid-container,
+html[data-rc-ui-active] #game-detail-page .tab-content > #about,
+html[data-rc-ui-active] #game-detail-page > #rc-people-also-join,
+html[data-rc-ui-active] #game-detail-page #game-badges-container,
+html[data-rc-ui-active] #game-detail-page #game-instances,
+html[data-rc-ui-active] #game-detail-page #running-game-instances-container,
+html[data-rc-ui-active] #game-detail-page #store {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   background-image: none !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
@@ -258,9 +258,9 @@ html[data-rc-background-active] #game-detail-page #store {
 }
 
 /* The Servers pane already has glass; nested list panels should not darken it again. */
-html[data-rc-background-active] #game-detail-page #game-instances #running-game-instances-container,
-html[data-rc-background-active] #game-detail-page #game-instances .server-list-section,
-html[data-rc-background-active] #game-detail-page #game-instances > .section-content {
+html[data-rc-ui-active] #game-detail-page #game-instances #running-game-instances-container,
+html[data-rc-ui-active] #game-detail-page #game-instances .server-list-section,
+html[data-rc-ui-active] #game-detail-page #game-instances > .section-content {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -684,12 +684,12 @@ div:has(> div > div > a[aria-label="Configure"][href*="/private-server/configure
   opacity: .8;
 }
 
-html[data-rc-background-active] .rc-private-server-card {
+html[data-rc-ui-active] .rc-private-server-card {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.28, var(--rc-surface-opacity-floor, 0))) !important;
   background-image: none !important;
 }
 
-html[data-rc-background-active] .rc-private-server-native-card {
+html[data-rc-ui-active] .rc-private-server-native-card {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.28, var(--rc-surface-opacity-floor, 0))) !important;
   background-image: none !important;
 }
@@ -730,9 +730,9 @@ html[data-rc-background-active] .rc-private-server-native-card {
 }
 
 /* Put a readable frosted panel behind About instead of text on bare wallpaper. */
-html[data-rc-background-active] #game-detail-page .btr-mid-container,
-html[data-rc-background-active] #game-detail-page .tab-content > #about,
-html[data-rc-background-active] #game-detail-page > #rc-people-also-join {
+html[data-rc-ui-active] #game-detail-page .btr-mid-container,
+html[data-rc-ui-active] #game-detail-page .tab-content > #about,
+html[data-rc-ui-active] #game-detail-page > #rc-people-also-join {
   box-sizing: border-box;
   padding: 20px !important;
   border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 12%);
@@ -751,7 +751,7 @@ html[data-rc-background-active] #game-detail-page > #rc-people-also-join {
   box-shadow: inset 0 1px rgb(var(--rc-foreground-rgb, 255 255 255) / 9%), 0 8px 20px rgb(0 0 0 / 12%);
 }
 
-html[data-rc-background-active] #game-detail-page #about
+html[data-rc-ui-active] #game-detail-page #about
   :is(.game-description-container, .game-stat-container, .social-links) {
   background-color: rgb(var(--rc-foreground-rgb, 255 255 255) / 6%) !important;
   background-image: none !important;
@@ -801,7 +801,7 @@ html[data-rc-background-active] #game-detail-page #about
   box-shadow: inset 0 1px rgb(var(--rc-foreground-rgb, 255 255 255) / 10%);
 }
 
-html[data-rc-background-active] #game-detail-page #about .social-links .contents {
+html[data-rc-ui-active] #game-detail-page #about .social-links .contents {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -858,7 +858,7 @@ html[data-rc-background-active] #game-detail-page #about .social-links .contents
   box-shadow: inset 0 1px 0 rgb(var(--rc-foreground-rgb, 255 255 255) / 7%), 0 5px 16px rgb(0 0 0 / 9%);
 }
 
-html[data-rc-background-active] #game-detail-page #store .rc-store-category {
+html[data-rc-ui-active] #game-detail-page #store .rc-store-category {
   border-color: rgb(var(--rc-foreground-rgb, 255 255 255) / 20%);
   background: rgb(var(--rc-glass-color, 20 22 28) / max(.2, var(--rc-surface-opacity-floor, 0)));
   -webkit-backdrop-filter: blur(10px) saturate(1.1);
@@ -910,13 +910,13 @@ html[data-rc-background-active] #game-detail-page #store .rc-store-category {
   zoom: .92;
 }
 
-html[data-rc-background-active] #game-detail-page .tab-content > :is(#store, #game-instances) {
+html[data-rc-ui-active] #game-detail-page .tab-content > :is(#store, #game-instances) {
   border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 12%);
   border-radius: 12px;
 }
 
 /* BTRoblox places the native main section inside its own outer panel. */
-html[data-rc-background-active] #game-detail-page .btr-game-main-container > .game-main-content {
+html[data-rc-ui-active] #game-detail-page .btr-game-main-container > .game-main-content {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -1136,8 +1136,8 @@ html[data-rc-background-active] #game-detail-page .btr-game-main-container > .ga
   object-fit: cover;
 }
 
-html[data-rc-background-active] #game-detail-page .badge-row,
-html[data-rc-background-active] #game-detail-page .server-list-section .card-item {
+html[data-rc-ui-active] #game-detail-page .badge-row,
+html[data-rc-ui-active] #game-detail-page .server-list-section .card-item {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.28, var(--rc-surface-opacity-floor, 0))) !important;
   background-image: none !important;
 }
@@ -1239,7 +1239,7 @@ body.btr-gamedetails #game-detail-page .tab-content > #about::before,
   background: rgb(0 0 0 / 12%);
 }
 
-html[data-rc-background-active] #game-detail-page #rc-rolimons-panel {
+html[data-rc-ui-active] #game-detail-page #rc-rolimons-panel {
   background: rgb(var(--rc-glass-color, 20 22 28) / max(.3, var(--rc-surface-opacity-floor, 0)));
 }
 

@@ -266,7 +266,8 @@
     const labels = new Map([
       ['subscriptions', 'subscriptions'],
       ['passes', 'passes'],
-      ['products', 'products']
+      ['products', 'products'],
+      ['developer products', 'products']
     ]);
     const normalize = node => (node.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
     const semanticHeadings = [...store.querySelectorAll('h1, h2, h3, h4, h5, h6, [role="heading"]')];

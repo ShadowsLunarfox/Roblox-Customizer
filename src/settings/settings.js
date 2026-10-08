@@ -66,6 +66,9 @@
     const path = location.pathname;
     const page = (/^\/catalog(?:\/|$)/i.test(path)
       || /^\/bundles\/\d+(?:\/|$)/i.test(path)) ? 'catalog'
+      : /^\/game-pass\/\d+(?:\/|$)/i.test(path) ? 'game-pass'
+      : /^\/badges\/\d+(?:\/|$)/i.test(path) ? 'badge'
+      : /^\/private-server\/configure(?:\/\d+)?\/?$/i.test(path) ? 'private-server-configure'
       : /^\/users\/\d+\/profile(?:\/|$)/i.test(path) ? 'profile'
       : /^\/plus(?:\/|$)/i.test(path) ? 'plus'
       : /^\/my\/messages(?:\/|$)/i.test(path) ? 'messages'
@@ -83,6 +86,7 @@
       : /^\/charts(?:\/|$)/i.test(path) ? 'charts' : '';
     const root = document.documentElement;
     if (!root) return;
+    root.setAttribute('data-rc-ui-active', '');
     if (page) {
       if (root.dataset.rcFrostPage !== page) root.dataset.rcFrostPage = page;
     } else if (root.hasAttribute('data-rc-frost-page')) delete root.dataset.rcFrostPage;
@@ -792,20 +796,8 @@
     ++mediaSelection;
     clearTimeout(urlTimer);
     urlTimer = 0;
-    changeSettings({ ...DEFAULTS, glassBlur: settings.glassBlur,
-      glassOpacity: settings.glassOpacity,
-      hideRecommendedUpper: settings.hideRecommendedUpper, hideRecommendedLower: settings.hideRecommendedLower,
-      hideFavorites: settings.hideFavorites, hideStandoutGames: settings.hideStandoutGames,
-      hiddenRecommendedGames: settings.hiddenRecommendedGames,
-      friendRows: settings.friendRows,
-      greetingMorning: settings.greetingMorning,
-      greetingAfternoon: settings.greetingAfternoon,
-      greetingEvening: settings.greetingEvening,
-      clockShowSeconds: settings.clockShowSeconds,
-      clockShowDate: settings.clockShowDate,
-      clockHour12: settings.clockHour12,
-      hideXFeed: settings.hideXFeed,
-      hideYouTubeFeed: settings.hideYouTubeFeed }, true);
+    changeSettings({ ...settings, source: 'none', url: '', urlType: 'auto',
+      fileKey: '', fileName: '', fit: DEFAULTS.fit, dim: DEFAULTS.dim }, true);
     modal.querySelector('input[name="rc-source"][value="none"]').checked = true;
     modal.querySelector('#rc-file').value = '';
     modal.querySelector('#rc-current-file').textContent = '';
@@ -858,6 +850,7 @@
         </div>
         <div class="rc-settings-glass">
           <h3>Frosted menus and page panels</h3>
+          <p class="rc-settings-hint">Works with Roblox's default background or your own image or video.</p>
           <label for="rc-glass-blur">Frost blur <output id="rc-glass-blur-value"></output></label>
           <input id="rc-glass-blur" type="range" min="0" max="40" step="1">
           <label for="rc-glass-opacity">Glass opacity <output id="rc-glass-opacity-value"></output></label>

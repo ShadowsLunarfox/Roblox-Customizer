@@ -1,0 +1,275 @@
+/* Game passes and badges share Roblox's item template, without avatar previews.
+   Keep its content, purchase eligibility, menus, and responsive visibility intact. */
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container {
+  --rc-item-border: rgb(var(--rc-foreground-rgb, 255 255 255) / 16%);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1100px;
+  min-width: 0;
+  margin-inline: auto;
+  color: var(--rc-text);
+  background: transparent !important;
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container > .top-section {
+  box-sizing: border-box;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(240px, 360px) minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas: "art heading" "art details" "social details";
+  align-items: start;
+  gap: 20px 28px;
+  padding: 28px !important;
+  border: 1px solid var(--rc-item-border);
+  border-radius: 20px;
+  color: var(--rc-text);
+  background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, .62)) !important;
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 12%);
+}
+
+/* Clearfix pseudo-elements must not become extra grid cells. */
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container > .top-section::before,
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container > .top-section::after {
+  content: none;
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container :is(.item-name-container, .item-thumbnail-container, #item-details, .item-social-container) {
+  box-sizing: border-box;
+  float: none !important;
+  width: 100% !important;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0 !important;
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .item-name-container {
+  grid-area: heading;
+  padding: 0 36px 20px 0;
+  border-bottom: 1px solid var(--rc-item-border);
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .item-name-container h1 {
+  margin: 0 0 12px;
+  color: var(--rc-text);
+  font-size: clamp(24px, 2.6vw, 34px);
+  line-height: 1.2;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container :is(.text-label, .field-label) {
+  color: var(--rc-text-secondary);
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container a.text-name {
+  color: var(--rc-link);
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .item-thumbnail-container {
+  grid-area: art;
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .thumbnail-holder {
+  box-sizing: border-box;
+  width: 100% !important;
+  height: auto !important;
+  border: 1px solid var(--rc-item-border);
+  border-radius: 14px;
+  background: var(--rc-inset-bg) !important;
+  overflow: hidden;
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .thumbnail-holder > .thumbnail-span:not(.hidden, .hide, .ng-hide, [hidden]) {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  padding: 24px;
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .thumbnail-holder > .thumbnail-span > img {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0 !important;
+  object-fit: contain;
+}
+
+/* The related experience belongs below the art, rather than covering it. */
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .related-asset-container {
+  position: static;
+  padding: 14px;
+  border-top: 1px solid var(--rc-item-border);
+  color: var(--rc-text-secondary);
+  background: transparent;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .related-asset-container::after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .related-asset-container .asset-info {
+  float: left;
+  width: calc(100% - 64px);
+  max-width: none;
+  min-width: 0;
+  margin: 0;
+  text-align: start;
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .related-asset-container :is(.preview-text, a.text-name) {
+  margin: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .related-asset-container .asset-thumbnail {
+  display: block;
+  float: right;
+  width: 50px;
+  height: 50px;
+  margin: 0;
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .related-asset-container .asset-thumbnail img {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details {
+  grid-area: details;
+  padding: 0;
+  color: var(--rc-text);
+  overflow-wrap: anywhere;
+}
+
+/* Keep Roblox's mobile description and Read More visibility rules. */
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details :is(.item-field-container, .item-type-field-container) {
+  margin: 0 0 16px;
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .field-label {
+  width: 110px;
+  max-width: 40%;
+  padding-right: 12px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .field-content {
+  width: calc(100% - 110px);
+  min-width: 0;
+  margin-block: 0;
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .description-content {
+  max-width: 100%;
+  color: var(--rc-text);
+  overflow-wrap: anywhere;
+}
+
+/* Leave the native purchase handler, price, and unavailable states untouched. */
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .price-container:not(.hidden, .hide, .ng-hide, [hidden]) {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  margin: 0 0 24px;
+  padding: 20px;
+  box-sizing: border-box;
+  border: 1px solid var(--rc-item-border);
+  border-radius: 12px;
+  background: var(--rc-inset-bg);
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .price-container :is(.price-container-text, .action-button) {
+  float: none;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  margin: 0;
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .price-container .price-container-text:not(.hidden, .hide, .ng-hide, [hidden]) {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .price-container .has-price-label {
+  padding-left: 0;
+  margin-top: 0;
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .price-container .action-button :is(button, a) {
+  box-sizing: border-box;
+  min-height: 44px;
+  border-radius: 9px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .item-social-container {
+  grid-area: social;
+  padding: 0;
+  list-style: none;
+  color: var(--rc-text-secondary);
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-context-menu {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+}
+
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container :is(a, button):focus-visible {
+  outline: 2px solid var(--rc-focus);
+  outline-offset: 3px;
+}
+
+@media (max-width: 767px) {
+  html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container > .top-section {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    grid-template-areas: "heading" "art" "details" "social";
+    gap: 20px;
+    padding: 20px !important;
+    border-radius: 16px;
+  }
+
+  html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .item-thumbnail-container {
+    max-width: 400px;
+    justify-self: center;
+  }
+
+  html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-context-menu {
+    top: 16px;
+    right: 16px;
+  }
+}
+
+@media (max-width: 380px) {
+  html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container > .top-section {
+    padding: 16px !important;
+  }
+
+  html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .price-container {
+    padding: 14px;
+  }
+}

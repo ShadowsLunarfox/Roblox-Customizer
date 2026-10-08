@@ -91,19 +91,19 @@ html:not([data-rc-background-active]) #rc-background-layer {
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
 }
 
-html[data-rc-background-active] #header .navbar-search {
+html[data-rc-ui-active] #header .navbar-search {
   background-color: transparent !important;
 }
 
-html[data-rc-background-active] #header #navbar-search-input {
+html[data-rc-ui-active] #header #navbar-search-input {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(24%, var(--rc-surface-opacity-floor, 0))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
 }
 
 /* Let the wallpaper show through both versions of the header search dropdown. */
-html[data-rc-background-active] #header .navbar-search > .dropdown-menu,
-html[data-rc-background-active] #search-landing-root .search-landing-container {
+html[data-rc-ui-active] #header .navbar-search > .dropdown-menu,
+html[data-rc-ui-active] #search-landing-root .search-landing-container {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
   background-image: none !important;
   border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 14%) !important;
@@ -112,33 +112,33 @@ html[data-rc-background-active] #search-landing-root .search-landing-container {
   box-shadow: 0 8px 28px rgb(0 0 0 / 24%) !important;
 }
 
-html[data-rc-background-active] #header .navbar-search .navbar-search-option,
-html[data-rc-background-active] #header .navbar-search .navbar-search-option > a {
+html[data-rc-ui-active] #header .navbar-search .navbar-search-option,
+html[data-rc-ui-active] #header .navbar-search .navbar-search-option > a {
   background-color: transparent !important;
 }
 
-html[data-rc-background-active] #header .navbar-search .navbar-search-option:is(:hover, :focus-within, .selected, .new-selected) {
+html[data-rc-ui-active] #header .navbar-search .navbar-search-option:is(:hover, :focus-within, .selected, .new-selected) {
   background-color: rgb(var(--rc-foreground-rgb, 255 255 255) / 12%) !important;
 }
 
-html[data-rc-background-active] #header.light-theme .navbar-search .navbar-search-option:is(:hover, :focus-within, .selected, .new-selected),
-html[data-rc-background-active] .light-theme #header .navbar-search .navbar-search-option:is(:hover, :focus-within, .selected, .new-selected) {
+html[data-rc-ui-active] #header.light-theme .navbar-search .navbar-search-option:is(:hover, :focus-within, .selected, .new-selected),
+html[data-rc-ui-active] .light-theme #header .navbar-search .navbar-search-option:is(:hover, :focus-within, .selected, .new-selected) {
   background-color: rgb(0 0 0 / 10%) !important;
 }
 
 /* Keep carousel arrow backings translucent without changing thumbnails or pills. */
-html[data-rc-background-active] #search-landing-root .search-landing-container .horizontal-scroller .scroller {
+html[data-rc-ui-active] #search-landing-root .search-landing-container .horizontal-scroller .scroller {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   background-image: none !important;
 }
 
-html[data-rc-background-active] #search-landing-root .search-landing-container .horizontal-scroller .scroller .spacer {
+html[data-rc-ui-active] #search-landing-root .search-landing-container .horizontal-scroller .scroller .spacer {
   background-color: transparent !important;
   background-image: none !important;
 }
 
 /* Header account menus can render under the navbar or in a React portal. */
-html[data-rc-background-active] :is(
+html[data-rc-ui-active] :is(
   #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu,
   #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu,
   [role="menu"]:has(.rc-settings-menu-entry, a[href*="/transactions"], a[href*="/redeem"])
@@ -161,10 +161,10 @@ html[data-rc-background-active] :is(
 }
 
 /* Legacy popovers wrap the menu in another opaque box. */
-html[data-rc-background-active] .popover:has(
+html[data-rc-ui-active] .popover:has(
   #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu, .rc-settings-menu-entry
 ),
-html[data-rc-background-active] .popover:has(
+html[data-rc-ui-active] .popover:has(
   #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu, .rc-settings-menu-entry
 ) > .popover-content {
   border: 0 !important;
@@ -175,13 +175,13 @@ html[data-rc-background-active] .popover:has(
   box-shadow: none !important;
 }
 
-html[data-rc-background-active] .popover:has(
+html[data-rc-ui-active] .popover:has(
   #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu, .rc-settings-menu-entry
 ) > .arrow {
   display: none !important;
 }
 
-html[data-rc-background-active] :is(
+html[data-rc-ui-active] :is(
   #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu,
   #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu,
   [role="menu"]:has(.rc-settings-menu-entry, a[href*="/transactions"], a[href*="/redeem"])
@@ -193,7 +193,7 @@ html[data-rc-background-active] :is(
   box-shadow: none !important;
 }
 
-html[data-rc-background-active] :is(
+html[data-rc-ui-active] :is(
   #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu,
   #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu,
   [role="menu"]:has(.rc-settings-menu-entry, a[href*="/transactions"], a[href*="/redeem"])
@@ -206,7 +206,7 @@ html[data-rc-background-active] :is(
   overflow-wrap: anywhere;
 }
 
-html[data-rc-background-active] :is(
+html[data-rc-ui-active] :is(
   #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu,
   #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu,
   [role="menu"]:has(.rc-settings-menu-entry, a[href*="/transactions"], a[href*="/redeem"])
@@ -214,7 +214,7 @@ html[data-rc-background-active] :is(
   background-color: var(--rc-header-menu-highlight) !important;
 }
 
-html[data-rc-background-active] :is(
+html[data-rc-ui-active] :is(
   #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu,
   #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu,
   [role="menu"]:has(.rc-settings-menu-entry, a[href*="/transactions"], a[href*="/redeem"])
@@ -223,12 +223,12 @@ html[data-rc-background-active] :is(
   outline-offset: -2px;
 }
 
-html[data-rc-background-active] .light-theme :is(
+html[data-rc-ui-active] .light-theme :is(
   #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu,
   #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu,
   [role="menu"]:has(.rc-settings-menu-entry, a[href*="/transactions"], a[href*="/redeem"])
 ),
-html.light-theme[data-rc-background-active] :is(
+html.light-theme[data-rc-ui-active] :is(
   #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu,
   #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu,
   [role="menu"]:has(.rc-settings-menu-entry, a[href*="/transactions"], a[href*="/redeem"])
@@ -253,7 +253,7 @@ html.light-theme[data-rc-background-active] :is(
 }
 
 /* Shared chat hosts must not become backdrop roots for their child windows. */
-html[data-rc-background-active] :is(#chat-container, #dialog-container, .react-chat-root, [data-rc-chat-host]) {
+html[data-rc-ui-active] :is(#chat-container, #dialog-container, .react-chat-root, [data-rc-chat-host]) {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -262,7 +262,7 @@ html[data-rc-background-active] :is(#chat-container, #dialog-container, .react-c
 }
 
 /* Each individual window gets one independent layer behind its content. */
-html[data-rc-background-active] [data-rc-chat-panel] {
+html[data-rc-ui-active] [data-rc-chat-panel] {
   isolation: isolate !important;
   background-color: transparent !important;
   background-image: none !important;
@@ -272,11 +272,11 @@ html[data-rc-background-active] [data-rc-chat-panel] {
   box-shadow: 0 8px 28px rgb(0 0 0 / 24%) !important;
 }
 
-html[data-rc-background-active] [data-rc-chat-panel][data-rc-chat-static] {
+html[data-rc-ui-active] [data-rc-chat-panel][data-rc-chat-static] {
   position: relative !important;
 }
 
-html[data-rc-background-active] [data-rc-chat-panel]::before {
+html[data-rc-ui-active] [data-rc-chat-panel]::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -288,7 +288,7 @@ html[data-rc-background-active] [data-rc-chat-panel]::before {
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
 }
 
-html[data-rc-background-active] :is(#chat-container, #chat-main, #dialog-container, [data-rc-chat-panel]) :is(
+html[data-rc-ui-active] :is(#chat-container, #chat-main, #dialog-container, [data-rc-chat-panel]) :is(
   .chat-header, .chat-windows-header, .chat-body, .chat-friends-container,
   .chat-friend-list, .chat-friends, .chat-search, .chat-disconnect,
   .dialog-header, .dialog-member-header, .dialog-body,
@@ -299,7 +299,7 @@ html[data-rc-background-active] :is(#chat-container, #chat-main, #dialog-contain
 }
 
 /* Clear full-width message row backing while keeping the message bubble. */
-html[data-rc-background-active] [data-rc-chat-panel] .dialog-message-container {
+html[data-rc-ui-active] [data-rc-chat-panel] .dialog-message-container {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -309,7 +309,7 @@ html[data-rc-background-active] [data-rc-chat-panel] .dialog-message-container {
 
 /* React's scrolling list and localized safety card have their own opaque
    surfaces. Clear those surfaces as soon as they mount in each window. */
-html[data-rc-background-active] .react-chat-dialog-shell :is(
+html[data-rc-ui-active] .react-chat-dialog-shell :is(
   .react-chat-dialog-scroll > ul, .react-chat-osa-inline-card
 ) {
   background-color: transparent !important;
@@ -318,10 +318,10 @@ html[data-rc-background-active] .react-chat-dialog-shell :is(
 
 /* Replacement headers and loading wrappers clear immediately when React
    mounts them; deeper wrappers are marked by the scoped chat updater. */
-html[data-rc-background-active] [data-rc-chat-panel] > :is(
+html[data-rc-ui-active] [data-rc-chat-panel] > :is(
   div, section, main, aside, header, footer, form, ul, button
 ):not([data-rc-chat-panel], .dialog-message-container, .dialog-message, .chat-friend-container, [role="listitem"], [role="img"], [data-testid="chat-message"], [data-testid="message-bubble"]),
-html[data-rc-background-active] [data-rc-chat-surface] {
+html[data-rc-ui-active] [data-rc-chat-surface] {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -329,21 +329,21 @@ html[data-rc-background-active] [data-rc-chat-surface] {
   box-shadow: none !important;
 }
 
-html[data-rc-background-active] :is(#chat-container, #chat-main, #dialog-container, [data-rc-chat-panel]) :is(.chat-search-input, .dialog-input),
-html[data-rc-background-active] [data-rc-chat-input] {
+html[data-rc-ui-active] :is(#chat-container, #chat-main, #dialog-container, [data-rc-chat-panel]) :is(.chat-search-input, .dialog-input),
+html[data-rc-ui-active] [data-rc-chat-input] {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(24%, var(--rc-surface-opacity-floor, 0))) !important;
   background-image: none !important;
 }
 
-html[data-rc-background-active] :is(#chat-container, [data-rc-chat-panel]) .chat-friend-container {
+html[data-rc-ui-active] :is(#chat-container, [data-rc-chat-panel]) .chat-friend-container {
   background-color: transparent !important;
 }
 
-html[data-rc-background-active] :is(#chat-container, [data-rc-chat-panel]) .chat-friend-container:is(:hover, :focus-within) {
+html[data-rc-ui-active] :is(#chat-container, [data-rc-chat-panel]) .chat-friend-container:is(:hover, :focus-within) {
   background-color: rgb(var(--rc-foreground-rgb, 255 255 255) / 12%) !important;
 }
 
-html[data-rc-background-active] .light-theme :is(#chat-container, [data-rc-chat-panel]) .chat-friend-container:is(:hover, :focus-within) {
+html[data-rc-ui-active] .light-theme :is(#chat-container, [data-rc-chat-panel]) .chat-friend-container:is(:hover, :focus-within) {
   background-color: rgb(0 0 0 / 10%) !important;
 }
 
@@ -1035,8 +1035,50 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
 }
 
 #rc-settings-overlay input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
   width: 100%;
   min-width: 0;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+/* Explicit colors keep Roblox's native range styling from hiding the track. */
+#rc-settings-overlay input[type="range"]::-webkit-slider-runnable-track {
+  box-sizing: border-box;
+  width: 100%;
+  height: 8px;
+  border: 1px solid var(--rc-control-border);
+  border-radius: 999px;
+  background: var(--rc-control-hover);
+  box-shadow: none;
+}
+
+#rc-settings-overlay input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  margin-top: -7px;
+  border: 2px solid var(--rc-focus);
+  border-radius: 50%;
+  background: var(--rc-surface);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 20%);
+}
+
+#rc-settings-overlay input[type="range"]:hover:not(:disabled)::-webkit-slider-thumb {
+  background: var(--rc-control-bg);
+}
+
+#rc-settings-overlay input[type="range"]:disabled {
+  cursor: default;
 }
 
 #rc-settings-overlay input[type="url"],

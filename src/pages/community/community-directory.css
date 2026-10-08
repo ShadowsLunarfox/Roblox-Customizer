@@ -1,15 +1,15 @@
 /* Community search and creation share the user's wallpaper and glass settings. */
-html[data-rc-background-active]:is([data-rc-frost-page="community-search"], [data-rc-frost-page="community-create"]) #content {
+html[data-rc-ui-active]:is([data-rc-frost-page="community-search"], [data-rc-frost-page="community-create"]) #content {
   --rc-community-border: var(--color-stroke-default, rgb(var(--rc-foreground-rgb, 255 255 255) / 16%));
   --rc-community-focus: var(--color-action-emphasis-background, var(--rc-focus, #7fa6ff));
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) {
   background-color: transparent !important;
   min-width: 0;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .container-header {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .container-header {
   box-sizing: border-box;
   align-items: center !important;
   flex-wrap: wrap;
@@ -20,11 +20,11 @@ html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#grou
 }
 
 /* Preserve Angular's hidden headers and mobile/desktop button variants. */
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .container-header:not(.ng-hide) {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .container-header:not(.ng-hide) {
   display: flex !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .container-header :is(h1, h2) {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .container-header :is(h1, h2) {
   flex: 1;
   min-width: 0;
   margin: 0 !important;
@@ -32,19 +32,19 @@ html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#grou
   overflow-wrap: anywhere;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .header-button-containers {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .header-button-containers {
   gap: 10px;
   align-items: center;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(.create-group-button, .my-groups-create-group-button) {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(.create-group-button, .my-groups-create-group-button) {
   min-height: 40px;
   padding: 8px 14px;
   border-radius: 10px !important;
   white-space: normal;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .search-container {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .search-container {
   box-sizing: border-box;
   margin-bottom: 24px;
   padding: 12px;
@@ -55,23 +55,23 @@ html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#grou
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .search-container .input-group {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .search-container .input-group {
   display: flex;
   gap: 10px;
   width: 100%;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .search-container .form-has-feedback {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .search-container .form-has-feedback {
   flex: 1;
   min-width: 0;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .search-container .input-group-btn {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .search-container .input-group-btn {
   flex: none;
   width: auto;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] #GroupSearchField {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] #GroupSearchField {
   box-sizing: border-box;
   width: 100% !important;
   height: 44px;
@@ -83,7 +83,7 @@ html[data-rc-background-active][data-rc-frost-page="community-search"] #GroupSea
   font-size: 16px;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] #GroupSearchButton {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] #GroupSearchButton {
   display: grid;
   place-items: center;
   width: 44px;
@@ -93,18 +93,18 @@ html[data-rc-background-active][data-rc-frost-page="community-search"] #GroupSea
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(35%, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] #GroupSearchButton .group-search-icon {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] #GroupSearchButton .group-search-icon {
   margin: 0 !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .clear-search {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .clear-search {
   top: 50% !important;
   right: 12px !important;
   transform: translateY(-50%);
 }
 
 /* Search result rows keep their descriptions, member counts, and access labels. */
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-results:not(.ng-hide) {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-results:not(.ng-hide) {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr);
   gap: 14px;
@@ -115,14 +115,14 @@ html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#grou
 }
 
 /* Float-clearing helpers cannot become items in the new flex and grid layouts. */
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(.container-header, .group-results, .item-carousel-scroll-wrapper)::before,
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(.container-header, .group-results, .item-carousel-scroll-wrapper)::after {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(.container-header, .group-results, .item-carousel-scroll-wrapper)::before,
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(.container-header, .group-results, .item-carousel-scroll-wrapper)::after {
   content: none !important;
   display: none !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-card,
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(group-card, friend-group-card) > .game-card-container {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-card,
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(group-card, friend-group-card) > .game-card-container {
   box-sizing: border-box;
   width: 100% !important;
   height: auto !important;
@@ -137,7 +137,7 @@ html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#grou
   color: var(--color-content-emphasis, var(--rc-text, #f3f4f6));
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-card {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-card {
   float: none !important;
   flex-direction: row !important;
   align-items: center;
@@ -145,13 +145,13 @@ html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#grou
   min-height: 112px;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-card-main {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-card-main {
   align-items: center;
   gap: 14px;
   min-width: 0;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-card-thumb {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-card-thumb {
   flex: 0 0 88px;
   min-width: 0 !important;
   width: 88px !important;
@@ -160,27 +160,27 @@ html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#grou
   border-radius: 10px !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-card-text {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-card-text {
   gap: 6px;
   min-width: 0;
   height: auto !important;
   padding: 0 !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-card-name .font-header-2 {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-card-name .font-header-2 {
   white-space: normal;
   overflow-wrap: anywhere;
   line-height: 1.4;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-card-desc {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-card-desc {
   -webkit-line-clamp: 2 !important;
   line-clamp: 2 !important;
   font-size: 13px;
   line-height: 1.5 !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-card-info {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-card-info {
   flex: 0 0 136px;
   flex-direction: column;
   align-items: flex-start !important;
@@ -191,33 +191,33 @@ html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#grou
   border-left: 1px solid var(--rc-community-border);
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(.group-card-members, .group-card-friends, .group-card-access) {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(.group-card-members, .group-card-friends, .group-card-access) {
   width: auto !important;
   max-width: 100%;
   margin: 0 !important;
 }
 
 /* The native carousel and mobile grid remain separate from desktop result rows. */
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) group-landing-row ul.game-cards {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) group-landing-row ul.game-cards {
   max-height: none !important;
   overflow: visible !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .item-carousel-scroll-wrapper > .game-card {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .item-carousel-scroll-wrapper > .game-card {
   flex: 0 0 156px;
   width: 156px !important;
   height: auto !important;
   margin: 0 !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(group-card, friend-group-card) > .game-card-container {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(group-card, friend-group-card) > .game-card-container {
   display: flex;
   flex-direction: column;
   gap: 8px;
   text-decoration: none;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .game-card-container .group-card-name-container {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .game-card-container .group-card-name-container {
   height: auto !important;
   padding: 0 !important;
   background-color: transparent !important;
@@ -226,7 +226,7 @@ html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#grou
   box-shadow: none !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .game-card-thumb-container {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .game-card-thumb-container {
   width: 100% !important;
   height: auto !important;
   aspect-ratio: 1;
@@ -234,7 +234,7 @@ html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#grou
   border-radius: 10px !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .game-card-name {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .game-card-name {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -246,7 +246,7 @@ html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#grou
   line-height: 1.4 !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(.section-content-off, .pager-holder) {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(.section-content-off, .pager-holder) {
   padding: 14px;
   border-radius: 12px;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
@@ -254,14 +254,14 @@ html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#grou
   backdrop-filter: blur(var(--rc-glass-blur, 18px));
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .pager-holder {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .pager-holder {
   width: fit-content;
   max-width: 100%;
   margin: 20px auto 0;
 }
 
 /* A single backing keeps creation fields readable without nested blur layers. */
-html[data-rc-background-active][data-rc-frost-page="community-create"] #content {
+html[data-rc-ui-active][data-rc-frost-page="community-create"] #content {
   box-sizing: border-box !important;
   width: calc(100% - 32px) !important;
   max-width: 820px !important;
@@ -276,7 +276,7 @@ html[data-rc-background-active][data-rc-frost-page="community-create"] #content 
   box-shadow: 0 8px 28px rgb(0 0 0 / 18%);
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-create"] #content :is(form, .section, .section-content, .container-header) {
+html[data-rc-ui-active][data-rc-frost-page="community-create"] #content :is(form, .section, .section-content, .container-header) {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -284,26 +284,26 @@ html[data-rc-background-active][data-rc-frost-page="community-create"] #content 
   box-shadow: none !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-create"] #content .container-header {
+html[data-rc-ui-active][data-rc-frost-page="community-create"] #content .container-header {
   margin-bottom: 24px;
   padding: 0 !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-create"] #content :is(h1, h2) {
+html[data-rc-ui-active][data-rc-frost-page="community-create"] #content :is(h1, h2) {
   line-height: 1.3;
   overflow-wrap: anywhere;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-create"] #content .form-group {
+html[data-rc-ui-active][data-rc-frost-page="community-create"] #content .form-group {
   margin-bottom: 22px;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-create"] #content :is(label, .control-label, .form-label) {
+html[data-rc-ui-active][data-rc-frost-page="community-create"] #content :is(label, .control-label, .form-label) {
   font-weight: 600;
   line-height: 1.5;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-create"] #content :is(input[type="text"], input:not([type]), textarea, select) {
+html[data-rc-ui-active][data-rc-frost-page="community-create"] #content :is(input[type="text"], input:not([type]), textarea, select) {
   box-sizing: border-box;
   width: 100% !important;
   max-width: 100%;
@@ -317,22 +317,22 @@ html[data-rc-background-active][data-rc-frost-page="community-create"] #content 
   line-height: 1.5;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-create"] #content textarea {
+html[data-rc-ui-active][data-rc-frost-page="community-create"] #content textarea {
   min-height: 140px;
   resize: vertical;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-create"] #content select option {
+html[data-rc-ui-active][data-rc-frost-page="community-create"] #content select option {
   background-color: var(--color-surface-100, var(--rc-surface, #202227));
   color: var(--color-content-emphasis, var(--rc-text, #f3f4f6));
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-create"] #content input[type="file"] {
+html[data-rc-ui-active][data-rc-frost-page="community-create"] #content input[type="file"] {
   max-width: 100%;
   margin: 10px 0;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-create"] #content input[type="file"]::file-selector-button {
+html[data-rc-ui-active][data-rc-frost-page="community-create"] #content input[type="file"]::file-selector-button {
   margin-right: 10px;
   padding: 8px 12px;
   border: 1px solid var(--rc-community-border);
@@ -343,12 +343,12 @@ html[data-rc-background-active][data-rc-frost-page="community-create"] #content 
   cursor: pointer;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-create"] #content :is(.help-block, .form-text, .text-description) {
+html[data-rc-ui-active][data-rc-frost-page="community-create"] #content :is(.help-block, .form-text, .text-description) {
   font-size: 13px;
   line-height: 1.5;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-create"] #content :is(.btn-primary, .btn-action, .btn-secondary-md, .btn-secondary-sm, .btn-control-md, button[type="submit"], input[type="submit"]) {
+html[data-rc-ui-active][data-rc-frost-page="community-create"] #content :is(.btn-primary, .btn-action, .btn-secondary-md, .btn-secondary-sm, .btn-control-md, button[type="submit"], input[type="submit"]) {
   min-height: 44px;
   max-width: 100%;
   padding: 10px 18px;
@@ -357,35 +357,35 @@ html[data-rc-background-active][data-rc-frost-page="community-create"] #content 
 }
 
 /* Keep Roblox's errors visible alongside the glass input styling. */
-html[data-rc-background-active][data-rc-frost-page="community-create"] #content :is([aria-invalid="true"], .input-validation-error, .has-error input, .has-error textarea, .ng-invalid.ng-touched) {
+html[data-rc-ui-active][data-rc-frost-page="community-create"] #content :is([aria-invalid="true"], .input-validation-error, .has-error input, .has-error textarea, .ng-invalid.ng-touched) {
   border-color: var(--color-system-alert, #e77979) !important;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(.group-search-name-link, .game-card-container, button, input, [role="button"]):focus-visible,
-html[data-rc-background-active][data-rc-frost-page="community-create"] #content :is(input, textarea, select, button, a):focus-visible {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(.group-search-name-link, .game-card-container, button, input, [role="button"]):focus-visible,
+html[data-rc-ui-active][data-rc-frost-page="community-create"] #content :is(input, textarea, select, button, a):focus-visible {
   outline: 2px solid var(--rc-community-focus) !important;
   outline-offset: 3px;
 }
 
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-search-name-link:hover .group-card,
-html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(group-card, friend-group-card) > .game-card-container:hover {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-search-name-link:hover .group-card,
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(group-card, friend-group-card) > .game-card-container:hover {
   border-color: var(--color-stroke-emphasis, rgb(var(--rc-foreground-rgb, 255 255 255) / 32%)) !important;
   box-shadow: 0 6px 20px rgb(0 0 0 / 22%);
 }
 
 @media (max-width: 767px) {
-  html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-results:not(.ng-hide) {
+  html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-results:not(.ng-hide) {
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 144px), 1fr));
   }
 
-  html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-results .group-result-card-mobile {
+  html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-results .group-result-card-mobile {
     min-width: 0;
     width: 100% !important;
     height: auto !important;
     margin: 0 !important;
   }
 
-  html[data-rc-background-active][data-rc-frost-page="community-create"] #content {
+  html[data-rc-ui-active][data-rc-frost-page="community-create"] #content {
     padding: 18px !important;
   }
 }
