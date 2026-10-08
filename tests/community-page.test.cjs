@@ -4,7 +4,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const { test } = require('node:test');
 
-const source = fs.readFileSync(path.join(__dirname, '..', 'startup.js'), 'utf8');
+const source = fs.readFileSync(path.join(__dirname, '..', 'src/shared/startup.js'), 'utf8');
 
 function harness(pathname, script = source) {
   const attributes = new Map();
@@ -98,7 +98,7 @@ test('navigation updates search, creation, and community-detail styling without 
 });
 
 test('the settings fallback recognizes the same search and creation routes when startup is unavailable', () => {
-  const settingsSource = fs.readFileSync(path.join(__dirname, '..', 'settings.js'), 'utf8');
+  const settingsSource = fs.readFileSync(path.join(__dirname, '..', 'src/settings/settings.js'), 'utf8');
   const start = settingsSource.indexOf('  function syncFrostPage()');
   const end = settingsSource.indexOf('  function openDatabase()', start);
   assert.ok(start >= 0 && end > start);

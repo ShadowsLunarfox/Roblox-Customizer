@@ -4,8 +4,8 @@ const path = require('node:path');
 const vm = require('node:vm');
 const { test } = require('node:test');
 
-const startup = fs.readFileSync(path.join(__dirname, '..', 'startup.js'), 'utf8');
-const settings = fs.readFileSync(path.join(__dirname, '..', 'settings.js'), 'utf8');
+const startup = fs.readFileSync(path.join(__dirname, '..', 'src/shared/startup.js'), 'utf8');
+const settings = fs.readFileSync(path.join(__dirname, '..', 'src/settings/settings.js'), 'utf8');
 const fallbackStart = settings.indexOf('  function syncFrostPage()');
 const fallbackEnd = settings.indexOf('  function openDatabase()', fallbackStart);
 assert.ok(fallbackStart >= 0 && fallbackEnd > fallbackStart);

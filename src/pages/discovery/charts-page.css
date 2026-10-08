@@ -2,7 +2,7 @@
 html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app {
   --rc-charts-border: var(--color-stroke-default, rgb(128 128 128 / 30%));
   --rc-charts-hover: var(--color-stroke-emphasis, rgb(128 128 128 / 55%));
-  --rc-charts-focus: var(--color-selection-start, #7fa6ff);
+  --rc-charts-focus: var(--color-selection-start, var(--rc-focus, #7fa6ff));
   min-width: 0;
   background-color: transparent !important;
 }
@@ -26,7 +26,7 @@ html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-
   padding: 20px !important;
   border: 1px solid var(--rc-charts-border) !important;
   border-radius: 18px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   background-image: none !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
@@ -66,7 +66,7 @@ html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-
   z-index: -1;
   pointer-events: none;
   border-radius: inherit;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62));
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62)));
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
 }
@@ -92,7 +92,7 @@ html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-
 }
 
 html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .filter-select:not(.btn-primary-md) {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 28%) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(28%, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
 html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .filter-select.btn-primary-md:not(:disabled, [aria-disabled="true"]) {
@@ -112,7 +112,7 @@ html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-
   max-width: calc(100vw - 48px) !important;
   border: 1px solid var(--rc-charts-border) !important;
   border-radius: 14px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.9, var(--rc-glass-opacity, .62))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.9, var(--rc-surface-opacity, var(--rc-glass-opacity, .62)))) !important;
   background-image: none !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
@@ -129,7 +129,7 @@ html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-
 }
 
 html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .filters-modal-container .filter-option:is(:hover, :focus-visible, .selected-option) {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 18%) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(18%, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
 /* Section titles share one line with their native See All link when space permits. */
@@ -155,7 +155,7 @@ html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-
   padding: 7px 28px 7px 10px;
   border: 1px solid var(--rc-charts-border);
   border-radius: 9px;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 28%);
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(28%, var(--rc-surface-opacity-floor, 0)));
   white-space: nowrap;
 }
 
@@ -189,7 +189,7 @@ html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-
   padding: 6px;
   border: 1px solid var(--rc-charts-border) !important;
   border-radius: 14px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   background-image: none !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
@@ -253,7 +253,7 @@ html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-
 }
 
 html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .scroller {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
 }
 
 html[data-rc-background-active][data-rc-frost-page="charts"] #game-carousel-web-app .scroller .spacer {

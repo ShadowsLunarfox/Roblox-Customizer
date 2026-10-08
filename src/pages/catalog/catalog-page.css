@@ -1,7 +1,7 @@
 /* Marketplace's React root keeps the native search, filters, and item links. */
 html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container {
-  --rc-catalog-border: var(--color-stroke-default, rgb(255 255 255 / 16%));
-  --rc-catalog-hover: var(--color-stroke-emphasis, rgb(255 255 255 / 32%));
+  --rc-catalog-border: var(--color-stroke-default, rgb(var(--rc-foreground-rgb, 255 255 255) / 16%));
+  --rc-catalog-hover: var(--color-stroke-emphasis, rgb(var(--rc-foreground-rgb, 255 255 255) / 32%));
   background-color: transparent !important;
 }
 
@@ -35,7 +35,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
   z-index: -1;
   pointer-events: none;
   border-radius: inherit;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-page-panel-opacity, .31));
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31)));
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
 }
@@ -54,7 +54,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
 html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container :is(
   .filter-select:not(.btn-primary-md), .topic-container button
 ) {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 22%) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(22%, var(--rc-surface-opacity-floor, 0))) !important;
   border-color: var(--rc-catalog-border) !important;
 }
 
@@ -62,7 +62,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
 html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container :is(.filters-modal-container, .dropdown-menu) {
   border: 1px solid var(--rc-catalog-border) !important;
   border-radius: 12px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.5, var(--rc-glass-opacity, .62))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.5, var(--rc-surface-opacity, var(--rc-glass-opacity, .62)))) !important;
   background-image: none !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
@@ -101,7 +101,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
 html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu :is(
   li.active > a, li.active > button, [role="option"][aria-selected="true"]
 ) {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 28%) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(28%, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
 html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu :is(
@@ -109,7 +109,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
   li:not(.disabled, [aria-disabled="true"]) > button:not(:disabled, [aria-disabled="true"]),
   [role="option"]:not([aria-disabled="true"])
 ):is(:hover, :focus-visible) {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 18%) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(18%, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
 html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .filters-modal-container :is(
@@ -123,13 +123,13 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
 }
 
 html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container .filters-modal-container .filter-option:hover {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 18%) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(18%, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
 html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container :is(
   #avatar-shop-keyword-input, .filters-modal-container input:not([type="radio"], [type="checkbox"])
 ) {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 24%) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(24%, var(--rc-surface-opacity-floor, 0))) !important;
   border-color: var(--rc-catalog-border) !important;
   color: var(--color-content-emphasis, inherit) !important;
   border-radius: 9px;
@@ -176,7 +176,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
   padding: 8px !important;
   border: 1px solid var(--rc-catalog-border) !important;
   border-radius: 14px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   background-image: none !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
@@ -242,7 +242,7 @@ html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-con
 }
 
 html[data-rc-background-active][data-rc-frost-page="catalog"] #catalog-react-container :is(a, button, input):focus-visible {
-  outline: 2px solid var(--color-action-emphasis-background, #7fa6ff);
+  outline: 2px solid var(--color-action-emphasis-background, var(--rc-focus, #7fa6ff));
   outline-offset: 3px;
 }
 

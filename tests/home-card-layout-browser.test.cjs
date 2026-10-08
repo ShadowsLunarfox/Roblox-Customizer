@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const http = require('node:http');
 const path = require('node:path');
 const { test } = require('node:test');
-const { isolatedChrome, pause } = require('./helpers/chrome.cjs');
+const { isolatedChrome, pause, waitForDocument } = require('./helpers/chrome.cjs');
 const workspace = path.resolve(__dirname, '..');
 
 function fixture(layout) {
@@ -25,18 +25,19 @@ function fixture(layout) {
   .native-wide-layout .hover-game-tile.grid-tile .featured-game-container .info-metadata-container{float:left;width:var(--native-tile-width);margin-top:8px}
   .wide-game-tile-metadata{display:flex;width:100%}.base-metadata{flex:1;min-width:0}.info-avatar{display:flex;align-items:center}
   @media(max-width:767px){.native-wide-layout{--items-per-row:1}}
-  </style><link rel="stylesheet" href="/settings.css"></head><body class="dark-theme"><main id="content"><div id="HomeContainer"><h1>Home</h1><section id="recommended"><h2>Recommended For You</h2><div class="game-cards">${square}${wide}</div></section><section><h2>Continue</h2><div class="game-cards" id="late"></div></section><section id="rc-pinned-games"><div id="native-card"><img src="/square.svg" alt="Separate pinned card">Pinned card</div></section></div></main>
+  </style><link rel="stylesheet" href="/src/shared/theme.css"><link rel="stylesheet" href="/src/settings/settings.css"></head><body class="dark-theme"><main id="content"><div id="HomeContainer"><h1>Home</h1><section id="recommended"><h2>Recommended For You</h2><div class="game-cards">${square}${wide}</div></section><section><h2>Continue</h2><div class="game-cards" id="late"></div></section><section id="rc-pinned-games"><div id="native-card"><img src="/square.svg" alt="Separate pinned card">Pinned card</div></section></div></main>
   <script>
   window.selected=[];document.querySelectorAll('.game-card-link').forEach(link=>link.onclick=event=>{event.preventDefault();selected.push(link.getAttribute('href'))});
   const listeners=[];localStorage.setItem('customBackground',JSON.stringify({source:'none'}));
   window.chrome={storage:{local:{async get(){return {customBackground:JSON.parse(localStorage.getItem('customBackground'))}},async set(data){localStorage.setItem('customBackground',JSON.stringify(data.customBackground));listeners.forEach(fn=>fn({customBackground:{newValue:data.customBackground}},'local'))}},onChanged:{addListener:fn=>listeners.push(fn)}},runtime:{getURL:file=>'/'+file,lastError:null,sendMessage(message,callback){callback({id:1,name:'Sample',displayName:'Sample',imageUrl:'/square.svg'})}}};
-  </script><script src="/startup.js"></script><script src="/settings.js"></script></body></html>`;
+  </script><script src="/src/shared/startup.js"></script><script src="/src/settings/settings.js"></script></body></html>`;
 }
 
 test('Home card rows align short and long titles and contain all content after resize and remount', {skip:!process.env.CHROME_BIN,timeout:30000}, async t => {
   const server=http.createServer((request,response)=>{
+    response.setHeader('Cache-Control','no-store');
     const url=new URL(request.url,'http://localhost'),file=url.pathname.slice(1);
-    if(['settings.css','startup.js','settings.js'].includes(file)){response.setHeader('Content-Type',file.endsWith('.css')?'text/css':'text/javascript');response.end(fs.readFileSync(path.join(workspace,file)))}
+    if(['src/shared/theme.css','src/settings/settings.css','src/shared/startup.js','src/settings/settings.js'].includes(file)){response.setHeader('Content-Type',file.endsWith('.css')?'text/css':'text/javascript');response.end(fs.readFileSync(path.join(workspace,file)))}
     else if(file==='native.css'&&process.env.HOME_NATIVE_CSS){response.setHeader('Content-Type','text/css');response.end(fs.readFileSync(process.env.HOME_NATIVE_CSS))}
     else if(file.endsWith('.svg')){const width=file==='wide.svg'?640:300;response.setHeader('Content-Type','image/svg+xml');response.end(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${width===640?360:300}" viewBox="0 0 ${width} ${width===640?360:300}"><rect width="100%" height="100%" fill="#476ab7"/><circle cx="${width/2}" cy="150" r="95" fill="#ffd978"/><path d="M${width/2-100} 240h200" stroke="#7fe4c7" stroke-width="24"/></svg>`)}
     else if(file.startsWith('icons/')){response.setHeader('Content-Type','image/png');response.end(fs.readFileSync(path.join(workspace,file)))}
@@ -45,7 +46,9 @@ test('Home card rows align short and long titles and contain all content after r
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));t.after(()=>new Promise(resolve=>server.close(resolve)));
   const browser=await isolatedChrome(t,'home-card-layout');
   for(const layout of ['carousel','grid']){
-  await browser.send('Page.navigate',{url:`http://127.0.0.1:${server.address().port}/home?layout=${layout}`});
+  const fixtureUrl=`http://127.0.0.1:${server.address().port}/home?layout=${layout}`;
+    await browser.send('Page.navigate',{url:fixtureUrl});
+    await waitForDocument(browser, '#HomeContainer', fixtureUrl);
   await browser.waitFor("!!document.querySelector('#wide[data-rc-recommended-card]') && [...document.querySelectorAll('#recommended img')].every(n=>n.complete)");
   await browser.evaluate(`(()=>{for(const [id,name,place] of [['square','Shipping Lanes','103'],['wide','Hamster Village','104']]){const source=document.querySelector('#'+id).closest('.game-card,.hover-game-tile'),clone=source.cloneNode(true),card=clone.querySelector('.game-card-container');card.id=id+'-peer';card.classList.remove('rc-home-game-card');card.querySelector('.game-card-name').textContent=name;card.querySelector('a').href='https://www.roblox.com/games/'+place+'/Sample';card.querySelector('.rc-hide-recommended-game')?.remove();card.querySelector('.info-avatar')?.remove();for(const attr of [...card.attributes])if(attr.name.startsWith('data-rc-recommended'))card.removeAttribute(attr.name);source.after(clone)}})()`);
   await browser.waitFor("!!document.querySelector('#wide-peer[data-rc-recommended-card]')");

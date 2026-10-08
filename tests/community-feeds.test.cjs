@@ -4,7 +4,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const { test } = require('node:test');
 
-const source = fs.readFileSync(path.join(__dirname, '..', 'game-page.js'), 'utf8');
+const source = fs.readFileSync(path.join(__dirname, '..', 'src/pages/games/game-page.js'), 'utf8');
 const exposed = source.replace(/  syncPrivateServers\(\);\s*  schedule\(\);\s*\}\)\(\);\s*$/, `
   globalThis.feeds = { socialFeedContext, syncXFeed, syncYouTubeFeed,
     positionXFeed, positionYouTubeFeed, setXFeedExpanded };
@@ -261,7 +261,7 @@ test('a late social-link response cannot create feeds after navigating to anothe
   assert.equal(env.document.getElementById('rc-youtube-feed-panel'), null);
 });
 
-const backgroundSource = fs.readFileSync(path.join(__dirname, '..', 'badge-background.js'), 'utf8');
+const backgroundSource = fs.readFileSync(path.join(__dirname, '..', 'src/background/service-worker.js'), 'utf8');
 function background(links = []) {
   let listener;
   const requests = [];
@@ -315,7 +315,7 @@ test('the worker serves feed loaders on game, community, and profile routes whil
   }
 });
 
-const profileSource = fs.readFileSync(path.join(__dirname, '..', 'profile-page.js'), 'utf8');
+const profileSource = fs.readFileSync(path.join(__dirname, '..', 'src/pages/profile/profile-page.js'), 'utf8');
 const profileSocialStart = profileSource.indexOf('  function socialProfileUrl(');
 const profileSocialEnd = profileSource.indexOf('  function renderNativeAbout(', profileSocialStart);
 assert.ok(profileSocialStart >= 0 && profileSocialEnd > profileSocialStart);

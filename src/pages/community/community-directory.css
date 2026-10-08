@@ -1,7 +1,7 @@
 /* Community search and creation share the user's wallpaper and glass settings. */
 html[data-rc-background-active]:is([data-rc-frost-page="community-search"], [data-rc-frost-page="community-create"]) #content {
-  --rc-community-border: var(--color-stroke-default, rgb(255 255 255 / 16%));
-  --rc-community-focus: var(--color-action-emphasis-background, #7fa6ff);
+  --rc-community-border: var(--color-stroke-default, rgb(var(--rc-foreground-rgb, 255 255 255) / 16%));
+  --rc-community-focus: var(--color-action-emphasis-background, var(--rc-focus, #7fa6ff));
 }
 
 html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) {
@@ -50,7 +50,7 @@ html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#grou
   padding: 12px;
   border: 1px solid var(--rc-community-border);
   border-radius: 14px;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
 }
@@ -78,8 +78,8 @@ html[data-rc-background-active][data-rc-frost-page="community-search"] #GroupSea
   padding: 10px 40px 10px 12px !important;
   border: 1px solid var(--rc-community-border) !important;
   border-radius: 10px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 24%) !important;
-  color: var(--color-content-emphasis, #f3f4f6);
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(24%, var(--rc-surface-opacity-floor, 0))) !important;
+  color: var(--color-content-emphasis, var(--rc-text, #f3f4f6));
   font-size: 16px;
 }
 
@@ -90,7 +90,7 @@ html[data-rc-background-active][data-rc-frost-page="community-search"] #GroupSea
   height: 44px;
   padding: 0;
   border-radius: 10px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 35%) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(35%, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
 html[data-rc-background-active][data-rc-frost-page="community-search"] #GroupSearchButton .group-search-icon {
@@ -130,11 +130,11 @@ html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#grou
   padding: 12px !important;
   border: 1px solid var(--rc-community-border) !important;
   border-radius: 14px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   box-shadow: 0 4px 16px rgb(0 0 0 / 12%);
-  color: var(--color-content-emphasis, #f3f4f6);
+  color: var(--color-content-emphasis, var(--rc-text, #f3f4f6));
 }
 
 html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-card {
@@ -249,7 +249,7 @@ html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#grou
 html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(.section-content-off, .pager-holder) {
   padding: 14px;
   border-radius: 12px;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-page-panel-opacity, .31)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px));
   backdrop-filter: blur(var(--rc-glass-blur, 18px));
 }
@@ -270,7 +270,7 @@ html[data-rc-background-active][data-rc-frost-page="community-create"] #content 
   padding: 24px !important;
   border: 1px solid var(--rc-community-border);
   border-radius: 18px;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   box-shadow: 0 8px 28px rgb(0 0 0 / 18%);
@@ -311,8 +311,8 @@ html[data-rc-background-active][data-rc-frost-page="community-create"] #content 
   padding: 10px 12px !important;
   border: 1px solid var(--rc-community-border);
   border-radius: 10px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 24%) !important;
-  color: var(--color-content-emphasis, #f3f4f6);
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(24%, var(--rc-surface-opacity-floor, 0))) !important;
+  color: var(--color-content-emphasis, var(--rc-text, #f3f4f6));
   font-size: 16px;
   line-height: 1.5;
 }
@@ -323,8 +323,8 @@ html[data-rc-background-active][data-rc-frost-page="community-create"] #content 
 }
 
 html[data-rc-background-active][data-rc-frost-page="community-create"] #content select option {
-  background-color: var(--color-surface-100, #202227);
-  color: var(--color-content-emphasis, #f3f4f6);
+  background-color: var(--color-surface-100, var(--rc-surface, #202227));
+  color: var(--color-content-emphasis, var(--rc-text, #f3f4f6));
 }
 
 html[data-rc-background-active][data-rc-frost-page="community-create"] #content input[type="file"] {
@@ -337,7 +337,7 @@ html[data-rc-background-active][data-rc-frost-page="community-create"] #content 
   padding: 8px 12px;
   border: 1px solid var(--rc-community-border);
   border-radius: 8px;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 35%);
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(35%, var(--rc-surface-opacity-floor, 0)));
   color: inherit;
   font: inherit;
   cursor: pointer;
@@ -369,7 +369,7 @@ html[data-rc-background-active][data-rc-frost-page="community-create"] #content 
 
 html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .group-search-name-link:hover .group-card,
 html[data-rc-background-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(group-card, friend-group-card) > .game-card-container:hover {
-  border-color: var(--color-stroke-emphasis, rgb(255 255 255 / 32%)) !important;
+  border-color: var(--color-stroke-emphasis, rgb(var(--rc-foreground-rgb, 255 255 255) / 32%)) !important;
   box-shadow: 0 6px 20px rgb(0 0 0 / 22%);
 }
 

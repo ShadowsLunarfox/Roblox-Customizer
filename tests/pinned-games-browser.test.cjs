@@ -28,7 +28,7 @@ function fixture() {
   .icon-dislike svg{stroke:#f7f7f8}.voting-panel .loading{display:none}
   @media(min-width:991px){.game-main-content.follow-button-enabled .game-follow-button-container{width:calc(50% - 56px)}}
   </style>
-  <link rel="stylesheet" href="/pinned-games.css"></head><body class="dark-theme builder-font"><div class="wallpaper"></div><main id="content"></main>
+  <link rel="stylesheet" href="/src/shared/theme.css"><link rel="stylesheet" href="/src/home/pinned-games.css"></head><body class="dark-theme builder-font"><div class="wallpaper"></div><main id="content"></main>
   <script>
     const listeners=[];
     const record=id=>({placeId:id,universeId:id+1000,name:id===1?'Adventure <img onerror=alert(1)>':('Game '+id),iconUrl:'https://tr.rbxcdn.com/pin-'+id+'.png',updatedAt:Date.now()});
@@ -53,7 +53,7 @@ function fixture() {
     window.nativeFavorite=document.getElementById('toggle-game-favorite');window.nativeFavoriteParent=nativeFavorite?.parentElement;
     if(nativeFavorite){nativeFavorite.onclick=()=>favoriteClicks++;document.getElementById('toggle-game-follow').onclick=()=>notifyClicks++;document.querySelector('.upvote').onclick=()=>voteClicks++}};
     window.go=path=>{history.pushState({},'',path);renderRoute()};renderRoute();
-  </script><script src="/page.js"></script><script src="/pinned-games-core.js"></script><script src="/pinned-games.js"></script></body></html>`;
+  </script><script src="/src/shared/page-bridge.js"></script><script src="/src/home/pinned-games-core.js"></script><script src="/src/home/pinned-games.js"></script></body></html>`;
 }
 
 class Browser {
@@ -93,10 +93,11 @@ class Browser {
 test('Game pins appear beside Favorite, persist below Home friends, join natively and show List Full', { skip: !process.env.CHROME_BIN, timeout: 30000 }, async t => {
   const profile = fs.mkdtempSync(path.join(workspace, '.tmp-pinned-games-browser-'));
   const server = http.createServer((request, response) => {
+    response.setHeader('Cache-Control','no-store');
     const file = new URL(request.url, 'http://localhost').pathname.slice(1);
     if (file === 'native.css' && process.env.PINNED_NATIVE_CSS) {
       response.setHeader('Content-Type', 'text/css');response.end(fs.readFileSync(process.env.PINNED_NATIVE_CSS));
-    } else if (['pinned-games.css', 'pinned-games.js', 'pinned-games-core.js', 'page.js'].includes(file)) {
+    } else if (['src/shared/theme.css', 'src/home/pinned-games.css', 'src/home/pinned-games.js', 'src/home/pinned-games-core.js', 'src/shared/page-bridge.js'].includes(file)) {
       response.setHeader('Content-Type', file.endsWith('.css') ? 'text/css' : 'application/javascript');
       response.end(fs.readFileSync(path.join(workspace, file)));
     } else { response.setHeader('Content-Type', 'text/html; charset=utf-8'); response.end(fixture()); }

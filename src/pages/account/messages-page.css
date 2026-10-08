@@ -1,7 +1,7 @@
 /* The current React inbox lives outside #content. Its layout containers and
    utility-class row backgrounds must share one glass surface on the main pane. */
 html[data-rc-background-active][data-rc-frost-page="messages"] #private-message-web-app {
-  --rc-inbox-border: var(--color-stroke-default, rgb(255 255 255 / 17%));
+  --rc-inbox-border: var(--color-stroke-default, rgb(var(--rc-foreground-rgb, 255 255 255) / 17%));
   --rc-inbox-selected: var(--color-state-press, rgb(128 128 128 / 22%));
   min-width: 0;
   background-color: transparent !important;
@@ -26,15 +26,15 @@ html[data-rc-background-active][data-rc-frost-page="messages"] #private-message-
   padding: 18px !important;
   border: 1px solid var(--rc-inbox-border) !important;
   border-radius: 16px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-page-panel-opacity, .31)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  box-shadow: inset 0 1px rgb(255 255 255 / 10%), 0 12px 32px rgb(0 0 0 / 16%) !important;
+  box-shadow: inset 0 1px rgb(var(--rc-foreground-rgb, 255 255 255) / 10%), 0 12px 32px rgb(0 0 0 / 16%) !important;
 }
 
 html[data-rc-background-active][data-rc-frost-page="messages"] #private-message-web-app [role="tablist"] {
   border-radius: 10px;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 16%) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(16%, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
 html[data-rc-background-active][data-rc-frost-page="messages"] #private-message-web-app [role="tab"] {
@@ -64,14 +64,14 @@ html[data-rc-background-active][data-rc-frost-page="messages"] #private-message-
 ) {
   border-color: var(--rc-inbox-border) !important;
   border-radius: 10px;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 24%) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(24%, var(--rc-surface-opacity-floor, 0))) !important;
   color: var(--color-content-emphasis, inherit) !important;
 }
 
 html[data-rc-background-active][data-rc-frost-page="messages"] #private-message-web-app :is(
   button, a, input, textarea, [contenteditable="true"]
 ):focus-visible {
-  outline: 2px solid var(--color-selection-start, #7fa6ff) !important;
+  outline: 2px solid var(--color-selection-start, var(--rc-focus, #7fa6ff)) !important;
   outline-offset: 2px;
 }
 
@@ -79,7 +79,7 @@ html[data-rc-background-active][data-rc-frost-page="messages"] #private-message-
 html[data-rc-background-active][data-rc-frost-page="messages"] #private-message-web-app [role="dialog"] {
   border: 1px solid var(--rc-inbox-border);
   border-radius: 14px;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.88, var(--rc-glass-opacity, .62))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.88, var(--rc-surface-opacity, var(--rc-glass-opacity, .62)))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) !important;
 }

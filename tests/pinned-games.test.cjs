@@ -3,8 +3,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { test } = require('node:test');
-const core = require('../pinned-games-core.js');
-const source = fs.readFileSync(path.join(__dirname, '..', 'pinned-games-background.js'), 'utf8');
+const core = require('../src/home/pinned-games-core.js');
+const source = fs.readFileSync(path.join(__dirname, '..', 'src/background/pinned-games-background.js'), 'utf8');
 const clean = value => JSON.parse(JSON.stringify(value));
 const record = id => ({ placeId: id, universeId: id + 1000, name: `Game ${id}`,
   iconUrl: `https://tr.rbxcdn.com/${id}.png`, updatedAt: Date.now() });

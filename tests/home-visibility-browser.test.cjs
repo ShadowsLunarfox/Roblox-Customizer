@@ -12,7 +12,7 @@ function fixture() {
   const card = (id, name) => `<li class="game-card-container"><a href="https://www.roblox.com/games/${id}/Game"><div class="game-card-name">${name}</div></a></li>`;
   return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <style>body{margin:20px;background:#383439;color:#fff;font:14px Arial}a{color:inherit;cursor:pointer}ul{padding:0;list-style:none}section,.friend-carousel-container{padding:12px;margin:12px 0;border:1px solid #ffffff40;border-radius:12px}section ul{display:flex;gap:12px}.game-card-container{position:relative;background:#ffffff20;border-radius:8px;padding:20px}h2{font-size:18px;margin:0 0 10px}.game-home-page-carousel-title{font-size:18px;font-weight:bold}</style>
-  <link rel="stylesheet" href="/settings.css"></head><body>
+  <link rel="stylesheet" href="/src/shared/theme.css"><link rel="stylesheet" href="/src/settings/settings.css"></head><body>
   <ul role="menu"><li><a href="/my/account">Settings</a></li></ul>
   <main id="HomeContainer"><h1>Home</h1>
     <div class="friend-carousel-container" id="friends"><h2>Friends</h2><a href="https://www.roblox.com/games/90/Game">Favorites</a></div>
@@ -33,7 +33,7 @@ function fixture() {
     const emit=value=>listeners.forEach(fn=>fn({customBackground:{newValue:value}},'local'));
     window.chrome={storage:{local:{async get(){return {customBackground:read()}},async set(value){localStorage.setItem('customBackground',JSON.stringify(value.customBackground));emit(value.customBackground)}},onChanged:{addListener:fn=>listeners.push(fn)}},runtime:{getURL:file=>'/'+file,lastError:null,sendMessage(message,callback){callback({id:1,name:'Player',displayName:'Player',imageUrl:'/avatar.svg'})}}};
     addEventListener('storage',event=>{if(event.key==='customBackground')emit(read())});
-  </script><script src="/startup.js"></script><script src="/settings.js"></script></body></html>`;
+  </script><script src="/src/shared/startup.js"></script><script src="/src/settings/settings.js"></script></body></html>`;
 }
 
 class Browser {
@@ -66,8 +66,9 @@ class Browser {
 test('Home hide switches are independent, persistent, and handle native carousel remounts', {skip:!process.env.CHROME_BIN,timeout:30000}, async t => {
   const profile=fs.mkdtempSync(path.join(workspace,'.tmp-home-visibility-'));
   const server=http.createServer((request,response)=>{
+    response.setHeader('Cache-Control','no-store');
     const file=new URL(request.url,'http://localhost').pathname.slice(1);
-    if(['settings.css','startup.js','settings.js'].includes(file)){
+    if(['src/shared/theme.css','src/settings/settings.css','src/shared/startup.js','src/settings/settings.js'].includes(file)){
       response.setHeader('Content-Type',file.endsWith('.css')?'text/css':'text/javascript');response.end(fs.readFileSync(path.join(workspace,file)));
     }else if(file==='avatar.svg'){
       response.setHeader('Content-Type','image/svg+xml');response.end('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><circle cx="40" cy="40" r="40" fill="#6071b2"/></svg>');

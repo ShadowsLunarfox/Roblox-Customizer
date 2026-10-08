@@ -4,7 +4,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const http=require('node:http');
 const {test}=require('node:test');
-const {isolatedChrome,pause}=require('./helpers/chrome.cjs');
+const {isolatedChrome,pause,waitForDocument}=require('./helpers/chrome.cjs');
 const workspace=path.resolve(__dirname,'..');
 
 function fixture(layout) {
@@ -20,8 +20,8 @@ function fixture(layout) {
   return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   ${process.env.CHARTS_NATIVE_CSS?'<link rel="stylesheet" href="/native.css">':''}
   <style>body{--color-extended-white-90:rgba(255,255,255,.9);--light-mode-content-emphasis:#202227;margin:0;background:#24262b;color:#f4f4f5;font:16px/1.4 Arial}body.light-theme{color:#202227;background:#f4f4f4}#content{margin:24px auto;width:calc(100% - 24px);max-width:1200px}h1{margin:0;font-size:32px}a{color:inherit;text-decoration:none}button{color:inherit;font:inherit;cursor:pointer}button:disabled{cursor:not-allowed;opacity:.4}.filters-container{display:flex;flex-direction:column;margin:0 10px 20px}.filter-items-container{display:flex;gap:4px}.filter-select{background:#555;border:0;border-radius:999px;height:32px;padding:0 12px}.filters-modal-container{position:absolute;z-index:6;min-width:300px;max-width:360px;background:#25272b;padding:24px 0}.header-container,.action-buttons-container{padding:0 24px}.header-container{display:flex;justify-content:space-between}.header-container h3{margin:0}.filter-options-container{display:flex;flex-direction:column}.filter-option{padding:12px 24px;background:inherit;color:inherit;border:0;text-align:left}.selected-option{font-weight:bold}.apply-button{padding:10px 20px}.container-header{display:flex;justify-content:space-between;align-items:center}.horizontal-scroll-window{position:relative;overflow:hidden}.horizontally-scrollable{position:relative;height:270px}.game-cards{margin:0;padding:0;white-space:nowrap;list-style:none}.game-card{display:inline-block;vertical-align:top;padding:0 7px;width:164px;box-sizing:border-box}.game-card-container{width:100%;height:240px}.game-card-link{display:flex;flex-direction:column;justify-content:space-between;height:100%}.game-card-thumb-container{width:150px;height:150px}.game-card-thumb{display:block;width:150px;height:150px}.game-card-thumb img{display:block;width:100%;height:100%}.game-card-name{white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:14px}.game-card-info{font-size:12px;white-space:normal}.scroller{position:absolute;right:0;top:70px;width:28px;height:110px;border:0}.sdui-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px}.sdui-game-tile-wrapper{display:flex;flex-direction:column;gap:12px;height:100%}.sdui-tile-image-container{position:relative;overflow:hidden}.sdui-tile-image-container img{width:100%;height:100%;object-fit:cover}.sdui-tile-overlay-container{position:absolute;top:8px;left:8px}.foundation-web-badge{background:#fff;color:#202227;padding:4px 8px;border-radius:6px}.sdui-game-tile-wrapper [data-sdui-text]{margin-top:8px;font-size:14px}.sdui-game-tile-wrapper [data-testid=sdui-tile-footer-content]{font-size:12px}.invisible{visibility:hidden}@media(max-width:543px){.game-card{width:104px}.game-card-container{height:150px}.game-card-thumb-container,.game-card-thumb{width:90px;height:90px}.horizontally-scrollable{height:162px}.game-card-name{-webkit-line-clamp:1}.filters-modal-container{left:10px;right:10px;min-width:0;max-width:calc(100vw - 20px)}}</style>
-  <link rel="stylesheet" href="/settings.css"><link rel="stylesheet" href="/site-pages.css"><link rel="stylesheet" href="/charts-page.css">
-  <script>localStorage.setItem('roblox-customizer-visuals-v1',JSON.stringify({version:1,backgroundActive:true,glassBlur:24,glassOpacity:70}));</script><script src="/startup.js"></script>
+  <link rel="stylesheet" href="/src/shared/theme.css"><link rel="stylesheet" href="/src/settings/settings.css"><link rel="stylesheet" href="/src/shared/site-pages.css"><link rel="stylesheet" href="/src/pages/discovery/charts-page.css">
+  <script>localStorage.setItem('roblox-customizer-visuals-v1',JSON.stringify({version:1,backgroundActive:true,glassBlur:24,glassOpacity:70}));</script><script src="/src/shared/startup.js"></script>
   </head><body class="dark-theme"><main id="container-main"><div id="content"><div id="game-carousel-web-app">${layout==='legacy'?legacy:sdui}</div><div hidden id="native-hidden">Hidden native content</div></div></main><script>
     window.activations=0;document.querySelectorAll('a').forEach(n=>n.onclick=e=>{e.preventDefault();window.activations++});
     const close=()=>{document.querySelector('.filters-modal-container')?.remove();document.querySelectorAll('.filter-select').forEach(n=>n.setAttribute('aria-expanded','false'))};
@@ -34,7 +34,8 @@ function fixture(layout) {
 test('Charts preserves carousel controls, native filters, and tile media across themes, widths, and remounts', {skip:!process.env.CHROME_BIN,timeout:30000}, async t=>{
   const server=http.createServer((request,response)=>{
     const url=new URL(request.url,'http://localhost'),file=url.pathname.slice(1);
-    if(['settings.css','site-pages.css','charts-page.css','startup.js'].includes(file)){response.setHeader('Content-Type',file.endsWith('.css')?'text/css':'text/javascript');response.end(fs.readFileSync(path.join(workspace,file)))}
+    response.setHeader('Cache-Control','no-store');
+    if(['src/shared/theme.css','src/settings/settings.css','src/shared/site-pages.css','src/pages/discovery/charts-page.css','src/shared/startup.js'].includes(file)){response.setHeader('Content-Type',file.endsWith('.css')?'text/css':'text/javascript');response.end(fs.readFileSync(path.join(workspace,file)))}
     else if(file==='native.css'&&process.env.CHARTS_NATIVE_CSS){response.setHeader('Content-Type','text/css');response.end(fs.readFileSync(process.env.CHARTS_NATIVE_CSS))}
     else{response.setHeader('Content-Type','text/html; charset=utf-8');response.end(fixture(url.searchParams.get('layout')||'legacy'))}
   });
@@ -42,7 +43,9 @@ test('Charts preserves carousel controls, native filters, and tile media across 
   t.after(()=>new Promise(resolve=>server.close(resolve)));
   const browser=await isolatedChrome(t,'charts');
   for(const layout of ['legacy','sdui']){
-    await browser.send('Page.navigate',{url:`http://127.0.0.1:${server.address().port}/charts?layout=${layout}&device=computer&country=my`});
+    const fixtureUrl=`http://127.0.0.1:${server.address().port}/charts?layout=${layout}&device=computer&country=my`;
+    await browser.send('Page.navigate',{url:fixtureUrl});
+    await waitForDocument(browser, '#country', fixtureUrl);
     await browser.waitFor("!!document.querySelector('#country') && document.documentElement.dataset.rcFrostPage==='charts'");
     const selector=layout==='legacy'?'.game-card-container[data-testid="game-tile"]':'[data-testid="sdui-game-tile"]';
     const imageSelector=layout==='legacy'?'.game-card-thumb-container':'[data-testid="sdui-tile-image-container"]';

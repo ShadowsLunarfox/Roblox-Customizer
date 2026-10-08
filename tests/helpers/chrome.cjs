@@ -31,6 +31,15 @@ class Browser {
   }
 }
 
+async function waitForDocument(browser, selector, expectedUrl) {
+  const ready = `document.readyState === 'complete' && !!document.querySelector(${JSON.stringify(selector)})${expectedUrl ? ` && location.href === ${JSON.stringify(expectedUrl)}` : ''}`;
+  for (let attempt = 0; attempt < 100; attempt++) {
+    if (await browser.evaluate(ready)) return;
+    await pause(30);
+  }
+  assert.fail(`Fixture document and assets did not finish loading: ${selector}`);
+}
+
 async function isolatedChrome(t, name) {
   assert.match(name,/^[a-z-]+$/);
   const profile=fs.mkdtempSync(path.join(workspace,`.tmp-${name}-browser-`));
@@ -50,7 +59,10 @@ async function isolatedChrome(t, name) {
   const target=(await(await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find(tab=>tab.type==='page');
   browser=new Browser(target.webSocketDebuggerUrl);
   await browser.send('Page.enable');await browser.send('Runtime.enable');
+  // Serve fresh local assets for each fixture navigation and route case.
+  await browser.send('Network.enable');
+  await browser.send('Network.setCacheDisabled',{cacheDisabled:true});
   return browser;
 }
 
-module.exports={isolatedChrome,pause};
+module.exports={isolatedChrome,pause,waitForDocument};

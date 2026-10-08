@@ -3,8 +3,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { test } = require('node:test');
-const core = require('../robux-currency-core.js');
-const workerSource = fs.readFileSync(path.join(__dirname, '..', 'robux-currency-background.js'), 'utf8');
+const core = require('../src/currency/robux-currency-core.js');
+const workerSource = fs.readFileSync(path.join(__dirname, '..', 'src/background/robux-currency-background.js'), 'utf8');
 
 test('Robux parsing accepts localized counts and compact notation without extracting unrelated numbers', () => {
   for (const [text, amount] of [['0', 0], ['250', 250], ['26,498', 26498], ['26.498', 26498], ['26\u202f498', 26498], ['1,23,456', 123456], ['−1,000', -1000], ['١٢٬٣٤٥', 12345], ['۲۵۰', 250], ['１２５', 125], ['R$ 250', 250], ['250 Robux', 250], ['12.5K', 12500], ['1,5M', 1500000]]) assert.equal(core.parseRobux(text), amount, text);

@@ -64,8 +64,8 @@
   grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
   align-items: center;
   gap: 10px;
-  border-top: 1px solid #383b46;
-  border-bottom: 1px solid #383b46;
+  border-top: 1px solid var(--rc-control-border, #383b46);
+  border-bottom: 1px solid var(--rc-control-border, #383b46);
   margin: 18px 0;
   padding: 16px 0;
 }
@@ -77,16 +77,16 @@
 .rc-settings-currency .rc-settings-toggle,
 .rc-settings-currency p,
 .rc-settings-currency output { grid-column: 1 / -1; }
-.rc-settings-currency p { margin: 0; color: #bfc1c9; font-size: 12px; line-height: 1.5; }
-.rc-settings-currency output { padding: 10px; border-radius: 8px; background: rgba(255,255,255,.06); font-size: 14px; overflow-wrap: anywhere; }
+.rc-settings-currency p { margin: 0; color: var(--rc-text-secondary, #bfc1c9); font-size: 12px; line-height: 1.5; }
+.rc-settings-currency output { padding: 10px; border-radius: 8px; background: rgb(var(--rc-foreground-rgb, 255 255 255) / 6%); font-size: 14px; overflow-wrap: anywhere; }
 #rc-settings-overlay .rc-settings-currency input[type="search"] {
   width: 100%;
   min-width: 0;
   padding: 8px 10px;
-  border: 1px solid #515561;
+  border: 1px solid var(--rc-control-border, #515561);
   border-radius: 6px;
-  background: #292b35;
-  color: #fff;
+  background: var(--rc-control-bg, #292b35);
+  color: var(--rc-text, #fff);
   font: inherit;
 }
 .rc-settings-currency [data-currency-refresh] { grid-column: 1 / -1; justify-self: start; }

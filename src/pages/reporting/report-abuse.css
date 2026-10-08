@@ -1,7 +1,7 @@
 /* Keep the native reporting form and its states inside one wallpaper-aware panel. */
 html[data-rc-background-active][data-rc-frost-page="report-abuse"] body #content {
   --rc-report-border: var(--color-stroke-default, rgb(128 128 128 / 32%));
-  --rc-report-focus: var(--color-selection-start, #7fa6ff);
+  --rc-report-focus: var(--color-selection-start, var(--rc-focus, #7fa6ff));
   box-sizing: border-box !important;
   width: calc(100% - 32px) !important;
   max-width: 720px !important;
@@ -10,7 +10,7 @@ html[data-rc-background-active][data-rc-frost-page="report-abuse"] body #content
   padding: clamp(20px, 4vw, 32px) !important;
   border: 1px solid var(--rc-report-border) !important;
   border-radius: 20px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.72, var(--rc-glass-opacity, .62))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.72, var(--rc-surface-opacity, var(--rc-glass-opacity, .62)))) !important;
   background-image: none !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
@@ -83,7 +83,7 @@ html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content :is(
   padding: 10px 12px !important;
   border: 1px solid var(--rc-report-border) !important;
   border-radius: 10px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 32%) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(32%, var(--rc-surface-opacity-floor, 0))) !important;
   color: inherit;
   font-size: 16px;
   line-height: 1.5;
@@ -117,7 +117,7 @@ html[data-rc-background-active][data-rc-frost-page="report-abuse"] #content .inp
   padding: 6px !important;
   border: 1px solid var(--rc-report-border) !important;
   border-radius: 10px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.92, var(--rc-glass-opacity, .62))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.92, var(--rc-surface-opacity, var(--rc-glass-opacity, .62)))) !important;
   box-shadow: 0 8px 24px rgb(0 0 0 / 22%);
 }
 

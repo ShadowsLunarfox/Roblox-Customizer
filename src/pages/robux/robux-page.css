@@ -2,7 +2,7 @@
 html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page {
   --rc-robux-border: var(--color-stroke-default, rgb(128 128 128 / 30%));
   --rc-robux-hover: var(--color-stroke-emphasis, rgb(128 128 128 / 55%));
-  --rc-robux-focus: var(--color-selection-start, #7fa6ff);
+  --rc-robux-focus: var(--color-selection-start, var(--rc-focus, #7fa6ff));
   min-width: 0;
   background: transparent !important;
 }
@@ -31,7 +31,7 @@ html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page
   box-sizing: border-box;
   border: 1px solid var(--rc-robux-border) !important;
   border-radius: 18px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.68, var(--rc-glass-opacity, .62))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.68, var(--rc-surface-opacity, var(--rc-glass-opacity, .62)))) !important;
   background-image: none !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
@@ -109,7 +109,7 @@ html[data-rc-background-active][data-rc-frost-page="robux"] #robux-redesign-page
   gap: 16px;
   border: 1px solid var(--rc-robux-border);
   border-radius: 16px;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.68, var(--rc-glass-opacity, .62))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.68, var(--rc-surface-opacity, var(--rc-glass-opacity, .62)))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
   transition: border-color .15s ease;

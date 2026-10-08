@@ -5,6 +5,7 @@ const path = require('node:path');
 const http = require('node:http');
 const { spawn } = require('node:child_process');
 const { test } = require('node:test');
+const { waitForDocument } = require('./helpers/chrome.cjs');
 const workspace = path.resolve(__dirname, '..');
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -14,7 +15,7 @@ function fixture() {
   const summary = (id, className) => `<table id="${id}" class="${className}"><tbody><tr><th>Incoming Robux</th><th>Amount</th></tr>${rows}<tr><th>Outgoing Robux</th><th>Amount</th></tr><tr><td>Purchases</td><td>−⬡ 36<span class="rc-robux-equivalent">≈ RM 1.72 MYR</span></td></tr></tbody></table>`;
   return `<!doctype html><html data-rc-background-active data-rc-frost-page="transactions"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
     <style>body{margin:0;color:#fff;background:#25272c;font:14px Arial}#content{margin:24px auto}.rc-background-media{background:repeating-linear-gradient(45deg,#a44034 0 48px,#798572 48px 96px,#635476 96px 144px)}.summary,.transaction-summary,.transactions-summary{background:#25272c}table{width:100%;border-collapse:collapse}td,th{background:#25272c;padding:8px;text-align:left}h2{padding:16px;margin:0;font-size:20px}.container-header{padding:20px}.input-dropdown{position:relative}.dropdown-menu{display:none;position:absolute;list-style:none;background:#25272c;margin:0;top:100%;left:0}.open>.dropdown-menu{display:block}.dropdown-menu button{width:100%}.native-toggle{min-height:42px}#inactive[hidden]{display:none}</style>
-    <link rel="stylesheet" href="/settings.css"><link rel="stylesheet" href="/site-pages.css"><link rel="stylesheet" href="/robux-currency.css"><link rel="stylesheet" href="/transactions-page.css">
+    <link rel="stylesheet" href="/src/shared/theme.css"><link rel="stylesheet" href="/src/settings/settings.css"><link rel="stylesheet" href="/src/shared/site-pages.css"><link rel="stylesheet" href="/src/currency/robux-currency.css"><link rel="stylesheet" href="/src/pages/account/transactions-page.css">
     </head><body class="dark-theme"><div id="rc-background-layer"><div class="rc-background-media"></div></div><main id="container-main" class="container-main"><div id="content"><div id="transactions-page-container">
     <div class="container-header"><h1>My Transactions</h1><div class="input-dropdown"><button id="filter" class="native-toggle input-dropdown-btn" aria-expanded="false">Summary ▾</button><ul class="dropdown-menu"><li><button id="summary-option">Summary</button></li><li><button>Purchases</button></li></ul></div></div>
     <div id="summary-card" class="summary"><h2>Summary</h2>${summary('nested-summary', 'summary')}</div>
@@ -45,8 +46,9 @@ class Browser {
 test('Transactions summary and history retain visible frost across layout and filter changes', {skip:!process.env.CHROME_BIN,timeout:30000}, async t => {
   const profile = fs.mkdtempSync(path.join(workspace,'.tmp-transactions-browser-'));
   const server = http.createServer((request,response)=>{
+    response.setHeader('Cache-Control','no-store');
     const file=new URL(request.url,'http://localhost').pathname.slice(1);
-    if(['settings.css','site-pages.css','robux-currency.css','transactions-page.css'].includes(file)){
+    if(['src/shared/theme.css','src/settings/settings.css','src/shared/site-pages.css','src/currency/robux-currency.css','src/pages/account/transactions-page.css'].includes(file)){
       response.setHeader('Content-Type','text/css');response.end(fs.readFileSync(path.join(workspace,file)));
     }else{response.setHeader('Content-Type','text/html; charset=utf-8');response.end(fixture());}
   });
@@ -68,7 +70,8 @@ test('Transactions summary and history retain visible frost across layout and fi
   const target=(await(await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find(tab=>tab.type==='page');
   browser=new Browser(target.webSocketDebuggerUrl);await browser.send('Page.enable');
   await browser.send('Emulation.setDeviceMetricsOverride',{width:1360,height:950,deviceScaleFactor:1,mobile:false});
-  await browser.send('Page.navigate',{url:`http://127.0.0.1:${server.address().port}/transactions`});await pause(250);
+  await browser.send('Page.navigate',{url:`http://127.0.0.1:${server.address().port}/transactions`});
+  await waitForDocument(browser, '#summary-card');await pause(250);
   assert.match(await browser.evaluate("getComputedStyle(document.querySelector('.rc-background-media')).backgroundImage"),/repeating-linear-gradient/,'The fixture must render a wallpaper behind the panels');
   const surfaces = `(() => {const ids=['summary-card','alias-card','nested-summary','nested-alias','standalone-summary','standalone-transaction-summary','standalone-transactions-summary','history'];return Object.fromEntries(ids.map(id=>{const node=document.getElementById(id),style=getComputedStyle(node);return [id,{background:style.backgroundColor,blur:style.backdropFilter,radius:style.borderRadius}];}));})()`;
   const assertFrost = (surface,label,blur=18) => {

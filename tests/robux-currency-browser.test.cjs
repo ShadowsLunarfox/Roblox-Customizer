@@ -5,12 +5,13 @@ const path = require('node:path');
 const http = require('node:http');
 const { spawn } = require('node:child_process');
 const { test } = require('node:test');
+const { waitForDocument } = require('./helpers/chrome.cjs');
 const workspace = path.resolve(__dirname, '..');
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 function fixture() {
   return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="stylesheet" href="/settings.css"><link rel="stylesheet" href="/robux-currency.css">
+  <link rel="stylesheet" href="/src/shared/theme.css"><link rel="stylesheet" href="/src/settings/settings.css"><link rel="stylesheet" href="/src/currency/robux-currency.css">
   <style>body{background:linear-gradient(115deg,#655966,#804631,#6d7767);color:#fff;font:16px Arial;margin:0;padding:24px}header{display:flex;justify-content:space-between;align-items:center;min-height:40px}a{color:inherit;text-decoration:none}button{cursor:pointer}.icon-robux-16x16:before{content:'⬡';margin-right:4px}.cards{display:flex;flex-wrap:wrap;gap:12px}.item-card{width:125px;border:1px solid #ffffff22;border-radius:12px;padding:12px;background:#ffffff0b}.item-card-price{display:flex;align-items:center;gap:2px}.panel{padding:20px;border:1px solid #ffffff22;border-radius:12px;background:#22242a66;margin:20px 0}.purchase{font-size:24px;font-weight:bold}#creator-price{max-width:100px}h2{font-size:20px}.item-card h3{font-size:15px;height:38px}#dynamic{margin-top:20px}#native-numeric{white-space:nowrap}</style></head>
   <style>
     /* Roblox's fixed-height header and floated native controls. */
@@ -45,7 +46,7 @@ function fixture() {
     const emit=changes=>listeners.forEach(fn=>fn(changes,'local'));
     window.chrome={runtime:{getURL:path=>'/'+path,async sendMessage(){rateRequests++;return rateResponse}},storage:{local:{async get(key){return {[key]:JSON.parse(localStorage.getItem(key)||'null')}},async set(value){const changes={};for(const[key,data]of Object.entries(value)){changes[key]={oldValue:JSON.parse(localStorage.getItem(key)||'null'),newValue:data};localStorage.setItem(key,JSON.stringify(data))}emit(changes)}},onChanged:{addListener:fn=>listeners.push(fn)}}};
     addEventListener('storage',event=>{if(event.key)emit({[event.key]:{newValue:JSON.parse(event.newValue)}})});
-  </script><script src="/robux-currency-core.js"></script><script src="/robux-currency.js"></script><script src="/settings.js"></script></body></html>`;
+  </script><script src="/src/currency/robux-currency-core.js"></script><script src="/src/currency/robux-currency.js"></script><script src="/src/settings/settings.js"></script></body></html>`;
 }
 
 class CDP {
@@ -75,8 +76,9 @@ class CDP {
 test('live DOM conversions, settings persistence, page synchronization, and responsive layout', { skip: !process.env.CHROME_BIN, timeout: 30000 }, async t => {
   const temporary = fs.mkdtempSync(path.join(workspace, '.tmp-currency-browser-'));
   const server = http.createServer((request, response) => {
+    response.setHeader('Cache-Control','no-store');
     const name = new URL(request.url, 'http://localhost').pathname.slice(1);
-    if (['settings.js', 'settings.css', 'robux-currency.js', 'robux-currency-core.js', 'robux-currency.css'].includes(name)) {
+    if (['src/settings/settings.js', 'src/shared/theme.css','src/settings/settings.css', 'src/currency/robux-currency.js', 'src/currency/robux-currency-core.js', 'src/currency/robux-currency.css'].includes(name)) {
       response.setHeader('Content-Type', name.endsWith('.css') ? 'text/css; charset=utf-8' : 'text/javascript; charset=utf-8');
       response.end(fs.readFileSync(path.join(workspace, name)));
     } else if (name.startsWith('icons/')) { response.end(fs.readFileSync(path.join(workspace, name))); }
@@ -108,6 +110,7 @@ test('live DOM conversions, settings persistence, page synchronization, and resp
   await first.send('Page.enable');
   await first.send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 850, deviceScaleFactor: 1, mobile: false });
   await first.send('Page.navigate', { url: `${url}/catalog/10159600649/8-Bit-Royal-Crown` });
+  await waitForDocument(first, '#purchase-price');
   await pause(500);
   let info = await first.evaluate(`({count:document.querySelectorAll('.rc-robux-equivalent').length,header:document.querySelector('#header-balance .rc-robux-equivalent')?.textContent,native:document.querySelector('#native-numeric').textContent,unrelated:document.querySelector('#unrelated .rc-robux-equivalent'),axis:document.querySelector('#price-axis title')?.textContent,date:document.querySelector('#date-axis title'),amount:document.querySelector('#nav-robux-amount').textContent})`);
   assert.equal(info.count, 10, await first.evaluate(`JSON.stringify([...document.querySelectorAll('.rc-robux-equivalent')].map(node=>node.parentElement.outerHTML))`));
@@ -167,7 +170,7 @@ test('live DOM conversions, settings persistence, page synchronization, and resp
   const secondInfo = await (await fetch(`${endpoint}/json/new?${encodeURIComponent(`${url}/transactions`)}`, { method: 'PUT' })).json();
   const second = new CDP(secondInfo.webSocketDebuggerUrl); tabs.push(second);
   await second.send('Runtime.enable');
-  await pause(400);
+  await waitForDocument(second, '#header-balance .rc-robux-equivalent');
   assert.match(await second.evaluate(`document.querySelector('#header-balance .rc-robux-equivalent').textContent`), /11\.95 MYR/);
   await first.evaluate(`document.querySelector('.rc-settings-menu-entry').click();document.querySelector('#rc-currency-select').value='CNY';document.querySelector('#rc-currency-select').dispatchEvent(new Event('change',{bubbles:true}))`);
   await pause(150);

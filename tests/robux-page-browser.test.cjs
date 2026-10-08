@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const http = require('node:http');
 const path = require('node:path');
 const { test } = require('node:test');
-const { isolatedChrome, pause } = require('./helpers/chrome.cjs');
+const { isolatedChrome, pause, waitForDocument } = require('./helpers/chrome.cjs');
 const workspace = path.resolve(__dirname, '..');
 
 function fixture() {
@@ -16,8 +16,8 @@ function fixture() {
   <style>
     *{box-sizing:border-box}body{margin:0;font:16px/1.4 Arial;background:#24262b;color:#f7f7f8}body.light-theme{background:#f4f4f4;color:#202227}#content{width:100%;max-width:1200px;margin:20px auto}.flex{display:flex}.flex-col{flex-direction:column}.flex-row{flex-direction:row}.items-center{align-items:center}.items-start{align-items:flex-start}.self-stretch{align-self:stretch}.justify-between{justify-content:space-between}.shrink-0{flex-shrink:0}.gap-small{gap:8px}.gap-medium{gap:12px}.width-full{width:100%}.height-full{height:100%}.text-no-wrap{white-space:nowrap}.hidden,[hidden]{display:none}.strike-through{text-decoration:line-through}.content-muted{opacity:.7}.text-heading-large{font-size:28px;font-weight:700}h1,h3,p{margin:0}a{color:inherit}button{font:inherit;cursor:pointer}.foundation-web-button{display:flex;align-items:center;justify-content:center;min-height:40px;padding:8px 12px;border:0;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;background:#484a50;color:inherit}.foundation-web-button:disabled{opacity:.4;cursor:not-allowed}.bg-action-emphasis{background:#335fff;color:#fff}.bg-surface-100{background:#303238}.radius-large{border-radius:16px}.padding-medium{padding:12px}.stroke-standard{border:1px solid #888}.buy-robux-content{display:flex;flex-direction:column;max-width:792px;width:100%;padding:40px 24px;gap:40px}.buy-robux-section-header{font-size:28px;font-weight:700}.text-section-title{font-size:56px}.robux-section{padding:24px;gap:24px}.carousel-root{position:relative;overflow:hidden;width:100%}.carousel-track{display:flex;gap:12px;width:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}.carousel-item{width:242px;scroll-snap-align:start}.carousel-item ul{padding-left:20px;flex:1}.carousel-next{position:absolute;right:0;top:50%;border-radius:50%;width:40px;height:40px}.foundation-web-badge{font-size:12px;background:#484a50;border-radius:999px;padding:4px 8px}body.light-theme .bg-surface-100{background:#ededed}.legal-disclosure-container{font-size:14px}.bonus-art{width:100px;height:50px;object-fit:contain}@media(min-width:1024px){[data-testid=bonus-pill].hidden{display:block}}@media(max-width:600px){.carousel-item{width:313px}}
   </style>
-  <link rel="stylesheet" href="/settings.css"><link rel="stylesheet" href="/site-pages.css"><link rel="stylesheet" href="/robux-page.css">
-  <script>localStorage.setItem('roblox-customizer-visuals-v1',JSON.stringify({version:1,backgroundActive:true,glassBlur:24,glassOpacity:70}));</script><script src="/startup.js"></script></head>
+  <link rel="stylesheet" href="/src/shared/theme.css"><link rel="stylesheet" href="/src/settings/settings.css"><link rel="stylesheet" href="/src/shared/site-pages.css"><link rel="stylesheet" href="/src/pages/robux/robux-page.css">
+  <script>localStorage.setItem('roblox-customizer-visuals-v1',JSON.stringify({version:1,backgroundActive:true,glassBlur:24,glassOpacity:70}));</script><script src="/src/shared/startup.js"></script></head>
   <body class="dark-theme"><main id="container-main"><div id="content"><div id="robux-redesign-page"><div class="flex flex-col items-center"><div class="buy-robux-background"></div><div data-section-type="PAYMENTS_PRODUCT_SECTION_TYPE_TRANSFERS"><div><button id="send" class="foundation-web-button">Send</button></div></div><div class="buy-robux-content">
   <div><h1 class="text-section-title" style="margin-inline:120px">Enjoy up to 25% more Robux</h1><p class="text-section-subtitle">Computer, web and gift cards</p></div>
   <div data-slot="card" data-section-type="PAYMENTS_PRODUCT_SECTION_TYPE_SUBSCRIPTION_V2" class="self-stretch"><div class="buy-robux-section-header"><div class="flex justify-between"><span>New on Roblox</span><a href="/plus">Learn more</a></div></div><div class="carousel-root" data-testid="carousel-root"><div class="carousel-track" data-testid="carousel-track">${tiers}</div><button class="carousel-next foundation-web-icon-button" id="next" aria-label="Next tier">›</button></div></div>
@@ -35,8 +35,9 @@ function fixture() {
 }
 
 test('Robux layout preserves native prices, billing terms, purchase controls, and hidden states across themes and widths', {skip:!process.env.CHROME_BIN,timeout:30000}, async t => {
-  const files=['settings.css','site-pages.css','robux-page.css','startup.js'];
+  const files=['src/shared/theme.css','src/settings/settings.css','src/shared/site-pages.css','src/pages/robux/robux-page.css','src/shared/startup.js'];
   const server=http.createServer((request,response)=>{
+    response.setHeader('Cache-Control','no-store');
     const file=new URL(request.url,'http://localhost').pathname.slice(1);
     if(files.includes(file)){response.setHeader('Content-Type',file.endsWith('.css')?'text/css':'text/javascript');response.end(fs.readFileSync(path.join(workspace,file)))}
     else if(file==='native.css'&&process.env.ROBUX_NATIVE_CSS){response.setHeader('Content-Type','text/css');response.end(fs.readFileSync(process.env.ROBUX_NATIVE_CSS))}
@@ -45,7 +46,8 @@ test('Robux layout preserves native prices, billing terms, purchase controls, an
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));t.after(()=>new Promise(resolve=>server.close(resolve)));
   const browser=await isolatedChrome(t,'robux');
   await browser.send('Page.navigate',{url:`http://127.0.0.1:${server.address().port}/upgrades/robux?ctx=navpopover`});
-  await browser.waitFor("!!document.querySelector('#buy-0') && document.documentElement.dataset.rcFrostPage==='robux'");
+  await waitForDocument(browser, '#buy-0');
+  await browser.waitFor("document.documentElement.dataset.rcFrostPage==='robux' && document.documentElement.hasAttribute('data-rc-background-active')");
   const snapshot="JSON.stringify([...document.querySelectorAll('[data-product-id],[data-subscription-product-id],.legal-disclosure-container')].map(n=>({id:n.dataset.productId||n.dataset.subscriptionProductId,text:n.textContent,links:[...n.querySelectorAll('a')].map(a=>a.getAttribute('href'))})))";
   const original=await browser.evaluate(snapshot);
   for(const theme of ['dark','light']){

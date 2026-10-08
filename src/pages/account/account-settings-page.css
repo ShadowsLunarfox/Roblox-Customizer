@@ -2,7 +2,7 @@
 html[data-rc-background-active][data-rc-frost-page="account-settings"] body #content {
   --rc-settings-border: var(--color-stroke-default, rgb(128 128 128 / 30%));
   --rc-settings-hover: var(--color-state-hover, rgb(128 128 128 / 14%));
-  --rc-settings-focus: var(--color-selection-start, #7fa6ff);
+  --rc-settings-focus: var(--color-selection-start, var(--rc-focus, #7fa6ff));
   box-sizing: border-box;
   width: calc(100% - 32px);
   max-width: 1040px;
@@ -29,7 +29,7 @@ html[data-rc-background-active][data-rc-frost-page="account-settings"] #content 
   padding: 22px 24px !important;
   border: 1px solid var(--rc-settings-border) !important;
   border-radius: 18px;
-  background: rgb(var(--rc-glass-color, 20 22 28) / max(.72, var(--rc-glass-opacity, .62))) !important;
+  background: rgb(var(--rc-glass-color, 20 22 28) / max(.72, var(--rc-surface-opacity, var(--rc-glass-opacity, .62)))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
 }
@@ -127,7 +127,7 @@ html[data-rc-background-active][data-rc-frost-page="account-settings"] #content 
   padding: 8px !important;
   border: 1px solid var(--rc-settings-border);
   border-radius: 16px;
-  background: rgb(var(--rc-glass-color, 20 22 28) / max(.72, var(--rc-glass-opacity, .62))) !important;
+  background: rgb(var(--rc-glass-color, 20 22 28) / max(.72, var(--rc-surface-opacity, var(--rc-glass-opacity, .62)))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
 }
@@ -192,7 +192,7 @@ html[data-rc-background-active][data-rc-frost-page="account-settings"] #content 
   pointer-events: none;
   border: 1px solid var(--rc-settings-border);
   border-radius: inherit;
-  background: rgb(var(--rc-glass-color, 20 22 28) / max(.72, var(--rc-glass-opacity, .62)));
+  background: rgb(var(--rc-glass-color, 20 22 28) / max(.72, var(--rc-surface-opacity, var(--rc-glass-opacity, .62))));
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
 }
@@ -246,7 +246,7 @@ html[data-rc-background-active][data-rc-frost-page="account-settings"] #content 
   font-size: 16px;
   border: 1px solid var(--rc-settings-border);
   border-radius: 10px;
-  background: rgb(var(--rc-glass-color, 20 22 28) / 30%) !important;
+  background: rgb(var(--rc-glass-color, 20 22 28) / max(30%, var(--rc-surface-opacity-floor, 0))) !important;
   color: var(--color-content-emphasis, inherit);
 }
 
@@ -296,7 +296,7 @@ html[data-rc-background-active][data-rc-frost-page="account-settings"] #content 
   padding: 6px;
   border: 1px solid var(--rc-settings-border);
   border-radius: 12px;
-  background: rgb(var(--rc-glass-color, 20 22 28) / max(.9, var(--rc-glass-opacity, .62))) !important;
+  background: rgb(var(--rc-glass-color, 20 22 28) / max(.9, var(--rc-surface-opacity, var(--rc-glass-opacity, .62)))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
   box-shadow: 0 10px 30px rgb(0 0 0 / 22%);

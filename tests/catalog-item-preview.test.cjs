@@ -4,8 +4,8 @@ const path = require('node:path');
 const vm = require('node:vm');
 const { test } = require('node:test');
 
-const source = fs.readFileSync(path.join(__dirname, '..', 'catalog-item-page.js'), 'utf8');
-const backgroundSource = fs.readFileSync(path.join(__dirname, '..', 'badge-background.js'), 'utf8');
+const source = fs.readFileSync(path.join(__dirname, '..', 'src/pages/catalog/catalog-item-page.js'), 'utf8');
+const backgroundSource = fs.readFileSync(path.join(__dirname, '..', 'src/background/service-worker.js'), 'utf8');
 const CROWN = 10159600649;
 const BUNDLE = 33230277606065;
 const IMAGE_URL = 'https://tr.rbxcdn.com/crown/420/420/Hat/Png/noFilter';

@@ -4,7 +4,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const { test } = require('node:test');
 
-const source = fs.readFileSync(path.join(__dirname, '..', 'page.js'), 'utf8');
+const source = fs.readFileSync(path.join(__dirname, '..', 'src/shared/page-bridge.js'), 'utf8');
 
 function environment(pathname = '/home') {
   const listeners = {};

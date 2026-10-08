@@ -7,7 +7,7 @@ const { spawn } = require('node:child_process');
 const { test } = require('node:test');
 const workspace = path.resolve(__dirname, '..');
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
-const source = fs.readFileSync(path.join(workspace, 'game-page.js'), 'utf8');
+const source = fs.readFileSync(path.join(workspace, 'src/pages/games/game-page.js'), 'utf8');
 const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" fill="#6575a0"/></svg>';
 
 function fixture(url) {
@@ -23,7 +23,7 @@ function fixture(url) {
     + (mode === 'empty' ? '<p>No public servers available.</p>' : publicRow) + '</section>';
   return `<!doctype html><html lang="en" data-rc-hide-x-feed data-rc-hide-youtube-feed><head><meta charset="utf-8">
     <style>body{background:#24252c;color:white;font:14px Arial}#game-detail-page{width:900px;margin:20px auto}.tab-pane{display:none}.tab-pane.active{display:block}button{padding:8px}</style>
-    <link rel="stylesheet" href="/game-page.css"></head><body>
+    <link rel="stylesheet" href="/src/shared/theme.css"><link rel="stylesheet" href="/src/pages/games/game-page.css"></head><body>
     <main id="game-detail-page" data-place-id="4623386862"><header><h1>Piggy</h1><img src="/slow-image" width="80" height="80"></header>
       <div id="game-detail-meta-data" data-place-id="4623386862"></div>
       <ul id="horizontal-tabs"><li id="tab-about"><a href="#about">About</a></li>
@@ -102,9 +102,10 @@ test('lower game panes load before images finish and slow private details do not
     const images = new Set();
     const finishImages = () => { for (const response of images) response.end(svg); images.clear(); };
     const server = http.createServer((request, response) => {
+    response.setHeader('Cache-Control','no-store');
       const url = new URL(request.url, 'http://localhost');
-      if (url.pathname === '/game-page.css') {
-        response.setHeader('Content-Type', 'text/css'); response.end(fs.readFileSync(path.join(workspace, 'game-page.css')));
+      if (['/src/shared/theme.css', '/src/pages/games/game-page.css'].includes(url.pathname)) {
+        response.setHeader('Content-Type', 'text/css'); response.end(fs.readFileSync(path.join(workspace, url.pathname.slice(1))));
       } else if (url.pathname === '/slow-image' || url.pathname === '/avatar.svg') {
         response.setHeader('Content-Type', 'image/svg+xml');
         if (url.pathname === '/slow-image') images.add(response);

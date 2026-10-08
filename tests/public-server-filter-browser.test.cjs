@@ -7,7 +7,7 @@ const { spawn } = require('node:child_process');
 const { test } = require('node:test');
 const workspace = path.resolve(__dirname, '..');
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
-const source = fs.readFileSync(path.join(workspace, 'game-page.js'), 'utf8');
+const source = fs.readFileSync(path.join(workspace, 'src/pages/games/game-page.js'), 'utf8');
 
 function card(playing) {
   return `<div class="card-item" data-playing="${playing}" data-ping="${40 + playing * 10}"
@@ -28,7 +28,7 @@ function fixture(url) {
     <style>body{background:#24252c;color:white;font:14px Arial}#game-detail-page{width:950px;margin:20px auto}
       .card-list{display:flex;flex-wrap:wrap}.shared-group{display:flex;flex-wrap:wrap;width:100%}
       .card-item{box-sizing:border-box;width:210px;min-height:100px;padding:12px;margin:8px;border:1px solid #aaa}button{padding:6px}</style>
-    <link rel="stylesheet" href="/game-page.css"></head><body>
+    <link rel="stylesheet" href="/src/shared/theme.css"><link rel="stylesheet" href="/src/pages/games/game-page.css"></head><body>
     <main id="game-detail-page" data-place-id="4623386862"><section id="game-instances">
       <section id="running-game-instances-container" class="server-list-section"><h2>Other Servers</h2>
         <div id="native-group">${mode === 'colocated' ? sort + exclude : `<div>${sort}</div><div>${exclude}</div>`}
@@ -92,9 +92,10 @@ test('public filter counts agree with rendered cards after typing, Search, pagin
   { skip: !process.env.CHROME_BIN, timeout: 60000 }, async t => {
     const profile = fs.mkdtempSync(path.join(workspace, '.tmp-public-server-filter-'));
     const server = http.createServer((request, response) => {
+    response.setHeader('Cache-Control','no-store');
       const url = new URL(request.url, 'http://localhost');
-      if (url.pathname === '/game-page.css') {
-        response.setHeader('Content-Type', 'text/css'); response.end(fs.readFileSync(path.join(workspace, 'game-page.css')));
+      if (['/src/shared/theme.css', '/src/pages/games/game-page.css'].includes(url.pathname)) {
+        response.setHeader('Content-Type', 'text/css'); response.end(fs.readFileSync(path.join(workspace, url.pathname.slice(1))));
       } else {
         response.setHeader('Content-Type', 'text/html; charset=utf-8'); response.end(fixture(url));
       }

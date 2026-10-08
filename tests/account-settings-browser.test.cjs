@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const http = require('node:http');
 const path = require('node:path');
 const { test } = require('node:test');
-const { isolatedChrome, pause } = require('./helpers/chrome.cjs');
+const { isolatedChrome, pause, waitForDocument } = require('./helpers/chrome.cjs');
 const workspace = path.resolve(__dirname, '..');
 
 function fixture(layout) {
@@ -38,8 +38,8 @@ function fixture(layout) {
   <style>
     *{box-sizing:border-box}body{margin:0;font:16px/1.5 Arial;background:#24262b;color:#f7f7f8}body.light-theme{background:#f4f4f4;color:#202227}main{padding-top:30px}#content{width:970px;margin:auto;padding:12px}.preview-label{max-width:1040px;margin:0 auto 10px;padding:0 16px;color:#fff;font-size:13px}.settings-left-navigation{float:left;width:200px}.rbx-tab-content{margin-left:220px}.container-header h1{margin:0 0 20px;font-size:32px}.menu-vertical{list-style:none;margin:0;padding:0;background:#303238}.menu-option-content{display:block;padding:12px;color:inherit;text-decoration:none}.menu-option.active{box-shadow:4px 0 0 #fff inset}.setting-section{margin-bottom:20px}.section-content{padding:18px;background:#303238}.light-theme .section-content,.light-theme .menu-vertical{background:#fff}h2{font-size:22px;margin:0 0 12px}.text-description{font-size:14px}.text-success{color:#58c995}.text-error{color:#ef7676}label{display:block;color:#c4c8d0;font-size:14px;margin-bottom:6px}.light-theme label{color:#555b65}.text-lead{font-size:16px;font-weight:600}.account-row{display:flex;gap:16px;align-items:center;justify-content:space-between;border-bottom:1px solid #7775}.account-row>div{min-width:0}.form-group{margin-bottom:12px}input,select,button{font:inherit;color:inherit}.input-field{width:100%;border:1px solid #777;border-radius:4px;padding:8px;background:#383b43}.light-theme .input-field{background:#fff}button{cursor:pointer;padding:8px 14px;border:1px solid #777;background:#383b43;border-radius:4px}.light-theme button{background:#eee}.btn-primary-md{background:#335fff;color:#fff}.btn-primary-md:disabled{background:#555;opacity:.4;cursor:not-allowed}.btn-alert-md{background:#b52332;color:#fff}.birthday-fields{display:flex;gap:8px}.birthday-fields .rbx-select-group{flex:1;min-width:0}.choices label{display:flex;gap:8px;align-items:center}.choices input{width:auto}.input-dropdown{position:relative}.input-dropdown-btn{width:100%;text-align:left}.input-dropdown-btn span{float:right}.dropdown-menu{display:none;list-style:none;position:absolute;top:100%;left:0;width:100%;margin:4px 0;z-index:1000;background:#383b43}.open .dropdown-menu{display:block}.dropdown-menu button{width:100%;border:0;text-align:left;background:transparent}.ng-hide,[hidden]{display:none!important}#rc-background-layer{background:radial-gradient(ellipse at 12% 10%,#326a69,transparent 55%),radial-gradient(ellipse at 85% 10%,#463d7d,transparent 55%),linear-gradient(145deg,#151b2b,#312e49 65%,#163c42)}
   </style>
-  <link rel="stylesheet" href="/settings.css"><link rel="stylesheet" href="/site-pages.css"><link rel="stylesheet" href="/account-settings-page.css">
-  <script>localStorage.setItem('roblox-customizer-visuals-v1',JSON.stringify({version:1,backgroundActive:true,glassBlur:24,glassOpacity:75}));</script><script src="/startup.js"></script><script src="/account-settings-page.js"></script></head>
+  <link rel="stylesheet" href="/src/shared/theme.css"><link rel="stylesheet" href="/src/settings/settings.css"><link rel="stylesheet" href="/src/shared/site-pages.css"><link rel="stylesheet" href="/src/pages/account/account-settings-page.css">
+  <script>localStorage.setItem('roblox-customizer-visuals-v1',JSON.stringify({version:1,backgroundActive:true,glassBlur:24,glassOpacity:75}));</script><script src="/src/shared/startup.js"></script><script src="/src/pages/account/account-settings-page.js"></script></head>
   <body class="dark-theme"><div id="rc-background-layer" style="background:radial-gradient(ellipse at 12% 10%,#326a69,transparent 55%),radial-gradient(ellipse at 85% 10%,#463d7d,transparent 55%),linear-gradient(145deg,#151b2b,#312e49 65%,#163c42)"></div><main id="container-main"><div class="preview-label">Local layout preview · sample account</div><div id="content"><div id="settings-container" class="page-content settings-container"><div class="container-header"><h1>My Settings</h1></div>${structure}</div></div></main><script>
     window.edits=[];window.saves=0;document.querySelectorAll('.account-row button').forEach(button=>button.onclick=()=>window.edits.push(button.id));
     document.querySelectorAll('.menu-option-content').forEach(link=>link.onclick=()=>{document.querySelectorAll('.menu-option').forEach(n=>n.classList.remove('active'));link.parentElement.classList.add('active');document.querySelector('#info').hidden=link.id!=='tab-0';document.querySelector('#security').hidden=link.id!=='tab-1'});
@@ -51,8 +51,9 @@ function fixture(layout) {
 }
 
 test('Account settings keep native tabs, edit/save behavior, field validation, and hidden controls across layouts and themes', {skip:!process.env.CHROME_BIN,timeout:30000}, async t => {
-  const files=['settings.css','site-pages.css','account-settings-page.css','account-settings-page.js','startup.js'];
+  const files=['src/shared/theme.css','src/settings/settings.css','src/shared/site-pages.css','src/pages/account/account-settings-page.css','src/pages/account/account-settings-page.js','src/shared/startup.js'];
   const server=http.createServer((request,response)=>{
+    response.setHeader('Cache-Control','no-store');
     const url=new URL(request.url,'http://localhost'),file=url.pathname.slice(1);
     if(files.includes(file)){response.setHeader('Content-Type',file.endsWith('.css')?'text/css':'text/javascript');response.end(fs.readFileSync(path.join(workspace,file)))}
     else if(file==='native.css'&&process.env.ACCOUNT_NATIVE_CSS){response.setHeader('Content-Type','text/css');response.end(fs.readFileSync(process.env.ACCOUNT_NATIVE_CSS))}
@@ -61,7 +62,9 @@ test('Account settings keep native tabs, edit/save behavior, field validation, a
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));t.after(()=>new Promise(resolve=>server.close(resolve)));
   const browser=await isolatedChrome(t,'account-settings');
   for(const layout of ['direct','wrapped','self-menu','nested']){
-    await browser.send('Page.navigate',{url:`http://127.0.0.1:${server.address().port}/my/account?layout=${layout}#!/info`});
+    const fixtureUrl=`http://127.0.0.1:${server.address().port}/my/account?layout=${layout}#!/info`;
+    await browser.send('Page.navigate',{url:fixtureUrl});
+    await waitForDocument(browser, '#save', fixtureUrl);
     await browser.waitFor("!!document.querySelector('#save') && !!document.querySelector('[data-rc-settings-layout]') && document.documentElement.dataset.rcFrostPage==='account-settings'");
     const snapshot="JSON.stringify([...document.querySelectorAll('input,select')].map(n=>({name:n.name,value:n.value,disabled:n.disabled,checked:n.checked})))";
     const values=await browser.evaluate(snapshot);

@@ -1,0 +1,102 @@
+/* Extension colors follow Roblox's theme class, including live theme changes.
+   A theme on body takes precedence over an inherited theme on html. */
+:root,
+.dark-theme {
+  --rc-color-scheme: dark;
+  --rc-glass-color: 20 22 28;
+  --rc-foreground-rgb: 255 255 255;
+  --rc-text: #f4f6fb;
+  --rc-text-secondary: #c3cad6;
+  --rc-text-muted: #b6bfce;
+  --rc-surface: #1c1d24;
+  --rc-control-bg: #292b35;
+  --rc-control-hover: #383d49;
+  --rc-control-border: #727c90;
+  --rc-inset-bg: rgb(0 0 0 / 23%);
+  --rc-link: #aacaff;
+  --rc-focus: #aacaff;
+  --rc-success: #b8e6c2;
+  --rc-error: #ff9f9f;
+  --rc-latency-low: #65e8f5;
+  --rc-latency-medium: #ffba68;
+  --rc-latency-high: #ff8585;
+  --rc-surface-opacity-floor: 0;
+}
+
+.light-theme {
+  --rc-color-scheme: light;
+  --rc-glass-color: 255 255 255;
+  --rc-foreground-rgb: 20 30 47;
+  --rc-text: #1b2330;
+  --rc-text-secondary: #414c5e;
+  --rc-text-muted: #505b6e;
+  --rc-surface: #ffffff;
+  --rc-control-bg: #f0f2f6;
+  --rc-control-hover: #e0e5ed;
+  --rc-control-border: #788397;
+  --rc-inset-bg: rgb(20 30 47 / 4%);
+  --rc-link: #174cb5;
+  --rc-focus: #174cb5;
+  --rc-success: #216237;
+  --rc-error: #a51e32;
+  --rc-latency-low: #00505a;
+  --rc-latency-medium: #6e3500;
+  --rc-latency-high: #841021;
+  /* Keep dark wallpaper from swallowing dark text on light glass panels. */
+  --rc-surface-opacity-floor: .82;
+}
+
+:root,
+.dark-theme,
+.light-theme {
+  --rc-surface-opacity: max(var(--rc-glass-opacity, .62), var(--rc-surface-opacity-floor));
+  --rc-panel-opacity: max(var(--rc-page-panel-opacity, .31), var(--rc-surface-opacity-floor));
+}
+
+/* Native form affordances and option menus need the same theme as our panels. */
+:is(#rc-settings-overlay, .rc-public-server-filters, .rc-public-server-pagination,
+    #rc-x-feed-panel, #rc-youtube-feed-panel, #rc-avatar-2d,
+    #rc-catalog-item-2d, #rc-profile-details, #rc-profile-limiteds,
+    #rc-pinned-games, #rc-pinned-games-notification) {
+  color-scheme: var(--rc-color-scheme);
+}
+
+#rc-settings-overlay :is(input, select, button):focus-visible {
+  outline: 2px solid var(--rc-focus);
+  outline-offset: 2px;
+}
+
+#rc-settings-overlay :is(input, select)::placeholder {
+  color: var(--rc-text-muted);
+  opacity: 1;
+}
+
+#rc-settings-overlay option {
+  background: var(--rc-control-bg);
+  color: var(--rc-text);
+}
+
+html[data-rc-frost-page] :is(input, select, textarea) {
+  color-scheme: var(--rc-color-scheme);
+}
+
+.rc-public-server-filters :is(input, select),
+.rc-public-server-pagination button {
+  border-color: var(--rc-control-border);
+}
+
+.rc-public-server-filters input::placeholder {
+  color: var(--rc-text-muted);
+  opacity: 1;
+}
+
+.rc-public-server-filters option {
+  color: var(--rc-text);
+  background: var(--rc-control-bg);
+}
+
+.rc-public-server-filters :is(input, select, button):focus-visible,
+.rc-public-server-pagination button:focus-visible {
+  outline: 2px solid var(--rc-focus);
+  outline-offset: 2px;
+}

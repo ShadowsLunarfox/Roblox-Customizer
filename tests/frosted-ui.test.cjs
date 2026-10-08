@@ -4,7 +4,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const { test } = require('node:test');
 
-const source = fs.readFileSync(path.join(__dirname, '..', 'frosted-ui.js'), 'utf8');
+const source = fs.readFileSync(path.join(__dirname, '..', 'src/shared/frosted-ui.js'), 'utf8');
 const exposed = source.replace(/  queueSync\(\);\s*\}\)\(\);\s*$/, `
   globalThis.frost = { panelFor, panelForHeader, syncPanels, queueSync, markSurface, introNotice, syncPanelSurfaces };
 })();`);
@@ -80,7 +80,7 @@ function harness() {
     addEventListener() {},
     setTimeout(callback) { timers.push(callback); return timers.length; }
   };
-  vm.runInNewContext(exposed, context, { filename: 'frosted-ui.js' });
+  vm.runInNewContext(exposed, context, { filename: 'src/shared/frosted-ui.js' });
   return { body, timers, documentQueries, observeChanges, ...context.frost };
 }
 

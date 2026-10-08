@@ -58,7 +58,7 @@ html[data-rc-background-active][data-rc-frost-page] :is(#content, main, [role="m
   .tabs-container,
   .tab-container
 ) {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-page-panel-opacity, .31)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
 }
@@ -68,7 +68,7 @@ html[data-rc-background-active][data-rc-frost-page] :is(#content, main, [role="m
   .tabs-container,
   .tab-container
 ) {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-page-panel-opacity, .31)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
 }
 
 /* Marketplace and charts. */
@@ -81,7 +81,7 @@ html[data-rc-background-active][data-rc-frost-page="charts"] :is(#content, main,
   .charts-filter-container,
   .charts-section-header
 ) {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-page-panel-opacity, .31)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
 }
@@ -104,7 +104,7 @@ html[data-rc-background-active][data-rc-frost-page="messages"] :is(#content, mai
   .message-detail,
   .message-compose
 ) {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-page-panel-opacity, .31)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
 }
@@ -124,7 +124,7 @@ html[data-rc-background-active][data-rc-frost-page="trades"] :is(#content, main,
   .trade-list-container,
   .trade-details-container
 ) {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-page-panel-opacity, .31)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
 }
@@ -154,10 +154,10 @@ html[data-rc-background-active][data-rc-frost-page]:not([data-rc-frost-page="cat
   [data-testid$="-card"],
   [data-testid$="-tile"]
 ):not(:where([data-rc-profile-section="wearing"] *, [data-rc-profile-section="store"] *, [data-rc-profile-section="collections"] *, [data-rc-profile-section="experiences"] *, [data-rc-profile-section="favorites"] *)) {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 12%) !important;
+  box-shadow: inset 0 0 0 1px rgb(var(--rc-foreground-rgb, 255 255 255) / 12%) !important;
   border-radius: 8px !important;
 }
 
@@ -192,11 +192,11 @@ html[data-rc-background-active][data-rc-frost-page="community"] #group-container
   .group-forums-categories
 ),
 html[data-rc-background-active][data-rc-frost-page="community"] .group-description-dialog .MuiDialog-paper {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-page-panel-opacity, .31)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
   background-image: none !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 12%) !important;
+  box-shadow: inset 0 0 0 1px rgb(var(--rc-foreground-rgb, 255 255 255) / 12%) !important;
   border-radius: 12px !important;
 }
 
@@ -273,7 +273,7 @@ html[data-rc-background-active][data-rc-frost-page="community"] #group-container
   .section-content,
   .group-profile-header
 ) :is(.group-banner, .group-notifications-upsell-banner) {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 12%) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(12%, var(--rc-surface-opacity-floor, 0))) !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
@@ -297,7 +297,7 @@ html[data-rc-background-active][data-rc-frost-page="community"] #group-container
   flex-shrink: 0;
   padding: 6px 26px 6px 10px !important;
   border-radius: 8px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 24%) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(24%, var(--rc-surface-opacity-floor, 0))) !important;
   font-size: 13px !important;
   font-weight: 600 !important;
   text-decoration: none !important;
@@ -350,13 +350,13 @@ html[data-rc-background-active][data-rc-frost-page="community"] #group-container
   height: 100% !important;
   margin: 0 !important;
   padding: 8px !important;
-  border: 1px solid var(--color-stroke-default, rgb(255 255 255 / 16%)) !important;
+  border: 1px solid var(--color-stroke-default, rgb(var(--rc-foreground-rgb, 255 255 255) / 16%)) !important;
   border-radius: 14px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   box-shadow: 0 4px 14px rgb(0 0 0 / 12%);
-  color: var(--color-content-emphasis, #f3f4f6) !important;
+  color: var(--color-content-emphasis, var(--rc-text, #f3f4f6)) !important;
   text-decoration: none !important;
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
@@ -421,7 +421,7 @@ html[data-rc-background-active][data-rc-frost-page="community"] #group-container
   margin: auto 0 0 !important;
   padding: 4px 8px !important;
   border-radius: 7px;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 35%);
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(35%, var(--rc-surface-opacity-floor, 0)));
   font-size: 13px !important;
   font-weight: 600;
   color: inherit !important;
@@ -434,12 +434,12 @@ html[data-rc-background-active][data-rc-frost-page="community"] #group-container
 }
 
 html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-store .item-card-container:hover {
-  border-color: var(--color-stroke-emphasis, rgb(255 255 255 / 32%)) !important;
+  border-color: var(--color-stroke-emphasis, rgb(var(--rc-foreground-rgb, 255 255 255) / 32%)) !important;
   box-shadow: 0 6px 20px rgb(0 0 0 / 22%);
 }
 
 html[data-rc-background-active][data-rc-frost-page="community"] #group-container .group-store :is(.item-card-container, .see-all-link-icon):focus-visible {
-  outline: 2px solid var(--color-action-emphasis-background, #7fa6ff) !important;
+  outline: 2px solid var(--color-action-emphasis-background, var(--rc-focus, #7fa6ff)) !important;
   outline-offset: 3px;
 }
 

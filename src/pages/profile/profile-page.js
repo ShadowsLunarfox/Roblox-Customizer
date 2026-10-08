@@ -418,7 +418,7 @@
       }
       const nestedInHero = !!hero && hero !== summary && hero.contains(summary);
       const panelColor = nestedInHero ? 'transparent'
-        : 'rgb(var(--rc-glass-color, 20 22 28) / var(--rc-page-panel-opacity, .31))';
+        : 'rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31)))';
       const panelBlur = nestedInHero ? 'none'
         : 'blur(var(--rc-glass-blur, 18px)) saturate(1.2)';
       summary.style.setProperty('background-color', panelColor, 'important');
@@ -427,7 +427,7 @@
       summary.style.setProperty('-webkit-backdrop-filter', panelBlur, 'important');
       summary.style.setProperty('border-radius', '14px', 'important');
       summary.style.setProperty('box-shadow', nestedInHero ? 'none'
-        : 'inset 0 0 0 1px rgb(255 255 255 / 16%)', 'important');
+        : 'inset 0 0 0 1px rgb(var(--rc-foreground-rgb, 255 255 255) / 16%)', 'important');
     }
     for (const element of surfaces) {
       if (!element.hasAttribute('data-rc-profile-banner-surface')) {

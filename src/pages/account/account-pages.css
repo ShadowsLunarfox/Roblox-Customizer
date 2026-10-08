@@ -5,7 +5,7 @@ html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-fros
   --rc-account-border: var(--color-stroke-default, rgb(128 128 128 / 30%));
   --rc-account-hover: var(--color-state-hover, rgb(128 128 128 / 14%));
   --rc-account-selected: var(--color-state-press, rgb(128 128 128 / 22%));
-  --rc-account-focus: var(--color-selection-start, #7fa6ff);
+  --rc-account-focus: var(--color-selection-start, var(--rc-focus, #7fa6ff));
   max-width: 1200px;
 }
 
@@ -40,7 +40,7 @@ html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-fros
   padding: 14px 16px !important;
   border: 1px solid var(--rc-account-border) !important;
   border-radius: 14px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   background-image: none !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
@@ -102,7 +102,7 @@ html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-fros
   min-height: 40px;
   border-color: var(--rc-account-border) !important;
   border-radius: 10px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 28%) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(28%, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
 /* A native hidden attribute keeps its meaning after flex/grid enhancement. */
@@ -129,7 +129,7 @@ html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-fros
   z-index: -1;
   pointer-events: none;
   border-radius: inherit;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62));
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62)));
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
 }
@@ -145,7 +145,7 @@ html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-fros
   padding: 6px !important;
   border: 1px solid var(--rc-account-border) !important;
   border-radius: 12px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.88, var(--rc-glass-opacity, .62))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.88, var(--rc-surface-opacity, var(--rc-glass-opacity, .62)))) !important;
   background-image: none !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
@@ -266,7 +266,7 @@ html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trade
   min-width: 0;
   border: 1px solid var(--rc-account-border) !important;
   border-radius: 14px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   background-image: none !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
@@ -315,7 +315,7 @@ html[data-rc-background-active][data-rc-frost-page="friends"] #content .avatar-c
 html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.messages, .messages-list, .message-list, .message-detail, .message-compose) {
   margin-bottom: 16px;
   padding: 12px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-page-panel-opacity, .31)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
 }
@@ -325,13 +325,13 @@ html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(
   .rbx-tabs-horizontal > .nav-tabs, .horizontal-tabs > .nav-tabs,
   .inbox-buttons, .messages-toolbar, .message-toolbar, .messages-action-bar
 ):not(:has(.open, [aria-expanded="true"])) {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-page-panel-opacity, .31)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
 }
 
 html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(
   .container-header, .inbox-buttons
 ):has(.open, [aria-expanded="true"])::before {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-page-panel-opacity, .31));
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31)));
 }
 
 html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(
@@ -403,7 +403,7 @@ html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.inb
 ) {
   border-color: var(--rc-account-border) !important;
   border-radius: 8px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 22%) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(22%, var(--rc-surface-opacity-floor, 0))) !important;
   background-image: none !important;
 }
 
@@ -419,7 +419,7 @@ html[data-rc-background-active][data-rc-frost-page="messages"] #content :is(.mes
   max-width: 100%;
   border-color: var(--rc-account-border) !important;
   border-radius: 10px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 24%) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(24%, var(--rc-surface-opacity-floor, 0))) !important;
   background-image: none !important;
   color: var(--color-content-emphasis, inherit) !important;
 }
@@ -491,14 +491,14 @@ html[data-rc-background-active][data-rc-frost-page="inventory"] #content .catego
   z-index: -1;
   pointer-events: none;
   border-radius: inherit;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
 }
 
 /* Inventory menus honor the chosen opacity instead of forcing nearly solid glass. */
 html[data-rc-background-active][data-rc-frost-page="inventory"] #content :is(.dropdown-menu, .category-tabs .menu-secondary-container) {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
 }
 
 html[data-rc-background-active][data-rc-frost-page="inventory"] #content .category-tabs .menu-secondary-container {
@@ -583,7 +583,7 @@ html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trade
   height: auto !important;
   aspect-ratio: 1;
   border-radius: 10px;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 22%);
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(22%, var(--rc-surface-opacity-floor, 0)));
 }
 
 html[data-rc-background-active][data-rc-frost-page="inventory"] #content #assetsItems :is(.item-card-thumb, .thumbnail-2d-container):not(.hidden, [hidden]),
@@ -650,7 +650,7 @@ html[data-rc-background-active][data-rc-frost-page="inventory"] #content .pager-
   padding: 8px 12px !important;
   border: 1px solid var(--rc-account-border) !important;
   border-radius: 12px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   background-image: none !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
@@ -663,7 +663,7 @@ html[data-rc-background-active][data-rc-frost-page="inventory"] #content #item-r
   padding: 12px !important;
   border: 1px solid var(--rc-account-border) !important;
   border-radius: 14px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   background-image: none !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
@@ -692,7 +692,7 @@ html[data-rc-background-active][data-rc-frost-page="inventory"] #content #item-r
 html[data-rc-background-active][data-rc-frost-page="inventory"] #content #item-recommendations-container .item-card-thumb-container {
   height: auto !important;
   aspect-ratio: 1;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 22%) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(22%, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
 /* Trades remain two native panes; clear only their inner layout surfaces. */
@@ -769,7 +769,7 @@ html[data-rc-background-active][data-rc-frost-page="trades"] #content :is(.trade
   padding: 12px;
   border: 1px solid var(--rc-account-border);
   border-radius: 10px;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 28%) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(28%, var(--rc-surface-opacity-floor, 0))) !important;
   overflow-wrap: anywhere;
 }
 
@@ -779,7 +779,7 @@ html[data-rc-background-active]:is([data-rc-frost-page="friends"], [data-rc-fros
   padding: 32px 20px !important;
   border: 1px solid var(--rc-account-border);
   border-radius: 14px;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
   color: var(--color-content-default, inherit) !important;

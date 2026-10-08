@@ -1,6 +1,6 @@
 /* Transactions retain Roblox's native data, filters, links and pagination. */
 html[data-rc-frost-page="transactions"] {
-  --rc-transactions-border: var(--color-stroke-default, rgb(255 255 255 / 17%));
+  --rc-transactions-border: var(--color-stroke-default, rgb(var(--rc-foreground-rgb, 255 255 255) / 17%));
   --rc-transactions-hover: rgb(128 128 128 / 12%);
 }
 html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions) {
@@ -64,10 +64,10 @@ html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content,
   z-index: -1;
   pointer-events: none;
   border-radius: inherit;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62));
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62)));
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  box-shadow: inset 0 1px rgb(255 255 255 / 8%);
+  box-shadow: inset 0 1px rgb(var(--rc-foreground-rgb, 255 255 255) / 8%);
 }
 
 html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(
@@ -129,7 +129,7 @@ html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content,
   max-width: 100%;
   border: 1px solid var(--rc-transactions-border) !important;
   border-radius: 10px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 28%) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(28%, var(--rc-surface-opacity-floor, 0))) !important;
   color: var(--color-content-emphasis, inherit);
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
@@ -150,9 +150,9 @@ html[data-rc-background-active][data-rc-frost-page="transactions"] body > [data-
   max-width: min(360px, calc(100vw - 32px));
   max-height: min(360px, calc(100dvh - 120px));
   padding: 6px !important;
-  border: 1px solid var(--color-stroke-default, rgb(255 255 255 / 17%)) !important;
+  border: 1px solid var(--color-stroke-default, rgb(var(--rc-foreground-rgb, 255 255 255) / 17%)) !important;
   border-radius: 12px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   box-shadow: 0 12px 30px rgb(0 0 0 / 22%);
@@ -182,7 +182,7 @@ html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content,
   border-collapse: separate;
   border-spacing: 0;
   border-radius: 14px;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-page-panel-opacity, .31)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   font-variant-numeric: tabular-nums;
@@ -195,7 +195,7 @@ html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content,
   box-sizing: border-box;
   border: 1px solid var(--rc-transactions-border) !important;
   border-radius: 14px;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-page-panel-opacity, .31)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
   background-image: none !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
@@ -263,11 +263,11 @@ html[data-rc-background-active][data-rc-frost-page="transactions"] :is(#content,
   min-height: 40px;
   border-radius: 10px !important;
   border: 1px solid var(--rc-transactions-border);
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 28%);
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(28%, var(--rc-surface-opacity-floor, 0)));
 }
 
 html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(a, button, input, select, [tabindex="0"]):focus-visible {
-  outline: 2px solid var(--color-selection-start, #7fa6ff) !important;
+  outline: 2px solid var(--color-selection-start, var(--rc-focus, #7fa6ff)) !important;
   outline-offset: 3px;
 }
 

@@ -12,7 +12,7 @@ A browser extension for Chrome and Edge that adds custom backgrounds, frosted pa
   <kbd>Chrome & Edge</kbd> &nbsp; <kbd>Manifest V3</kbd> &nbsp; <kbd>Light & Dark Themes</kbd> &nbsp; <kbd>No Build Required</kbd>
 </p>
 
-[Features](#-features) · [Modified pages](#-pages--elements-modified) · [Installation](#-installation) · [Getting started](#-getting-started) · [Troubleshooting](#-troubleshooting)
+[Features](#-features) · [Modified pages](#-pages--elements-modified) · [Installation](#-installation) · [Getting started](#-getting-started) · [Troubleshooting](#-troubleshooting) · [Project layout](#-project-layout)
 
 ---
 
@@ -20,6 +20,7 @@ A browser extension for Chrome and Edge that adds custom backgrounds, frosted pa
 
 - **Animated backgrounds:** Use images, GIFs, or MP4 videos from a local file or HTTPS media URL. Choose whether the background fills the screen or shows the entire image, and adjust dimming.
 - **Frosted interface:** Tune glass blur and opacity for menus and page panels, with styling that follows Roblox's light or dark theme.
+- **Theme-aware controls:** Text, icons, inputs, menus, and extension settings switch with Roblox's theme. Light panels retain a minimum backing opacity to keep text readable over dark wallpapers.
 - **Personalized Home:** Customize greetings and the clock, show up to three friend rows, and pin games. Hide Favorites, Standout Games, or the upper and lower recommendations separately; hide and restore individual recommended games.
 - **Game browsing tools:** View badge information and public/private server details. Search public servers by country, latency, ping, and player count, or sort by player count.
 - **Game data & social feeds:** Explore gamepasses, badges, and places using Roblox and Rolimons data. Browse X and YouTube feed panels where available, with separate visibility switches.
@@ -81,6 +82,35 @@ To restore the default background, select **Roblox default background** or **Rem
 | Layout looks unusual | Refresh Roblox and temporarily disable other Roblox extensions to check for conflicting styles. |
 
 Preferences and pinned games are stored locally in your browser. Local background files are stored locally for reuse; URL backgrounds load from the address you provide.
+
+## 🗂️ Project layout
+
+```text
+Roblox Customizer/
+├── manifest.json          Extension entry point and permissions
+├── icons/                 Extension icons and logo
+├── src/
+│   ├── background/        Service worker and background feature handlers
+│   ├── shared/            Startup, page bridge, and shared interface styles
+│   ├── settings/          Customizer settings and background controls
+│   ├── home/              Friends layout and pinned games
+│   ├── currency/          Robux conversion logic and display
+│   └── pages/
+│       ├── account/       Settings, messages, trades, and transactions
+│       ├── avatar/        Avatar editor
+│       ├── catalog/       Marketplace and item previews
+│       ├── community/     Community pages and directory
+│       ├── discovery/     Charts
+│       ├── games/         Game details, badges, servers, and feeds
+│       ├── profile/       User profiles
+│       ├── reporting/     Report Abuse form
+│       └── robux/         Robux purchase page
+├── tests/                 Unit tests, browser fixtures, and package checks
+├── README.md
+└── LICENSE
+```
+
+Load the **repository root** containing `manifest.json` when installing the extension. Files under `src/` run directly without a build step.
 
 ## 💬 Feedback
 

@@ -27,7 +27,7 @@ html[data-rc-background-active] body {
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
-  background: #121317;
+  background: var(--rc-surface, #121317);
 }
 
 html:not([data-rc-background-active]) #rc-background-layer {
@@ -48,11 +48,6 @@ html:not([data-rc-background-active]) #rc-background-layer {
 }
 
 /* The wallpaper reaches the full viewport behind the top bar, sidebar, and chat. */
-body.light-theme,
-html.light-theme body {
-  --rc-glass-color: 255 255 255;
-}
-
 #header .container-fluid,
 #header .rbx-navbar-header,
 #header .rbx-navbar,
@@ -67,7 +62,7 @@ html.light-theme body {
 #left-navigation-container .left-nav,
 #navigation.rbx-left-col,
 #left-navigation-container > .rbx-left-col {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   background-image: none !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
@@ -78,7 +73,7 @@ html.light-theme body {
   background-color: transparent !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
-  border-bottom: 1px solid rgb(255 255 255 / 12%);
+  border-bottom: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 12%);
 }
 
 /* A separate layer keeps the header frosted without becoming a backdrop root
@@ -91,7 +86,7 @@ html.light-theme body {
   z-index: -1;
   pointer-events: none;
   border-radius: inherit;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62));
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62)));
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
 }
@@ -101,7 +96,7 @@ html[data-rc-background-active] #header .navbar-search {
 }
 
 html[data-rc-background-active] #header #navbar-search-input {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 24%) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(24%, var(--rc-surface-opacity-floor, 0))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
 }
@@ -109,9 +104,9 @@ html[data-rc-background-active] #header #navbar-search-input {
 /* Let the wallpaper show through both versions of the header search dropdown. */
 html[data-rc-background-active] #header .navbar-search > .dropdown-menu,
 html[data-rc-background-active] #search-landing-root .search-landing-container {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-page-panel-opacity, .31)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
   background-image: none !important;
-  border: 1px solid rgb(255 255 255 / 14%) !important;
+  border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 14%) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   box-shadow: 0 8px 28px rgb(0 0 0 / 24%) !important;
@@ -123,7 +118,7 @@ html[data-rc-background-active] #header .navbar-search .navbar-search-option > a
 }
 
 html[data-rc-background-active] #header .navbar-search .navbar-search-option:is(:hover, :focus-within, .selected, .new-selected) {
-  background-color: rgb(255 255 255 / 12%) !important;
+  background-color: rgb(var(--rc-foreground-rgb, 255 255 255) / 12%) !important;
 }
 
 html[data-rc-background-active] #header.light-theme .navbar-search .navbar-search-option:is(:hover, :focus-within, .selected, .new-selected),
@@ -133,7 +128,7 @@ html[data-rc-background-active] .light-theme #header .navbar-search .navbar-sear
 
 /* Keep carousel arrow backings translucent without changing thumbnails or pills. */
 html[data-rc-background-active] #search-landing-root .search-landing-container .horizontal-scroller .scroller {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   background-image: none !important;
 }
 
@@ -148,16 +143,16 @@ html[data-rc-background-active] :is(
   #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu,
   [role="menu"]:has(.rc-settings-menu-entry, a[href*="/transactions"], a[href*="/redeem"])
 ) {
-  --rc-header-menu-highlight: rgb(255 255 255 / 12%);
+  --rc-header-menu-highlight: rgb(var(--rc-foreground-rgb, 255 255 255) / 12%);
   box-sizing: border-box;
   max-width: calc(100vw - 24px);
   max-height: min(420px, calc(100dvh - 80px));
   padding: 6px !important;
   overflow-y: auto;
   overscroll-behavior: contain;
-  border: 1px solid var(--color-stroke-default, rgb(255 255 255 / 16%)) !important;
+  border: 1px solid var(--color-stroke-default, rgb(var(--rc-foreground-rgb, 255 255 255) / 16%)) !important;
   border-radius: 14px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.5, var(--rc-glass-opacity, .62))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.5, var(--rc-surface-opacity, var(--rc-glass-opacity, .62)))) !important;
   background-image: none !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
@@ -244,7 +239,7 @@ html.light-theme[data-rc-background-active] :is(
 #navigation.rbx-left-col,
 #left-navigation-container .left-nav,
 #left-navigation-container > .rbx-left-col {
-  border-right: 1px solid rgb(255 255 255 / 12%);
+  border-right: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 12%);
 }
 
 #left-navigation-container .left-nav > .flex,
@@ -271,7 +266,7 @@ html[data-rc-background-active] [data-rc-chat-panel] {
   isolation: isolate !important;
   background-color: transparent !important;
   background-image: none !important;
-  border-color: rgb(255 255 255 / 14%) !important;
+  border-color: rgb(var(--rc-foreground-rgb, 255 255 255) / 14%) !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
   box-shadow: 0 8px 28px rgb(0 0 0 / 24%) !important;
@@ -288,7 +283,7 @@ html[data-rc-background-active] [data-rc-chat-panel]::before {
   z-index: -1;
   pointer-events: none;
   border-radius: inherit;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-page-panel-opacity, .31)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
 }
@@ -336,7 +331,7 @@ html[data-rc-background-active] [data-rc-chat-surface] {
 
 html[data-rc-background-active] :is(#chat-container, #chat-main, #dialog-container, [data-rc-chat-panel]) :is(.chat-search-input, .dialog-input),
 html[data-rc-background-active] [data-rc-chat-input] {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / 24%) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(24%, var(--rc-surface-opacity-floor, 0))) !important;
   background-image: none !important;
 }
 
@@ -345,7 +340,7 @@ html[data-rc-background-active] :is(#chat-container, [data-rc-chat-panel]) .chat
 }
 
 html[data-rc-background-active] :is(#chat-container, [data-rc-chat-panel]) .chat-friend-container:is(:hover, :focus-within) {
-  background-color: rgb(255 255 255 / 12%) !important;
+  background-color: rgb(var(--rc-foreground-rgb, 255 255 255) / 12%) !important;
 }
 
 html[data-rc-background-active] .light-theme :is(#chat-container, [data-rc-chat-panel]) .chat-friend-container:is(:hover, :focus-within) {
@@ -365,12 +360,12 @@ html[data-rc-background-active] .light-theme :is(#chat-container, [data-rc-chat-
   padding: 18px 22px;
   grid-column: 1 / -1;
   flex-basis: 100%;
-  border: 1px solid rgb(255 255 255 / 14%);
+  border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 14%);
   border-radius: 16px;
-  background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62));
+  background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62)));
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  color: #f7f7f8;
+  color: var(--rc-text, #f7f7f8);
   font-family: Arial, sans-serif;
 }
 
@@ -382,9 +377,9 @@ html[data-rc-background-active] .light-theme :is(#chat-container, [data-rc-chat-
   width: 68px;
   height: 68px;
   overflow: hidden;
-  border: 2px solid rgb(255 255 255 / 30%);
+  border: 2px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 30%);
   border-radius: 50%;
-  background: rgb(255 255 255 / 13%);
+  background: rgb(var(--rc-foreground-rgb, 255 255 255) / 13%);
 }
 
 #rc-home-greeting .rc-home-greeting-avatar img {
@@ -411,7 +406,7 @@ html[data-rc-background-active] .light-theme :is(#chat-container, [data-rc-chat-
 }
 
 #rc-home-greeting .rc-home-greeting-eyebrow {
-  color: rgb(255 255 255 / 66%);
+  color: var(--rc-text-secondary);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: .12em;
@@ -427,7 +422,7 @@ html[data-rc-background-active] .light-theme :is(#chat-container, [data-rc-chat-
 }
 
 #rc-home-greeting .rc-home-greeting-username {
-  color: rgb(255 255 255 / 72%);
+  color: var(--rc-text-secondary);
   font-size: 13px;
   line-height: 1.25;
 }
@@ -441,12 +436,12 @@ html[data-rc-background-active] .light-theme :is(#chat-container, [data-rc-chat-
   max-width: min(40%, 280px);
   margin-left: auto;
   padding-left: 20px;
-  border-left: 1px solid rgb(255 255 255 / 18%);
+  border-left: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 18%);
   text-align: right;
 }
 
 #rc-home-greeting .rc-home-greeting-clock-label {
-  color: rgb(255 255 255 / 66%);
+  color: var(--rc-text-secondary);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: .1em;
@@ -462,7 +457,7 @@ html[data-rc-background-active] .light-theme :is(#chat-container, [data-rc-chat-
 }
 
 #rc-home-greeting .rc-home-greeting-date {
-  color: rgb(255 255 255 / 86%);
+  color: var(--rc-text-secondary);
   font-size: 13px;
   line-height: 1.25;
 }
@@ -504,9 +499,9 @@ html[data-rc-background-active] .light-theme :is(#chat-container, [data-rc-chat-
   height: auto !important;
   max-height: none !important;
   padding: 6px !important;
-  border: 1px solid rgb(255 255 255 / 13%) !important;
+  border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 13%) !important;
   border-radius: 10px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62)) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   background-image: none !important;
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
@@ -702,7 +697,7 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
   min-width: 46px !important;
   min-height: 28px !important;
   padding: 4px 9px !important;
-  border: 1px solid rgb(255 255 255 / 35%) !important;
+  border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 35%) !important;
   border-radius: 7px !important;
   background: rgb(22 24 31 / 90%) !important;
   color: #fff !important;
@@ -754,7 +749,7 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
   padding: 20px;
   overflow: auto;
   background: rgb(0 0 0 / 72%);
-  color: #f7f7f8;
+  color: var(--rc-text, #f7f7f8);
   font: 14px/1.45 Arial, sans-serif;
 }
 
@@ -763,9 +758,9 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
   max-height: calc(100vh - 40px);
   overflow: auto;
   padding: 24px;
-  border: 1px solid #42444d;
+  border: 1px solid var(--rc-control-border, #42444d);
   border-radius: 12px;
-  background: #1c1d24;
+  background: var(--rc-surface, #1c1d24);
   box-shadow: 0 22px 70px rgb(0 0 0 / 50%);
 }
 
@@ -797,7 +792,7 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
 
 #rc-settings-overlay h2 {
   margin: 0;
-  color: #fff;
+  color: var(--rc-text);
   font-size: 21px;
   line-height: 1.3;
 }
@@ -809,7 +804,7 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
   border: 0;
   border-radius: 6px;
   background: transparent;
-  color: #dedee3;
+  color: var(--rc-text-secondary, #dedee3);
   cursor: pointer;
   font-size: 26px;
   line-height: 1;
@@ -817,12 +812,12 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
 
 #rc-settings-overlay .rc-icon-button:hover,
 #rc-settings-overlay .rc-icon-button:focus-visible {
-  background: #333640;
+  background: var(--rc-control-hover, #333640);
 }
 
 #rc-settings-overlay .rc-settings-intro,
 #rc-settings-overlay .rc-settings-hint {
-  color: #b8bac5;
+  color: var(--rc-text-secondary, #b8bac5);
 }
 
 #rc-settings-overlay .rc-settings-intro {
@@ -834,7 +829,7 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
   gap: 8px;
   margin: 12px 0;
   padding: 13px;
-  border: 1px solid #383b46;
+  border: 1px solid var(--rc-control-hover, #383b46);
   border-radius: 8px;
 }
 
@@ -865,25 +860,25 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
   gap: 12px;
   margin-top: 18px;
   padding-top: 16px;
-  border-top: 1px solid #383b46;
+  border-top: 1px solid var(--rc-control-hover, #383b46);
 }
 
 #rc-settings-overlay .rc-settings-glass h3 {
   grid-column: 1 / -1;
   margin: 0 0 2px;
-  color: #fff;
+  color: var(--rc-text);
   font-size: 16px;
 }
 
 #rc-settings-overlay .rc-settings-home {
   margin-top: 18px;
   padding-top: 16px;
-  border-top: 1px solid #383b46;
+  border-top: 1px solid var(--rc-control-hover, #383b46);
 }
 
 #rc-settings-overlay .rc-settings-home h3 {
   margin: 0 0 12px;
-  color: #fff;
+  color: var(--rc-text);
   font-size: 16px;
 }
 
@@ -892,12 +887,12 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
   gap: 10px;
   margin-top: 18px;
   padding-top: 16px;
-  border-top: 1px solid #383b46;
+  border-top: 1px solid var(--rc-control-hover, #383b46);
 }
 
 #rc-settings-overlay .rc-settings-social h3 {
   margin: 0 0 2px;
-  color: #fff;
+  color: var(--rc-text);
   font-size: 16px;
 }
 
@@ -915,12 +910,12 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
 #rc-settings-overlay .rc-settings-hidden-recommendations {
   margin-top: 14px;
   padding-top: 14px;
-  border-top: 1px solid #383b46;
+  border-top: 1px solid var(--rc-control-hover, #383b46);
 }
 
 #rc-settings-overlay .rc-settings-hidden-recommendations h4 {
   margin: 0 0 3px;
-  color: #fff;
+  color: var(--rc-text);
   font-size: 14px;
 }
 
@@ -947,14 +942,14 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
   gap: 10px;
   min-width: 0;
   padding: 7px 9px;
-  border: 1px solid #414550;
+  border: 1px solid var(--rc-control-border, #414550);
   border-radius: 7px;
-  background: #292c36;
+  background: var(--rc-control-bg, #292c36);
 }
 
 #rc-settings-overlay .rc-hidden-recommended-game span {
   overflow: hidden;
-  color: #f7f7f8;
+  color: var(--rc-text, #f7f7f8);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -995,7 +990,7 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
   gap: 10px 12px;
   margin-top: 17px;
   padding-top: 15px;
-  border-top: 1px solid #383b46;
+  border-top: 1px solid var(--rc-control-hover, #383b46);
 }
 
 #rc-settings-overlay .rc-settings-greetings h4,
@@ -1009,7 +1004,7 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
 
 #rc-settings-overlay .rc-settings-greetings h4,
 #rc-settings-overlay .rc-settings-clock h4 {
-  color: #fff;
+  color: var(--rc-text);
   font-size: 14px;
 }
 
@@ -1028,15 +1023,15 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
   width: 100%;
   min-width: 0;
   padding: 8px 10px;
-  border: 1px solid #515561;
+  border: 1px solid var(--rc-control-border, #515561);
   border-radius: 6px;
-  background: #292b35;
-  color: #fff;
+  background: var(--rc-control-bg, #292b35);
+  color: var(--rc-text);
   font: inherit;
 }
 
 #rc-settings-overlay .rc-settings-greetings input[type="text"]::placeholder {
-  color: #a9acb8;
+  color: var(--rc-text-secondary, #a9acb8);
 }
 
 #rc-settings-overlay input[type="range"] {
@@ -1050,10 +1045,10 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
   width: 100%;
   min-width: 0;
   padding: 8px 10px;
-  border: 1px solid #515561;
+  border: 1px solid var(--rc-control-border, #515561);
   border-radius: 6px;
-  background: #292b35;
-  color: #fff;
+  background: var(--rc-control-bg, #292b35);
+  color: var(--rc-text);
   font: inherit;
 }
 
@@ -1066,8 +1061,8 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
   padding: 5px 8px;
   border: 0;
   border-radius: 4px;
-  background: #454956;
-  color: #fff;
+  background: var(--rc-control-hover, #454956);
+  color: var(--rc-text);
   cursor: pointer;
 }
 
@@ -1084,11 +1079,11 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
 #rc-settings-overlay #rc-settings-status {
   min-height: 20px;
   margin: 12px 0;
-  color: #b8e6c2;
+  color: var(--rc-success, #b8e6c2);
 }
 
 #rc-settings-overlay #rc-settings-status.rc-error {
-  color: #ff9f9f;
+  color: var(--rc-error, #ff9f9f);
 }
 
 #rc-settings-overlay .rc-action-spacer {
@@ -1100,22 +1095,27 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
   padding: 8px 12px;
   border: 0;
   border-radius: 6px;
-  color: #fff;
+  color: var(--rc-text);
   cursor: pointer;
   font: 700 13px/1.2 Arial, sans-serif;
   white-space: nowrap;
 }
 
 #rc-settings-overlay .rc-button-secondary {
-  background: #383b46;
+  background: var(--rc-control-hover, #383b46);
 }
 
 #rc-settings-overlay .rc-button-primary {
-  background: #3868e8;
+  background: #335fff;
+  color: #fff;
 }
 
-#rc-settings-overlay .rc-button:hover {
-  filter: brightness(1.15);
+#rc-settings-overlay .rc-button-secondary:hover:not(:disabled) {
+  background: var(--rc-control-bg);
+}
+
+#rc-settings-overlay .rc-button-primary:hover:not(:disabled) {
+  background: #244de0;
 }
 
 #rc-settings-overlay .rc-button:disabled {

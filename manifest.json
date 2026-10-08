@@ -17,7 +17,10 @@
       "32": "icons/icon-32.png"
     }
   },
-  "permissions": ["storage", "declarativeNetRequestWithHostAccess"],
+  "permissions": [
+    "storage",
+    "declarativeNetRequestWithHostAccess"
+  ],
   "host_permissions": [
     "https://users.roblox.com/*",
     "https://accountinformation.roblox.com/*",
@@ -40,12 +43,18 @@
     "https://latest.currency-api.pages.dev/*"
   ],
   "background": {
-    "service_worker": "badge-background.js"
+    "service_worker": "src/background/service-worker.js"
   },
   "web_accessible_resources": [
     {
-      "resources": ["icons/icon-48.png", "icons/icon-128.png"],
-      "matches": ["https://www.roblox.com/*", "https://roblox.com/*"]
+      "resources": [
+        "icons/icon-48.png",
+        "icons/icon-128.png"
+      ],
+      "matches": [
+        "https://www.roblox.com/*",
+        "https://roblox.com/*"
+      ]
     }
   ],
   "content_scripts": [
@@ -55,8 +64,14 @@
         "https://roblox.com/*",
         "https://create.roblox.com/*"
       ],
-      "js": ["robux-currency-core.js", "robux-currency.js"],
-      "css": ["robux-currency.css"],
+      "js": [
+        "src/currency/robux-currency-core.js",
+        "src/currency/robux-currency.js"
+      ],
+      "css": [
+        "src/shared/theme.css",
+        "src/currency/robux-currency.css"
+      ],
       "all_frames": true,
       "run_at": "document_start"
     },
@@ -65,7 +80,9 @@
         "https://www.roblox.com/*",
         "https://roblox.com/*"
       ],
-      "js": ["page.js"],
+      "js": [
+        "src/shared/page-bridge.js"
+      ],
       "run_at": "document_start",
       "world": "MAIN"
     },
@@ -74,8 +91,38 @@
         "https://www.roblox.com/*",
         "https://roblox.com/*"
       ],
-      "css": ["startup.css", "friends.css", "settings.css", "game-page.css", "site-pages.css", "charts-page.css", "catalog-page.css", "catalog-item-page.css", "account-pages.css", "account-settings-page.css", "messages-page.css", "transactions-page.css", "report-abuse.css", "robux-page.css", "community-directory.css", "profile-page.css", "avatar-page.css", "pinned-games.css"],
-      "js": ["startup.js", "js.js", "settings.js", "frosted-ui.js", "account-settings-page.js", "profile-page.js", "avatar-page.js", "catalog-item-page.js", "pinned-games-core.js", "pinned-games.js"],
+      "css": [
+        "src/shared/startup.css",
+        "src/home/friends.css",
+        "src/settings/settings.css",
+        "src/pages/games/game-page.css",
+        "src/shared/site-pages.css",
+        "src/pages/discovery/charts-page.css",
+        "src/pages/catalog/catalog-page.css",
+        "src/pages/catalog/catalog-item-page.css",
+        "src/pages/account/account-pages.css",
+        "src/pages/account/account-settings-page.css",
+        "src/pages/account/messages-page.css",
+        "src/pages/account/transactions-page.css",
+        "src/pages/reporting/report-abuse.css",
+        "src/pages/robux/robux-page.css",
+        "src/pages/community/community-directory.css",
+        "src/pages/profile/profile-page.css",
+        "src/pages/avatar/avatar-page.css",
+        "src/home/pinned-games.css"
+      ],
+      "js": [
+        "src/shared/startup.js",
+        "src/home/friends.js",
+        "src/settings/settings.js",
+        "src/shared/frosted-ui.js",
+        "src/pages/account/account-settings-page.js",
+        "src/pages/profile/profile-page.js",
+        "src/pages/avatar/avatar-page.js",
+        "src/pages/catalog/catalog-item-page.js",
+        "src/home/pinned-games-core.js",
+        "src/home/pinned-games.js"
+      ],
       "run_at": "document_start"
     },
     {
@@ -83,7 +130,9 @@
         "https://www.roblox.com/*",
         "https://roblox.com/*"
       ],
-      "js": ["game-page.js"],
+      "js": [
+        "src/pages/games/game-page.js"
+      ],
       "run_at": "document_start"
     }
   ]

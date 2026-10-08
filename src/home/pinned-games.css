@@ -53,7 +53,7 @@
 
 #rc-pin-game svg { width: 28px; height: 28px; }
 #rc-pin-game .icon-label { font-size: 12px; line-height: 16px; white-space: nowrap; }
-#rc-pin-game[aria-pressed="true"] { color: #8bc4ff; }
+#rc-pin-game[aria-pressed="true"] { color: var(--rc-focus, #8bc4ff); }
 #rc-pin-game:disabled { opacity: .55; cursor: wait; }
 
 /* Keep the native buttons in place while replacing their float-based layout. */
@@ -275,11 +275,11 @@
 
 html[data-rc-background-active] #rc-pinned-games .rc-pinned-game-card,
 html[data-rc-background-active] #rc-pinned-games-notification {
-  border-color: rgb(255 255 255 / 15%);
-  background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-glass-opacity, .62));
+  border-color: rgb(var(--rc-foreground-rgb, 255 255 255) / 15%);
+  background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62)));
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  color: #f7f7f8;
+  color: var(--rc-text, #f7f7f8);
 }
 
 #rc-pinned-games .rc-pinned-game-details { display: block; min-width: 0; color: inherit; text-decoration: none; }
@@ -332,7 +332,7 @@ html[data-rc-background-active] #rc-pinned-games-notification {
   width: 28px;
   height: 28px;
   padding: 0;
-  border: 1px solid rgb(255 255 255 / 30%);
+  border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 30%);
   border-radius: 50%;
   background: rgb(20 22 28 / 80%);
   color: #fff;
@@ -342,7 +342,7 @@ html[data-rc-background-active] #rc-pinned-games-notification {
 #rc-pinned-games .rc-pinned-game-remove:hover { background: #a53545; }
 #rc-pinned-games .rc-pinned-games-empty { margin: 0; opacity: .75; }
 #rc-pinned-games [hidden], #rc-pinned-games-notification[hidden] { display: none !important; }
-:is(#rc-pin-game, #rc-pinned-games a, #rc-pinned-games button):focus-visible { outline: 2px solid #8bc4ff; outline-offset: 3px; }
+:is(#rc-pin-game, #rc-pinned-games a, #rc-pinned-games button):focus-visible { outline: 2px solid var(--rc-focus, #8bc4ff); outline-offset: 3px; }
 
 #rc-pinned-games-notification {
   position: fixed;
@@ -354,10 +354,10 @@ html[data-rc-background-active] #rc-pinned-games-notification {
   box-sizing: border-box;
   transform: translateX(-50%);
   padding: 14px 22px;
-  border: 1px solid rgb(255 255 255 / 15%);
+  border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 15%);
   border-radius: 12px;
-  background: #25272c;
-  color: #fff;
+  background: var(--rc-surface, #25272c);
+  color: var(--rc-text, #fff);
   box-shadow: 0 8px 30px rgb(0 0 0 / 30%);
   font: 600 14px/1.5 Arial, sans-serif;
   text-align: center;

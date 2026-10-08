@@ -5,6 +5,7 @@ const path = require('node:path');
 const http = require('node:http');
 const { spawn } = require('node:child_process');
 const { test } = require('node:test');
+const { waitForDocument } = require('./helpers/chrome.cjs');
 const workspace = path.resolve(__dirname, '..');
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -22,8 +23,8 @@ function fixture() {
     .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}.text-error{color:#ef7676}.choices label{display:inline-flex;align-items:center;gap:6px;margin:0 12px 0 0;font-size:14px}
     .input-dropdown{position:relative}.dropdown-menu{position:absolute;top:100%;left:0;display:none;list-style:none;margin:0;padding:0;background:#24262b;z-index:1000;width:100%}.open>.dropdown-menu{display:block}.dropdown-menu button{width:100%;padding:12px;background:transparent;border:0;text-align:left}
   </style>
-  <link rel="stylesheet" href="/settings.css"><link rel="stylesheet" href="/site-pages.css"><link rel="stylesheet" href="/report-abuse.css">
-  <script>localStorage.setItem('roblox-customizer-visuals-v1',JSON.stringify({version:1,backgroundActive:true,glassBlur:24,glassOpacity:78}));</script><script src="/startup.js"></script>
+  <link rel="stylesheet" href="/src/shared/theme.css"><link rel="stylesheet" href="/src/settings/settings.css"><link rel="stylesheet" href="/src/shared/site-pages.css"><link rel="stylesheet" href="/src/pages/reporting/report-abuse.css">
+  <script>localStorage.setItem('roblox-customizer-visuals-v1',JSON.stringify({version:1,backgroundActive:true,glassBlur:24,glassOpacity:78}));</script><script src="/src/shared/startup.js"></script>
   </head><body class="dark-theme"><div id="rc-background-layer"><div class="rc-background-media"></div></div><main id="container-main"><div id="content">
     <div id="report-abuse-web-app"><div class="section-content">
       <div class="container-header"><h1>Report Abuse</h1></div>
@@ -76,8 +77,9 @@ class Browser {
 test('Report form fits both themes and mobile widths while preserving native controls and report data', {skip:!process.env.CHROME_BIN,timeout:30000}, async t => {
   const profile=fs.mkdtempSync(path.join(workspace,'.tmp-report-abuse-browser-'));
   const server=http.createServer((request,response)=>{
+    response.setHeader('Cache-Control','no-store');
     const file=new URL(request.url,'http://localhost').pathname.slice(1);
-    if(['settings.css','site-pages.css','report-abuse.css','startup.js'].includes(file)){
+    if(['src/shared/theme.css','src/settings/settings.css','src/shared/site-pages.css','src/pages/reporting/report-abuse.css','src/shared/startup.js'].includes(file)){
       response.setHeader('Content-Type',file.endsWith('.css')?'text/css':'text/javascript');response.end(fs.readFileSync(path.join(workspace,file)));
     }else{response.setHeader('Content-Type','text/html; charset=utf-8');response.end(fixture())}
   });
@@ -100,6 +102,7 @@ test('Report form fits both themes and mobile widths while preserving native con
   browser=new Browser(target.webSocketDebuggerUrl);await browser.send('Page.enable');await browser.send('Runtime.enable');
   const query='?targetId=118155665728354&submitterId=2950704295&abuseVector=place&custom=%7B%22stringId%22%3A%229082895193%22%7D';
   await browser.send('Page.navigate',{url:`http://127.0.0.1:${server.address().port}/report-abuse/${query}`});
+  await waitForDocument(browser, '#submit');
   await browser.waitFor("document.querySelector('#submit') && document.documentElement.dataset.rcFrostPage==='report-abuse'");
   const panel=()=>browser.evaluate("(()=>{const node=document.querySelector('#content'),style=getComputedStyle(node),rect=node.getBoundingClientRect();return {width:rect.width,blur:style.backdropFilter,background:style.backgroundColor}})()");
   for(const theme of ['dark','light']){
@@ -108,7 +111,7 @@ test('Report form fits both themes and mobile widths while preserving native con
       await browser.send('Emulation.setDeviceMetricsOverride',{width,height:950,deviceScaleFactor:1,mobile:width<600});
       await pause(40);
       const surface=await panel();
-      assert.match(surface.blur,/blur\(24px\)/);assert.match(surface.background,/0\.78\)/);
+      assert.match(surface.blur,/blur\(24px\)/);assert.match(surface.background,theme==='light'?/0\.82\)/:/0\.78\)/);
       assert.equal(surface.width,Math.min(720,width-32));
       assert.equal(await browser.evaluate("getComputedStyle(document.querySelector('#content')).borderRadius"),width<600?'16px':'20px');
       assert.equal(await browser.evaluate("getComputedStyle(document.querySelector('#content')).marginTop"),width<600?'16px':'28px');

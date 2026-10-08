@@ -7,14 +7,14 @@ const { spawn } = require('node:child_process');
 const { test } = require('node:test');
 const workspace = path.resolve(__dirname, '..');
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
-const source = fs.readFileSync(path.join(workspace, 'game-page.js'), 'utf8');
+const source = fs.readFileSync(path.join(workspace, 'src/pages/games/game-page.js'), 'utf8');
 
 function fixture(url) {
   const shared = url.searchParams.has('shared');
   const lateImage = url.searchParams.has('late-image');
   return `<!doctype html><html><head><meta charset="utf-8">
     <style>body{background:#24252c;color:white;font:14px Arial}#game-detail-page{max-width:900px;margin:20px auto}button{padding:8px}</style>
-    <link rel="stylesheet" href="/game-page.css"></head><body>
+    <link rel="stylesheet" href="/src/shared/theme.css"><link rel="stylesheet" href="/src/pages/games/game-page.css"></head><body>
     <main id="game-detail-page" data-place-id="4623386862"><section id="game-instances">
       <section id="private-server-container"><h2>Private Servers</h2><div id="private-list">
         <div id="native-server" class="${shared ? 'card-item' : 'server-row'}" ${shared ? '' : 'data-private-server-id="111"'}>
@@ -81,9 +81,10 @@ class Browser {
 test('private cards stay hidden before startup and reveal complete data together', { skip: !process.env.CHROME_BIN, timeout: 30000 }, async t => {
   const profile = fs.mkdtempSync(path.join(workspace, '.tmp-private-server-loading-'));
   const server = http.createServer((request, response) => {
+    response.setHeader('Cache-Control','no-store');
     const url = new URL(request.url, 'http://localhost');
-    if (url.pathname === '/game-page.css') {
-      response.setHeader('Content-Type', 'text/css'); response.end(fs.readFileSync(path.join(workspace, 'game-page.css')));
+    if (['/src/shared/theme.css', '/src/pages/games/game-page.css'].includes(url.pathname)) {
+      response.setHeader('Content-Type', 'text/css'); response.end(fs.readFileSync(path.join(workspace, url.pathname.slice(1))));
     } else if (url.pathname === '/avatar.svg') {
       response.setHeader('Content-Type', 'image/svg+xml');
       response.end('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><circle cx="40" cy="40" r="40" fill="#6575a0"/></svg>');

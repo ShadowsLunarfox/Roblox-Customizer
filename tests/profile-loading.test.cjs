@@ -4,7 +4,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const { test } = require('node:test');
 
-const source = fs.readFileSync(path.join(__dirname, '..', 'profile-page.js'), 'utf8');
+const source = fs.readFileSync(path.join(__dirname, '..', 'src/pages/profile/profile-page.js'), 'utf8');
 const exposed = source.replace(/  queueSync\(\);\s*\}\)\(\);\s*$/, `
   globalThis.profile = { fallbackProfileRoot, markProfileHeader, markSections, markProfileCards, findGridParent, relevantMutation, queueSync, sync,
     observeRoot(root, userId = 123) { observedRoot = root; observedUserId = userId; } };
