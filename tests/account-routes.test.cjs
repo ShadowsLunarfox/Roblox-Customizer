@@ -255,13 +255,17 @@ test('Home visibility preferences are cached independently and missing flags rem
   assert.equal(defaults.root.hasAttribute('data-rc-hide-recommended-lower'), false);
 });
 
-test('Saved recommendation preferences migrate without overriding independent choices', () => {
-  const defaultsStart = settings.indexOf('  const DEFAULTS =');
+function normalizeSettings() {
+  const defaultsStart = settings.indexOf('  const FEED_PAGES =');
   const defaultsEnd = settings.indexOf('  let settings =', defaultsStart);
   const normalizeStart = settings.indexOf('  function currentSettings(');
   const normalizeEnd = settings.indexOf('  function syncFrostPage()', normalizeStart);
   assert.ok(defaultsStart >= 0 && defaultsEnd > defaultsStart && normalizeStart >= 0 && normalizeEnd > normalizeStart);
-  const normalize = vm.runInNewContext(`${settings.slice(defaultsStart, defaultsEnd)}\n${settings.slice(normalizeStart, normalizeEnd)}\ncurrentSettings`);
+  return vm.runInNewContext(`${settings.slice(defaultsStart, defaultsEnd)}\n${settings.slice(normalizeStart, normalizeEnd)}\ncurrentSettings`);
+}
+
+test('Saved recommendation preferences migrate without overriding independent choices', () => {
+  const normalize = normalizeSettings();
   for (const [saved, upper, lower] of [
     [undefined, false, false],
     [{ hideRecommended: true, hiddenRecommendedGames: [{ placeId: '102', name: 'Hidden game' }] }, true, true],
@@ -274,5 +278,48 @@ test('Saved recommendation preferences migrate without overriding independent ch
     assert.equal(normalized.hideRecommendedLower, lower);
     assert.equal(Object.hasOwn(normalized, 'hideRecommended'), false);
     if (saved?.hiddenRecommendedGames) assert.equal(normalized.hiddenRecommendedGames, saved.hiddenRecommendedGames);
+  }
+});
+
+test('Social feeds migrate global visibility while preserving separate page and platform choices', () => {
+  const normalize = normalizeSettings();
+  for (const saved of [undefined, { hideXFeed: true }, { hideYouTubeFeed: true },
+    { hideXFeed: true, hideYouTubeFeed: true, showGameXFeed: true, showProfileYouTubeFeed: true },
+    { showGameYouTubeFeed: false, showCommunityXFeed: false, showProfileXFeed: 'invalid' }]) {
+    const normalized = normalize(saved);
+    assert.equal(Object.hasOwn(normalized, 'hideXFeed'), false);
+    assert.equal(Object.hasOwn(normalized, 'hideYouTubeFeed'), false);
+    for (const page of ['Game', 'Community', 'Profile']) for (const platform of ['X', 'YouTube']) {
+      const key = `show${page}${platform}Feed`;
+      const expected = typeof saved?.[key] === 'boolean' ? saved[key] : saved?.[`hide${platform}Feed`] !== true;
+      assert.equal(normalized[key], expected, key);
+    }
+  }
+});
+
+test('Startup restores separate feed choices before rendering and retains them across page routes', () => {
+  const preferences = { showGameXFeed: true, showGameYouTubeFeed: false,
+    showCommunityXFeed: false, showCommunityYouTubeFeed: true,
+    showProfileXFeed: false, showProfileYouTubeFeed: false };
+  const env = harness('/games/123/Test', startup, { version: 1, ...preferences });
+  const check = () => {
+    for (const page of ['Game', 'Community', 'Profile']) for (const platform of ['X', 'YouTube']) {
+      assert.equal(env.root.hasAttribute(`data-rc-hide-${page.toLowerCase()}-${platform.toLowerCase()}-feed`),
+        !preferences[`show${page}${platform}Feed`]);
+    }
+  };
+  check();
+  for (const route of ['/communities/123/Test', '/groups/123/Test', '/users/123/profile', '/home']) {
+    env.location.href = new URL(route, 'https://www.roblox.com').href;
+    env.events.get('popstate')();
+    check();
+  }
+  env.startup.setPreferences({ hideXFeed: true, hideYouTubeFeed: true, showCommunityXFeed: true });
+  assert.equal(env.root.hasAttribute('data-rc-hide-game-x-feed'), true);
+  assert.equal(env.root.hasAttribute('data-rc-hide-community-x-feed'), false);
+  assert.equal(env.root.hasAttribute('data-rc-hide-profile-youtube-feed'), true);
+  env.startup.setPreferences({});
+  for (const page of ['game', 'community', 'profile']) for (const platform of ['x', 'youtube']) {
+    assert.equal(env.root.hasAttribute(`data-rc-hide-${page}-${platform}-feed`), false);
   }
 });

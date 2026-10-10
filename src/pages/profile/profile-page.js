@@ -722,12 +722,7 @@
     // Keep React's current text and native More/Edit actions. API details can
     // be older than an edit that has already appeared in the native profile.
     const source = expandNativeDescription(root);
-    if (source && !isTruncatedBio(source, data.description || '')) {
-      // A later React mount may replace an API-backed preview with the current
-      // full description. Retire the fallback instead of hiding the new node.
-      clearInlineAbout(root);
-      return;
-    }
+    const needsBio = !source || isTruncatedBio(source, data.description || '');
     const box = source?.parentElement || findNativeBioBox(root, data.description || '');
     if (!box) return;
     const preview = source || findBioPreview(box, data.description || '');
@@ -741,17 +736,20 @@
     if (!inline) {
       inline = document.createElement('div');
       inline.id = 'rc-profile-inline-about';
-      box.prepend(inline);
     }
-    if (inline.dataset.userId !== String(userId) || inline.rcProfileSourceData !== data) {
+    if (inline.dataset.userId !== String(userId) || inline.rcProfileSourceData !== data
+      || inline.dataset.bioFallback !== String(needsBio)) {
       inline.dataset.userId = String(userId);
+      inline.dataset.bioFallback = String(needsBio);
       inline.rcProfileSourceData = data;
       inline.replaceChildren();
-      const bio = document.createElement('p');
-      bio.className = 'rc-profile-inline-bio';
-      if (data.description?.trim()) bio.setAttribute('data-rc-i18n-ignore', '');
-      bio.textContent = data.description?.trim() || 'No bio yet.';
-      inline.append(bio);
+      if (needsBio) {
+        const bio = document.createElement('p');
+        bio.className = 'rc-profile-inline-bio';
+        if (data.description?.trim()) bio.setAttribute('data-rc-i18n-ignore', '');
+        bio.textContent = data.description?.trim() || 'No bio yet.';
+        inline.append(bio);
+      }
       const created = new Date(data.created);
       if (Number.isFinite(created.getTime())) {
         const joined = document.createElement('div');
@@ -760,6 +758,10 @@
         joined.dataset.rcJoinedDate = created.toISOString();
         joined.textContent = `Joined ${date}`;
         inline.append(joined);
+      }
+      if (Array.isArray(data.formerNames) && data.formerNames.length) {
+        addFact(inline, 'Former usernames', data.formerNames.join(', '), true)
+          .parentElement.classList.add('rc-profile-inline-names');
       }
       const labels = { facebook: 'Facebook', twitter: 'X', youtube: 'YouTube',
         twitch: 'Twitch', guilded: 'Guilded', discord: 'Discord',
@@ -779,10 +781,16 @@
       }
       if (links.childElementCount) inline.append(links);
     }
+    if (!inline.childElementCount) { clearInlineAbout(root); return; }
+    // Full native descriptions still need the rest of More's About details.
+    // Keep their links and React handlers, adding only the missing information.
+    if (!needsBio && source) {
+      if (source.nextElementSibling !== inline) source.after(inline);
+    } else if (box.firstElementChild !== inline) box.prepend(inline);
     for (const stale of root.querySelectorAll('[data-rc-profile-native-preview]')) {
-      if (stale !== preview) stale.removeAttribute('data-rc-profile-native-preview');
+      if (!needsBio || stale !== preview) stale.removeAttribute('data-rc-profile-native-preview');
     }
-    preview.setAttribute('data-rc-profile-native-preview', '');
+    if (needsBio) preview.setAttribute('data-rc-profile-native-preview', '');
     box.setAttribute('data-rc-profile-inline-about-box', '');
     for (let parent = box.parentElement, depth = 0;
       parent && parent !== root && depth < 2; parent = parent.parentElement, depth++) {

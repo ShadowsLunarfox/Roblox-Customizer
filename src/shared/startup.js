@@ -36,6 +36,17 @@
     return Number.isFinite(number) ? Math.max(minimum, Math.min(maximum, number)) : fallback;
   };
 
+  function feedPreferences(settings) {
+    const preferences = {};
+    for (const page of ['Game', 'Community', 'Profile']) {
+      for (const platform of ['X', 'YouTube']) {
+        const key = `show${page}${platform}Feed`;
+        preferences[key] = typeof settings[key] === 'boolean' ? settings[key] : settings[`hide${platform}Feed`] !== true;
+      }
+    }
+    return preferences;
+  }
+
   function applyVisuals(visuals) {
     const root = document.documentElement;
     if (!root || !visuals) return;
@@ -52,6 +63,12 @@
     }
     root.toggleAttribute('data-rc-hide-favorites', visuals.hideFavorites === true);
     root.toggleAttribute('data-rc-hide-standout-games', visuals.hideStandoutGames === true);
+    const feeds = feedPreferences(visuals);
+    for (const page of ['Game', 'Community', 'Profile']) {
+      for (const platform of ['X', 'YouTube']) {
+        root.toggleAttribute(`data-rc-hide-${page.toLowerCase()}-${platform.toLowerCase()}-feed`, !feeds[`show${page}${platform}Feed`]);
+      }
+    }
   }
 
   function revealAvatar() {
@@ -119,7 +136,8 @@
         hideRecommendedLower: typeof settings.hideRecommendedLower === 'boolean'
           ? settings.hideRecommendedLower : settings.hideRecommended === true,
         hideFavorites: settings.hideFavorites === true,
-        hideStandoutGames: settings.hideStandoutGames === true
+        hideStandoutGames: settings.hideStandoutGames === true,
+        ...feedPreferences(settings)
       };
       applyVisuals(cachedVisuals);
       try { localStorage.setItem(CACHE_KEY, JSON.stringify(cachedVisuals)); } catch { /* Optional cache. */ }

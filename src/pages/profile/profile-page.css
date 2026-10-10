@@ -530,6 +530,23 @@ html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-j
   font-size: 12px;
 }
 
+html[data-rc-frost-page="profile"] [data-rc-profile-native-description] + #rc-profile-inline-about {
+  margin-top: 10px;
+}
+
+html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-names {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  color: var(--rc-text-secondary);
+  font-size: 12px;
+}
+
+html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-names strong {
+  color: var(--rc-text);
+  font-weight: 500;
+}
+
 html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-socials {
   display: flex;
   flex-wrap: wrap;

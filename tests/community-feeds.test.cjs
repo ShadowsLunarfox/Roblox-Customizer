@@ -229,7 +229,7 @@ test('leaving a community removes its feeds and late responses cannot populate a
   assert.ok(env.events.has('hashchange'));
 });
 
-test('game feeds still resolve from native game social links and preserve floating behavior', () => {
+function gameEnvironment() {
   const env = environment('/games/3059674/Test', 800);
   env.page.remove();
   const game = new Element('main', { id: 'game-detail-page' });
@@ -238,7 +238,12 @@ test('game feeds still resolve from native game social links and preserve floati
   const xLink = new Element('a'), youtubeLink = new Element('a');
   xLink.href = 'https://x.com/badimo'; youtubeLink.href = 'https://www.youtube.com/@Badimo';
   env.document.body.append(game); game.append(about); about.append(social); social.append(xLink, youtubeLink);
-  env.sync();
+  env.linked = env.sync;
+  return env;
+}
+
+test('game feeds still resolve from native game social links and preserve floating behavior', () => {
+  const env = gameEnvironment(); env.linked();
   const youtube = env.document.getElementById('rc-youtube-feed-panel');
   assert.equal(youtube.dataset.contextKey, 'game:3059674');
   assert.equal(youtube.dataset.placeId, '3059674');
@@ -503,4 +508,53 @@ test('profile feeds use public bio URLs as fallback and never invent accounts or
   env.sync();
   assert.equal(env.document.getElementById('rc-x-feed-panel'), null);
   assert.equal(env.document.getElementById('rc-youtube-feed-panel'), null);
+});
+
+test('Each page type independently enables X and YouTube without being affected by other page switches', () => {
+  for (const [kind, create] of [['game', gameEnvironment], ['community', environment], ['profile', profileEnvironment]]) {
+    const env = create();
+    const root = env.document.documentElement;
+    for (const other of ['game', 'community', 'profile'].filter(value => value !== kind)) {
+      root.setAttribute(`data-rc-hide-${other}-x-feed`, '');
+      root.setAttribute(`data-rc-hide-${other}-youtube-feed`, '');
+    }
+    env.linked();
+    const oldX = env.document.getElementById('rc-x-feed-panel');
+    const oldYouTube = env.document.getElementById('rc-youtube-feed-panel');
+    assert.ok(oldX, `${kind}: other page preferences cannot hide X`);
+    assert.ok(oldYouTube, `${kind}: other page preferences cannot hide YouTube`);
+    const lateX = env.requests.find(request => request.message.type === 'rc-x-posts');
+    const lateYouTube = env.requests.find(request => request.message.type === 'rc-youtube-videos');
+    root.setAttribute(`data-rc-hide-${kind}-x-feed`, ''); env.sync();
+    assert.equal(env.document.getElementById('rc-x-feed-panel'), null);
+    assert.equal(env.document.getElementById('rc-youtube-feed-panel'), oldYouTube);
+    const requestCount = env.requests.length;
+    root.setAttribute(`data-rc-hide-${kind}-youtube-feed`, ''); env.sync();
+    lateX.callback({ posts: [{ id: '1234567890', text: 'Late update' }] });
+    lateYouTube.callback({ videos: [{ id: 'abcDEF12345', title: 'Late video' }] });
+    env.sync();
+    assert.equal(env.requests.length, requestCount, `${kind}: disabled feeds issue no requests`);
+    assert.equal(env.document.getElementById('rc-x-feed-panel'), null);
+    assert.equal(env.document.getElementById('rc-youtube-feed-panel'), null);
+    assert.equal(oldX.querySelector('.rc-x-feed-posts').childElementCount, 0);
+    assert.equal(oldYouTube.querySelector('.rc-x-feed-posts').childElementCount, 0);
+    if (kind === 'profile') assert.equal(env.page.hasAttribute('data-rc-profile-feed-layout'), false);
+    root.removeAttribute(`data-rc-hide-${kind}-youtube-feed`); env.sync();
+    assert.ok(env.document.getElementById('rc-youtube-feed-panel'));
+    assert.equal(env.document.getElementById('rc-x-feed-panel'), null);
+    root.removeAttribute(`data-rc-hide-${kind}-x-feed`); env.sync();
+    assert.ok(env.document.getElementById('rc-x-feed-panel'));
+  }
+});
+
+test('Disabled page feeds skip social account lookups and external requests on first load', () => {
+  for (const [kind, create] of [['game', gameEnvironment], ['community', environment], ['profile', profileEnvironment]]) {
+    const env = create();
+    env.document.documentElement.setAttribute(`data-rc-hide-${kind}-x-feed`, '');
+    env.document.documentElement.setAttribute(`data-rc-hide-${kind}-youtube-feed`, '');
+    env.sync();
+    assert.deepEqual(env.requests, [], kind);
+    assert.equal(env.document.getElementById('rc-x-feed-panel'), null);
+    assert.equal(env.document.getElementById('rc-youtube-feed-panel'), null);
+  }
 });

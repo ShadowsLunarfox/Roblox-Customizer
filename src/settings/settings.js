@@ -7,6 +7,17 @@
   const STORAGE_KEY = 'customBackground';
   const DB_NAME = 'roblox-customizer-media';
   const STORE_NAME = 'backgrounds';
+  const FEED_PAGES = [
+    { kind: 'game', name: 'Game pages', prefix: 'Game' },
+    { kind: 'community', name: 'Community pages', prefix: 'Community' },
+    { kind: 'profile', name: 'Profile pages', prefix: 'Profile' }
+  ];
+  const FEED_VISIBILITY = FEED_PAGES.flatMap(page => [
+    { key: `show${page.prefix}YouTubeFeed`, id: `rc-show-${page.kind}-youtube-feed`,
+      attribute: `data-rc-hide-${page.kind}-youtube-feed`, legacy: 'hideYouTubeFeed', label: 'Enable YouTube feed' },
+    { key: `show${page.prefix}XFeed`, id: `rc-show-${page.kind}-x-feed`,
+      attribute: `data-rc-hide-${page.kind}-x-feed`, legacy: 'hideXFeed', label: 'Enable X feed' }
+  ]);
   const DEFAULTS = {
     source: 'none', url: '', urlType: 'auto', fileKey: '', fileName: '',
     fit: 'cover', dim: 20, glassBlur: 18, glassOpacity: 62, uiLanguage: 'auto',
@@ -15,7 +26,7 @@
     hiddenRecommendedGames: [], friendRows: 3,
     greetingMorning: '', greetingAfternoon: '', greetingEvening: '',
     clockShowSeconds: true, clockShowDate: true, clockHour12: false,
-    hideXFeed: false, hideYouTubeFeed: false
+    ...Object.fromEntries(FEED_VISIBILITY.map(control => [control.key, true]))
   };
   let settings = { ...DEFAULTS };
   let activeObjectUrl = null;
@@ -55,6 +66,12 @@
     for (const key of ['hideRecommendedUpper', 'hideRecommendedLower']) {
       saved[key] = typeof saved[key] === 'boolean' ? saved[key] : saved.hideRecommended === true;
     }
+    for (const control of FEED_VISIBILITY) {
+      saved[control.key] = typeof saved[control.key] === 'boolean'
+        ? saved[control.key] : saved[control.legacy] !== true;
+    }
+    delete saved.hideXFeed;
+    delete saved.hideYouTubeFeed;
     delete saved.hideRecommended;
     delete saved.clockShowTimeZone;
     delete saved.clockDateFormat;
@@ -723,10 +740,14 @@
     const language = modal?.querySelector('#rc-ui-language');
     if (language) language.value = settings.uiLanguage;
     applyGlass();
-    document.documentElement?.toggleAttribute('data-rc-hide-x-feed', settings.hideXFeed === true);
-    document.documentElement?.toggleAttribute('data-rc-hide-youtube-feed', settings.hideYouTubeFeed === true);
-    if (previous && (previous.hideXFeed !== settings.hideXFeed
-      || previous.hideYouTubeFeed !== settings.hideYouTubeFeed)) {
+    for (const control of FEED_VISIBILITY) {
+      document.documentElement?.toggleAttribute(control.attribute, settings[control.key] !== true);
+      const checkbox = modal?.querySelector(`#${control.id}`);
+      if (checkbox) checkbox.checked = settings[control.key] === true;
+    }
+    document.documentElement?.removeAttribute('data-rc-hide-x-feed');
+    document.documentElement?.removeAttribute('data-rc-hide-youtube-feed');
+    if (!previous || FEED_VISIBILITY.some(control => previous[control.key] !== settings[control.key])) {
       document.dispatchEvent(new CustomEvent('rc-game-feed-preferences-changed'));
     }
     globalThis.RobloxCustomizerStartup?.setPreferences(settings);
@@ -946,14 +967,14 @@
         </div>
         <div class="rc-settings-social">
           <h3>Social feed panels</h3>
-          <label for="rc-hide-x-feed" class="rc-settings-toggle">
-            <input id="rc-hide-x-feed" type="checkbox">
-            Hide X feed
-          </label>
-          <label for="rc-hide-youtube-feed" class="rc-settings-toggle">
-            <input id="rc-hide-youtube-feed" type="checkbox">
-            Hide YouTube feed
-          </label>
+          <p class="rc-settings-hint">Choose feeds separately for each page type.</p>
+          ${FEED_PAGES.map(page => `<fieldset class="rc-settings-feed-group">
+            <legend>${page.name}</legend>
+            ${FEED_VISIBILITY.filter(control => control.key.startsWith(`show${page.prefix}`))
+              .map(control => `<label for="${control.id}" class="rc-settings-toggle">
+                <input id="${control.id}" type="checkbox">${control.label}
+              </label>`).join('')}
+          </fieldset>`).join('')}
         </div>
         <p id="rc-settings-status" role="status" aria-live="polite"></p>
         <div class="rc-settings-actions">
@@ -975,8 +996,7 @@
     modal.querySelector('#rc-glass-opacity').value = settings.glassOpacity;
     modal.querySelector('#rc-glass-opacity-value').value = `${settings.glassOpacity}%`;
     for (const control of HOME_VISIBILITY) modal.querySelector(`#${control.id}`).checked = settings[control.key] === true;
-    modal.querySelector('#rc-hide-x-feed').checked = settings.hideXFeed === true;
-    modal.querySelector('#rc-hide-youtube-feed').checked = settings.hideYouTubeFeed === true;
+    for (const control of FEED_VISIBILITY) modal.querySelector(`#${control.id}`).checked = settings[control.key] === true;
     renderHiddenRecommendedGames();
     modal.querySelector('#rc-friend-rows').value = String(Math.max(1, Math.min(3,
       Number.isInteger(Number(settings.friendRows)) ? Number(settings.friendRows) : 3)));
@@ -1060,12 +1080,11 @@
         changeSettings({ ...settings, [control.key]: event.target.checked }, true);
       });
     }
-    modal.querySelector('#rc-hide-x-feed').addEventListener('change', event => {
-      changeSettings({ ...settings, hideXFeed: event.target.checked }, true);
-    });
-    modal.querySelector('#rc-hide-youtube-feed').addEventListener('change', event => {
-      changeSettings({ ...settings, hideYouTubeFeed: event.target.checked }, true);
-    });
+    for (const control of FEED_VISIBILITY) {
+      modal.querySelector(`#${control.id}`).addEventListener('change', event => {
+        changeSettings({ ...settings, [control.key]: event.target.checked }, true);
+      });
+    }
     modal.querySelector('#rc-friend-rows').addEventListener('change', event => {
       changeSettings({ ...settings, friendRows: Number(event.target.value) }, true);
     });

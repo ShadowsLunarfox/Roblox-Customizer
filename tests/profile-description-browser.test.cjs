@@ -5,7 +5,7 @@ const path = require('node:path');
 const http = require('node:http');
 const { isolatedChrome, pause, waitForDocument } = require('./helpers/chrome.cjs');
 const workspace = path.resolve(__dirname, '..');
-const scripts = ['src/shared/runtime.js', 'src/shared/native-labels.js', 'src/shared/startup.js', 'src/pages/profile/profile-page.js'];
+const scripts = ['src/shared/runtime.js', 'src/shared/native-labels.js', 'src/shared/i18n.js', 'src/shared/startup.js', 'src/pages/profile/profile-page.js'];
 const styles = ['src/shared/theme.css', 'src/pages/profile/profile-page.css'];
 const bio = '完整简介 / 完整介紹\n' + 'This is the complete public description. 保留所有文字、换行和链接。\n'.repeat(20)
   + 'https://example.com/' + 'long-path-'.repeat(25) + '\n最后一行 / 最後一行';
@@ -35,7 +35,7 @@ function fixture(variant, locale) {
 }
 
 test('profile bios expand fully and native About/Creations tabs stay hidden across languages and remounts',
-  { skip: !process.env.CHROME_BIN, timeout: 45000 }, async t => {
+  { skip: !process.env.CHROME_BIN, timeout: 60000 }, async t => {
     const files = new Set([...scripts, ...styles]);
     const server = http.createServer((request, response) => {
       const url = new URL(request.url, 'http://localhost'); const file = url.pathname.slice(1);
@@ -43,17 +43,19 @@ test('profile bios expand fully and native About/Creations tabs stay hidden acro
       if (files.has(file)) { response.setHeader('Content-Type', file.endsWith('.css') ? 'text/css' : 'text/javascript'); response.end(fs.readFileSync(path.join(workspace, file))); }
       else { response.setHeader('Content-Type', 'text/html; charset=utf-8'); response.end(fixture(url.searchParams.get('variant'), url.searchParams.get('locale'))); }
     });
-    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+    await new Promise(resolve => server.listen(Number(process.env.PROFILE_TEST_PORT) || 0, '127.0.0.1', resolve));
     t.after(() => new Promise(resolve => { server.closeAllConnections(); server.close(resolve); }));
     const browser = await isolatedChrome(t, 'profile-description');
     await browser.send('Emulation.setFocusEmulationEnabled', { enabled: true });
     await browser.send('Page.addScriptToEvaluateOnNewDocument', { source: `
       window.profileRequests=[];window.chrome={storage:{local:{async get(){return {customBackground:{source:'none'}}}},onChanged:{addListener(){}}},runtime:{lastError:null,sendMessage(message,callback){if(message.type==='rc-profile-details')profileRequests.push(callback);else setTimeout(()=>callback({error:'Unused optional fixture data'}),0)}}};
     ` });
-    for (const variant of ['modern', 'empty', 'legacy', 'truncated']) for (const locale of ['en', 'zh-cn', 'zh-tw']) {
+    for (const variant of ['modern', 'partial', 'empty', 'legacy', 'truncated']) for (const locale of ['en', 'zh-cn', 'zh-tw']) {
+      const hasAbout = !['partial', 'empty'].includes(variant);
       const target = new URL('/users/1488540472/profile', `http://127.0.0.1:${server.address().port}`);
       target.searchParams.set('variant', variant); target.searchParams.set('locale', locale);
-      await browser.send('Page.navigate', { url: target.href }); await waitForDocument(browser, '#native-bio', target.href);
+      await browser.send('Page.navigate', { url: target.href }); await browser.send('Page.bringToFront');
+      await waitForDocument(browser, '#native-bio', target.href);
       // Native React commits its complete subtree with handlers already bound.
       // Start the scripts after this fixture's equivalent mount is ready.
       for (const file of scripts) await browser.evaluate(fs.readFileSync(path.join(workspace, file), 'utf8') + '\n//# sourceURL=' + file);
@@ -64,11 +66,38 @@ test('profile bios expand fully and native About/Creations tabs stay hidden acro
         assert.equal(await browser.evaluate("document.querySelector('#native-bio')===savedBio && document.querySelector('#native-more')===savedMore"), true);
       }
       await browser.waitFor('profileRequests.length===1');
-      const details = ['legacy', 'truncated'].includes(variant) ? { description: bio, created: '2020-01-01' }
-        : variant === 'modern' ? { description: 'Older API description', created: '2020-01-01' } : { error: 'API unavailable' };
+      const details = variant === 'empty' ? { error: 'API unavailable' }
+        : variant === 'partial' ? { description: 'Older API description' } : {
+        description: variant === 'modern' ? 'Older API description' : bio, created: '2020-01-01',
+        formerNames: ['Refresh', '旧名測試 <img onerror=alert(1)>'],
+        socialChannels: { twitter: '@Player', youtube: 'https://www.youtube.com/@Player', facebook: 'https://evil.test/profile' }
+      };
       await browser.evaluate(`profileRequests[0](${JSON.stringify(details)})`);
       const selector = ['legacy', 'truncated'].includes(variant) ? '#rc-profile-inline-about .rc-profile-inline-bio' : '#native-bio';
       await browser.waitFor(`!!document.querySelector(${JSON.stringify(selector)})`);
+      if (hasAbout) {
+        await browser.waitFor("!!document.querySelector('#rc-profile-inline-about .rc-profile-inline-joined')");
+        const extra = await browser.evaluate("(()=>{const inline=document.querySelector('#rc-profile-inline-about');return {clicks:moreClicks,joined:inline.querySelector('.rc-profile-inline-joined').textContent,namesLabel:inline.querySelector('.rc-profile-inline-names span').textContent,names:inline.querySelector('.rc-profile-inline-names strong').textContent,images:inline.querySelectorAll('.rc-profile-inline-names img').length,links:[...inline.querySelectorAll('.rc-profile-inline-socials a')].map(a=>({href:a.href,rel:a.rel})),bioCount:inline.querySelectorAll('.rc-profile-inline-bio').length}})()");
+        assert.equal(extra.clicks, 0, 'More details appear without opening the dialog');
+        assert.match(extra.joined, locale === 'en' ? /^Joined / : /^加入日期：/);
+        assert.equal(extra.namesLabel, locale === 'en' ? 'Former usernames' : locale === 'zh-cn' ? '曾用名' : '曾用名稱');
+        assert.equal(extra.names, details.formerNames.join(', '), 'User content is never translated or parsed as HTML');
+        assert.equal(extra.images, 0);
+        assert.deepEqual(extra.links, [{ href: 'https://x.com/Player', rel: 'noopener noreferrer' }, { href: 'https://www.youtube.com/@Player', rel: 'noopener noreferrer' }]);
+        assert.equal(extra.bioCount, variant === 'modern' ? 0 : 1, 'The native full bio is not duplicated or replaced by older API text');
+        if (variant === 'modern' && locale === 'en') {
+          for (const [uiLanguage, namesLabel] of [['zh-CN', '曾用名'], ['zh-TW', '曾用名稱'], ['en', 'Former usernames']]) {
+            await browser.evaluate(`RobloxCustomizerI18n.setLanguage(${JSON.stringify(uiLanguage)})`);
+            await browser.waitFor(`document.querySelector('.rc-profile-inline-names span')?.textContent===${JSON.stringify(namesLabel)}`);
+            assert.equal(await browser.evaluate("document.querySelector('#native-bio').textContent"), bio);
+            assert.equal(await browser.evaluate("document.querySelector('.rc-profile-inline-names strong').textContent"), details.formerNames.join(', '));
+            assert.equal(await browser.evaluate("document.querySelectorAll('#rc-profile-inline-about').length"), 1);
+            assert.equal(await browser.evaluate('moreClicks'), 0, 'Live language changes keep More details expanded without clicking');
+          }
+        }
+      } else {
+        assert.equal(await browser.evaluate("document.querySelector('#rc-profile-inline-about')===null"), true, 'Missing optional details do not add an empty wrapper');
+      }
       for (const theme of ['dark', 'light']) for (const width of [1360, 390, 320]) {
         await browser.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width < 600 });
         await browser.evaluate(`document.documentElement.className='${theme}-theme';new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))`);
@@ -77,6 +106,7 @@ test('profile bios expand fully and native About/Creations tabs stay hidden acro
         assert.equal(state.text, variant === 'empty' ? locale === 'en' ? 'No bio yet.' : locale === 'zh-cn' ? '暂无简介' : '尚無簡介' : bio, label);
         assert.ok(state.scrollHeight <= state.clientHeight + 1, `${label}: no clipped lines`);
         assert.equal(state.covered, true, `${label}: ancestor grows with the full bio`);
+        if (hasAbout) assert.equal(await browser.evaluate("document.querySelector('#rc-profile-inline-about').getBoundingClientRect().bottom<=document.querySelector('#bio-wrapper').getBoundingClientRect().bottom+.5"), true, `${label}: all inline More details fit inside the summary`);
         assert.equal(state.overflow, false, `${label}: long links wrap`);
         assert.equal(state.tabs, false, label); assert.equal(state.about, true, label); assert.equal(state.creations, false, label);
         assert.equal(state.unrelated, true, label); assert.equal(state.modal, false, label);
@@ -100,7 +130,8 @@ test('profile bios expand fully and native About/Creations tabs stay hidden acro
         // React upgrades an initially truncated preview after the API fallback
         // has mounted. Its newer native text must replace the older fallback.
         await browser.evaluate("const current=document.createElement('div');current.id='native-bio';current.className='description-content text-overflow-2-lines';current.textContent='Updated full native description / 更新后的完整简介\\n最後一行';savedBio.replaceWith(current)");
-        await browser.waitFor("document.querySelector('#rc-profile-inline-about')===null && !!document.querySelector('#native-bio[data-rc-profile-native-description]')");
+        await browser.waitFor("document.querySelector('#rc-profile-inline-about .rc-profile-inline-bio')===null && !!document.querySelector('#native-bio[data-rc-profile-native-description]')");
+        assert.equal(await browser.evaluate("document.querySelectorAll('#rc-profile-inline-about .rc-profile-inline-joined').length"), 1, 'New native bio text keeps the additional About details');
         assert.equal(await browser.evaluate("document.querySelector('#native-bio').checkVisibility() && savedMore.checkVisibility()"), true, 'Late native text and More stay visible');
         await pause(200);
         assert.equal(await browser.evaluate("document.querySelector('#native-bio').textContent"), 'Updated full native description / 更新后的完整简介\n最後一行', 'The older API response cannot restore the incomplete preview');

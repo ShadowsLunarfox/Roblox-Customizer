@@ -23,7 +23,7 @@ A browser extension for Chrome and Edge that adds custom backgrounds, frosted pa
 - **Theme-aware controls:** Text, icons, inputs, menus, and extension settings switch with Roblox's theme. Light panels retain a minimum backing opacity to keep text readable over dark wallpapers.
 - **Personalized Home:** Customize greetings and the clock, show up to three friend rows, and pin games. Hide Favorites, Standout Games, or the upper and lower recommendations separately; hide and restore individual recommended games.
 - **Game browsing tools:** View badge information and public/private server details. Search public servers by country, latency, ping, and player count, or sort by player count.
-- **Game data & social feeds:** Explore gamepasses, badges, and places using Roblox and Rolimons data. Browse X and YouTube feed panels where available, with separate visibility switches.
+- **Game data & social feeds:** Explore gamepasses, badges, and places using Roblox and Rolimons data. Enable X and YouTube feeds separately for Game, Community, and Profile pages in **Social feed panels** settings.
 - **Robux currency estimates:** Display approximate purchase equivalents in your chosen currency across Roblox and Creator Hub. Actual checkout prices may vary.
 - **Page recovery:** Resynchronize interface features after tab suspension or restoration, repair removed background layers, and release stalled requests so loading controls remain usable.
 - **Chinese page compatibility:** Native section and control detection supports Simplified and Traditional Chinese, including live language changes, private servers, avatar categories, chat, and compact Robux amounts.
@@ -39,7 +39,7 @@ A browser extension for Chrome and Edge that adds custom backgrounds, frosted pa
 | Game passes & Badges | `/game-pass/{id}`, `/badges/{id}` | Responsive artwork and detail panels, native purchase controls, and related experience links. |
 | Charts | `/charts` | Game cards, browsing controls, and filter panels. |
 | Marketplace | `/catalog`, `/catalog/{id}`, `/bundles/{id}` | Browsing cards, item and bundle previews, details, and resale panels. |
-| Profiles & Avatar | `/users/{id}/profile`, `/my/avatar` | Profile sections, avatar previews, and editor panels. |
+| Profiles & Avatar | `/users/{id}/profile`, `/my/avatar` | Full profile biographies and available More details (social links, previous names, join date) shown inline, profile sections, avatar previews, and editor panels. |
 | Friends & Inventory | `/users/{id}/friends`, `/users/{id}/inventory` | Tabs, search controls, and list/card styling. |
 | Account settings | `/my/account` | Settings navigation; Account Info, Robux, Browser preferences, Parental controls, Notifications, Privacy, and Security panels; device sessions, edit controls, and form fields. |
 | Account & activity | `/plus`, `/my/messages`, `/trades`, `/transactions` | Membership, messaging, trading, and transaction panels. |

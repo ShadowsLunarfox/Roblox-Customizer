@@ -114,6 +114,12 @@
     return { kind: 'community', id: groupId, key: `community:${groupId}`, page };
   }
 
+  function feedEnabled(kind, platform) {
+    const root = document.documentElement;
+    return !root.hasAttribute(`data-rc-hide-${kind}-${platform}-feed`)
+      && !root.hasAttribute(`data-rc-hide-${platform}-feed`);
+  }
+
   function fetchedCommunityLinks(groupId) {
     const cached = communitySocialCache.get(groupId);
     if (cached && Date.now() < cached.expiresAt) return cached;
@@ -153,9 +159,9 @@
 
   function syncProfileFeedLayout({ page, socialLinks }) {
     if (profileFeedLayoutRoot !== page) clearProfileFeedLayout();
-    const active = (!document.documentElement.hasAttribute('data-rc-hide-x-feed')
+    const active = (feedEnabled('profile', 'x')
       && xAccountFromUrl(socialLinks?.xUrl))
-      || (!document.documentElement.hasAttribute('data-rc-hide-youtube-feed')
+      || (feedEnabled('profile', 'youtube')
         && youtubeChannelUrlFrom(socialLinks?.youtubeUrl));
     let leftEdge = 0;
     for (const sidebar of document.querySelectorAll('#navigation, #left-navigation-container')) {
@@ -647,7 +653,7 @@
       xFeedAnchor = null;
       return;
     }
-    if (document.documentElement.hasAttribute('data-rc-hide-x-feed')) {
+    if (!feedEnabled(context.kind, 'x')) {
       panel?.remove();
       cleanupSocialFeedRows();
       xFeedResizeObserver.disconnect();
@@ -742,7 +748,7 @@
       youtubeFeedAnchor = null;
       return;
     }
-    if (document.documentElement.hasAttribute('data-rc-hide-youtube-feed')) {
+    if (!feedEnabled(context.kind, 'youtube')) {
       panel?.remove();
       cleanupSocialFeedRows();
       youtubeFeedResizeObserver.disconnect();
@@ -2843,6 +2849,8 @@
     schedule();
   }).observe(document, { attributes: true, attributeFilter: [
     'href', 'aria-label', 'title', 'data-rc-hide-x-feed', 'data-rc-hide-youtube-feed',
+    ...['game', 'community', 'profile'].flatMap(kind =>
+      [`data-rc-hide-${kind}-x-feed`, `data-rc-hide-${kind}-youtube-feed`]),
     'data-rc-profile-social-user-id', 'data-rc-profile-x-url', 'data-rc-profile-youtube-url',
     'data-rc-instance-id', 'data-rc-ping', 'data-btr-instance-id', 'data-rc-playing',
     'data-playing', 'data-player-count', 'src', 'srcset', 'sizes', 'alt',
