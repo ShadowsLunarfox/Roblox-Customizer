@@ -1,5 +1,8 @@
 (function () {
   'use strict';
+
+  const sendMessage = globalThis.RobloxCustomizerRuntime?.sendMessage
+    || ((...args) => chrome.runtime.sendMessage(...args));
   const core = globalThis.RobloxCustomizerCurrencyCore;
   if (!core || globalThis.RobloxCustomizerCurrency) return;
   const VALUE_SELECTOR = '[class*="text-robux"], #nav-robux-amount, #nav-robux-balance, #robux-balance, .robux-balance, .robux-amount, .robux-text, [data-testid*="robux"], [data-testid*="Robux"], input[aria-label*="Robux"], input[aria-label*="robux"]';
@@ -11,6 +14,8 @@
   const roots = new Set();
   const stackedHosts = new Set();
   const balanceHosts = new Set();
+  const panelPopulators = new Map();
+  const uiLocale = () => globalThis.RobloxCustomizerI18n?.locale() || navigator.language;
   let settings = { ...core.DEFAULTS };
   let snapshot = null;
   let timer = null;
@@ -18,7 +23,25 @@
   let started = false;
   let writeQueue = Promise.resolve();
   let names;
-  try { names = new Intl.DisplayNames(navigator.language, { type: 'currency' }); } catch { /* ISO codes remain available. */ }
+  function refreshCurrencyNames() {
+    try { names = new Intl.DisplayNames(uiLocale(), { type: 'currency' }); } catch { /* ISO codes remain available. */ }
+  }
+  refreshCurrencyNames();
+
+  function setText(node, source) {
+    const i18n = globalThis.RobloxCustomizerI18n;
+    if (i18n?.matches(node, source) ?? node.textContent === source) return;
+    node.textContent = source;
+    i18n?.localize(node);
+  }
+
+  function setTitle(node, source) {
+    const i18n = globalThis.RobloxCustomizerI18n;
+    if (i18n) {
+      i18n.attribute(node, 'title', source);
+      i18n.localize(node);
+    } else if (node.title !== source) node.title = source;
+  }
 
   function isOwn(node) {
     const element = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
@@ -68,9 +91,9 @@
     const amount = amountOf(target);
     const result = core.convert(amount, settings.currency, snapshot);
     if (!result) { entry.label.remove(); return; }
-    const text = core.format(result, navigator.language);
+    const text = core.format(result, uiLocale());
     if (entry.label.textContent !== text) entry.label.textContent = text;
-    if (!entry.svg) entry.label.title = core.description(result);
+    if (!entry.svg) setTitle(entry.label, core.description(result));
     entry.amount = amount;
     entry.text = text;
     const element = target.nodeType === Node.ELEMENT_NODE ? target : target.parentElement;
@@ -157,7 +180,7 @@
     loading = true;
     refreshPanels();
     try {
-      const response = await chrome.runtime.sendMessage({ type: 'rc-currency-rates', force });
+      const response = await sendMessage({ type: 'rc-currency-rates', force });
       snapshot = response?.ok ? response : null;
     } catch { /* Local price references still work offline. */ }
     finally { loading = false; queue(); refreshPanels(); }
@@ -170,7 +193,7 @@
     if (settings.enabled && !core.PURCHASE_PRICES[settings.currency] && !snapshot) loadRates();
     const saved = { ...settings };
     writeQueue = writeQueue.catch(() => {}).then(() => chrome.storage.local.set({ [core.STORAGE_KEY]: saved })).catch(() => {
-      for (const panel of document.querySelectorAll('.rc-settings-currency')) panel.querySelector('[data-currency-status]').textContent = 'Could not save. Try changing the currency again.';
+      for (const panel of document.querySelectorAll('.rc-settings-currency')) setText(panel.querySelector('[data-currency-status]'), 'Could not save. Try changing the currency again.');
     });
   }
 
@@ -188,15 +211,16 @@
       const balance = document.querySelector('#nav-robux-amount, #nav-robux-balance');
       const amount = balance ? amountOf(balance) : null;
       const result = core.convert(amount ?? 500, settings.currency, snapshot);
-      panel.querySelector('[data-currency-preview]').textContent = result ? `${amount === null ? 'Example' : 'Your balance'}: ${(amount ?? 500).toLocaleString(navigator.language)} Robux ${core.format(result, navigator.language)}` : 'Rates for this currency are unavailable. Use Refresh rates to try again.';
-      panel.querySelector('[data-currency-preview]').title = core.description(result);
+      setText(panel.querySelector('[data-currency-preview]'), result ? `${amount === null ? 'Example' : 'Your balance'}: ${(amount ?? 500).toLocaleString(uiLocale())} Robux ${core.format(result, uiLocale())}` : 'Rates for this currency are unavailable. Use Refresh rates to try again.');
+      setTitle(panel.querySelector('[data-currency-preview]'), core.description(result));
       panel.querySelector('[data-currency-refresh]').disabled = loading;
-      panel.querySelector('[data-currency-status]').textContent = loading ? 'Updating exchange rates…' : core.PURCHASE_PRICES[settings.currency] ? 'Using a reference purchase price. Actual checkout prices may vary.' : snapshot?.rates?.[settings.currency] ? `Exchange rates: ${snapshot.date}${snapshot.stale ? ' · cached, refresh unavailable' : ''}` : 'No exchange rate available. Other currencies may still be available.';
+      setText(panel.querySelector('[data-currency-status]'), loading ? 'Updating exchange rates…' : core.PURCHASE_PRICES[settings.currency] ? 'Using a reference purchase price. Actual checkout prices may vary.' : snapshot?.rates?.[settings.currency] ? `Exchange rates: ${snapshot.date}${snapshot.stale ? ' · cached, refresh unavailable' : ''}` : 'No exchange rate available. Other currencies may still be available.');
     }
   }
 
   function mountSettings(panel) {
     if (!panel || panel.querySelector('[data-currency-select]')) return;
+    for (const previous of panelPopulators.keys()) if (!previous.isConnected) panelPopulators.delete(previous);
     panel.classList.add('rc-settings-currency');
     panel.innerHTML = `
       <h3>Robux currency converter</h3>
@@ -211,8 +235,8 @@
       <p data-currency-status role="status"></p>`;
     const select = panel.querySelector('[data-currency-select]');
     const search = panel.querySelector('input[type="search"]');
-    const options = core.CURRENCIES.map(code => ({ code, name: names?.of(code) || code }));
     function populate() {
+      const options = core.CURRENCIES.map(code => ({ code, name: names?.of(code) || code }));
       const query = search.value.trim().toLocaleLowerCase();
       select.replaceChildren();
       for (const option of options) {
@@ -224,6 +248,7 @@
       }
       select.value = settings.currency;
     }
+    panelPopulators.set(panel, populate);
     populate();
     search.addEventListener('input', populate);
     select.addEventListener('change', () => save({ ...settings, currency: select.value }));
@@ -257,6 +282,16 @@
   }
 
   globalThis.RobloxCustomizerCurrency = Object.freeze({ mountSettings });
+  globalThis.RobloxCustomizerRuntime?.onResume(() => queue(document.body));
+  globalThis.RobloxCustomizerI18n?.onChange(() => {
+    refreshCurrencyNames();
+    for (const [panel, populate] of panelPopulators) {
+      if (panel.isConnected) populate();
+      else panelPopulators.delete(panel);
+    }
+    queue(document.body);
+    refreshPanels();
+  });
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local') return;
     if (changes[core.STORAGE_KEY]) {

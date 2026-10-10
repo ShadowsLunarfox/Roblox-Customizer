@@ -82,7 +82,7 @@ test('Account settings keep native tabs, edit/save behavior, field validation, a
           assert.ok(Math.abs(positions.bodyWidth-positions.sectionWidth)<=1,`${layout}: account panels fill their column`);
         }
         if(width<768){assert.ok(navigation.scrollWidth>navigation.width);assert.ok(navigation.items.every(n=>n.width<navigation.width),'Mobile tabs use compact widths');}
-        if(process.env.ACCOUNT_NATIVE_CSS){assert.equal(await browser.evaluate("getComputedStyle(document.querySelector('.container-header h1')).color"),theme==='dark'?'rgb(247, 247, 248)':'rgb(32, 34, 39)','Native theme tokens keep headings readable');}
+        if(process.env.ACCOUNT_NATIVE_CSS){assert.equal(await browser.evaluate("getComputedStyle(document.querySelector('.container-header h1')).color"),theme==='dark'?'rgb(244, 246, 251)':'rgb(27, 35, 48)','Theme-aware headings remain readable with native styles loaded');}
         assert.equal(await browser.evaluate(snapshot),values,'Appearance never changes native values or disabled fields');
         if(process.env.ACCOUNT_PREVIEWS&&layout==='nested'&&theme==='dark'&&[1360,390].includes(width)){
           fs.mkdirSync(path.join(workspace,'previews'),{recursive:true});await browser.evaluate('scrollTo(0,0)');

@@ -6,13 +6,14 @@ const { test } = require('node:test');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'src/shared/page-bridge.js'), 'utf8');
 
-function environment(pathname = '/home') {
+function environment(pathname = '/home', overrides = {}) {
   const listeners = {};
   const window = {};
   const context = vm.createContext({
-    window, URL, console: { warn() {} },
+    window, URL, setTimeout, clearTimeout, console: { warn() {} },
     location: { pathname, href: `https://www.roblox.com${pathname}` },
     document: { addEventListener(name, callback) { listeners[name] = callback; } },
+    ...overrides,
   });
   vm.runInContext(source, context);
   return { window, listeners };
@@ -110,6 +111,35 @@ test('later page failure keeps the original loaded friends', async () => {
   assert.equal(result.data.PageItems.length, 1);
   assert.equal(result.data.PageItems[0].id, 7);
   assert.equal(calls, 2);
+});
+
+test('a stalled extra friends page releases the native first page without a click', async () => {
+  const timers = new Map();
+  let id = 0;
+  const { window } = environment('/home', {
+    setTimeout(callback, delay) { timers.set(++id, { callback, delay }); return id; },
+    clearTimeout(id) { timers.delete(id); }
+  });
+  let calls = 0;
+  let finishLate;
+  const http = attachHttp(window, () => ++calls === 1
+    ? Promise.resolve({ status: 200, data: { PageItems: [{ id: 7 }], NextCursor: 'next' } })
+    : new Promise(resolve => { finishLate = resolve; }));
+  const pending = http.get({ url: 'https://friends.roblox.com/v1/users/123/friends/find' });
+  await new Promise(setImmediate);
+  assert.equal(calls, 2);
+  assert.equal(timers.size, 1);
+  const timeout = [...timers.values()][0];
+  assert.ok(timeout.delay <= 4000);
+  timeout.callback();
+  const result = await pending;
+  assert.equal(result.status, 200);
+  assert.deepEqual(Array.from(result.data.PageItems, item => item.id), [7]);
+  assert.equal(result.data.NextCursor, 'next', 'The native loader can still request remaining friends');
+  finishLate({ data: { PageItems: [{ id: 8 }], NextCursor: null } });
+  await Promise.resolve();
+  assert.deepEqual(Array.from(result.data.PageItems, item => item.id), [7]);
+  assert.equal(timers.size, 0);
 });
 
 test('repeated cursor stops and requests outside the home friends endpoint pass through', async () => {

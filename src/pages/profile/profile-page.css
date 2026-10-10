@@ -468,7 +468,8 @@ html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [dat
   }
 }
 
-html[data-rc-frost-page="profile"] [data-rc-profile-native-tabs] {
+html[data-rc-frost-page="profile"] [data-rc-profile-native-tabs],
+html[data-rc-frost-page="profile"] .profile-tabs:has(#tab-about):has(#tab-creations) {
   display: none !important;
 }
 
@@ -477,10 +478,11 @@ html[data-rc-frost-page="profile"] [data-rc-profile-inline-about-box] {
   height: auto !important;
   max-height: none !important;
   overflow: visible !important;
-  font-size: 0 !important;
 }
 
-html[data-rc-frost-page="profile"] [data-rc-profile-inline-about-box] > :not(#rc-profile-inline-about) {
+/* Hide only the old preview. More/Edit controls and React's dialog host must
+   remain available when a legacy description needs the API fallback. */
+html[data-rc-frost-page="profile"] [data-rc-profile-native-preview] {
   display: none !important;
 }
 
@@ -498,9 +500,29 @@ html[data-rc-frost-page="profile"] #rc-profile-inline-about {
   overflow-wrap: anywhere;
 }
 
-html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-bio {
+html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-bio,
+html[data-rc-frost-page="profile"] [data-rc-profile-native-description],
+html[data-rc-frost-page="profile"] :is([role="dialog"], .modal) .description-content {
+  display: block !important;
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  -webkit-line-clamp: unset !important;
+  line-clamp: unset !important;
   margin: 0;
-  white-space: pre-wrap;
+  white-space: pre-wrap !important;
+  font-family: inherit;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+html[data-rc-frost-page="profile"] [data-rc-profile-native-description][data-rc-profile-native-preview] {
+  display: none !important;
 }
 
 html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-joined {
@@ -534,7 +556,10 @@ html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-s
 html[data-rc-frost-page="profile"] [data-rc-profile-native-bio-container],
 html[data-rc-frost-page="profile"] :is(
   [data-rc-profile-summary], [data-rc-profile-hero]
-):has(#rc-profile-inline-about) {
+):has(#rc-profile-inline-about),
+html[data-rc-frost-page="profile"] :is(
+  [data-rc-profile-summary], [data-rc-profile-hero]
+):has([data-rc-profile-native-description]) {
   height: auto !important;
   max-height: none !important;
   overflow: visible !important;

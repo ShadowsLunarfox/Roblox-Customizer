@@ -102,7 +102,7 @@ test('Game pins appear beside Favorite, persist below Home friends, join nativel
       response.end(fs.readFileSync(path.join(workspace, file)));
     } else { response.setHeader('Content-Type', 'text/html; charset=utf-8'); response.end(fixture()); }
   });
-  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  await new Promise(resolve => server.listen(Number(process.env.PINNED_GAMES_TEST_PORT) || 0, '127.0.0.1', resolve));
   const child = spawn(process.env.CHROME_BIN, ['--headless=new', '--disable-gpu', '--no-first-run', '--no-default-browser-check', '--remote-debugging-port=0', `--user-data-dir=${profile}`, 'about:blank'], { windowsHide: true, stdio: 'ignore' });
   let browser;
   let secondary;

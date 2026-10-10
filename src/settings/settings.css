@@ -91,6 +91,13 @@ html:not([data-rc-background-active]) #rc-background-layer {
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
 }
 
+/* Native feedback banners can exceed their off-screen offset and leave a strip
+   above the header. Roblox adds .on when a message should actually be shown. */
+html[data-rc-ui-active] .alert-system-feedback .alert:not(.on) {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 html[data-rc-ui-active] #header .navbar-search {
   background-color: transparent !important;
 }
@@ -845,6 +852,7 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
   cursor: pointer;
 }
 
+#rc-settings-overlay .rc-settings-language,
 #rc-settings-overlay .rc-settings-options {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
@@ -868,6 +876,19 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
   margin: 0 0 2px;
   color: var(--rc-text);
   font-size: 16px;
+}
+
+#rc-settings-overlay .rc-settings-glass > .rc-settings-hint {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+#rc-settings-overlay .rc-settings-glass > label {
+  grid-column: 1;
+}
+
+#rc-settings-overlay .rc-settings-glass > input[type="range"] {
+  grid-column: 2;
 }
 
 #rc-settings-overlay .rc-settings-home {

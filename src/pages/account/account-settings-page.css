@@ -175,7 +175,7 @@ html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content .setting
 }
 
 /* A separate backing lets native dropdowns extend beyond their panel. */
-html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content :is(.setting-section, [data-rc-settings-panel]) {
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content :is(.setting-section, [data-rc-settings-panel], [data-rc-settings-surface]) {
   position: relative;
   isolation: isolate;
   box-sizing: border-box;
@@ -191,7 +191,7 @@ html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content :is(.set
   backdrop-filter: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content :is(.setting-section, [data-rc-settings-panel])::before {
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content :is(.setting-section, [data-rc-settings-panel], [data-rc-settings-surface])::before {
   content: "";
   display: block;
   box-sizing: border-box;
@@ -204,6 +204,98 @@ html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content :is(.set
   background: rgb(var(--rc-glass-color, 20 22 28) / max(.72, var(--rc-surface-opacity, var(--rc-glass-opacity, .62))));
   -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+}
+
+/* New React tabs and unwrapped sections need a backing for the whole content
+   branch. Native nested sections share it instead of stacking glass layers. */
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-surface] {
+  padding: 22px 24px !important;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-surface] :is(.setting-section, [data-rc-settings-panel]) {
+  padding: 0;
+  margin-bottom: 24px;
+  border-radius: 0;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-surface] :is(.setting-section, [data-rc-settings-panel])::before {
+  content: none;
+  display: none;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-surface] :is(.container-header, .section-header) {
+  padding: 0 !important;
+  margin-bottom: 16px;
+  background: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-surface] :is(h1, h2, h3, h4, [role="heading"], .text-heading-large, .text-heading-medium, .text-heading-small, .text-title-large) {
+  color: var(--rc-text);
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-surface] :is(p, label, .text-overflow, .text-body-medium, .text-body-small, .text-caption-small) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-surface] :is(.text-body-small, .text-caption-small, .text-secondary):not(:where(.text-error, .text-danger, .text-success)) {
+  color: var(--rc-text-secondary);
+}
+
+/* Plain React buttons include category rows and device sessions. Their native
+   flex layout, icons, images, click targets, and disabled state stay in place. */
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-surface] :is(button, [role="button"]):not(:where([role="switch"], [role="tab"], [role="radio"], [data-rc-settings-choice], .btn-toggle)) {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 40px;
+  height: auto;
+  border-radius: 10px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-surface] :is(button, [role="button"]):not(:where(
+  :disabled, .disabled, [aria-disabled="true"], [role="switch"], [role="tab"], [role="radio"], [data-rc-settings-choice], .btn-toggle,
+  .btn-primary-lg, .btn-primary-md, .btn-primary-sm, .btn-primary-xs,
+  .btn-alert-lg, .btn-alert-md, .btn-alert-sm, .btn-danger,
+  .bg-action-emphasis, .bg-action-alert, .bg-action-soft-emphasis
+)) {
+  color: var(--rc-text);
+  border-color: var(--rc-control-border);
+  background-color: var(--rc-control-bg);
+}
+
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-surface] :is([role="combobox"], [role="radio"]:not(input, [data-rc-settings-choice])) {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--rc-control-border);
+  border-radius: 10px;
+  background-color: var(--rc-control-bg);
+  color: var(--rc-text);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-surface] [role="radio"]:not(input, [data-rc-settings-choice])[aria-checked="true"] {
+  border-color: #335fff;
+  box-shadow: inset 0 0 0 1px #335fff;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-surface] :is([role="combobox"], [role="radio"]:not(input, [data-rc-settings-choice])):is(:disabled, [aria-disabled="true"]) {
+  opacity: .55;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-surface] label:has(> input:is([type="checkbox"], [type="radio"])) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content :is(.setting-section, [data-rc-settings-panel]) :is(
@@ -229,7 +321,7 @@ html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content :is(.set
   margin: 0 0 8px;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content .form-group {
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content :is(.form-group, [data-rc-settings-field]) {
   min-width: 0;
   padding-block: 12px;
   margin-bottom: 0;
@@ -292,18 +384,37 @@ html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc
   gap: 8px 20px;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-field] > :is(label, .form-control-label) {
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-field] > :is(label, .form-control-label, .text-label) {
   grid-column: 1;
-  padding-top: 10px;
-}
-
-html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-field] > :not(label, .form-control-label) {
-  grid-column: 2;
   float: none !important;
-  width: 100% !important;
+  width: auto !important;
   min-width: 0;
   max-width: 100%;
   margin: 0;
+  padding-top: 10px;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-field] > :not(label, .form-control-label, .text-label),
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-control] {
+  float: none !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  margin: 0;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-field] > :not(label, .form-control-label, .text-label) {
+  grid-column: 2;
+}
+
+/* Reset the nested control width as well as its outer grid column. */
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-field] :is(
+  input:not(:where([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="hidden"], [type="button"], [type="submit"], [type="reset"], [type="file"])),
+  select, textarea, .input-dropdown-btn, [role="combobox"]
+) {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-panel] label:has(> input:is([type="checkbox"], [type="radio"])) {
@@ -416,10 +527,40 @@ html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content select o
   background: var(--rc-control-bg);
 }
 
-html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content input:is([type="checkbox"], [type="radio"]) {
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content :is(input:is([type="checkbox"], [type="radio"]), [data-rc-settings-choice]) {
+  box-sizing: border-box;
   accent-color: #335fff;
-  width: auto;
-  max-width: 100%;
+  flex: 0 0 20px;
+  width: 20px !important;
+  min-width: 20px !important;
+  max-width: 20px !important;
+  height: 20px !important;
+  min-height: 20px !important;
+  max-height: 20px !important;
+  margin: 0;
+  padding: 0;
+  vertical-align: middle;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content :is(input[type="radio"], [data-rc-settings-choice][role="radio"]) {
+  border-radius: 50%;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-choice][role="checkbox"] {
+  border-radius: 4px;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-choice] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--rc-control-border);
+  background-color: var(--rc-control-bg);
+  color: var(--rc-text);
+}
+
+html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-choice][aria-checked="true"] {
+  border-color: #335fff;
 }
 
 /* Preserve the native switch's track, thumb positions, labels, and state. */
@@ -568,6 +709,10 @@ html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [hidden]
 }
 
 @media (max-width: 767px) {
+  html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-surface] {
+    padding: 18px !important;
+  }
+
   html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-layout] {
     grid-template-columns: minmax(0, 1fr);
     row-gap: 16px;
@@ -621,11 +766,11 @@ html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [hidden]
     grid-template-columns: minmax(0, 1fr);
   }
 
-  html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-field] > :is(label, .form-control-label) {
+  html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-field] > :is(label, .form-control-label, .text-label) {
     padding-top: 0;
   }
 
-  html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-field] > :not(label, .form-control-label) {
+  html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-field] > :not(label, .form-control-label, .text-label) {
     grid-column: 1;
   }
 }

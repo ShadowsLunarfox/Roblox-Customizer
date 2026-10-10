@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Roblox Customizer",
+  "name": "__MSG_extensionName__",
+  "default_locale": "en",
   "version": "1.26.116",
-  "description": "Customize Roblox backgrounds and frosted menus, expand friends, pin games to Home, and display Robux currency estimates.",
+  "description": "__MSG_extensionDescription__",
   "icons": {
     "16": "icons/icon-16.png",
     "32": "icons/icon-32.png",
@@ -10,7 +11,7 @@
     "128": "icons/icon-128.png"
   },
   "action": {
-    "default_title": "Roblox Customizer",
+    "default_title": "__MSG_extensionName__",
     "default_icon": {
       "16": "icons/icon-16.png",
       "24": "icons/icon-24.png",
@@ -65,6 +66,9 @@
         "https://create.roblox.com/*"
       ],
       "js": [
+        "src/shared/runtime.js",
+        "src/shared/native-labels.js",
+        "src/shared/i18n.js",
         "src/currency/robux-currency-core.js",
         "src/currency/robux-currency.js"
       ],

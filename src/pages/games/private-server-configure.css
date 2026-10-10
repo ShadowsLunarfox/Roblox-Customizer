@@ -58,7 +58,12 @@ html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] [data-rc-
   backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
 }
 
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content [data-rc-private-config-panel] :is(
+/* Include native floated artwork in the complete page backing. */
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content[data-rc-private-config-panel] {
+  display: flow-root;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] :is(#content[data-rc-private-config-panel], #content [data-rc-private-config-panel]) :is(
   .section, .section-content, .section-container, .container-header, .section-header,
   [data-slot="card"], .bg-surface-100, .bg-surface-200
 ) {
@@ -138,6 +143,25 @@ html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content 
   border-radius: 10px;
   white-space: normal;
   overflow-wrap: anywhere;
+}
+
+/* Inline rename controls can be links or icon buttons, rather than the larger
+   named buttons used by the access and subscription forms. */
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(
+  .btn-generic-edit-sm, .btn-generic-edit-md, [role="button"]:has(.icon-edit)
+) {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 6px;
+  border: 1px solid var(--rc-control-border);
+  border-radius: 8px;
+  background-color: var(--rc-control-bg);
+  color: var(--rc-text);
+  vertical-align: middle;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(

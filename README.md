@@ -25,6 +25,9 @@ A browser extension for Chrome and Edge that adds custom backgrounds, frosted pa
 - **Game browsing tools:** View badge information and public/private server details. Search public servers by country, latency, ping, and player count, or sort by player count.
 - **Game data & social feeds:** Explore gamepasses, badges, and places using Roblox and Rolimons data. Browse X and YouTube feed panels where available, with separate visibility switches.
 - **Robux currency estimates:** Display approximate purchase equivalents in your chosen currency across Roblox and Creator Hub. Actual checkout prices may vary.
+- **Page recovery:** Resynchronize interface features after tab suspension or restoration, repair removed background layers, and release stalled requests so loading controls remain usable.
+- **Chinese page compatibility:** Native section and control detection supports Simplified and Traditional Chinese, including live language changes, private servers, avatar categories, chat, and compact Robux amounts.
+- **Chinese extension interface:** Settings, Home controls, server filters, profile details, previews, and feed controls are available in English, 简体中文, and 繁體中文. Follow Roblox's language automatically or choose the extension language yourself.
 
 ## 🪄 Pages & elements modified
 
@@ -38,7 +41,7 @@ A browser extension for Chrome and Edge that adds custom backgrounds, frosted pa
 | Marketplace | `/catalog`, `/catalog/{id}`, `/bundles/{id}` | Browsing cards, item and bundle previews, details, and resale panels. |
 | Profiles & Avatar | `/users/{id}/profile`, `/my/avatar` | Profile sections, avatar previews, and editor panels. |
 | Friends & Inventory | `/users/{id}/friends`, `/users/{id}/inventory` | Tabs, search controls, and list/card styling. |
-| Account settings | `/my/account` | Settings navigation, Account Info and Robux panels, edit controls, personal forms, and social network fields. |
+| Account settings | `/my/account` | Settings navigation; Account Info, Robux, Browser preferences, Parental controls, Notifications, Privacy, and Security panels; device sessions, edit controls, and form fields. |
 | Account & activity | `/plus`, `/my/messages`, `/trades`, `/transactions` | Membership, messaging, trading, and transaction panels. |
 | Communities | `/search/communities`, `/communities/{id}`, `/communities/create` | Search results, community pages, and creation forms; legacy group routes are also supported. |
 | Robux | `/upgrades/robux` | Purchase options and pricing panels. |
@@ -61,9 +64,10 @@ No build step is required. Keep the unpacked extension folder in a permanent loc
 
 Changes apply immediately and save automatically.
 
+- **Choose your language:** Open the Customizer settings and use **Extension language / 扩展语言 / 擴充功能語言**. Choose **Automatic** to follow Roblox (or your browser when Roblox has no language setting), or select English, 简体中文, or 繁體中文. This setting changes extension controls; game titles, descriptions, and posts keep their original content.
 - **Set the mood:** Select a local background or paste a direct HTTPS media URL, then adjust image fit, dimming, blur, and opacity. GIFs and MP4 videos remain animated.
 - **Make Home yours:** Set morning, afternoon, and evening greetings; choose 12- or 24-hour time, seconds, and date visibility; adjust friend rows and section switches.
-- **Keep favorite games close:** Use the pin button beside Favorite on a game page. Your pinned games appear on Home with join and unpin controls.
+- **Keep favorite games close:** Use **Pin Game** on a game page to pin public or non-public experiences to Home. The button is also available on private game pages without Favorite. Up to 10 games are saved locally with join and unpin controls; joining still follows Roblox's access permissions.
 - **Curate recommendations:** Click **Hide** on a recommended game. Restore it through **Hidden recommendations** in the plugin settings.
 - **Find a server:** Open a game's Servers tab, set your filters, and click **Search**. Use **Previous/Next** to browse results or **Reset** to clear the filters.
 - **Choose a currency:** Find a currency by name or code in the converter settings. Use **Refresh rates** to update available exchange rates.
@@ -91,6 +95,7 @@ Preferences and pinned games are stored locally in your browser. Local backgroun
 Roblox Customizer/
 ├── manifest.json          Extension entry point and permissions
 ├── icons/                 Extension icons and logo
+├── _locales/              English, Simplified Chinese, and Traditional Chinese extension metadata
 ├── src/
 │   ├── background/        Service worker and background feature handlers
 │   ├── shared/            Startup, page bridge, and shared interface styles

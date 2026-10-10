@@ -77,6 +77,7 @@
     });
   }
 
+  globalThis.RobloxCustomizerRuntime?.onResume(queueSync);
   new MutationObserver(records => {
     if (records.some(record =>
       !(record.target instanceof Element && record.target.closest('#rc-home-greeting')))) {

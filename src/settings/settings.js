@@ -1,12 +1,15 @@
 (() => {
   'use strict';
 
+  const sendMessage = globalThis.RobloxCustomizerRuntime?.sendMessage
+    || ((...args) => chrome.runtime.sendMessage(...args));
+
   const STORAGE_KEY = 'customBackground';
   const DB_NAME = 'roblox-customizer-media';
   const STORE_NAME = 'backgrounds';
   const DEFAULTS = {
     source: 'none', url: '', urlType: 'auto', fileKey: '', fileName: '',
-    fit: 'cover', dim: 20, glassBlur: 18, glassOpacity: 62,
+    fit: 'cover', dim: 20, glassBlur: 18, glassOpacity: 62, uiLanguage: 'auto',
     hideFavorites: false, hideStandoutGames: false,
     hideRecommendedUpper: false, hideRecommendedLower: false,
     hiddenRecommendedGames: [], friendRows: 3,
@@ -16,6 +19,7 @@
   };
   let settings = { ...DEFAULTS };
   let activeObjectUrl = null;
+  let backgroundLayer = null;
   let applyGeneration = 0;
   let modal = null;
   let lastFocus = null;
@@ -55,6 +59,7 @@
     delete saved.clockShowTimeZone;
     delete saved.clockDateFormat;
     delete saved.clockTimeZone;
+    if (!['auto', 'en', 'zh-CN', 'zh-TW'].includes(saved.uiLanguage)) saved.uiLanguage = 'auto';
     return { ...DEFAULTS, ...saved };
   }
 
@@ -159,6 +164,7 @@
       layer.setAttribute('aria-hidden', 'true');
       document.body.prepend(layer);
     }
+    backgroundLayer = layer;
     return layer;
   }
 
@@ -185,11 +191,13 @@
       : hour >= 12 && hour < 18 ? 'greetingAfternoon' : 'greetingEvening';
     const fallback = key === 'greetingMorning' ? 'good morning!'
       : key === 'greetingAfternoon' ? 'good afternoon!' : 'good evening!';
-    return typeof settings[key] === 'string' ? settings[key].trim().slice(0, 100) || fallback : fallback;
+    const translated = globalThis.RobloxCustomizerI18n?.t(fallback) || fallback;
+    return typeof settings[key] === 'string' ? settings[key].trim().slice(0, 100) || translated : translated;
   }
 
   function homeDateText(now) {
-    return homeFormatter('date|medium', undefined, { dateStyle: 'medium' }).format(now);
+    const locale = globalThis.RobloxCustomizerI18n?.locale();
+    return homeFormatter(`date|medium|${locale}`, locale, { dateStyle: 'medium' }).format(now);
   }
 
   function updateHomeGreeting() {
@@ -216,7 +224,7 @@
     image.hidden = !imageUrl;
     initial.hidden = !!imageUrl;
     initial.textContent = (displayName || '?').slice(0, 1).toUpperCase();
-    avatar.setAttribute('aria-label', displayName ? `${displayName}'s avatar` : 'Player avatar');
+    setUIAttribute(avatar, 'aria-label', displayName ? `${displayName}'s avatar` : 'Player avatar');
 
     const clock = card.querySelector('.rc-home-greeting-time');
     const showSeconds = settings.clockShowSeconds !== false;
@@ -241,7 +249,7 @@
       || homeGreetingRequest || homeGreetingAttempts >= 3) return;
     homeGreetingAttempts++;
     homeGreetingRequest = new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage({ type: 'rc-home-user' }, result => {
+      sendMessage({ type: 'rc-home-user' }, result => {
         const error = chrome.runtime.lastError;
         if (error || result?.error || !Number.isSafeInteger(result?.id)) {
           reject(new Error(error?.message || result?.error || 'Player details unavailable.'));
@@ -285,6 +293,8 @@
   }
 
   function homeSectionKind(text) {
+    const localized = globalThis.RobloxCustomizerNativeLabels?.classify('home', text);
+    if (localized) return localized;
     const title = (text || '').trim().replace(/\s+/g, ' ');
     if (title.length > 200) return '';
     if (/^Favorites\s*[→›»>]?\s*$/i.test(title)) return 'favorites';
@@ -297,10 +307,19 @@
     const sections = new Map();
     const protectedSections = '.friend-carousel-container, #rc-pinned-games, #rc-home-greeting, #rc-settings-overlay';
     const headingSelector = 'h1, h2, h3, h4, [role="heading"], .game-home-page-carousel-title, .game-carousel-title';
-    const labelledTitles = '[aria-label^="Favorites" i], [aria-label^="Standout Games" i], [aria-label^="Recommended For You" i], [aria-label^="Recommended Games" i]';
+    const headingKind = node => {
+      const direct = homeSectionKind(node.getAttribute('aria-label')) || homeSectionKind(node.textContent);
+      if (direct || !node.matches(headingSelector)) return direct;
+      // Native headings can contain a translated action or an icon label.
+      // Match their title child without treating that action as a new section.
+      const kinds = new Set([...node.children].map(child => homeSectionKind(child.getAttribute('aria-label'))
+        || homeSectionKind(child.textContent)).filter(Boolean));
+      return kinds.size === 1 ? [...kinds][0] : '';
+    };
+    const labelledTitles = '[aria-label]';
     for (const heading of home.querySelectorAll(`${headingSelector}, ${labelledTitles}, span, div`)) {
       if (heading.closest(`${protectedSections}, ${cardSelector}`) || heading.childElementCount > 3) continue;
-      const kind = homeSectionKind(heading.getAttribute('aria-label') || heading.textContent);
+      const kind = headingKind(heading);
       if (!kind || [...heading.children].some(child => homeSectionKind(child.textContent) === kind)) continue;
       for (let section = heading.parentElement; section && section !== home && section !== document.body;
         section = section.parentElement) {
@@ -308,7 +327,7 @@
         // Do not hide a shared wrapper containing another Home section, such as Continue.
         if ([...section.querySelectorAll(headingSelector)].some(other =>
           !other.closest(cardSelector) && other.textContent.trim()
-          && homeSectionKind(other.textContent) !== kind)) break;
+          && headingKind(other) !== kind)) break;
         if (!section.querySelector(gameSelector) && !section.matches(
           '.game-sort-carousel-container, .game-carousel-container, .game-home-page-carousel-container, .game-grid-container')) continue;
         sections.set(section, kind);
@@ -389,8 +408,8 @@
           button.textContent = 'Hide';
           card.append(button);
         }
-        button.setAttribute('aria-label', `Hide ${card.dataset.rcRecommendedName} from recommendations`);
-        button.title = 'Hide this recommendation';
+        setUIAttribute(button, 'aria-label', `Hide ${card.dataset.rcRecommendedName} from recommendations`);
+        setUIAttribute(button, 'title', 'Hide this recommendation');
       }
     }
     for (const card of home.querySelectorAll('[data-rc-recommended-card]')) {
@@ -539,7 +558,9 @@
     for (const item of candidates) {
       if (item.closest('#rc-settings-overlay, .rc-settings-menu-entry')) continue;
       const label = (item.textContent || '').trim().replace(/\s+/g, ' ');
-      if (!/^Settings$/i.test(label)) continue;
+      const accountLink = item.matches('a[href*="/my/account"]');
+      if (!accountLink && !/^Settings$/i.test(label)
+        && !globalThis.RobloxCustomizerNativeLabels?.matches('settings', label)) continue;
       const rect = item.getBoundingClientRect();
       if (!rect.width || !rect.height || rect.top > 450) continue;
       if (item.matches('button') && rect.top < 40
@@ -563,6 +584,11 @@
     icon.setAttribute('aria-hidden', 'true');
     brand.append(icon, document.createTextNode('Roblox Customizer'));
     entry.replaceChildren(brand);
+  }
+
+  function setUIAttribute(node, attribute, source) {
+    const translated = globalThis.RobloxCustomizerI18n?.t(source) || source;
+    if (node.getAttribute(attribute) !== translated) node.setAttribute(attribute, source);
   }
 
   function syncMenu() {
@@ -693,6 +719,9 @@
   }
 
   function applyCurrentSettings(previous) {
+    globalThis.RobloxCustomizerI18n?.setLanguage(settings.uiLanguage);
+    const language = modal?.querySelector('#rc-ui-language');
+    if (language) language.value = settings.uiLanguage;
     applyGlass();
     document.documentElement?.toggleAttribute('data-rc-hide-x-feed', settings.hideXFeed === true);
     document.documentElement?.toggleAttribute('data-rc-hide-youtube-feed', settings.hideYouTubeFeed === true);
@@ -825,6 +854,15 @@
           <button type="button" id="rc-close" class="rc-icon-button" aria-label="Close">&times;</button>
         </div>
         <p class="rc-settings-intro">Changes apply immediately and save automatically. GIFs and MP4 videos stay animated.</p>
+        <div class="rc-settings-language">
+          <label for="rc-ui-language">Extension language</label>
+          <select id="rc-ui-language">
+            <option value="auto">Automatic (Roblox / browser)</option>
+            <option value="en">English</option>
+            <option value="zh-CN">简体中文</option>
+            <option value="zh-TW">繁體中文</option>
+          </select>
+        </div>
         <div id="rc-currency-settings" class="rc-settings-currency"></div>
         <label class="rc-source-label rc-default-source"><input type="radio" name="rc-source" value="none"> Roblox default background</label>
         <div class="rc-settings-field">
@@ -949,6 +987,10 @@
       ['evening', 'greetingEvening']]) {
       modal.querySelector(`#rc-greeting-${id}`).value = typeof settings[key] === 'string' ? settings[key] : '';
     }
+    modal.querySelector('#rc-ui-language').value = settings.uiLanguage;
+    modal.querySelector('#rc-ui-language').addEventListener('change', event => {
+      changeSettings({ ...settings, uiLanguage: event.target.value }, true);
+    });
     modal.querySelector('#rc-current-file').textContent = settings.fileName ? `Current file: ${settings.fileName}` : '';
     refreshSourceControls();
     if (backgroundError) setStatus(backgroundError, true);
@@ -1100,18 +1142,31 @@
   });
 
   new MutationObserver(records => {
-    if (backgroundPending && document.body) void applyBackground();
+    if (document.body && (backgroundPending || backgroundLayer && !backgroundLayer.isConnected)) {
+      void applyBackground();
+    }
     const outsideGreeting = records.filter(record =>
       !(record.target instanceof Element && record.target.closest('#rc-home-greeting')));
     if (outsideGreeting.some(record => record.type === 'childList'
       ? record.addedNodes.length || record.removedNodes.length
-      : homeSectionKind(record.oldValue) || homeSectionKind(record.target.textContent))) queueHomeSync();
-    if (outsideGreeting.some(record => record.type === 'childList')) {
+      : homeSectionKind(record.oldValue) || homeSectionKind(record.target.getAttribute?.('aria-label'))
+        || homeSectionKind(record.target.textContent))) queueHomeSync();
+    if (outsideGreeting.some(record => record.type === 'childList' || record.type === 'attributes')) {
       queueMenuSync();
       syncFrostPage();
     }
-  }).observe(document, { childList: true, subtree: true, characterData: true, characterDataOldValue: true });
+  }).observe(document, { childList: true, subtree: true, characterData: true, characterDataOldValue: true,
+    attributes: true, attributeOldValue: true, attributeFilter: ['aria-label'] });
   queueMenuSync();
+
+  globalThis.RobloxCustomizerRuntime?.onResume(() => {
+    syncFrostPage();
+    queueHomeSync();
+    queueMenuSync();
+    scheduleHomeGreetingTick();
+    if (!document.getElementById('rc-background-layer')) void applyBackground();
+  });
+  globalThis.RobloxCustomizerI18n?.onChange(updateHomeGreeting);
 
   chrome.storage.local.get(STORAGE_KEY).then(result => {
     if (settingsChanged) return;

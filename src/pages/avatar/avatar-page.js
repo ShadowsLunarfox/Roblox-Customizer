@@ -1,6 +1,9 @@
 (() => {
   'use strict';
 
+  const sendMessage = globalThis.RobloxCustomizerRuntime?.sendMessage
+    || ((...args) => chrome.runtime.sendMessage(...args));
+
   const AVATAR_PATH = /^\/my\/avatar(?:\/|$)/i;
   const PREVIEW_SELECTORS = [
     '#avatar-preview', '#avatar-preview-container', '.avatar-preview-container',
@@ -141,8 +144,9 @@
     const normalize = value => value.trim().replace(/\s+/g, ' ')
       .replace(/[\u2304\u2303\u25be\u25b4\u25bc\u25b2]+$/g, '')
       .trim().toLowerCase().replace(/ (?:menu|tab)$/, '');
-    const visible = normalize(node.textContent || '');
-    const accessible = normalize(node.getAttribute('aria-label') || '');
+    const canonical = value => globalThis.RobloxCustomizerNativeLabels?.classify('avatar', value) || normalize(value);
+    const visible = canonical(node.textContent || '');
+    const accessible = canonical(node.getAttribute('aria-label') || '');
     if (MAIN_CATEGORY_LABELS.has(visible) || SUBCATEGORY_LABELS.has(visible)) return visible;
     if (MAIN_CATEGORY_LABELS.has(accessible) || SUBCATEGORY_LABELS.has(accessible)) return accessible;
     return visible || accessible;
@@ -382,7 +386,8 @@
     const controls = [...scope.querySelectorAll(selectors)].filter(node => {
       const label = (node.getAttribute('aria-label') || node.getAttribute('title')
         || node.textContent || '').trim();
-      return /^(?:2d|2d view|switch to 2d|view in 2d)$/i.test(label);
+      return /^(?:2d|2d view|switch to 2d|view in 2d)$/i.test(label)
+        || globalThis.RobloxCustomizerNativeLabels?.previewMode(label) === '2';
     });
     if (!controls.length) {
       for (const label of scope.querySelectorAll('span, div')) {
@@ -444,7 +449,7 @@
     const image = panel.querySelector('img');
     button.disabled = true;
     status.textContent = image.hidden ? 'Loading 2D preview...' : 'Updating 2D preview...';
-    chrome.runtime.sendMessage({ type: 'rc-avatar-2d' }, result => {
+    sendMessage({ type: 'rc-avatar-2d' }, result => {
       if (sequence !== requestSequence || !panel?.isConnected || !onAvatarPage()) return;
       button.disabled = false;
       if (chrome.runtime.lastError || result?.error || !result) {
@@ -510,7 +515,8 @@
       button = [...scope.querySelectorAll('button, a, [role="button"], [role="tab"]')].find(control => {
         const label = (control.getAttribute('aria-label') || control.getAttribute('title')
           || control.textContent || '').trim();
-        return /^(?:3d|view in 3d|3d view)$/i.test(label);
+        return /^(?:3d|view in 3d|3d view)$/i.test(label)
+          || globalThis.RobloxCustomizerNativeLabels?.previewMode(label) === '3';
       });
       if (button) break;
     }
@@ -633,7 +639,7 @@
       syncQueued = false;
       observer.disconnect();
       try { sync(); }
-      finally { observer.observe(document, { childList: true, subtree: true }); }
+      finally { observer.observe(document, OBSERVER_OPTIONS); }
     });
   }
 
@@ -657,21 +663,26 @@
   }, true);
   addEventListener('popstate', queueSync);
   addEventListener('hashchange', queueSync);
+  globalThis.RobloxCustomizerRuntime?.onResume(queueSync);
   addEventListener('resize', () => {
     updatePageWidth();
     queueSync();
   });
   addEventListener('load', queueSync, { once: true });
   document.addEventListener('DOMContentLoaded', queueSync, { once: true });
+  const OBSERVER_OPTIONS = { childList: true, characterData: true, subtree: true,
+    attributes: true, attributeFilter: ['aria-label', 'title'] };
   const observer = new MutationObserver(records => {
     if (!onAvatarPage()) {
       if (markedPage) queueSync();
       return;
     }
-    if (records.some(record => [...record.addedNodes, ...record.removedNodes].some(node =>
+    if (records.some(record => record.type !== 'childList'
+      ? !(record.target.nodeType === Node.ELEMENT_NODE ? record.target : record.target.parentElement)?.closest('#rc-avatar-2d')
+      : [...record.addedNodes, ...record.removedNodes].some(node =>
       node.nodeType === Node.ELEMENT_NODE && node.id !== 'rc-avatar-2d'
       && !node.closest?.('#rc-avatar-2d')))) queueSync();
   });
-  observer.observe(document, { childList: true, subtree: true });
+  observer.observe(document, OBSERVER_OPTIONS);
   queueSync();
 })();

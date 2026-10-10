@@ -3,10 +3,14 @@
 
   const NATIVE_HOST = '#chat-container, #dialog-container, .react-chat-root';
   const NATIVE_PANEL = '#chat-main, .chat-main, .dialog-container, .dialog-main, .react-chat-dialog-shell';
-  const CHAT_LIST_PANEL = 'section[aria-label="Chat"]';
+  const CHAT_LIST_PANEL = 'section[aria-label="Chat" i], section[aria-label="聊天"]';
   const CHAT_INPUT = 'input[placeholder="Search for friends" i], '
     + 'textarea[placeholder="Send a message" i], input[placeholder="Send a message" i], '
     + '[contenteditable="true"][aria-label="Send a message" i], '
+    + 'input[placeholder="搜索好友"], input[placeholder="搜尋好友"], input[placeholder="搜尋朋友"], '
+    + 'textarea[placeholder="发送消息"], textarea[placeholder="傳送訊息"], '
+    + '.react-chat-root textarea, .react-chat-dialog-shell textarea, '
+    + '.react-chat-root [contenteditable="true"], .react-chat-dialog-shell [contenteditable="true"], '
     + '[data-testid="chat-input"], [data-testid="chat-search-input"]';
   const CHAT_HEADER = 'button, [role="button"], [aria-label="Chat" i], [title="Chat" i], '
     + 'h1, h2, h3, h4, h5, h6, span, p, div';
@@ -82,7 +86,9 @@
     const label = node.getAttribute('aria-label') || node.getAttribute('title');
     const text = Array.from(node.childNodes).filter(child => child.nodeType === 3)
       .map(child => child.textContent).join(' ').trim();
-    return /^chat$/i.test(label || '') || /^chat$/i.test(text);
+    return /^chat$/i.test(label || '') || /^chat$/i.test(text)
+      || globalThis.RobloxCustomizerNativeLabels?.matches('chat', label)
+      || globalThis.RobloxCustomizerNativeLabels?.matches('chat', text);
   }
 
   function panelForHeader(header) {
@@ -292,6 +298,7 @@
     attributeFilter: ['class', 'id', 'placeholder', 'aria-label', 'title', 'style']
   });
   addEventListener('resize', () => queueSync(document));
+  globalThis.RobloxCustomizerRuntime?.onResume(() => queueSync(document));
   document.addEventListener('focusin', event => {
     if (event.target instanceof Element && event.target.matches(CHAT_INPUT)) queueSync(event.target);
   });

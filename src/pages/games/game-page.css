@@ -268,7 +268,7 @@ html[data-rc-ui-active] #game-detail-page #game-instances > .section-content {
 }
 
 #game-detail-page #game-instances
-div:has(> div > div > a[aria-label="Configure"][href*="/private-server/configure?"])
+div:has(> div > div > a:is([href*="/private-server/configure?"], [href*="/private-server/configure/"]))
 > div:has(.text-title-medium):not([data-rc-private-server-ready]),
 #game-detail-page #game-instances [data-rc-private-server-list]
 > div:has(.text-title-medium):not([data-rc-private-server-ready]),

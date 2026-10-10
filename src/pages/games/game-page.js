@@ -1,11 +1,14 @@
 (() => {
   'use strict';
 
+  const sendMessage = globalThis.RobloxCustomizerRuntime?.sendMessage
+    || ((...args) => chrome.runtime.sendMessage(...args));
+
   const GAME_PATH = /^\/games\/\d+(?:\/|$)/;
   const COMMUNITY_PATH = /^\/(?:communities|groups)\/(\d+)(?:\/|$)/i;
   const PROFILE_PATH = /^\/users\/(\d+)\/profile(?:\/|$)/i;
   const TAB_IDS = ['tab-about', 'tab-store', 'tab-game-instances'];
-  const PRIVATE_SERVER_CONFIGURE_SELECTOR = 'a[aria-label="Configure"][href*="/private-server/configure?"]';
+  const PRIVATE_SERVER_CONFIGURE_SELECTOR = 'a[href*="/private-server/configure?"], a[href*="/private-server/configure/"]';
   const PRIVATE_SERVER_SECTION_SELECTOR = '#private-server-container, #private-game-instances-container, '
     + '[data-rc-private-server-list], .rc-private-server-more';
   const NON_PUBLIC_SERVER_SECTION_SELECTOR = PRIVATE_SERVER_SECTION_SELECTOR
@@ -59,10 +62,10 @@
   const publicServerBrowsers = new WeakMap();
   const rolimonsPageData = new WeakMap();
   const robloxGamePageData = new WeakMap();
-  const badgeDateFormatter = new Intl.DateTimeFormat('en-US', {
+  let badgeDateFormatter = new Intl.DateTimeFormat(globalThis.RobloxCustomizerI18n?.locale() || 'en-US', {
     year: 'numeric', month: 'short', day: 'numeric'
   });
-  const badgeDateTimeFormatter = new Intl.DateTimeFormat('en-US', {
+  let badgeDateTimeFormatter = new Intl.DateTimeFormat(globalThis.RobloxCustomizerI18n?.locale() || 'en-US', {
     dateStyle: 'medium', timeStyle: 'short'
   });
 
@@ -116,7 +119,7 @@
     if (cached && Date.now() < cached.expiresAt) return cached;
     if (communitySocialPending.has(groupId)) return cached || null;
     communitySocialPending.add(groupId);
-    chrome.runtime.sendMessage({ type: 'rc-community-social-links', groupId: Number(groupId) }, response => {
+    sendMessage({ type: 'rc-community-social-links', groupId: Number(groupId) }, response => {
       communitySocialPending.delete(groupId);
       const failed = !!chrome.runtime.lastError || !response || !!response.error;
       communitySocialCache.set(groupId, {
@@ -252,7 +255,8 @@
     for (const item of items) {
       const label = (item.querySelector('.text-label, [class*="stat-label"]')?.textContent
         || item.firstElementChild?.textContent || '').replace(/\s+/g, ' ').trim();
-      const live = /^(?:active|playing|currently playing|current players|active players|players online)$/i.test(label);
+      const live = /^(?:active|playing|currently playing|current players|active players|players online)$/i.test(label)
+        || globalThis.RobloxCustomizerNativeLabels?.matches('livePlayers', label);
       if (item.hasAttribute('data-rc-live-players') !== live) {
         item.toggleAttribute('data-rc-live-players', live);
       }
@@ -273,11 +277,13 @@
     const semanticHeadings = [...store.querySelectorAll('h1, h2, h3, h4, h5, h6, [role="heading"]')];
     const headings = [];
 
-    for (const [label, key] of labels) {
-      let heading = semanticHeadings.find(node => normalize(node) === label);
+    const kind = node => globalThis.RobloxCustomizerNativeLabels?.classify('store', normalize(node))
+      || labels.get(normalize(node));
+    for (const key of ['subscriptions', 'passes', 'products']) {
+      let heading = semanticHeadings.find(node => kind(node) === key);
       if (!heading) {
         heading = [...store.querySelectorAll('div, span, p')]
-          .filter(node => normalize(node) === label)
+          .filter(node => kind(node) === key && !node.closest('.card-item, .store-card, .item-card-container'))
           .sort((a, b) => a.querySelectorAll('*').length - b.querySelectorAll('*').length)[0];
       }
       if (!heading) continue;
@@ -380,7 +386,7 @@
     if (xAccountPending.has(placeId)) return cached?.handle || null;
     xAccountPending.add(placeId);
     const universeId = Number(page.querySelector('#game-detail-meta-data')?.getAttribute('data-universe-id'));
-    chrome.runtime.sendMessage({ type: 'rc-game-x-link', placeId: Number(placeId), universeId }, response => {
+    sendMessage({ type: 'rc-game-x-link', placeId: Number(placeId), universeId }, response => {
       xAccountPending.delete(placeId);
       const failed = !!chrome.runtime.lastError || !response || !!response.error;
       const handle = !failed && typeof response.url === 'string'
@@ -401,7 +407,7 @@
     if (youtubeLinkPending.has(placeId)) return cached?.url || null;
     youtubeLinkPending.add(placeId);
     const universeId = Number(page.querySelector('#game-detail-meta-data')?.getAttribute('data-universe-id'));
-    chrome.runtime.sendMessage({ type: 'rc-game-youtube-link', placeId: Number(placeId), universeId }, response => {
+    sendMessage({ type: 'rc-game-youtube-link', placeId: Number(placeId), universeId }, response => {
       youtubeLinkPending.delete(placeId);
       const failed = !!chrome.runtime.lastError || !response || !!response.error;
       const url = !failed && typeof response.url === 'string'
@@ -486,7 +492,7 @@
     panel.classList.toggle('rc-x-feed-collapsed', !expanded);
     const toggle = panel.querySelector('.rc-x-feed-toggle');
     const label = expanded ? 'Collapse' : 'Preview';
-    if (toggle.textContent !== label) toggle.textContent = label;
+    setText(toggle, label);
     toggle.setAttribute('aria-expanded', String(expanded));
   }
 
@@ -497,7 +503,7 @@
     const retry = panel.querySelector('.rc-x-feed-retry');
     retry.disabled = true;
     status.textContent = 'Loading recent posts via FxEmbed...';
-    chrome.runtime.sendMessage({ type: 'rc-x-posts', handle, force }, response => {
+    sendMessage({ type: 'rc-x-posts', handle, force }, response => {
       if (!panel.isConnected || panel.dataset.handle !== handle) return;
       retry.disabled = false;
       if (chrome.runtime.lastError || !Array.isArray(response?.posts)) {
@@ -521,6 +527,7 @@
         }
         const text = document.createElement('div');
         text.className = 'rc-x-feed-post-text';
+        if (post.text) text.setAttribute('data-rc-i18n-ignore', '');
         text.textContent = post.text || 'View post on X';
         card.append(text);
         const imageUrls = Array.isArray(post.images) ? post.images : [post.imageUrl];
@@ -534,7 +541,7 @@
             frame.className = 'rc-x-feed-media-item';
             frame.textContent = 'Loading image...';
             gallery.append(frame);
-            chrome.runtime.sendMessage({ type: 'rc-x-image', url }, response => {
+            sendMessage({ type: 'rc-x-image', url }, response => {
               if (!frame.isConnected) return;
               if (chrome.runtime.lastError || typeof response?.dataUrl !== 'string'
                 || !/^data:image\/(?:jpeg|png|webp|gif);base64,/.test(response.dataUrl)) {
@@ -568,7 +575,7 @@
     const retry = panel.querySelector('.rc-x-feed-retry');
     retry.disabled = true;
     status.textContent = 'Loading recent videos from YouTube...';
-    chrome.runtime.sendMessage({ type: 'rc-youtube-videos', channelUrl, force }, response => {
+    sendMessage({ type: 'rc-youtube-videos', channelUrl, force }, response => {
       if (!panel.isConnected || panel.dataset.channelUrl !== channelUrl) return;
       retry.disabled = false;
       if (chrome.runtime.lastError || !Array.isArray(response?.videos)) {
@@ -599,6 +606,7 @@
         card.append(gallery);
         const text = document.createElement('div');
         text.className = 'rc-x-feed-post-text';
+        if (video.title) text.setAttribute('data-rc-i18n-ignore', '');
         text.textContent = video.title || 'Watch video on YouTube';
         card.append(text);
         const date = typeof video.published === 'string' ? new Date(video.published) : null;
@@ -609,7 +617,7 @@
           card.append(time);
         }
         list.append(card);
-        chrome.runtime.sendMessage({ type: 'rc-youtube-image', videoId: video.id }, imageResponse => {
+        sendMessage({ type: 'rc-youtube-image', videoId: video.id }, imageResponse => {
           if (!frame.isConnected) return;
           if (chrome.runtime.lastError || typeof imageResponse?.dataUrl !== 'string'
             || !/^data:image\/(?:jpeg|png|webp|gif);base64,/.test(imageResponse.dataUrl)) {
@@ -618,6 +626,7 @@
           }
           const image = document.createElement('img');
           image.alt = video.title || 'YouTube video thumbnail';
+          if (video.title) image.setAttribute('data-rc-i18n-ignore', '');
           image.loading = 'lazy';
           image.addEventListener('error', () => { frame.textContent = 'Thumbnail unavailable'; }, { once: true });
           image.src = imageResponse.dataUrl;
@@ -846,7 +855,9 @@
     }
     label.dateTime = date.toISOString();
     setText(label, `Earned ${badgeDateFormatter.format(date)}`);
-    label.title = `Earned ${badgeDateTimeFormatter.format(date)}`;
+    const title = `Earned ${badgeDateTimeFormatter.format(date)}`;
+    if (globalThis.RobloxCustomizerI18n) globalThis.RobloxCustomizerI18n.attribute(label, 'title', title);
+    else label.title = title;
     const name = row.querySelector('.badge-name');
     if (name && label.previousElementSibling !== name) name.insertAdjacentElement('afterend', label);
     else if (!label.isConnected) (row.querySelector('.badge-content') || row).append(label);
@@ -876,7 +887,7 @@
     if (!ids.length) return;
 
     badgeRequest = true;
-    chrome.runtime.sendMessage({ type: 'rc-badge-ownership', badgeIds: ids }, response => {
+    sendMessage({ type: 'rc-badge-ownership', badgeIds: ids }, response => {
       badgeRequest = false;
       if (chrome.runtime.lastError || !Array.isArray(response?.ownedBadgeIds)) {
         badgeRetryAfter = Date.now() + 30_000;
@@ -902,7 +913,8 @@
   }
 
   function setText(node, value) {
-    if (node.textContent !== value) node.textContent = value;
+    const matches = globalThis.RobloxCustomizerI18n?.matches(node, value) ?? node.textContent === value;
+    if (!matches) node.textContent = value;
   }
 
   function renderServerMetrics(host, details, locationLookup = null) {
@@ -916,7 +928,7 @@
     let countryName = '';
     if (typeof code === 'string' && /^[A-Z]{2}$/i.test(code)) {
       try {
-        countryName = new Intl.DisplayNames([document.documentElement.lang || 'en'],
+        countryName = new Intl.DisplayNames([globalThis.RobloxCustomizerI18n?.locale() || document.documentElement.lang || 'en'],
           { type: 'region' }).of(code.toUpperCase()) || '';
       } catch { countryName = code.toUpperCase(); }
     }
@@ -946,11 +958,14 @@
     if (countryName) {
       setText(countryNode, `${countryState?.estimated && !details?.countryCode
         ? 'Approx. country' : 'Country'} ${countryName}`);
-      countryNode.title = countryState?.estimated && !details?.countryCode
+      const title = countryState?.estimated && !details?.countryCode
         ? 'Estimated from the server address; Roblox routing may differ.' : '';
+      if (globalThis.RobloxCustomizerI18n) globalThis.RobloxCustomizerI18n.attribute(countryNode, 'title', title);
+      else countryNode.title = title;
     } else if (countryPending) {
       setText(countryNode, 'Finding country...');
-      countryNode.title = 'Detecting the server country automatically.';
+      if (globalThis.RobloxCustomizerI18n) globalThis.RobloxCustomizerI18n.attribute(countryNode, 'title', 'Detecting the server country automatically.');
+      else countryNode.title = 'Detecting the server country automatically.';
     }
     metrics.querySelector('.rc-server-locate')?.remove();
   }
@@ -967,7 +982,7 @@
       const request = publicCountryQueue.shift();
       if (request.placeId !== publicStatusPlaceId) continue;
       activePublicCountryRequests += 1;
-      chrome.runtime.sendMessage({ type: 'rc-public-server-country',
+      sendMessage({ type: 'rc-public-server-country',
         placeId: request.placeId, serverId: request.id }, response => {
         activePublicCountryRequests -= 1;
         if (publicStatusPlaceId === request.placeId) {
@@ -1049,6 +1064,8 @@
     for (const link of row.querySelectorAll('a[href]')) {
       try {
         const url = new URL(link.href, location.href);
+        const pathId = Number(url.pathname.match(/^\/private-server\/configure\/(\d+)\/?$/)?.[1]);
+        if (Number.isSafeInteger(pathId) && pathId > 0) return pathId;
         for (const name of ['privateServerId', 'vipServerId']) {
           const id = Number(url.searchParams.get(name));
           if (Number.isSafeInteger(id) && id > 0) return id;
@@ -1074,6 +1091,8 @@
       if (Number.isSafeInteger(count) && count >= 0) return count;
     }
     const status = card.querySelector('.game-server-status, .server-player-count') || card;
+    const localized = globalThis.RobloxCustomizerNativeLabels?.playerCount(status.textContent);
+    if (localized) return localized.playing;
     const count = status.textContent.match(/\b([\d,]+)\s*(?:of|\/)\s*[\d,]+\b/i)?.[1]
       || status.textContent.match(/\b([\d,]+)\s+(?:players?|people)\b/i)?.[1];
     const value = Number(count?.replaceAll(',', ''));
@@ -1140,7 +1159,8 @@
     return [...container.querySelectorAll('button, a[role="button"]')].find(button =>
       !button.closest(NON_PUBLIC_SERVER_SECTION_SELECTOR)
       && !button.closest('.rc-public-server-pagination, .rc-public-server-filters')
-      && /^Load More(?: Servers)?$/i.test(button.textContent.trim())) || null;
+      && (/^Load More(?: Servers)?$/i.test(button.textContent.trim())
+        || globalThis.RobloxCustomizerNativeLabels?.matches('loadMore', button.textContent))) || null;
   }
 
   function sortNativePublicServers(container, order) {
@@ -1151,7 +1171,8 @@
     const option = order === 'default'
       ? [...select.options].find(item => item.value === select.dataset.rcDefaultSort)
       : [...select.options].find(item => new RegExp(order === 'asc'
-        ? 'asc|fewest|lowest|low to high' : 'desc|most|highest|high to low', 'i')
+        ? 'asc|fewest|lowest|low to high|升序|递增|遞增|从少到多|從少到多|由少到多'
+        : 'desc|most|highest|high to low|降序|递减|遞減|从多到少|從多到少|由多到少', 'i')
         .test(`${item.value} ${item.textContent}`));
     if (!option || select.value === option.value) return false;
     // React owns this select. Use its native setter so the change reaches Roblox's loader.
@@ -1620,7 +1641,7 @@
       if (!/^[A-Z]{2}$/.test(code || '')) continue;
       let name = code;
       try {
-        name = new Intl.DisplayNames([document.documentElement.lang || 'en'],
+        name = new Intl.DisplayNames([globalThis.RobloxCustomizerI18n?.locale() || document.documentElement.lang || 'en'],
           { type: 'region' }).of(code) || code;
       } catch { /* Retain the two-letter country code. */ }
       countries.set(code, name);
@@ -1679,7 +1700,8 @@
 
   function hidePrivateServerLoadMore(page) {
     for (const button of page.querySelectorAll('button, a[role="button"]')) {
-      const loadMore = /^Load More(?: (?:Private )?Servers)?$/i.test(button.textContent.trim());
+      const loadMore = /^Load More(?: (?:Private )?Servers)?$/i.test(button.textContent.trim())
+        || globalThis.RobloxCustomizerNativeLabels?.matches('loadMore', button.textContent);
       if (!loadMore && !button.hasAttribute('data-rc-private-server-load-more')) continue;
       const privateScope = button.closest(PRIVATE_SERVER_SECTION_SELECTOR);
       const section = button.closest('.server-list-section');
@@ -1718,8 +1740,13 @@
       .filter(node => !node.closest(NON_PUBLIC_SERVER_SECTION_SELECTOR)
         && !node.closest('.rc-public-server-filters, .rc-public-server-pagination')
         && !containsServerContent(node));
-    const sortLabel = nodes.find(node => /^Sort By:?$/i.test(text(node)));
-    const excludeLabel = nodes.find(node => /^Exclude Full Servers$/i.test(text(node)));
+    const labelText = node => node.matches('label') && node.childNodes
+      ? [...node.childNodes].filter(child => child.nodeType !== Node.ELEMENT_NODE || !child.matches('select, input'))
+        .map(child => child.textContent).join(' ').replace(/\s+/g, ' ').trim() : text(node);
+    const sortLabel = nodes.find(node => /^Sort By:?$/i.test(labelText(node))
+      || globalThis.RobloxCustomizerNativeLabels?.matches('sortBy', labelText(node)));
+    const excludeLabel = nodes.find(node => /^Exclude Full Servers$/i.test(labelText(node))
+      || globalThis.RobloxCustomizerNativeLabels?.matches('excludeFull', labelText(node)));
     const findWrapper = (node, selector) => {
       for (let current = node, depth = 0;
         current && current !== scope && depth < 5;
@@ -1787,7 +1814,7 @@
       || Date.now() - publicStatusFetchedAt < 90_000
         && [...serverIds].every(id => publicStatuses.has(id))) return;
     publicStatusRequest = true;
-    chrome.runtime.sendMessage({ type: 'rc-public-server-status', placeId,
+    sendMessage({ type: 'rc-public-server-status', placeId,
       serverIds: [...serverIds].slice(0, 100) }, response => {
       publicStatusRequest = false;
       if (chrome.runtime.lastError || !Array.isArray(response?.servers)) {
@@ -2069,7 +2096,7 @@
     if (panel.dataset.rolimonsLoading === 'true') return;
     panel.dataset.rolimonsLoading = 'true';
     const placeId = Number(panel.dataset.placeId);
-    chrome.runtime.sendMessage({ type: 'rc-rolimons-game-page', placeId }, response => {
+    sendMessage({ type: 'rc-rolimons-game-page', placeId }, response => {
       panel.dataset.rolimonsLoading = 'false';
       if (!panel.isConnected || panel.dataset.placeId !== String(placeId)) return;
       if (chrome.runtime.lastError || typeof response?.html !== 'string') {
@@ -2180,7 +2207,7 @@
 
     const placeId = Number(panel.dataset.placeId);
     const universeId = Number(panel.dataset.universeId);
-    chrome.runtime.sendMessage({
+    sendMessage({
       type: 'rc-roblox-game-data', placeId, universeId, section: tabId, cursor
     }, response => {
       if (panel.dataset.robloxLoading === loadingKey) panel.dataset.robloxLoading = '';
@@ -2254,6 +2281,8 @@
         || !!pane.querySelector('#running-game-instances-container .card-item, '
           + '#private-server-container .card-item, #private-game-instances-container .card-item')
         || /no private servers found|you don.t have any private servers|no (?:public |running )?servers (?:found|available)|no running experiences/.test(text)
+        || globalThis.RobloxCustomizerNativeLabels?.matches('emptyServers', text)
+        || globalThis.RobloxCustomizerNativeLabels?.matches('createPrivate', text)
         || /create\s+(?:a\s+)?private server/.test(text) && /your private servers|private servers/.test(text);
     }, timeout);
   }
@@ -2261,7 +2290,8 @@
   function waitForStoreContent(page) {
     return waitForGamePaneContent(page, '#store', pane =>
       !!pane.querySelector('.card-item, .item-card-container, a[href], button')
-      || /no (?:passes|game passes|products|subscriptions)|does not (?:have|sell)/i.test(pane.textContent), 1500);
+      || /no (?:passes|game passes|products|subscriptions)|does not (?:have|sell)/i.test(pane.textContent)
+      || globalThis.RobloxCustomizerNativeLabels?.matches('emptyStore', pane.textContent), 1500);
   }
 
   function syncRolimonsPanel() {
@@ -2474,7 +2504,11 @@
     const privateListOwners = new Map();
     for (const configure of page.querySelectorAll(PRIVATE_SERVER_CONFIGURE_SELECTOR)) {
       let serverId;
-      try { serverId = Number(new URL(configure.href).searchParams.get('privateServerId')); }
+      try {
+        const url = new URL(configure.href, location.href);
+        serverId = Number(url.searchParams.get('privateServerId')
+          || url.pathname.match(/^\/private-server\/configure\/(\d+)\/?$/)?.[1]);
+      }
       catch { continue; }
       if (!Number.isSafeInteger(serverId) || serverId <= 0) continue;
 
@@ -2521,7 +2555,9 @@
         const nameKey = name.toLowerCase();
         const rowServerId = privateServerIdFromRow(row) || (row === ownerRow ? serverId : 0);
         const nativeStatus = main?.querySelector('.text-body-medium')?.textContent.trim() || '';
-        const nativeCount = privateServerNativeText(row).match(/\b\d+\s+of\s+\d+\s+people\s+max\b/i)?.[0] || '';
+        const nativeText = privateServerNativeText(row);
+        const nativeCount = globalThis.RobloxCustomizerNativeLabels?.playerCount(nativeText)?.text
+          || nativeText.match(/\b\d+\s+of\s+\d+\s+people\s+max\b/i)?.[0] || '';
         const nativeImages = [...row.querySelectorAll('img')]
           .filter(image => !image.closest(PRIVATE_SERVER_RENDER_SELECTOR))
           .map(image => [image.getAttribute('src'), image.getAttribute('srcset'), image.getAttribute('sizes')]);
@@ -2545,7 +2581,9 @@
         const nativeControls = [...row.querySelectorAll('button, a[href], [role="button"]')]
           .filter(control => !control.closest('.rc-private-server-proxy, .rc-private-server-summary'));
         const joinControl = nativeControls.find(control =>
-          /\bjoin\b/i.test(`${control.getAttribute('aria-label') || ''} ${control.textContent || ''}`));
+          /\bjoin\b/i.test(`${control.getAttribute('aria-label') || ''} ${control.textContent || ''}`)
+          || globalThis.RobloxCustomizerNativeLabels?.matches('join',
+            `${control.getAttribute('aria-label') || ''} ${control.textContent || ''}`));
         const directActions = [...row.children].find(child =>
           !child.classList.contains('rc-private-server-summary')
           && !child.classList.contains('rc-private-server-roster')
@@ -2564,8 +2602,9 @@
           join.addEventListener('click', () => {
             const nativeJoin = [...row.querySelectorAll('button, a[href], [role="button"]')]
               .find(control => !control.closest('.rc-private-server-proxy')
-                && /\bjoin\b/i.test(`${control.getAttribute('aria-label') || ''}
-                  ${control.textContent || ''}`));
+                && (/\bjoin\b/i.test(`${control.getAttribute('aria-label') || ''} ${control.textContent || ''}`)
+                  || globalThis.RobloxCustomizerNativeLabels?.matches('join',
+                    `${control.getAttribute('aria-label') || ''} ${control.textContent || ''}`)));
             nativeJoin?.click();
           });
           proxy.append(join);
@@ -2675,7 +2714,7 @@
       && [...requestedNames].every(name => privateQueriedNames.has(name))) return;
     privateRequest = true;
     const sourceVersion = privateSourceVersion;
-    chrome.runtime.sendMessage({ type: 'rc-private-server-details', placeId,
+    sendMessage({ type: 'rc-private-server-details', placeId,
       serverIds: requestedIds, serverNames: requestedServerNames }, response => {
       privateRequest = false;
       if (privatePlaceId !== placeId || privateSourceVersion !== sourceVersion) {
@@ -2803,7 +2842,7 @@
     }
     schedule();
   }).observe(document, { attributes: true, attributeFilter: [
-    'href', 'data-rc-hide-x-feed', 'data-rc-hide-youtube-feed',
+    'href', 'aria-label', 'title', 'data-rc-hide-x-feed', 'data-rc-hide-youtube-feed',
     'data-rc-profile-social-user-id', 'data-rc-profile-x-url', 'data-rc-profile-youtube-url',
     'data-rc-instance-id', 'data-rc-ping', 'data-btr-instance-id', 'data-rc-playing',
     'data-playing', 'data-player-count', 'src', 'srcset', 'sizes', 'alt',
@@ -2813,6 +2852,15 @@
   window.addEventListener('resize', schedule);
   window.addEventListener('popstate', schedule);
   window.addEventListener('hashchange', schedule);
+  globalThis.RobloxCustomizerRuntime?.onResume(schedule);
+  globalThis.RobloxCustomizerI18n?.onChange(locale => {
+    badgeDateFormatter = new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'short', day: 'numeric' });
+    badgeDateTimeFormatter = new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' });
+    for (const time of document.querySelectorAll('#rc-x-feed-panel time[datetime], #rc-youtube-feed-panel time[datetime]')) {
+      time.textContent = badgeDateTimeFormatter.format(new Date(time.dateTime));
+    }
+    schedule();
+  });
   document.addEventListener('DOMContentLoaded', schedule, { once: true });
   syncPrivateServers();
   schedule();

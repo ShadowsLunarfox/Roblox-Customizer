@@ -1,6 +1,9 @@
 (() => {
   'use strict';
 
+  const sendMessage = globalThis.RobloxCustomizerRuntime?.sendMessage
+    || ((...args) => chrome.runtime.sendMessage(...args));
+
   const PROFILE_ROOT = '#profile-container, .profile-container, [data-testid="profile-page"]';
   const MAIN_ROOT = '#content, #container-main, main, [role="main"]';
   const OWNED = '#rc-profile-enhancements, #rc-profile-socials, #rc-profile-intro, #rc-profile-inline-about, #rc-profile-details, #rc-profile-limiteds, #rc-profile-social-feeds, #rc-x-feed-panel, #rc-youtube-feed-panel';
@@ -103,6 +106,8 @@
   }
 
   function sectionName(text) {
+    const localized = globalThis.RobloxCustomizerNativeLabels?.classify('profile', text);
+    if (localized) return localized;
     const label = text.replace(/\s+/g, ' ').trim()
       .replace(/(?:\s*(?:See All|View All|[\u203a>\u2192]))+\s*$/i, '');
     if (/^Currently Wearing$/i.test(label)) return 'wearing';
@@ -165,7 +170,8 @@
       const heading = [...section.querySelectorAll(HEADINGS)]
         .find(element => sectionName(element.textContent) === 'friends');
       const seeAll = [...section.querySelectorAll('a, button')]
-        .find(element => /^See All\s*[\u203a>\u2192]?$/i.test(element.textContent.trim()));
+        .find(element => /^See All\s*[\u203a>\u2192]?$/i.test(element.textContent.trim())
+          || globalThis.RobloxCustomizerNativeLabels?.matches('seeAll', element.textContent));
       const sectionWidth = section.getBoundingClientRect().width;
       let header = heading;
       while (header && header !== section && seeAll && !header.contains(seeAll)) {
@@ -329,7 +335,8 @@
     const follower = root.querySelector('a[href*="/friends#!/followers"]')
       || [...root.querySelectorAll('span, a, div')].find(element =>
       !element.closest(OWNED) && element.childElementCount <= 2
-      && /\bFollowers?\b/i.test(element.textContent)
+      && (/\bFollowers?\b/i.test(element.textContent)
+        || globalThis.RobloxCustomizerNativeLabels?.matches('followers', element.textContent))
       && element.textContent.trim().length < 70);
     watchLayout(root, banner, heading, follower);
     const headerWidth = banner?.getBoundingClientRect().width || rootWidth;
@@ -346,7 +353,8 @@
       for (let element = heading?.parentElement; element && element !== root; element = element.parentElement) {
         const rect = element.getBoundingClientRect();
         if (rect.width >= headerWidth * .65 && rect.height >= 100 && rect.height <= 450
-          && /\bFollowers?\b/i.test(element.textContent)
+          && (/\bFollowers?\b/i.test(element.textContent)
+            || globalThis.RobloxCustomizerNativeLabels?.matches('followers', element.textContent))
           && (!banner || !element.contains(banner))) {
           summary = element;
           break;
@@ -446,13 +454,14 @@
       + '<nav class="rc-profile-jumps" aria-label="Profile sections"></nav>'
       + '<div class="rc-profile-links"></div>';
     card.querySelector('.rc-profile-copy-id').addEventListener('click', async event => {
+      const button = event.currentTarget;
       const id = card.dataset.userId;
       if (!id) return;
       try {
         await navigator.clipboard.writeText(id);
-        event.currentTarget.textContent = 'Copied';
-        setTimeout(() => { if (event.currentTarget.isConnected) event.currentTarget.textContent = 'Copy ID'; }, 1800);
-      } catch { event.currentTarget.textContent = 'Copy failed'; }
+        button.textContent = 'Copied';
+        setTimeout(() => { if (button.isConnected) button.textContent = 'Copy ID'; }, 1800);
+      } catch { button.textContent = 'Copy failed'; }
     });
     card.querySelector('.rc-profile-jumps').addEventListener('click', event => {
       const button = event.target.closest('button[data-section]');
@@ -480,15 +489,23 @@
     }
   }
 
-  function addFact(container, label, value) {
+  function addFact(container, label, value, preserveValue = false) {
     const fact = document.createElement('div');
     fact.className = 'rc-profile-fact';
     const title = document.createElement('span');
     title.textContent = label;
     const detail = document.createElement('strong');
+    if (preserveValue) detail.setAttribute('data-rc-i18n-ignore', '');
     detail.textContent = value;
     fact.append(title, detail);
     container.append(fact);
+    return detail;
+  }
+
+  function formatJoinedDate(date) {
+    return new Intl.DateTimeFormat(globalThis.RobloxCustomizerI18n?.locale() || 'en-US', {
+      year: 'numeric', month: 'short', day: 'numeric'
+    }).format(date);
   }
 
   function hideNativeProfileTabs(root) {
@@ -497,14 +514,22 @@
     const controls = [...root.querySelectorAll('a, button, [role="tab"]')]
       .filter(element => !element.closest(OWNED)
         && !element.querySelector('a, button, [role="tab"]'));
-    const aboutTabs = controls.filter(element => label(element) === 'About');
-    const creationsTabs = controls.filter(element => label(element) === 'Creations');
+    const aboutTabs = controls.filter(element => element.id === 'tab-about' && element.closest('.profile-tabs')
+      || label(element) === 'About'
+      || globalThis.RobloxCustomizerNativeLabels?.matches('about', label(element)));
+    const creationsTabs = controls.filter(element => element.id === 'tab-creations' && element.closest('.profile-tabs')
+      || label(element) === 'Creations'
+      || globalThis.RobloxCustomizerNativeLabels?.matches('creations', label(element)));
     for (const about of aboutTabs) {
       for (const creations of creationsTabs) {
         let bar = about.parentElement;
         while (bar && bar !== root && !bar.contains(creations)) bar = bar.parentElement;
-        if (!bar || bar === root
-          || !/^(?:AboutCreations|CreationsAbout)$/.test(label(bar).replace(/\s+/g, ''))) continue;
+        if (!bar || bar === root) continue;
+        const nativeBar = bar.matches('.profile-tabs') && about.id === 'tab-about' && creations.id === 'tab-creations';
+        const aboutLabel = label(about).replace(/\s+/g, '');
+        const creationsLabel = label(creations).replace(/\s+/g, '');
+        if (!nativeBar && ![aboutLabel + creationsLabel, creationsLabel + aboutLabel]
+          .includes(label(bar).replace(/\s+/g, ''))) continue;
         const isTabContainer = element => {
           const children = [...element.children];
           const aboutChild = children.find(child => child.contains(about));
@@ -520,7 +545,8 @@
         if (!isTabContainer(bar)) continue;
         const creationTab = creations.closest('[role="tab"], li') || creations;
         if (!clickedAboutTabs.has(about)
-          && creationTab.matches('[aria-selected="true"], [aria-current="page"], .active')) {
+          && (creations.matches('[aria-selected="true"], [aria-current="page"], .active')
+            || creationTab.matches('[aria-selected="true"], [aria-current="page"], .active'))) {
           clickedAboutTabs.add(about);
           about.click();
         }
@@ -536,6 +562,26 @@
     }
   }
 
+  function expandNativeDescription(root) {
+    if (!root) return null;
+    // Current Roblox supplies the full escaped bio in a native pre, including
+    // its links. Unclamp that node without depending on a second API request.
+    const source = [...root.querySelectorAll('.description-content')].find(element =>
+      !element.closest(`${OWNED}, [data-rc-profile-section], [role="dialog"], .modal`));
+    if (!source) return null;
+    if (!source.hasAttribute('data-rc-profile-native-description')) {
+      source.setAttribute('data-rc-profile-native-description', '');
+    }
+    for (let parent = source.parentElement, depth = 0;
+      parent && parent !== root && depth < 4; parent = parent.parentElement, depth++) {
+      if (parent.querySelector('h1, h2, h3, img, video, canvas, .profile-tabs, [data-rc-profile-section]')) break;
+      if (!parent.hasAttribute('data-rc-profile-native-bio-container')) {
+        parent.setAttribute('data-rc-profile-native-bio-container', '');
+      }
+    }
+    return source;
+  }
+
   function findNativeBioBox(root, description = '') {
     if (!root) return null;
     const marked = root.querySelector('[data-rc-profile-inline-about-box]');
@@ -543,15 +589,16 @@
     const fullText = description.replace(/\s+/g, ' ').trim();
     const rootTop = root.getBoundingClientRect().top;
     for (const trigger of root.querySelectorAll('a, button, [role="button"], span')) {
-      if (trigger.closest(`${OWNED}, [data-rc-profile-section]`)
-        || !/^(?:more|see more|show more)$/i.test(trigger.textContent.trim())) continue;
+      if (trigger.closest(`${OWNED}, [data-rc-profile-section], [role="dialog"], .modal`)
+        || (!/^(?:more|see more|show more)$/i.test(trigger.textContent.trim())
+          && !globalThis.RobloxCustomizerNativeLabels?.matches('more', trigger.textContent))) continue;
       const triggerTop = trigger.getBoundingClientRect().top;
       if (triggerTop < rootTop || triggerTop > rootTop + 1200) continue;
       let box = null;
       for (let parent = trigger.parentElement, depth = 0;
         parent && parent !== root && depth < 6; parent = parent.parentElement, depth++) {
         if (parent.querySelector('h1, h2, h3, img, video, canvas')) break;
-        const preview = parent.textContent.replace(/\s*(?:more|see more|show more)\s*$/i, '')
+        const preview = parent.textContent.replace(/\s*(?:more|see more|show more|更多|查看更多|显示更多|顯示更多)\s*$/i, '')
           .replace(/\s+/g, ' ').trim().replace(/(?:\.{3}|\u2026)$/, '').trim();
         const rect = parent.getBoundingClientRect();
         if (preview.length < 8 || preview.length > 500 || rect.height > 300) continue;
@@ -561,10 +608,11 @@
       if (box) return box;
     }
     for (const source of root.querySelectorAll('p, span, div')) {
-      if (source.closest(`${OWNED}, [data-rc-profile-section], h1, h2, h3`)) continue;
+      if (source.closest(`${OWNED}, [data-rc-profile-section], [role="dialog"], .modal, h1, h2, h3`)) continue;
       if (source.querySelector('h1, h2, h3, img, video, canvas')) continue;
       const text = source.textContent.replace(/\s+/g, ' ').trim();
-      if (fullText ? text !== fullText : !/^No bio yet\.?$/i.test(text)) continue;
+      if (fullText ? text !== fullText : !/^No bio yet\.?$/i.test(text)
+        && !globalThis.RobloxCustomizerNativeLabels?.matches('noBio', text)) continue;
       let box = null;
       for (let parent = source.parentElement, depth = 0;
         parent && parent !== root && depth < 4; parent = parent.parentElement, depth++) {
@@ -576,6 +624,37 @@
       if (box) return box;
     }
     return null;
+  }
+
+  function bioText(value) {
+    return value.replace(/\s+/g, ' ').trim();
+  }
+
+  function isTruncatedBio(source, description) {
+    const preview = bioText(source.textContent);
+    const full = bioText(description);
+    if (!/(?:\.{3}|\u2026)$/.test(preview)) return false;
+    const prefix = preview.replace(/(?:\.{3}|\u2026)$/, '').trim();
+    return prefix.length >= 8 && full !== preview && full.length > prefix.length && full.startsWith(prefix);
+  }
+
+  function clearInlineAbout(root) {
+    for (const inline of root.querySelectorAll('#rc-profile-inline-about')) inline.remove();
+    for (const element of root.querySelectorAll('[data-rc-profile-inline-about-box], [data-rc-profile-native-preview]')) {
+      element.removeAttribute('data-rc-profile-inline-about-box');
+      element.removeAttribute('data-rc-profile-native-preview');
+    }
+  }
+
+  function findBioPreview(box, description) {
+    const full = bioText(description);
+    return [...box.querySelectorAll('.description-content, pre, p, span, div')].find(element => {
+      if (element.closest(`${OWNED}, button, [role="button"], [role="dialog"], .modal`)
+        || element.querySelector('button, [role="button"], [role="dialog"], h1, h2, h3, img, video, canvas')) return false;
+      const text = bioText(element.textContent);
+      return full ? text === full || isTruncatedBio(element, description)
+        : /^No bio yet\.?$/i.test(text) || globalThis.RobloxCustomizerNativeLabels?.matches('noBio', text);
+    });
   }
 
   function socialProfileUrl(platform, raw) {
@@ -640,8 +719,19 @@
 
   function renderNativeAbout(root, userId, data) {
     if (!root || !data || data.error) return;
-    const box = findNativeBioBox(root, data.description || '');
+    // Keep React's current text and native More/Edit actions. API details can
+    // be older than an edit that has already appeared in the native profile.
+    const source = expandNativeDescription(root);
+    if (source && !isTruncatedBio(source, data.description || '')) {
+      // A later React mount may replace an API-backed preview with the current
+      // full description. Retire the fallback instead of hiding the new node.
+      clearInlineAbout(root);
+      return;
+    }
+    const box = source?.parentElement || findNativeBioBox(root, data.description || '');
     if (!box) return;
+    const preview = source || findBioPreview(box, data.description || '');
+    if (!preview) return;
     let inline = root.querySelector('#rc-profile-inline-about');
     if (inline && inline.parentElement !== box) {
       inline.parentElement?.removeAttribute('data-rc-profile-inline-about-box');
@@ -651,7 +741,7 @@
     if (!inline) {
       inline = document.createElement('div');
       inline.id = 'rc-profile-inline-about';
-      box.append(inline);
+      box.prepend(inline);
     }
     if (inline.dataset.userId !== String(userId) || inline.rcProfileSourceData !== data) {
       inline.dataset.userId = String(userId);
@@ -659,15 +749,15 @@
       inline.replaceChildren();
       const bio = document.createElement('p');
       bio.className = 'rc-profile-inline-bio';
+      if (data.description?.trim()) bio.setAttribute('data-rc-i18n-ignore', '');
       bio.textContent = data.description?.trim() || 'No bio yet.';
       inline.append(bio);
       const created = new Date(data.created);
       if (Number.isFinite(created.getTime())) {
         const joined = document.createElement('div');
         joined.className = 'rc-profile-inline-joined';
-        const date = new Intl.DateTimeFormat('en-US', {
-          year: 'numeric', month: 'short', day: 'numeric'
-        }).format(created);
+        const date = formatJoinedDate(created);
+        joined.dataset.rcJoinedDate = created.toISOString();
         joined.textContent = `Joined ${date}`;
         inline.append(joined);
       }
@@ -689,6 +779,10 @@
       }
       if (links.childElementCount) inline.append(links);
     }
+    for (const stale of root.querySelectorAll('[data-rc-profile-native-preview]')) {
+      if (stale !== preview) stale.removeAttribute('data-rc-profile-native-preview');
+    }
+    preview.setAttribute('data-rc-profile-native-preview', '');
     box.setAttribute('data-rc-profile-inline-about-box', '');
     for (let parent = box.parentElement, depth = 0;
       parent && parent !== root && depth < 2; parent = parent.parentElement, depth++) {
@@ -705,9 +799,7 @@
     if (result && !result.error) {
       const created = new Date(result.created);
       if (Number.isFinite(created.getTime())) {
-        addFact(facts, 'Joined', new Intl.DateTimeFormat('en-US', {
-          year: 'numeric', month: 'short', day: 'numeric'
-        }).format(created));
+        addFact(facts, 'Joined', formatJoinedDate(created)).dataset.rcJoinedDate = created.toISOString();
         const now = new Date();
         const days = Math.max(0, Math.floor((now.getTime() - created.getTime()) / 86_400_000));
         let years = now.getUTCFullYear() - created.getUTCFullYear();
@@ -718,7 +810,7 @@
       if (result.verified) addFact(facts, 'Verification', 'Verified');
       if (Array.isArray(result.formerNames)) {
         addFact(facts, 'Former usernames', result.formerNames.length
-          ? result.formerNames.join(', ') : 'None listed');
+          ? result.formerNames.join(', ') : 'None listed', result.formerNames.length > 0);
       }
     } else {
       addFact(facts, 'Account details', 'Unavailable');
@@ -744,7 +836,7 @@
     if (requestedUserId === userId && card.dataset.loaded === 'true') return;
     if (card.dataset.requested === String(userId)) return;
     card.dataset.requested = String(userId);
-    chrome.runtime.sendMessage({ type: 'rc-profile-details', userId }, result => {
+    sendMessage({ type: 'rc-profile-details', userId }, result => {
       card.dataset.loaded = 'true';
       renderDetails(card, userId, result);
     });
@@ -851,7 +943,7 @@
     panel.dataset.requested = String(userId);
     panel.querySelector('.rc-limiteds-refresh').disabled = true;
     panel.querySelector('.rc-limiteds-status').textContent = 'Loading Limited inventory...';
-    chrome.runtime.sendMessage({ type: 'rc-profile-limiteds', userId, force }, result => {
+    sendMessage({ type: 'rc-profile-limiteds', userId, force }, result => {
       renderLimiteds(panel, userId, result);
     });
   }
@@ -892,6 +984,7 @@
       }
     }
     hideNativeProfileTabs(root);
+    expandNativeDescription(root);
     const existingCard = root.querySelector('#rc-profile-details');
     const knownAbout = existingCard && profileAboutData.get(existingCard);
     if (knownAbout?.userId === userId) {
@@ -979,7 +1072,7 @@
     // updates remain observable after the pass completes.
     observer.disconnect();
     try { syncProfile(); }
-    finally { observer.observe(document, { childList: true, characterData: true, subtree: true }); }
+    finally { observer.observe(document, OBSERVER_OPTIONS); }
   }
 
   function queueSync() {
@@ -995,16 +1088,25 @@
     if (target?.closest(OWNED)) return false;
     if (!observedRoot?.isConnected) return true;
     if (observedRoot.contains(target)) return true;
-    return [...record.addedNodes, ...record.removedNodes].some(node =>
+    return [...record.addedNodes || [], ...record.removedNodes || []].some(node =>
       node.nodeType === Node.ELEMENT_NODE && (node.contains(observedRoot)
         || node.matches(PROFILE_ROOT) || node.querySelector(PROFILE_ROOT)));
   }
 
   addEventListener('popstate', queueSync);
   addEventListener('hashchange', queueSync);
+  globalThis.RobloxCustomizerRuntime?.onResume(queueSync);
+  globalThis.RobloxCustomizerI18n?.onChange(() => {
+    for (const node of document.querySelectorAll('#rc-profile-details [data-rc-joined-date], #rc-profile-inline-about [data-rc-joined-date]')) {
+      const date = formatJoinedDate(new Date(node.dataset.rcJoinedDate));
+      node.textContent = node.classList.contains('rc-profile-inline-joined') ? `Joined ${date}` : date;
+    }
+  });
   addEventListener('resize', queueSync);
   addEventListener('load', queueSync, { once: true });
   document.addEventListener('DOMContentLoaded', queueSync, { once: true });
+  const OBSERVER_OPTIONS = { childList: true, characterData: true, subtree: true,
+    attributes: true, attributeFilter: ['aria-label', 'title'] };
   const observer = new MutationObserver(records => {
     const userId = currentUserId();
     if (userId !== observedUserId || (userId && records.some(relevantMutation))) {
@@ -1018,6 +1120,6 @@
       queueSync();
     }
   });
-  observer.observe(document, { childList: true, characterData: true, subtree: true });
+  observer.observe(document, OBSERVER_OPTIONS);
   queueSync();
 })();

@@ -56,6 +56,30 @@
 #rc-pin-game[aria-pressed="true"] { color: var(--rc-focus, #8bc4ff); }
 #rc-pin-game:disabled { opacity: .55; cursor: wait; }
 
+/* Non-public experiences may have no Favorite button or native action row. */
+#game-detail-page .rc-game-pin-standalone {
+  display: flex;
+  clear: both;
+  width: 100%;
+  margin-block: 12px;
+}
+
+#game-detail-page .rc-game-pin-standalone #rc-pin-game {
+  flex-direction: row;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--rc-control-border, #727c90);
+  border-radius: 10px;
+  background: var(--rc-control-bg, #292b35);
+  color: var(--rc-text, #f4f6fb);
+}
+
+#game-detail-page .rc-game-pin-standalone #rc-pin-game:hover { background: var(--rc-control-hover, #383d49); }
+#game-detail-page .rc-game-pin-standalone #rc-pin-game[aria-pressed="true"] { color: var(--rc-focus, #8bc4ff); }
+#game-detail-page .rc-game-pin-standalone #rc-pin-game svg { width: 22px; height: 22px; }
+#game-detail-page .rc-game-pin-standalone #rc-pin-game .icon-label { font-size: 14px; line-height: 20px; }
+
 /* Keep the native buttons in place while replacing their float-based layout. */
 #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
   > :is(.game-favorite-button-container, .game-follow-button-container) {

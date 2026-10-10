@@ -200,6 +200,7 @@
 
   async function readRemainingFriends(first, url, get, receiver, args) {
     if (!Array.isArray(first?.data?.PageItems)) return first;
+    const deadline = Date.now() + 4000;
     const items = [];
     const ids = new Set();
     const cursors = new Set();
@@ -219,16 +220,26 @@
       const nextUrl = new URL(url);
       nextUrl.searchParams.set('limit', '50');
       nextUrl.searchParams.set('cursor', cursor);
+      const remaining = deadline - Date.now();
+      if (remaining <= 0) break;
+      let timeout;
       try {
-        const next = await Reflect.apply(get, receiver, [
-          { ...args[0], url: nextUrl.href }, ...args.slice(1),
+        // Extra rows must not hold up Roblox's already-loaded first page when
+        // a later request stalls. This budget covers all additional pages.
+        const next = await Promise.race([
+          Reflect.apply(get, receiver, [
+            { ...args[0], url: nextUrl.href }, ...args.slice(1),
+          ]),
+          new Promise((_, reject) => {
+            timeout = setTimeout(() => reject(new Error('Friends request timed out')), remaining);
+          })
         ]);
         if (!Array.isArray(next?.data?.PageItems)) break;
         data = next.data;
       } catch {
         console.warn('[Roblox Customizer] Could not load the remaining friends; keeping the pages already loaded.');
         break;
-      }
+      } finally { clearTimeout(timeout); }
     }
     return { ...first, data: { ...first.data, PageItems: items, NextCursor: cursor } };
   }

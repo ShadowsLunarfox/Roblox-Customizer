@@ -31,7 +31,7 @@ function environment(readyState = 'interactive') {
     classList: { contains: () => true },
     querySelector(selector) {
       if (selector.includes('.card-item')) return this.loaded ? {} : null;
-      if (selector.includes('Configure')) return this.configure ? {} : null;
+      if (selector.includes('/private-server/configure')) return this.configure ? {} : null;
       return null;
     }
   });

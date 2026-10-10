@@ -574,7 +574,7 @@ test('chart resizing notifies the native renderer once per width change and stop
 function background(result) {
   let listener;
   const requests = [];
-  vm.runInNewContext(backgroundSource, { URL,
+  vm.runInNewContext(backgroundSource, { URL, AbortController, setTimeout, clearTimeout,
     chrome: { runtime: { onMessage: { addListener(callback) { listener = callback; } } } },
     async fetch(url, options) {
       requests.push({ url, options });

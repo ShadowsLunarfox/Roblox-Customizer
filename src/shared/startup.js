@@ -142,6 +142,7 @@
   }).observe(document, { childList: true, subtree: true });
   addEventListener('popstate', syncRoute);
   addEventListener('hashchange', syncRoute);
+  globalThis.RobloxCustomizerRuntime?.onResume(syncRoute);
   addEventListener('load', syncRoute, { once: true });
   document.addEventListener('DOMContentLoaded', syncRoute, { once: true });
 })();

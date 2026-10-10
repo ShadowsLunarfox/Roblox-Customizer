@@ -3,16 +3,23 @@
 
   const attributes = new Map();
   let queued = false;
-  const CONTENT_SELECTOR = '#info, #robux, .settings-content, .settings-tab-content, '
+  const CONTENT_SELECTOR = '#info, #robux, #security, #privacy, #notifications, '
+    + '#browser-preferences, #parental-controls, .settings-content, .settings-tab-content, '
     + '.rbx-tab-content, .tab-content, [role="tabpanel"]';
   const PANEL_SELECTOR = '.setting-section, .settings-section, .section, .section-content, [data-slot="card"]';
   const FLOATING_SELECTOR = '.modal, [role="dialog"], [role="alertdialog"], .popover, .dropdown-menu, [role="menu"]';
   const EDIT_SELECTOR = '.btn-generic-edit-sm, .btn-generic-edit-md';
   const FIELD_SELECTOR = 'select, textarea, input:not([type="hidden"], [type="checkbox"], '
-    + '[type="radio"], [type="range"], [type="button"], [type="submit"], [type="reset"])';
+    + '[type="radio"], [type="range"], [type="button"], [type="submit"], [type="reset"]), '
+    + '.input-dropdown-btn, [role="combobox"]';
+  const FIELD_LABEL = ':scope > :is(label, .form-control-label, .text-label)';
+  const CONTENT_ATOMS = 'h1, h2, h3, h4, h5, h6, p, label, input:not([type="hidden"]), '
+    + 'select, textarea, button, [role="heading"], [role="button"], [role="combobox"], [role="switch"], [role="radio"], '
+    + ':is(div, span):not(:has(*)):not(:empty)';
+  const HIDDEN_SELECTOR = '.hidden, .hide, .ng-hide, .ng-cloak, [hidden], [ng-cloak]';
   const MANAGED_ATTRIBUTES = [
-    'data-rc-settings-panel', 'data-rc-settings-row', 'data-rc-settings-row-action',
-    'data-rc-settings-field', 'data-rc-settings-layout', 'data-rc-settings-nav',
+    'data-rc-settings-panel', 'data-rc-settings-surface', 'data-rc-settings-row', 'data-rc-settings-row-action',
+    'data-rc-settings-field', 'data-rc-settings-control', 'data-rc-settings-choice', 'data-rc-settings-layout', 'data-rc-settings-nav',
     'data-rc-settings-menu', 'data-rc-settings-nav-wrapper', 'data-rc-settings-body',
     'data-rc-settings-content-wrapper', 'data-rc-settings-heading',
     'data-rc-settings-tab', 'data-rc-settings-active-tab'
@@ -40,6 +47,13 @@
     return branch?.parentElement === parent ? branch : null;
   }
 
+  function pageHeading(node) {
+    const text = node.textContent.trim();
+    return node.matches('h1') || !!node.querySelector('h1')
+      || text.length < 40 && (/^(?:my\s+)?settings$/i.test(text)
+        || globalThis.RobloxCustomizerNativeLabels?.matches('settings', text));
+  }
+
   function synchronize() {
     queued = false;
     const desired = new Map();
@@ -63,7 +77,7 @@
         // Robux and newer tabs use section-content or Foundation cards rather
         // than Account Info's setting-section. Mark one surface per panel.
         const candidates = [...content.querySelectorAll(PANEL_SELECTOR)].filter(node =>
-          !node.closest(FLOATING_SELECTOR) && !navigation?.contains(node)
+          !node.closest(FLOATING_SELECTOR) && !node.closest(HIDDEN_SELECTOR) && !navigation?.contains(node)
           && !node.contains(navigation) && !node.matches(CONTENT_SELECTOR));
         const panels = candidates.filter(node => {
           if (node.matches('.setting-section, .settings-section, [data-slot="card"]')) return true;
@@ -71,7 +85,8 @@
           return !node.querySelector(PANEL_SELECTOR);
         });
         // A section and its own section-content are one card, not two backings.
-        for (const panel of panels.filter(node => !panels.some(parent => parent !== node && parent.contains(node)))) {
+        const panelRoots = panels.filter(node => !panels.some(parent => parent !== node && parent.contains(node)));
+        for (const panel of panelRoots) {
           mark(panel, 'data-rc-settings-panel');
           const rows = new Set(panel.querySelectorAll('.account-info-row, .account-row'));
           for (const edit of panel.querySelectorAll(EDIT_SELECTOR)) {
@@ -95,16 +110,52 @@
             mark(row, 'data-rc-settings-row');
             if (action) mark(action, 'data-rc-settings-row-action');
           }
-          for (const field of panel.querySelectorAll('.form-group')) {
-            if (!field.closest(FLOATING_SELECTOR) && !rows.has(field)
-              && field.querySelector(':scope > label, :scope > .form-control-label')
-              && field.querySelector(FIELD_SELECTOR)) mark(field, 'data-rc-settings-field');
+        }
+        // Inputs can be nested in narrow native wrappers, including plain tabs
+        // that have no named panel. Give each control its nearest labeled field.
+        for (const control of content.querySelectorAll(FIELD_SELECTOR)) {
+          if (navigation?.contains(control) || control.closest(FLOATING_SELECTOR)
+            || control.closest(HIDDEN_SELECTOR)) continue;
+          for (let field = control.parentElement; field && field !== content; field = field.parentElement) {
+            if (!field.querySelector(FIELD_LABEL)) continue;
+            if (field.matches('form, fieldset') || field.querySelector('h1, h2, h3, [role="heading"]')) break;
+            if (!field.matches('.form-group') && field.querySelectorAll(FIELD_SELECTOR).length > 1) continue;
+            if (desired.get(field)?.has('data-rc-settings-row')) break;
+            mark(field, 'data-rc-settings-field');
+            for (let wrapper = control.parentElement; wrapper && wrapper !== field; wrapper = wrapper.parentElement) {
+              // A shared birthday/select row keeps its native multi-column layout.
+              if (wrapper.querySelectorAll(FIELD_SELECTOR).length > 1) break;
+              mark(wrapper, 'data-rc-settings-control');
+            }
+            break;
           }
+        }
+        // Compact Foundation choices can be buttons with an external label.
+        // Text-bearing theme cards keep their larger native click targets.
+        for (const choice of content.querySelectorAll('[role="radio"], [role="checkbox"]')) {
+          if (!choice.matches('input') && !choice.textContent.trim()
+            && !choice.closest(FLOATING_SELECTOR) && !choice.closest(HIDDEN_SELECTOR)
+            && !navigation?.contains(choice)) mark(choice, 'data-rc-settings-choice');
         }
         if (navigation) {
           const bodies = [...content.querySelectorAll(CONTENT_SELECTOR + ', ' + PANEL_SELECTOR)]
             .filter(node => !navigation.contains(node) && !node.contains(navigation)
-              && !node.closest(FLOATING_SELECTOR));
+              && !node.closest(FLOATING_SELECTOR) && !node.closest(HIDDEN_SELECTOR));
+          // React settings views can be plain wrappers without any legacy
+          // section classes. Locate their branch beside the native navigation.
+          if (!bodies.length) {
+            for (let parent = navigation.parentElement; parent; parent = parent.parentElement) {
+              const navBranch = branchUnder(navigation, parent);
+              const branches = [...parent.children].filter(node => node !== navBranch
+                && !node.matches('script, style, template, link, ' + FLOATING_SELECTOR)
+                && !node.closest(HIDDEN_SELECTOR)
+                && !pageHeading(node)
+                && (node.querySelector('h2, h3, h4, h5, h6, [role="heading"], form, [role="tabpanel"]')
+                  || node.textContent.trim().length > 0));
+              if (branches.length) { bodies.push(...branches); break; }
+              if (parent === content) break;
+            }
+          }
           let layout = navigation.parentElement;
           while (layout && layout !== content && !bodies.every(node => layout.contains(node))) layout = layout.parentElement;
           if (layout && bodies.length && layout.contains(navigation)) {
@@ -112,8 +163,7 @@
             const bodyBranches = [...layout.children].filter(node => node !== navBranch
               && !node.matches('script, style, template, link, ' + FLOATING_SELECTOR));
             const headings = bodyBranches.filter(node => !bodies.some(body => node === body || node.contains(body))
-              && (node.matches('h1') || node.querySelector('h1')
-                || (node.textContent.trim().length < 40 && /^(?:my\s+)?settings$/i.test(node.textContent.trim()))));
+              && pageHeading(node));
             const columns = bodyBranches.filter(node => !headings.includes(node));
             if (navBranch && columns.some(node => bodies.some(body => node === body || node.contains(body)))) {
               mark(layout, 'data-rc-settings-layout');
@@ -123,6 +173,15 @@
                 mark(wrapper, 'data-rc-settings-nav-wrapper');
               }
               columns.forEach(node => mark(node, 'data-rc-settings-body'));
+              for (const column of columns) {
+                // One complete surface also covers mixed tabs, such as legacy
+                // security cards followed by an unwrapped device-session list.
+                const uncovered = [...column.querySelectorAll(CONTENT_ATOMS)].some(node =>
+                  (node.textContent.trim() || node.matches('input, select, textarea, button, [role="button"], [role="combobox"], [role="switch"], [role="radio"]'))
+                  && !node.closest(FLOATING_SELECTOR) && !node.closest(HIDDEN_SELECTOR)
+                  && !panelRoots.some(panel => panel === node || panel.contains(node)));
+                if (uncovered) mark(column, 'data-rc-settings-surface');
+              }
               for (const body of bodies) {
                 for (let wrapper = body.parentElement; wrapper && wrapper !== layout; wrapper = wrapper.parentElement) {
                   mark(wrapper, 'data-rc-settings-content-wrapper');
@@ -176,11 +235,12 @@
   }
 
   new MutationObserver(schedule).observe(document, {
-    subtree: true, childList: true, attributes: true,
+    subtree: true, childList: true, characterData: true, attributes: true,
     attributeFilter: ['class', 'href', 'hidden', 'role', 'aria-selected', 'data-rc-frost-page']
   });
   addEventListener('popstate', schedule);
   addEventListener('hashchange', schedule);
+  globalThis.RobloxCustomizerRuntime?.onResume(schedule);
   document.addEventListener('DOMContentLoaded', schedule, { once: true });
   schedule();
 })();

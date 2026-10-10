@@ -30,10 +30,21 @@ const publicServerCountryCache = new Map();
 const publicAddressCountryCache = new Map();
 let joinHeaderReady;
 
+async function readResponse(url, options, consume) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15_000);
+  try {
+    // Keep the deadline armed while reading the body too: receiving response
+    // headers alone does not mean that JSON, HTML, or an image has loaded.
+    return await consume(await fetch(url, { ...options, signal: controller.signal }));
+  } finally { clearTimeout(timeout); }
+}
+
 async function readJson(url) {
-  const response = await fetch(url, { credentials: 'include' });
-  if (!response.ok) throw new Error(`Roblox returned ${response.status}`);
-  return response.json();
+  return readResponse(url, { credentials: 'include' }, response => {
+    if (!response.ok) throw new Error(`Roblox returned ${response.status}`);
+    return response.json();
+  });
 }
 
 async function getAvatar2D() {
@@ -111,12 +122,13 @@ async function getRolimonsGamePage(placeId) {
   const cached = rolimonsGameCache.get(placeId);
   if (cached && Date.now() - cached.fetchedAt < 5 * 60_000) return cached;
 
-  const response = await fetch(`https://www.rolimons.com/game/${placeId}`, {
+  const html = await readResponse(`https://www.rolimons.com/game/${placeId}`, {
     credentials: 'omit',
     headers: { Accept: 'text/html' }
+  }, response => {
+    if (!response.ok) throw new Error(`Rolimons returned ${response.status}`);
+    return response.text();
   });
-  if (!response.ok) throw new Error(`Rolimons returned ${response.status}`);
-  const html = await response.text();
   if (html.length < 1000 || html.length > 4_000_000
     || !html.toLowerCase().includes('charts &amp; more') && !html.toLowerCase().includes('charts & more')) {
     throw new Error('Rolimons game data unavailable');
@@ -130,12 +142,13 @@ async function getRolimonsGamePage(placeId) {
 }
 
 async function readPublicRobloxJson(url) {
-  const response = await fetch(url, {
+  return readResponse(url, {
     credentials: 'omit',
     headers: { Accept: 'application/json' }
+  }, response => {
+    if (!response.ok) throw new Error(`Roblox returned ${response.status}`);
+    return response.json();
   });
-  if (!response.ok) throw new Error(`Roblox returned ${response.status}`);
-  return response.json();
 }
 
 async function getRobloxThumbnailMap(kind, ids) {
@@ -348,11 +361,12 @@ async function readLimitedInventory(userId) {
     url.searchParams.set('sortOrder', 'Asc');
     url.searchParams.set('limit', '100');
     if (cursor) url.searchParams.set('cursor', cursor);
-    const response = await fetch(url.href, { credentials: 'include' });
-    if (response.status === 403) throw new Error('This inventory is private or unavailable.');
-    if (response.status === 429) throw new Error('Roblox rate limit reached. Try again later.');
-    if (!response.ok) throw new Error(`Could not load Limited items (${response.status}).`);
-    const result = await response.json();
+    const result = await readResponse(url.href, { credentials: 'include' }, response => {
+      if (response.status === 403) throw new Error('This inventory is private or unavailable.');
+      if (response.status === 429) throw new Error('Roblox rate limit reached. Try again later.');
+      if (!response.ok) throw new Error(`Could not load Limited items (${response.status}).`);
+      return response.json();
+    });
     if (!Array.isArray(result?.data)) throw new Error('Invalid Limited inventory response.');
     for (const entry of result.data) {
       const assetId = Number(entry?.assetId);
@@ -436,7 +450,7 @@ async function getPlayerImages(servers) {
   const images = new Map();
   for (let start = 0; start < tokens.length; start += BATCH_SIZE) {
     const batch = tokens.slice(start, start + BATCH_SIZE);
-    const response = await fetch('https://thumbnails.roblox.com/v1/batch', {
+    const result = await readResponse('https://thumbnails.roblox.com/v1/batch', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(batch.map((token, index) => ({
@@ -448,9 +462,8 @@ async function getPlayerImages(servers) {
         format: 'Png',
         isCircular: false
       })))
-    });
-    if (!response.ok) break;
-    const result = await response.json();
+    }, response => response.ok ? response.json() : null);
+    if (!result) break;
     for (const item of result?.data || []) {
       const index = Number(item?.requestId);
       if (Number.isInteger(index) && index >= 0 && index < tokens.length
@@ -729,17 +742,18 @@ function youtubeChannelIdFromUrl(value) {
 async function resolveYouTubeChannelId(channelUrl) {
   const directId = youtubeChannelIdFromUrl(channelUrl);
   if (directId) return directId;
-  const response = await fetch(channelUrl, {
+  const html = await readResponse(channelUrl, {
     credentials: 'omit',
     headers: { Accept: 'text/html' }
+  }, response => {
+    if (!response.ok) throw new Error(`YouTube returned ${response.status}`);
+    let finalUrl;
+    try { finalUrl = new URL(response.url); } catch { throw new Error('Invalid YouTube redirect'); }
+    if (finalUrl.protocol !== 'https:' || !['youtube.com', 'www.youtube.com', 'm.youtube.com'].includes(finalUrl.hostname)) {
+      throw new Error('Invalid YouTube redirect');
+    }
+    return response.text();
   });
-  if (!response.ok) throw new Error(`YouTube returned ${response.status}`);
-  let finalUrl;
-  try { finalUrl = new URL(response.url); } catch { throw new Error('Invalid YouTube redirect'); }
-  if (finalUrl.protocol !== 'https:' || !['youtube.com', 'www.youtube.com', 'm.youtube.com'].includes(finalUrl.hostname)) {
-    throw new Error('Invalid YouTube redirect');
-  }
-  const html = await response.text();
   if (html.length > 8_000_000) throw new Error('YouTube channel page too large');
   const candidates = [
     html.match(/<meta[^>]+itemprop=["']channelId["'][^>]+content=["'](UC[A-Za-z0-9_-]{22})["']/i)?.[1],
@@ -756,12 +770,13 @@ async function getYouTubeVideos(channelUrl, force = false) {
   const cached = youtubeFeedCache.get(channelId);
   if (!force && cached && Date.now() - cached.fetchedAt < 10 * 60_000) return cached;
   const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${encodeURIComponent(channelId)}`;
-  const response = await fetch(feedUrl, {
+  const xml = await readResponse(feedUrl, {
     credentials: 'omit',
     headers: { Accept: 'application/atom+xml, application/xml, text/xml' }
+  }, response => {
+    if (!response.ok) throw new Error(`YouTube feed returned ${response.status}`);
+    return response.text();
   });
-  if (!response.ok) throw new Error(`YouTube feed returned ${response.status}`);
-  const xml = await response.text();
   if (xml.length > 512_000 || !/<feed(?:\s|>)/i.test(xml)) throw new Error('YouTube feed unavailable');
   const readTag = (source, tag) => decodeXml(source.match(new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`, 'i'))?.[1]);
   const entries = [...xml.matchAll(/<entry(?:\s[^>]*)?>([\s\S]*?)<\/entry>/gi)].slice(0, 10);
@@ -800,12 +815,13 @@ async function getXPosts(handle, force) {
   }
 
   try {
-    const response = await fetch(`https://api.fxtwitter.com/2/profile/${handle}/statuses?count=10`, {
+    const result = await readResponse(`https://api.fxtwitter.com/2/profile/${handle}/statuses?count=10`, {
       credentials: 'omit',
       headers: { Accept: 'application/json' }
+    }, response => {
+      if (!response.ok) throw new Error(`FxEmbed returned ${response.status}`);
+      return response.json();
     });
-    if (!response.ok) throw new Error(`FxEmbed returned ${response.status}`);
-    const result = await response.json();
     if (result?.code !== 200 || !Array.isArray(result.results)) {
       throw new Error('FxEmbed timeline unavailable');
     }
@@ -872,15 +888,16 @@ async function getXImage(value) {
     if (!url.pathname.startsWith('/media/')) throw new Error('Invalid image path');
     url.searchParams.set('name', 'small');
   }
-  const response = await fetch(url.href, { credentials: 'omit' });
-  if (!response.ok) throw new Error(`Image returned ${response.status}`);
-  const mime = response.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase();
-  if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(mime)) {
-    throw new Error('Unsupported image type');
-  }
   const limit = 2 * 1024 * 1024;
-  if (Number(response.headers.get('content-length') || 0) > limit) throw new Error('Image too large');
-  const data = new Uint8Array(await response.arrayBuffer());
+  const { mime, data } = await readResponse(url.href, { credentials: 'omit' }, async response => {
+    if (!response.ok) throw new Error(`Image returned ${response.status}`);
+    const mime = response.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase();
+    if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(mime)) {
+      throw new Error('Unsupported image type');
+    }
+    if (Number(response.headers.get('content-length') || 0) > limit) throw new Error('Image too large');
+    return { mime, data: new Uint8Array(await response.arrayBuffer()) };
+  });
   if (data.byteLength > limit) throw new Error('Image too large');
   let binary = '';
   for (let offset = 0; offset < data.length; offset += 32768) {

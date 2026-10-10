@@ -1,5 +1,7 @@
 (() => {
   'use strict';
+  const sendMessage = globalThis.RobloxCustomizerRuntime?.sendMessage
+    || ((...args) => chrome.runtime.sendMessage(...args));
   const core = globalThis.RobloxCustomizerPinnedGames;
   const HOME_PATH = /^\/home\/?$/i;
   const GAME_PATH = /^\/games\/(\d+)(?:\/|$)/i;
@@ -18,7 +20,7 @@
 
   function request(action, data = {}) {
     return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage({ type: 'rc-pinned-games', action, ...data }, response => {
+      sendMessage({ type: 'rc-pinned-games', action, ...data }, response => {
         if (chrome.runtime.lastError || !response) reject(new Error('Could not update pinned games. Please try again.'));
         else resolve(response);
       });
@@ -53,7 +55,9 @@
     const meta = page?.querySelector('#game-detail-meta-data');
     const renderedId = Number(meta?.dataset.placeId || page?.dataset.placeId);
     if (renderedId !== placeId) return null;
-    return { page, placeId, universeId: Number(meta?.dataset.universeId) };
+    return { page, placeId, universeId: Number(meta?.dataset.universeId),
+      name: meta?.dataset.placeName || page.querySelector('.game-name, .game-title-container h1, h1')?.textContent || '',
+      iconUrl: core.iconUrl(page.querySelector('#game-details-carousel-container img, .game-thumbnail img')?.src) };
   }
 
   function pinned(context) {
@@ -69,7 +73,8 @@
     queueSync();
     try {
       const response = await request(existing ? 'unpin' : 'pin', existing
-        ? { universeId: existing.universeId } : { placeId: context.placeId });
+        ? { universeId: existing.universeId } : { placeId: context.placeId,
+          pageInfo: { universeId: context.universeId, name: context.name, iconUrl: context.iconUrl } });
       accept(response, version);
       if (response.status === 'full') notify('List Full');
       else if (!response.ok) notify(response.error || 'Could not update pinned games. Please try again.');
@@ -81,27 +86,37 @@
   function syncPin() {
     const context = gameContext();
     const favorite = context?.page.querySelector('#toggle-game-favorite');
-    const anchor = favorite?.closest('.game-favorite-button-container') || favorite?.closest('li');
-    if (!anchor?.parentElement) {
+    const favoriteAnchor = favorite?.closest('.game-favorite-button-container') || favorite?.closest('li');
+    const row = context?.page.querySelector('.favorite-follow-vote-share');
+    const parent = favoriteAnchor?.parentElement || row
+      || context?.page.querySelector('.game-buttons-container, .game-calls-to-action') || context?.page;
+    if (!parent) {
       pinControl?.remove(); pinControl = null;
       return;
     }
+    const anchor = favoriteAnchor || row?.querySelector(':scope > :not(.rc-game-pin-control)');
+    const tag = /^(UL|OL)$/.test(parent.tagName) ? 'LI' : 'DIV';
+    if (pinControl && pinControl.tagName !== tag) { pinControl.remove(); pinControl = null; }
     if (!pinControl) {
-      pinControl = document.createElement(anchor.tagName === 'LI' ? 'li' : 'div');
+      pinControl = document.createElement(tag);
       pinControl.className = 'rc-game-pin-control';
       pinControl.innerHTML = '<button type="button" id="rc-pin-game" aria-pressed="false"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m15 3 6 6-3 1-4 4v4l-2 2-4-4-5 5 5-5-4-4 2-2h4l4-4z"/></svg><span class="icon-label">Pin Game</span></button>';
       pinControl.querySelector('button').addEventListener('click', togglePin);
     }
-    if (pinControl.parentElement !== anchor.parentElement || pinControl.nextElementSibling !== anchor) {
+    pinControl.classList.toggle('rc-game-pin-standalone', !favoriteAnchor && !row);
+    if (anchor && (pinControl.parentElement !== parent || pinControl.nextElementSibling !== anchor)) {
       anchor.before(pinControl);
-    }
+    } else if (!anchor && (pinControl.parentElement !== parent || parent.lastElementChild !== pinControl)) parent.append(pinControl);
     const button = pinControl.querySelector('button');
     const isPinned = !!pinned(context);
     button.disabled = !ready || busy;
     button.setAttribute('aria-pressed', String(isPinned));
-    button.title = isPinned ? 'Unpin game from Home' : 'Pin game to Home';
+    const title = isPinned ? 'Unpin game from Home' : 'Pin game to Home';
+    if (globalThis.RobloxCustomizerI18n) globalThis.RobloxCustomizerI18n.attribute(button, 'title', title);
+    else button.title = title;
     const label = isPinned ? 'Unpin Game' : 'Pin Game';
-    if (button.lastElementChild.textContent !== label) button.lastElementChild.textContent = label;
+    if (!(globalThis.RobloxCustomizerI18n?.matches(button.lastElementChild, label)
+      ?? button.lastElementChild.textContent === label)) button.lastElementChild.textContent = label;
   }
 
   function card(game) {
@@ -163,7 +178,7 @@
       homeSection = document.createElement('section');
       homeSection.id = 'rc-pinned-games';
       homeSection.setAttribute('aria-labelledby', 'rc-pinned-games-title');
-      homeSection.innerHTML = '<div class="rc-pinned-games-heading"><h2 id="rc-pinned-games-title">Pinned Games</h2><span class="rc-pinned-games-count"></span></div><div class="rc-pinned-games-grid"></div><p class="rc-pinned-games-empty">Pin games using the button beside Favorite on a game page.</p>';
+      homeSection.innerHTML = '<div class="rc-pinned-games-heading"><h2 id="rc-pinned-games-title">Pinned Games</h2><span class="rc-pinned-games-count"></span></div><div class="rc-pinned-games-grid"></div><p class="rc-pinned-games-empty">Use Pin Game on a game page to add public or private games here.</p>';
     }
     // Keep native friends and game carousels in their existing React-owned parents.
     if (homeSection.parentElement !== friends.parentElement || friends.nextElementSibling !== homeSection) {
@@ -226,6 +241,7 @@
   document.addEventListener('rc-pinned-game-launch-error', () => notify('Could not join this game. Open its page and try again.'));
   addEventListener('popstate', queueSync);
   addEventListener('hashchange', queueSync);
+  globalThis.RobloxCustomizerRuntime?.onResume(queueSync);
   document.addEventListener('DOMContentLoaded', queueSync, { once: true });
   queueSync();
 })();

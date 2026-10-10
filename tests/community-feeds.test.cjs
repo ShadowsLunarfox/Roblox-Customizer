@@ -265,7 +265,7 @@ const backgroundSource = fs.readFileSync(path.join(__dirname, '..', 'src/backgro
 function background(links = []) {
   let listener;
   const requests = [];
-  const context = vm.createContext({ URL,
+  const context = vm.createContext({ URL, AbortController, setTimeout, clearTimeout,
     chrome: { runtime: { onMessage: { addListener(callback) { listener = callback; } } } },
     fetch: async (url, options) => { requests.push({ url, options }); return { ok: true, json: async () => ({ data: links }) }; }
   });

@@ -1,6 +1,9 @@
 (() => {
   'use strict';
 
+  const sendMessage = globalThis.RobloxCustomizerRuntime?.sendMessage
+    || ((...args) => chrome.runtime.sendMessage(...args));
+
   const ITEM_PATH = /^\/(catalog|bundles)\/(\d+)(?:\/|$)/i;
   const PREVIEW_SELECTORS = '#item-thumbnail-container-frontend, #item-thumbnail-container';
   const INFO_SELECTORS = '#item-info-container-frontend, .item-details';
@@ -12,7 +15,7 @@
     { selector: '#resellers', kind: 'resellers' }
   ];
   const OBSERVER_OPTIONS = { childList: true, subtree: true, characterData: true,
-    attributes: true, attributeFilter: ['data-target-id', 'data-is-bundle', 'data-show-3d-mode-button', 'disabled', 'data-rc-frost-page'] };
+    attributes: true, attributeFilter: ['data-target-id', 'data-is-bundle', 'data-show-3d-mode-button', 'disabled', 'data-rc-frost-page', 'aria-label', 'title'] };
   let assetId = 0;
   let itemType = 'Asset';
   let preview = null;
@@ -162,8 +165,12 @@
   }
 
   function modeLabel(control) {
-    return (control.textContent || control.getAttribute('aria-label')
-      || control.getAttribute('title') || '').trim();
+    const labels = [control.textContent, control.getAttribute('aria-label'), control.getAttribute('title')];
+    for (const label of labels) {
+      const mode = globalThis.RobloxCustomizerNativeLabels?.previewMode(label);
+      if (mode) return `${mode}D`;
+    }
+    return (labels.find(label => label?.trim()) || '').trim();
   }
 
   function findModeButton(root) {
@@ -259,7 +266,8 @@
 
   function sync3DControls(modeButton) {
     const controls = [...preview.querySelectorAll(CONTROL_SELECTORS)]
-      .filter(control => /^(?:try on|take off)$/i.test(modeLabel(control)));
+      .filter(control => /^(?:try on|take off)$/i.test(modeLabel(control))
+        || globalThis.RobloxCustomizerNativeLabels?.matches('tryOn', modeLabel(control)));
     for (const control of tryOnControls) {
       if (!controls.includes(control)) control.removeAttribute('data-rc-item-native-try-on');
     }
@@ -282,7 +290,10 @@
     if (refresh3DButton.parentElement !== preview) preview.append(refresh3DButton);
     if (refresh3DStatus.parentElement !== preview) preview.append(refresh3DStatus);
     refresh3DButton.disabled = !!refresh3DState || !modeButton || modeButton.disabled;
-    refresh3DButton.textContent = refresh3DState ? 'Refreshing...' : 'Refresh';
+    const text = refresh3DState ? 'Refreshing...' : 'Refresh';
+    if (!(globalThis.RobloxCustomizerI18n?.matches(refresh3DButton, text) ?? refresh3DButton.textContent === text)) {
+      refresh3DButton.textContent = text;
+    }
   }
 
   function finish3DRefresh(message = '') {
@@ -356,7 +367,7 @@
     button.disabled = true;
     status.textContent = image.hidden ? 'Loading 2D preview...' : 'Updating 2D preview...';
     try {
-      chrome.runtime.sendMessage({ type: 'rc-catalog-item-2d', assetId, itemType }, result => {
+      sendMessage({ type: 'rc-catalog-item-2d', assetId, itemType }, result => {
         const runtimeError = chrome.runtime.lastError;
         if (!isCurrent()) return;
         if (runtimeError || !result || result.error) {
@@ -530,6 +541,7 @@
   observer.observe(document, OBSERVER_OPTIONS);
   addEventListener('popstate', queueSync);
   addEventListener('hashchange', queueSync);
+  globalThis.RobloxCustomizerRuntime?.onResume(queueSync);
   addEventListener('load', queueSync, { once: true });
   document.addEventListener('DOMContentLoaded', queueSync, { once: true });
   queueSync();

@@ -7,6 +7,8 @@ const core = require('../src/currency/robux-currency-core.js');
 const workerSource = fs.readFileSync(path.join(__dirname, '..', 'src/background/robux-currency-background.js'), 'utf8');
 
 test('Robux parsing accepts localized counts and compact notation without extracting unrelated numbers', () => {
+  for (const [text, amount] of [['1.25万', 12500], ['1.25萬', 12500], ['２．５千', 2500], ['1.2亿', 120000000], ['1.2億 Robux', 120000000]]) assert.equal(core.parseRobux(text), amount, text);
+  for (const text of ['1万2千', '商品 2萬', '1.23456万', '万']) assert.equal(core.parseRobux(text), null, text);
   for (const [text, amount] of [['0', 0], ['250', 250], ['26,498', 26498], ['26.498', 26498], ['26\u202f498', 26498], ['1,23,456', 123456], ['−1,000', -1000], ['١٢٬٣٤٥', 12345], ['۲۵۰', 250], ['１２５', 125], ['R$ 250', 250], ['250 Robux', 250], ['12.5K', 12500], ['1,5M', 1500000]]) assert.equal(core.parseRobux(text), amount, text);
   for (const text of ['', 'Free', 'Off Sale', 'Item 250', '250 favorites', '2026-10-04', '12,5', '12.5', '1.2.3', 'Infinity', '9007199254740992']) assert.equal(core.parseRobux(text), null, text);
 });

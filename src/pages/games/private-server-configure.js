@@ -6,6 +6,9 @@
     + '[data-slot="card"], .bg-surface-100, .bg-surface-200';
   const FLOATING = '.modal, [role="dialog"], [role="alertdialog"], .popover, .dropdown-menu, [role="menu"]';
   const HIDDEN = '.hidden, .hide, .ng-hide, .ng-cloak, [hidden], [ng-cloak]';
+  const CONTENT = 'h2, h3, h4, p, label, img, a[href], input:not([type="hidden"]), '
+    + 'select, textarea, button, [role="button"], [role="switch"], [role="combobox"], '
+    + ':is(div, span):not(:has(*)):not(:empty)';
   const MARK = 'data-rc-private-config-panel';
   const tracked = new Set();
   let queued = false;
@@ -21,8 +24,15 @@
       for (const node of candidates) {
         if (!candidates.some(parent => parent !== node && parent.contains(node))) desired.add(node);
       }
-      // Newer layouts can use only utility wrappers, without named sections.
-      if (!desired.size && content.querySelector('form, input, button, [role="switch"]')) desired.add(content);
+      // The summary can contain just artwork, text, and an inline edit link.
+      // It also needs a backing when later controls use recognized sections.
+      const visibleContent = [...content.querySelectorAll(CONTENT)].filter(node =>
+        !node.closest(FLOATING) && !node.closest(HIDDEN)
+        && (node.textContent.trim() || node.matches('img, input, select, textarea, button, [role="button"], [role="switch"], [role="combobox"]')));
+      if (visibleContent.some(node => ![...desired].some(panel => panel === node || panel.contains(node)))) {
+        desired.clear();
+        desired.add(content);
+      }
     }
     // Include copied markers from native remounts when clearing old sections.
     const previous = new Set([...tracked, ...document.querySelectorAll(`[${MARK}]`)]);
@@ -44,6 +54,7 @@
   });
   addEventListener('popstate', schedule);
   addEventListener('hashchange', schedule);
+  globalThis.RobloxCustomizerRuntime?.onResume(schedule);
   document.addEventListener('DOMContentLoaded', schedule, { once: true });
   schedule();
 })();

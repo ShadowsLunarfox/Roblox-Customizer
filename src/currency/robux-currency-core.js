@@ -30,10 +30,10 @@
       .replace(/\u066c/g, ',').replace(/\u066b/g, '.')
       .replace(/[\u200e\u200f\u061c]/g, '').replace(/\u2212/g, '-')
       .trim().replace(/^(?:R\$\s*|Robux\s+)/i, '').replace(/\s*Robux$/i, '').trim();
-    const match = /^([+-]?\d[\d.,'\s]*)([KMB])?$/i.exec(text);
+    const match = /^([+-]?\d[\d.,'\s]*)([KMB千万萬亿億])?$/i.exec(text);
     if (!match) return null;
     let number = match[1].trim().replace(/[\s']/g, '');
-    const multiplier = { K: 1e3, M: 1e6, B: 1e9 }[match[2]?.toUpperCase()] || 1;
+    const multiplier = { K: 1e3, M: 1e6, B: 1e9, 千: 1e3, 万: 1e4, 萬: 1e4, 亿: 1e8, 億: 1e8 }[match[2]?.toUpperCase()] || 1;
     if (multiplier === 1) {
       // Robux counts are integers; accept western and Indian thousands grouping.
       if (/[.,]/.test(number) && !/^[+-]?\d{1,3}(?:[.,]\d{3})+$/.test(number) && !/^[+-]?\d{1,2}(?:,\d{2})*,\d{3}$/.test(number)) return null;

@@ -28,8 +28,14 @@ function worker(initial = [], options = {}) {
       if (options.networkError) throw new Error('Network unavailable');
       let result;
       if (url.hostname === 'apis.roblox.com') {
+        if (options.universeError) throw new Error('Universe unavailable');
         const id = Number(url.pathname.match(/\/places\/(\d+)\//)[1]);
         result = { universeId: options.sharedUniverse || id + 1000 };
+      } else if (url.pathname === '/v1/games/multiget-place-details') {
+        if (!options.privateGame || options.privateError) return { ok: false, status: 401 };
+        const id = Number(url.searchParams.get('placeIds'));
+        result = [{ placeId: id, universeId: id + 1000, universeRootPlaceId: id,
+          name: 'Private project', isPlayable: false, reasonProhibited: 'UniverseRootPlaceIsNotActive', ...options.privateGame }];
       } else if (url.hostname === 'games.roblox.com') {
         result = { data: url.searchParams.get('universeIds').split(',').map(Number).map(id => ({
           id, rootPlaceId: id - 1000, name: options.name || `Game ${id - 1000}`
@@ -81,6 +87,59 @@ test('pin resolves an official game name, root place and icon and persists it', 
   const restarted = worker(env.data);
   assert.deepEqual((await restarted.send('list')).games, env.data);
   assert.equal(restarted.requests.length, 0, 'Fresh pins load from extension storage');
+});
+
+test('non-public games resolve using authenticated details even when they are not playable', async () => {
+  for (const universeError of [false, true]) {
+    const env = worker([], { missingGame: true, universeError, privateGame: { universeRootPlaceId: 1 } });
+    const response = await env.send('pin', { placeId: 2 }, '/games/2/Private');
+    assert.equal(response.status, 'pinned');
+    assert.equal(env.data[0].name, 'Private project');
+    assert.equal(env.data[0].placeId, 1, 'The authenticated root place is preserved');
+    assert.equal(env.data[0].universeId, 1002);
+    const authenticated = env.requests.filter(request => request.config.credentials === 'include');
+    assert.equal(authenticated.length, 1);
+    assert.equal(new URL(authenticated[0].url).pathname, '/v1/games/multiget-place-details');
+    assert.equal(new URL(authenticated[0].url).hostname, 'games.roblox.com');
+    assert.equal((await env.send('pin', { placeId: 2 }, '/games/2')).status, 'already-pinned');
+    assert.equal(env.data.length, 1);
+  }
+});
+
+test('private metadata can fall back to the verified current page without requiring a public listing', async () => {
+  const pageInfo = { universeId: 1001, name: ' 私人测试 <img onerror=alert(1)> ',
+    rootPlaceId: 999, iconUrl: 'https://tr.rbxcdn.com/private.png' };
+  const env = worker([], { missingGame: true, thumbnailError: true });
+  assert.equal((await env.send('pin', { placeId: 1, pageInfo }, '/games/1')).status, 'pinned');
+  assert.equal(env.data[0].placeId, 1, 'A page hint cannot replace the verified current place');
+  assert.equal(env.data[0].name, pageInfo.name.trim());
+  assert.equal(env.data[0].iconUrl, pageInfo.iconUrl);
+  const restarted = worker([{ ...env.data[0], updatedAt: 0 }], { missingGame: true, thumbnailState: 'Blocked' });
+  assert.deepEqual((await restarted.send('list')).games, restarted.data, 'Unavailable public metadata keeps the saved private pin');
+  assert.equal(restarted.data[0].name, pageInfo.name.trim());
+  assert.equal(restarted.data[0].iconUrl, pageInfo.iconUrl);
+  assert.equal((await restarted.send('unpin', { universeId: 1001 })).status, 'unpinned');
+  assert.equal(restarted.data.length, 0);
+});
+
+test('private page fallback cannot create unverified pins or trust mismatched IDs and arbitrary images', async () => {
+  for (const [options, pageInfo] of [
+    [{ networkError: true }, { universeId: 1001, name: 'Offline fake' }],
+    [{ universeError: true }, { universeId: 1001, name: 'Unverified' }],
+    [{}, { universeId: 1002, name: 'Other game' }],
+    [{}, { universeId: '1001', name: 'Wrong ID type' }],
+    [{}, { universeId: 1001, name: '  ' }],
+    [{ privateGame: { placeId: 2 } }, undefined],
+    [{ privateGame: { universeId: 1002 } }, undefined],
+    [{ privateGame: { universeRootPlaceId: 0 } }, undefined]
+  ]) {
+    const env = worker([], { missingGame: true, ...options });
+    assert.equal((await env.send('pin', { placeId: 1, pageInfo }, '/games/1')).ok, false);
+    assert.equal(env.data.length, 0);
+  }
+  const env = worker([], { missingGame: true, thumbnailError: true });
+  await env.send('pin', { placeId: 1, pageInfo: { universeId: 1001, name: 'Private', iconUrl: 'https://evil.test/image.png' } }, '/games/1');
+  assert.equal(env.data[0].iconUrl, '');
 });
 
 test('concurrent pins from multiple tabs stop at ten without a lost update', async () => {
