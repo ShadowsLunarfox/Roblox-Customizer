@@ -56,6 +56,60 @@
 #rc-pin-game[aria-pressed="true"] { color: var(--rc-focus, #8bc4ff); }
 #rc-pin-game:disabled { opacity: .55; cursor: wait; }
 
+#game-detail-page .rc-game-pin-folder {
+  display: grid;
+  gap: 6px;
+  box-sizing: border-box;
+  clear: both;
+  width: 100%;
+  max-width: 420px;
+  min-width: 0;
+  margin-block: 12px;
+  padding: 12px;
+  border: 1px solid var(--rc-control-border, #727c90);
+  border-radius: 10px;
+  background: var(--rc-surface, #1c1d24);
+  color: var(--rc-text, #f4f6fb);
+  color-scheme: var(--rc-color-scheme, dark);
+}
+#game-detail-page .rc-game-pin-folder label { margin: 0; font-size: 14px; line-height: 20px; color: inherit; }
+#rc-pin-game-folder {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid var(--rc-control-border, #727c90);
+  border-radius: 8px;
+  background: var(--rc-control-bg, #292b35);
+  color: var(--rc-text, #f4f6fb);
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+#rc-pin-game-folder option { background: var(--rc-control-bg, #292b35); color: var(--rc-text, #f4f6fb); }
+#rc-pin-game-folder:disabled { opacity: .55; cursor: wait; }
+#rc-pin-game-folder:focus-visible { outline: 2px solid var(--rc-focus, #8bc4ff); outline-offset: 3px; }
+#game-detail-page #rc-pin-game-folder-help { margin: 0; color: var(--rc-text-secondary, #c3cad6); font-size: 12px; line-height: 18px; }
+#game-detail-page .rc-game-pin-folder[hidden],
+#game-detail-page .rc-game-pin-folder [hidden] { display: none !important; }
+#game-detail-page .rc-game-pin-folder-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+#game-detail-page .rc-game-pin-folder-actions button {
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid var(--rc-control-border, #727c90);
+  border-radius: 8px;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
+}
+#game-detail-page .rc-game-pin-folder-actions button:disabled { opacity: .55; cursor: wait; }
+#game-detail-page .rc-game-pin-folder-actions button:focus-visible { outline: 2px solid var(--rc-focus, #8bc4ff); outline-offset: 3px; }
+
 /* Non-public experiences may have no Favorite button or native action row. */
 #game-detail-page .rc-game-pin-standalone {
   display: flex;
@@ -75,7 +129,9 @@
   color: var(--rc-text, #f4f6fb);
 }
 
-#game-detail-page .rc-game-pin-standalone #rc-pin-game:hover { background: var(--rc-control-hover, #383d49); }
+#game-detail-page .rc-game-pin-standalone #rc-pin-game:hover {
+  background-image: linear-gradient(rgb(var(--rc-foreground-rgb, 255 255 255) / 8%), rgb(var(--rc-foreground-rgb, 255 255 255) / 8%));
+}
 #game-detail-page .rc-game-pin-standalone #rc-pin-game[aria-pressed="true"] { color: var(--rc-focus, #8bc4ff); }
 #game-detail-page .rc-game-pin-standalone #rc-pin-game svg { width: 22px; height: 22px; }
 #game-detail-page .rc-game-pin-standalone #rc-pin-game .icon-label { font-size: 14px; line-height: 20px; }
@@ -270,6 +326,7 @@
 
 #rc-pinned-games .rc-pinned-games-heading {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
@@ -278,6 +335,80 @@
 
 #rc-pinned-games h2 { margin: 0; color: inherit; font-size: 22px; font-weight: 700; }
 #rc-pinned-games .rc-pinned-games-count { opacity: .7; font-size: 13px; white-space: nowrap; }
+#rc-pinned-games .rc-pinned-folder-toolbar,
+#rc-pinned-games .rc-pinned-folder-filters,
+#rc-pinned-games .rc-pinned-folder-actions,
+#rc-pinned-games .rc-pinned-folder-editor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+#rc-pinned-games .rc-pinned-folder-toolbar { justify-content: space-between; margin-bottom: 14px; }
+#rc-pinned-games .rc-pinned-folder-filters { flex: 1 1 240px; }
+#rc-pinned-games :is(.rc-pinned-folder-new, .rc-pinned-folder-filter, .rc-pinned-folder-actions button,
+    .rc-pinned-folder-editor button, .rc-pinned-folder-editor input, .rc-pinned-game-move, .rc-pinned-games-more) {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--rc-control-border, #727c90);
+  border-radius: 9px;
+  background: var(--rc-control-bg, #292b35);
+  color: var(--rc-text, #f4f6fb);
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+}
+#rc-pinned-games :is(button, select) { cursor: pointer; }
+#rc-pinned-games :is(button, select):disabled { opacity: .55; cursor: wait; }
+#rc-pinned-games :is(.rc-pinned-folder-new, .rc-pinned-folder-filter, .rc-pinned-folder-actions button,
+    .rc-pinned-folder-editor button, .rc-pinned-games-more):hover {
+  background-image: linear-gradient(rgb(var(--rc-foreground-rgb, 255 255 255) / 8%), rgb(var(--rc-foreground-rgb, 255 255 255) / 8%));
+}
+#rc-pinned-games .rc-pinned-folder-filter { display: inline-flex; align-items: center; gap: 8px; text-align: start; }
+#rc-pinned-games .rc-pinned-folder-filter > span:first-child { min-width: 0; overflow-wrap: anywhere; }
+#rc-pinned-games .rc-pinned-folder-filter[aria-pressed="true"] { border-color: var(--rc-focus, #8bc4ff); box-shadow: inset 0 0 0 1px var(--rc-focus, #8bc4ff); }
+#rc-pinned-games .rc-pinned-folder-count { flex: none; font-size: 12px; opacity: .8; }
+#rc-pinned-games .rc-pinned-folder-delete { color: var(--rc-error, #ff9f9f); }
+#rc-pinned-games .rc-pinned-folder-editor {
+  padding: 12px;
+  margin-bottom: 14px;
+  border: 1px solid var(--rc-control-border, #727c90);
+  border-radius: 12px;
+  background: var(--rc-surface, #25272c);
+  color: var(--rc-text, #f4f6fb);
+}
+#rc-pinned-games .rc-pinned-folder-editor label { flex: 0 0 100%; margin: 0; font-size: 14px; }
+#rc-pinned-games .rc-pinned-folder-editor input { flex: 1 1 180px; width: 180px; }
+#rc-pinned-games .rc-pinned-game-folder { display: grid; gap: 4px; min-width: 0; margin: 10px 0 0; color: inherit; font-size: 12px; }
+#rc-pinned-games .rc-pinned-game-move { width: 100%; padding-inline: 8px; text-overflow: ellipsis; }
+#rc-pinned-games .rc-pinned-game-move option { background: var(--rc-control-bg, #292b35); color: var(--rc-text, #f4f6fb); }
+#rc-pinned-games .rc-pinned-games-more { display: block; margin: 16px auto 0; }
+
+/* New folder controls use the same live glass settings as the pinned cards.
+   The theme's opacity floor keeps text readable in light mode, even on dark wallpaper. */
+#game-detail-page .rc-game-pin-folder,
+#game-detail-page .rc-game-pin-standalone #rc-pin-game,
+#rc-pin-game-folder,
+#game-detail-page .rc-game-pin-folder-actions button,
+#rc-pinned-games .rc-pinned-folder-editor,
+#rc-pinned-games :is(.rc-pinned-folder-new, .rc-pinned-folder-filter, .rc-pinned-folder-actions button,
+    .rc-pinned-folder-editor button, .rc-pinned-folder-editor input, .rc-pinned-game-move, .rc-pinned-games-more) {
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62)));
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+}
+#game-detail-page #rc-confirm-pin-game {
+  border-color: rgb(51 95 255 / 65%);
+  background-color: rgb(36 77 224 / var(--rc-surface-opacity, var(--rc-glass-opacity, .62)));
+  color: #fff;
+}
+#game-detail-page .rc-game-pin-folder-actions button:hover {
+  background-image: linear-gradient(rgb(var(--rc-foreground-rgb, 255 255 255) / 8%), rgb(var(--rc-foreground-rgb, 255 255 255) / 8%));
+}
 #rc-pinned-games .rc-pinned-games-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 158px), 1fr));
@@ -364,9 +495,9 @@ html[data-rc-ui-active] #rc-pinned-games-notification {
   cursor: pointer;
 }
 #rc-pinned-games .rc-pinned-game-remove:hover { background: #a53545; }
-#rc-pinned-games .rc-pinned-games-empty { margin: 0; opacity: .75; }
+#rc-pinned-games :is(.rc-pinned-games-empty, .rc-pinned-folder-empty) { margin: 0; opacity: .75; }
 #rc-pinned-games [hidden], #rc-pinned-games-notification[hidden] { display: none !important; }
-:is(#rc-pin-game, #rc-pinned-games a, #rc-pinned-games button):focus-visible { outline: 2px solid var(--rc-focus, #8bc4ff); outline-offset: 3px; }
+:is(#rc-pin-game, #rc-pinned-games a, #rc-pinned-games button, #rc-pinned-games input, #rc-pinned-games select):focus-visible { outline: 2px solid var(--rc-focus, #8bc4ff); outline-offset: 3px; }
 
 #rc-pinned-games-notification {
   position: fixed;

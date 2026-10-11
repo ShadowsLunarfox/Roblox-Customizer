@@ -26,6 +26,31 @@
       && typeof props.id === 'string' && INSTANCE_ID.test(props.id);
   }
 
+  function isPrivateServerCard(props) {
+    const placeId = Number(location.pathname.match(/^\/games\/(\d+)(?:\/|$)/)?.[1]);
+    if (!placeId || !props || !Number.isSafeInteger(props.vipServerId) || props.vipServerId <= 0) return false;
+    // The compact private-server row has no placeId, serverListType or
+    // gameServerStatus props. Its numeric VIP identity distinguishes it from
+    // the friend/public rows that share the same native component.
+    return props.serverListType === 'private' && 'gameServerStatus' in props && props.placeId === placeId
+      || typeof props.onJoinClick === 'function' && typeof props.playerCountStatus === 'string'
+        && typeof props.name === 'string' && (props.placeId == null || props.placeId === placeId);
+  }
+
+  function exposePrivateServerIdentity(result, props) {
+    const classes = result?.props?.className?.split(/\s+/) || [];
+    const compact = typeof props.onJoinClick === 'function' && result?.type === 'div'
+      && ['flex', 'items-center', 'justify-between', 'padding-y-medium', 'width-full']
+        .every(name => classes.includes(name));
+    if (!compact && !(result?.type === 'li' && classes.includes('rbx-private-game-server-item'))) return result;
+    // Supply the numeric identity to the existing layout adapter. Native actions,
+    // subscriptions, hooks and the component tree stay owned by Roblox.
+    const next = { 'data-private-server-id': String(props.vipServerId) };
+    if (compact) next['data-rc-private-server-compact'] = '';
+    return typeof window.React?.cloneElement === 'function'
+      ? window.React.cloneElement(result, next) : { ...result, props: { ...result.props, ...next } };
+  }
+
   function mapElements(value, transform, depth = 0) {
     if (depth > 12) return value;
     if (Array.isArray(value)) {
@@ -82,7 +107,11 @@
           const previous = renderingFriends;
           renderingFriends = isHomeFriends(args[0]) ? { props: args[0], matched: false } : null;
           try {
-            const result = Reflect.apply(target, receiver, args);
+            let result = Reflect.apply(target, receiver, args);
+            if (isPrivateServerCard(args[0])) {
+              try { result = exposePrivateServerIdentity(result, args[0]); }
+              catch { /* Keep unfamiliar native cards usable. */ }
+            }
             if (isServerList(args[0]) || isServerCard(args[0])) {
               try {
                 return isServerList(args[0])
@@ -158,7 +187,7 @@
 
   function patchFactory(runtime, name) {
     patchMethod(runtime, name, (target, receiver, args) => {
-      if (isHomeFriends(args[1]) || isServerList(args[1]) || isServerCard(args[1])) {
+      if (isHomeFriends(args[1]) || isServerList(args[1]) || isServerCard(args[1]) || isPrivateServerCard(args[1])) {
         args[0] = wrapComponent(args[0]);
       }
       return Reflect.apply(target, receiver, args);

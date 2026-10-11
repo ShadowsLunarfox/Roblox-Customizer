@@ -71,6 +71,7 @@
     sortBy: /^(?:sort by|排序|排序方式|排序依据|排序依據)[:]?$/,
     excludeFull: /^(?:exclude full servers|排除已满服务器|排除已滿伺服器|排除满员服务器|排除滿員伺服器|排除已满的服务器|排除已滿的伺服器)$/,
     emptyServers: /no private servers found|you don.t have any private servers|no (?:public |running )?servers (?:found|available)|no running experiences|没有(?:可用的?)?(?:私人|公共)?服务器|沒有(?:可用的?)?(?:私人|公共)?伺服器|未找到(?:私人|公共)?服务器|找不到(?:私人|公共)?伺服器|尚无私人服务器|尚無私人伺服器/,
+    publicEmptyServers: /no (?:public |running )?servers (?:found|available)|no running experiences|(?:没有|暂无|未找到)(?:可用的?)?(?:公共)?服务器|(?:沒有|暫無|找不到)(?:可用的?)?(?:公共)?伺服器/,
     createPrivate: /create\s+(?:a\s+)?private server|创建私人服务器|建立私人伺服器|創建私人伺服器/,
     emptyStore: /no (?:passes|game passes|products|subscriptions)|does not (?:have|sell)|没有(?:任何|可用的?)?(?:通行证|商品|产品|订阅)|沒有(?:任何|可用的?)?(?:通行證|商品|產品|訂閱)|不(?:出售|销售|販售)/
   };

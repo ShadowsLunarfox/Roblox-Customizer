@@ -9,13 +9,18 @@
   const PROFILE_PATH = /^\/users\/(\d+)\/profile(?:\/|$)/i;
   const TAB_IDS = ['tab-about', 'tab-store', 'tab-game-instances'];
   const PRIVATE_SERVER_CONFIGURE_SELECTOR = 'a[href*="/private-server/configure?"], a[href*="/private-server/configure/"]';
-  const PRIVATE_SERVER_SECTION_SELECTOR = '#private-server-container, #private-game-instances-container, '
-    + '[data-rc-private-server-list], .rc-private-server-more';
+  const PRIVATE_SERVER_SECTION_SELECTOR = '#private-server-container, #private-game-instances-container, #rbx-private-running-games, '
+    + '[data-rc-private-server-list], [data-rc-private-server-compact], .rc-private-server-more';
   const NON_PUBLIC_SERVER_SECTION_SELECTOR = PRIVATE_SERVER_SECTION_SELECTOR
-    + ', #friends-game-instances-container';
+    + ', #friends-game-instances-container, #rbx-friends-running-games';
+  const PUBLIC_SERVER_CONTAINER_SELECTOR = '#running-game-instances-container, #rbx-public-running-games';
   const PRIVATE_SERVER_RENDER_SELECTOR = '.rc-private-server-summary, .rc-private-server-roster, '
     + '.rc-private-server-proxy, .rc-private-server-more, .rc-private-server-loading, .rc-server-metrics';
   const initialized = new WeakMap();
+  let observedServerPane = null;
+  let serverPaneRecovery = null;
+  const serverPaneObserver = typeof IntersectionObserver === 'function'
+    ? new IntersectionObserver(() => schedule(), { rootMargin: '240px 0px' }) : null;
   let timer = 0;
   let running = false;
   let badgeRequest = false;
@@ -1710,6 +1715,13 @@
         || globalThis.RobloxCustomizerNativeLabels?.matches('loadMore', button.textContent);
       if (!loadMore && !button.hasAttribute('data-rc-private-server-load-more')) continue;
       const privateScope = button.closest(PRIVATE_SERVER_SECTION_SELECTOR);
+      // Compact lists paginate through Roblox's own state. Keep that control
+      // available so servers beyond the first API page can still be loaded.
+      if (privateScope?.matches('[data-rc-private-server-compact-list]')
+        || privateScope?.querySelector('[data-rc-private-server-compact]')) {
+        button.removeAttribute('data-rc-private-server-load-more');
+        continue;
+      }
       const section = button.closest('.server-list-section');
       const privateSection = section
         && !section.closest('#running-game-instances-container, #friends-game-instances-container')
@@ -1788,7 +1800,7 @@
     const page = document.querySelector('#game-detail-page');
     const placeId = Number(placeIdFromPath());
     if (!pageMatchesPath(page) || !Number.isSafeInteger(placeId) || placeId <= 0) return;
-    const publicContainer = page.querySelector('#running-game-instances-container');
+    const publicContainer = page.querySelector(PUBLIC_SERVER_CONTAINER_SELECTOR);
     hideNativePublicServerControls(page, publicContainer);
     if (publicStatusPlaceId !== placeId) {
       publicStatusPlaceId = placeId;
@@ -2280,17 +2292,57 @@
     });
   }
 
+  function serverContentReady(pane) {
+    // Private servers can arrive before the lazy public list. Their cards and
+    // empty-state messages must not end the wait for public servers.
+    const publicList = pane.querySelector(PUBLIC_SERVER_CONTAINER_SELECTOR);
+    if (publicServerCards(publicList).length) return true;
+    const text = (publicList || pane).textContent || '';
+    return /no (?:public |running )?servers (?:found|available)|no running experiences/i.test(text)
+      || !!globalThis.RobloxCustomizerNativeLabels?.matches('publicEmptyServers', text);
+  }
+
   function waitForServerContent(page, timeout = 15_000) {
-    return waitForGamePaneContent(page, '#game-instances', pane => {
-      const text = (pane.textContent || '').toLowerCase();
-      return !!pane.querySelector(PRIVATE_SERVER_CONFIGURE_SELECTOR)
-        || !!pane.querySelector('#running-game-instances-container .card-item, '
-          + '#private-server-container .card-item, #private-game-instances-container .card-item')
-        || /no private servers found|you don.t have any private servers|no (?:public |running )?servers (?:found|available)|no running experiences/.test(text)
-        || globalThis.RobloxCustomizerNativeLabels?.matches('emptyServers', text)
-        || globalThis.RobloxCustomizerNativeLabels?.matches('createPrivate', text)
-        || /create\s+(?:a\s+)?private server/.test(text) && /your private servers|private servers/.test(text);
-    }, timeout);
+    return waitForGamePaneContent(page, '#game-instances', serverContentReady, timeout);
+  }
+
+  function activateGamePane(state, index) {
+    const url = location.href;
+    const historyState = history.state;
+    state.links[index].click();
+    if (state.page.isConnected && pageMatchesPath(state.page) && placeIdFromPath() === state.placeId) {
+      history.replaceState(historyState, '', url);
+    }
+  }
+
+  function syncServerPaneLoading() {
+    const state = currentPage();
+    const pane = state?.page.querySelector('#game-instances') || null;
+    if (observedServerPane !== pane) {
+      serverPaneObserver?.disconnect();
+      observedServerPane = pane;
+      if (pane) serverPaneObserver?.observe(pane);
+      serverPaneRecovery = null;
+    }
+    if (!state || !pane || running || document.hidden
+      || initialized.get(state.page) !== state.placeId) return;
+    if (serverPaneRecovery?.placeId !== state.placeId) serverPaneRecovery = null;
+
+    const rect = pane.getBoundingClientRect();
+    const nearby = rect.height > 0 && rect.bottom >= -240 && rect.top <= innerHeight + 240;
+    if (!nearby) {
+      // Let About remount when the user returns to the top of the page.
+      if (serverPaneRecovery && pane.classList.contains('active')) activateGamePane(state, 0);
+      serverPaneRecovery = null;
+      return;
+    }
+    if (serverContentReady(pane) || serverPaneRecovery && pane.classList.contains('active')) return;
+
+    // The initial offscreen load may time out, or Roblox may later discard an
+    // inactive list. Re-enter its native tab when the user approaches Servers,
+    // and keep it active while visible so lazy loading can finish after 15s.
+    serverPaneRecovery = { placeId: state.placeId };
+    if (!pane.classList.contains('active')) activateGamePane(state, 2);
   }
 
   function waitForStoreContent(page) {
@@ -2484,6 +2536,12 @@
       : 'Loading private server details...');
   }
 
+  function privateServerName(row) {
+    return row.matches('.rbx-private-game-server-item')
+      ? row.querySelector('.game-server-details .section-header > .font-bold')
+      : row.querySelector('.text-title-medium');
+  }
+
   function syncPrivateServers() {
     const page = document.querySelector('#game-detail-page') || document;
     const placeId = Number(location.pathname.match(/^\/games\/(\d+)(?:\/|$)/)?.[1]);
@@ -2509,6 +2567,9 @@
     const processedRows = new Set();
     const privateListOwners = new Map();
     for (const configure of page.querySelectorAll(PRIVATE_SERVER_CONFIGURE_SELECTOR)) {
+      // Current cards mount Configure inside a dropdown after it opens. The
+      // dropdown is not a server row; its card is discovered below instead.
+      if (configure.closest('.rbx-private-game-server-item, [data-rc-private-server-compact]')) continue;
       let serverId;
       try {
         const url = new URL(configure.href, location.href);
@@ -2526,24 +2587,40 @@
       if (!privateListOwners.has(list)) privateListOwners.set(list, { ownerRow, ownerActions, serverId, configure });
     }
     // Shared private servers can have a Join button without an owner's Configure link.
-    for (const row of page.querySelectorAll('.card-item')) {
-      if (!row.closest('#private-server-container, #private-game-instances-container')) continue;
+    for (const candidate of page.querySelectorAll('.card-item, .rbx-private-game-server-item, [data-rc-private-server-compact]')) {
+      const row = candidate.closest('.rbx-private-game-server-item') || candidate;
+      if (!row.matches('[data-rc-private-server-compact]')
+        && !row.closest('#private-server-container, #private-game-instances-container, #rbx-private-running-games')) continue;
       const list = row.parentElement;
       if (!list || privateListOwners.has(list)) continue;
       list.setAttribute('data-rc-private-server-list', '');
+      if (row.matches('[data-rc-private-server-compact]')) {
+        list.setAttribute('data-rc-private-server-compact-list', '');
+      }
       privateListOwners.set(list, { ownerRow: null, ownerActions: null, serverId: 0, configure: null });
+    }
+    // Retain the list type while Roblox clears/reloads its rows. The Create
+    // entry must never become a server just because no VIP rows remain.
+    for (const list of page.querySelectorAll('[data-rc-private-server-compact-list]')) {
+      if (!privateListOwners.has(list)) {
+        privateListOwners.set(list, { ownerRow: null, ownerActions: null, serverId: 0, configure: null });
+      }
     }
 
     const privateRows = new Map();
     const privateNameCounts = new Map();
     for (const list of privateListOwners.keys()) {
+      const compactList = list.hasAttribute('data-rc-private-server-compact-list');
       const rows = [...list.children].filter(candidate => {
         if (candidate.classList.contains('rc-private-server-more')) return false;
-        return candidate.matches('.card-item') || !!candidate.querySelector('.text-title-medium');
+        // This native list also contains the Plus banner, Create and Load More.
+        // Their typography is shared with servers; only marked VIP rows qualify.
+        if (compactList) return candidate.matches('[data-rc-private-server-compact]');
+        return candidate.matches('.card-item, .rbx-private-game-server-item') || !!candidate.querySelector('.text-title-medium');
       });
       privateRows.set(list, rows);
       for (const row of rows) {
-        const name = row.querySelector('.text-title-medium')?.textContent.trim().toLowerCase();
+        const name = privateServerName(row)?.textContent.trim().toLowerCase();
         if (name) privateNameCounts.set(name, (privateNameCounts.get(name) || 0) + 1);
       }
     }
@@ -2553,14 +2630,16 @@
       for (const row of rows) {
         if (processedRows.has(row)) continue;
         const main = row.firstElementChild;
-        const nativeName = row.querySelector('.text-title-medium');
-        const nativeAvatar = row.querySelector('.thumbnail-2d-container img')
+        const modernRow = row.matches('.rbx-private-game-server-item');
+        const nativeName = privateServerName(row);
+        const nativeAvatar = modernRow ? row.querySelector('.rbx-private-owner .owner-avatar img')
+          : row.querySelector('.thumbnail-2d-container img')
           || [...row.querySelectorAll('img')].find(image =>
             !image.closest('.rc-private-server-summary, .rc-private-server-roster'));
         const name = nativeName?.textContent.trim() || '';
         const nameKey = name.toLowerCase();
         const rowServerId = privateServerIdFromRow(row) || (row === ownerRow ? serverId : 0);
-        const nativeStatus = main?.querySelector('.text-body-medium')?.textContent.trim() || '';
+        const nativeStatus = main?.querySelector('.rbx-private-game-server-status, .text-body-medium')?.textContent.trim() || '';
         const nativeText = privateServerNativeText(row);
         const nativeCount = globalThis.RobloxCustomizerNativeLabels?.playerCount(nativeText)?.text
           || nativeText.match(/\b\d+\s+of\s+\d+\s+people\s+max\b/i)?.[0] || '';
@@ -2590,7 +2669,9 @@
           /\bjoin\b/i.test(`${control.getAttribute('aria-label') || ''} ${control.textContent || ''}`)
           || globalThis.RobloxCustomizerNativeLabels?.matches('join',
             `${control.getAttribute('aria-label') || ''} ${control.textContent || ''}`));
-        const directActions = [...row.children].find(child =>
+        const modern = modernRow
+          && main?.matches('.card-item') && main.querySelector('.game-server-details');
+        const directActions = modern ? main : [...row.children].find(child =>
           !child.classList.contains('rc-private-server-summary')
           && !child.classList.contains('rc-private-server-roster')
           && !child.classList.contains('rc-private-server-proxy')
@@ -2633,6 +2714,7 @@
         serverLists.get(list).push(row);
 
         row.classList.add('rc-private-server-card');
+        row.classList.toggle('rc-private-server-modern-card', !!modern);
         actions.classList.remove('rc-private-server-native-main');
         actions.classList.add('rc-private-server-actions');
 
@@ -2809,7 +2891,8 @@
     } finally {
       running = false;
       moveRecommendations();
-      if (!state.page.isConnected || placeIdFromPath() !== state.placeId) schedule();
+      if (initialized.get(state.page) === state.placeId
+        || !state.page.isConnected || placeIdFromPath() !== state.placeId) schedule();
     }
   }
 
@@ -2826,6 +2909,7 @@
       syncBadges();
       syncPrivateServers();
       syncPublicServerStatuses();
+      syncServerPaneLoading();
       void initialize();
     }, 500);
   }
@@ -2840,7 +2924,7 @@
     if (GAME_PATH.test(location.pathname) && pageMatchesPath(gamePage)) {
       hidePrivateServerLoadMore(gamePage);
       hideNativePublicServerControls(gamePage,
-        gamePage.querySelector('#running-game-instances-container'));
+        gamePage.querySelector(PUBLIC_SERVER_CONTAINER_SELECTOR));
     }
     const privateListChanged = GAME_PATH.test(location.pathname) && records.some(privateServerSourceMutation);
     if (privateListChanged) {
@@ -2860,6 +2944,7 @@
   window.addEventListener('resize', schedule);
   window.addEventListener('popstate', schedule);
   window.addEventListener('hashchange', schedule);
+  if (!serverPaneObserver) window.addEventListener('scroll', schedule, { passive: true });
   globalThis.RobloxCustomizerRuntime?.onResume(schedule);
   globalThis.RobloxCustomizerI18n?.onChange(locale => {
     badgeDateFormatter = new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'short', day: 'numeric' });

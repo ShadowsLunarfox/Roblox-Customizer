@@ -86,6 +86,9 @@ test('private games without native actions pin to Home in English and both Chine
           assert.equal(await browser.evaluate("document.querySelector('#rc-pin-game').getBoundingClientRect().height>=44 && document.documentElement.scrollWidth<=innerWidth"), true);
           assert.equal(await browser.evaluate("getComputedStyle(document.querySelector('#rc-pin-game')).color===getComputedStyle(document.body).color"), true, 'The standalone control follows the active theme');
           await browser.click('#rc-pin-game');
+          await browser.waitFor("!document.querySelector('.rc-game-pin-folder').hidden");
+          assert.equal(await browser.evaluate("JSON.parse(localStorage.getItem('pins')||'[]').length"), 0, 'The folder prompt opens before the pin is saved');
+          await browser.click('#rc-confirm-pin-game');
           await browser.waitFor("document.querySelector('#rc-pin-game')?.getAttribute('aria-pressed')==='true' && !document.querySelector('#rc-pin-game').disabled");
           const saved = await browser.evaluate("JSON.parse(localStorage.getItem('pins'))");
           assert.equal(saved.length, 1); assert.equal(saved[0].placeId, 71); assert.equal(saved[0].universeId, 1071);
@@ -107,6 +110,8 @@ test('private games without native actions pin to Home in English and both Chine
     await browser.evaluate("privateMode='api';RobloxCustomizerI18n.setLanguage('en');go('/games/71')");
     await browser.waitFor("document.querySelector('#rc-pin-game') && !document.querySelector('#rc-pin-game').disabled");
     await browser.click('#rc-pin-game');
+    await browser.waitFor("!document.querySelector('.rc-game-pin-folder').hidden");
+    await browser.click('#rc-confirm-pin-game');
     await browser.waitFor("document.querySelector('#rc-pin-game')?.getAttribute('aria-pressed')==='true'");
     await browser.evaluate(`const row=document.createElement('ul');row.className='favorite-follow-vote-share';row.innerHTML='<li class="game-favorite-button-container"><button id="toggle-game-favorite">Favorite</button></li>';document.querySelector('#game-detail-page').append(row);document.querySelector('#toggle-game-favorite').onclick=()=>nativeClicks++`);
     await browser.waitFor("document.querySelector('#rc-pin-game')?.parentElement.tagName==='LI'");
@@ -124,6 +129,8 @@ test('private games without native actions pin to Home in English and both Chine
     await browser.evaluate("privateMode='offline';go('/games/71')");
     await browser.waitFor("document.querySelector('#rc-pin-game') && !document.querySelector('#rc-pin-game').disabled");
     await browser.click('#rc-pin-game');
+    await browser.waitFor("!document.querySelector('.rc-game-pin-folder').hidden");
+    await browser.click('#rc-confirm-pin-game');
     await browser.waitFor("!!document.querySelector('#rc-pinned-games-notification') && !document.querySelector('#rc-pin-game').disabled");
     assert.equal(await browser.evaluate("JSON.parse(localStorage.getItem('pins')).length"), 0, 'Unverified offline metadata cannot create a pin');
     assert.equal(await browser.evaluate("apiRequests.filter(request=>request.credentials==='include').every(request=>new URL(request.url).pathname==='/v1/games/multiget-place-details')"), true);

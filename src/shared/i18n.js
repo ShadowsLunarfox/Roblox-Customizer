@@ -60,8 +60,24 @@
     ['Unpin game', '取消置顶游戏', '取消釘選遊戲'], ['Unpin {name}', '取消置顶 {name}', '取消釘選 {name}'],
     ['Join Game', '加入游戏', '加入遊戲'], ['Join', '加入', '加入'], ['Join {name}', '加入 {name}', '加入 {name}'],
     ['Use Pin Game on a game page to add public or private games here.', '使用游戏页面上的“置顶游戏”按钮，将公开或私人游戏添加到这里。', '使用遊戲頁面上的「釘選遊戲」按鈕，將公開或私人遊戲加入這裡。'],
-    ['List Full', '列表已满', '清單已滿'], ['Game unpinned', '已取消置顶游戏', '已取消釘選遊戲'],
+    ['Game unpinned', '已取消置顶游戏', '已取消釘選遊戲'],
     ['Game pinned to Home', '游戏已置顶到主页', '遊戲已釘選至首頁'],
+    ['All games', '全部游戏', '所有遊戲'], ['Uncategorized', '未分类', '未分類'],
+    ['{count} games', '{count} 个游戏', '{count} 個遊戲'],
+    ['New folder', '新建文件夹', '新增資料夾'], ['Rename folder', '重命名文件夹', '重新命名資料夾'],
+    ['Delete folder', '删除文件夹', '刪除資料夾'], ['Game folders', '游戏文件夹', '遊戲資料夾'],
+    ['Folder name', '文件夹名称', '資料夾名稱'], ['Save folder', '保存文件夹', '儲存資料夾'],
+    ['Cancel', '取消', '取消'],
+    ['Folder', '文件夹', '資料夾'], ['Folder for {name}', '{name} 的文件夹', '{name} 的資料夾'],
+    ['Pinned game folder', '置顶游戏文件夹', '釘選遊戲資料夾'],
+    ['Choose a folder, then pin this game.', '选择文件夹，然后置顶此游戏。', '選擇資料夾，然後釘選此遊戲。'],
+    ['Changing this folder moves the pinned game.', '更改文件夹会移动此置顶游戏。', '變更資料夾會移動此釘選遊戲。'],
+    ['Create folders in Pinned Games on Home.', '在主页的“置顶游戏”中创建文件夹。', '在首頁的「釘選遊戲」中建立資料夾。'],
+    ['Pinned game moved.', '已移动置顶游戏。', '已移動釘選遊戲。'],
+    ['Show more games', '显示更多游戏', '顯示更多遊戲'],
+    ['No games in this folder. Choose a folder on a pinned game to move it here.', '此文件夹中暂无游戏。在置顶游戏的卡片上选择文件夹即可将它移到这里。', '此資料夾尚無遊戲。在釘選遊戲的卡片上選擇資料夾，即可將它移到這裡。'],
+    ['Folder deleted. Its games are now Uncategorized.', '文件夹已删除，其中的游戏已移至“未分类”。', '資料夾已刪除，其中的遊戲已移至「未分類」。'],
+    ['The game or folder no longer exists.', '游戏或文件夹已不存在。', '遊戲或資料夾已不存在。'],
     ['Could not update pinned games. Please try again.', '无法更新置顶游戏，请重试。', '無法更新釘選遊戲，請重試。'],
     ['Could not join this game. Open its page and try again.', '无法加入游戏，请打开游戏页面后重试。', '無法加入遊戲，請開啟遊戲頁面後重試。'],
     ['This game cannot be pinned right now.', '目前无法置顶此游戏。', '目前無法釘選此遊戲。'],
@@ -249,7 +265,7 @@
   let timer = null;
 
   const ROOTS = '#rc-settings-overlay, .rc-settings-menu-entry, .rc-hide-recommended-game, #rc-home-greeting, '
-    + '.rc-game-pin-control, #rc-pinned-games, #rc-pinned-games-notification, #rc-avatar-2d, #rc-catalog-item-2d, '
+    + '.rc-game-pin-control, .rc-game-pin-folder, #rc-pinned-games, #rc-pinned-games-notification, #rc-avatar-2d, #rc-catalog-item-2d, '
     + '#rc-catalog-item-3d-refresh, #rc-catalog-item-3d-status, #rc-profile-enhancements, #rc-profile-inline-about, '
     + '#rc-x-feed-panel, #rc-youtube-feed-panel, #rc-rolimons-panel, .rc-public-server-filters, '
     + '.rc-public-server-pagination, .rc-private-server-more, .rc-server-metrics, .rc-private-server-summary, '

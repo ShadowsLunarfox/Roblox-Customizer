@@ -249,7 +249,7 @@ html[data-rc-ui-active] #game-detail-page .tab-content > #about,
 html[data-rc-ui-active] #game-detail-page > #rc-people-also-join,
 html[data-rc-ui-active] #game-detail-page #game-badges-container,
 html[data-rc-ui-active] #game-detail-page #game-instances,
-html[data-rc-ui-active] #game-detail-page #running-game-instances-container,
+html[data-rc-ui-active] #game-detail-page :is(#running-game-instances-container, #rbx-public-running-games),
 html[data-rc-ui-active] #game-detail-page #store {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   background-image: none !important;
@@ -258,7 +258,7 @@ html[data-rc-ui-active] #game-detail-page #store {
 }
 
 /* The Servers pane already has glass; nested list panels should not darken it again. */
-html[data-rc-ui-active] #game-detail-page #game-instances #running-game-instances-container,
+html[data-rc-ui-active] #game-detail-page #game-instances :is(#running-game-instances-container, #rbx-public-running-games),
 html[data-rc-ui-active] #game-detail-page #game-instances .server-list-section,
 html[data-rc-ui-active] #game-detail-page #game-instances > .section-content {
   background-color: transparent !important;
@@ -268,12 +268,15 @@ html[data-rc-ui-active] #game-detail-page #game-instances > .section-content {
 }
 
 #game-detail-page #game-instances
-div:has(> div > div > a:is([href*="/private-server/configure?"], [href*="/private-server/configure/"]))
+div:has(> div > div > a:is([href*="/private-server/configure?"], [href*="/private-server/configure/"])):not([data-rc-private-server-compact-list]):not(:has(> [data-rc-private-server-compact]))
 > div:has(.text-title-medium):not([data-rc-private-server-ready]),
-#game-detail-page #game-instances [data-rc-private-server-list]
+#game-detail-page #game-instances [data-rc-private-server-list]:not([data-rc-private-server-compact-list])
 > div:has(.text-title-medium):not([data-rc-private-server-ready]),
 #game-detail-page :is(#private-server-container, #private-game-instances-container)
-.card-item:not([data-rc-private-server-ready]),
+.card-item:not([data-rc-private-server-ready]):not(.rc-private-server-actions),
+#game-detail-page #rbx-private-running-games
+.rbx-private-game-server-item[data-private-server-id]:not([data-rc-private-server-ready]),
+#game-detail-page [data-rc-private-server-compact]:not([data-rc-private-server-ready]),
 #game-detail-page [data-rc-private-server-pending] {
   display: none !important;
 }
@@ -304,6 +307,61 @@ div:has(> div > div > a:is([href*="/private-server/configure?"], [href*="/privat
 
 .rc-private-server-card.rc-private-server-collapsed {
   display: none !important;
+}
+
+/* Current native cards wrap their menu, subscription and Join in one card-item.
+ * Keep that subtree mounted and show the established summary/roster around it. */
+.rc-private-server-modern-card {
+  float: none !important;
+  flex: 0 0 100%;
+  max-width: 100%;
+  list-style: none;
+}
+
+.rc-private-server-modern-card > .rc-private-server-actions {
+  flex-direction: column;
+  min-height: 0;
+  margin: 0;
+  padding: 0 16px 0 0;
+  border: 0;
+  border-right: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 18%);
+  background: transparent !important;
+  overflow: visible;
+}
+
+.rc-private-server-modern-card > .rc-private-server-actions > .player-thumbnails-container,
+.rc-private-server-modern-card .game-server-details > .rbx-private-owner,
+.rc-private-server-modern-card .game-server-details > .rbx-private-game-server-status,
+.rc-private-server-modern-card .game-server-details > .section-header > .font-bold {
+  display: none !important;
+}
+
+.rc-private-server-modern-card .game-server-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0 !important;
+}
+
+.rc-private-server-modern-card .game-server-details > .section-header {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0;
+}
+
+.rc-private-server-modern-card .game-server-join-btn {
+  width: 100%;
+  min-height: 36px;
+}
+
+/* Foundation rows keep the original Configure/Join subtree in the left column.
+ * Its desktop 200px utility must fit the restored 210px summary column. */
+[data-rc-private-server-compact] > .rc-private-server-actions > div {
+  width: 100% !important;
+  min-width: 0 !important;
 }
 
 .rc-private-server-native-card {
@@ -487,8 +545,8 @@ div:has(> div > div > a:is([href*="/private-server/configure?"], [href*="/privat
   opacity: .78;
 }
 
-#game-detail-page #running-game-instances-container [data-rc-server-filtered],
-#game-detail-page #running-game-instances-container [data-rc-server-page-hidden] {
+#game-detail-page :is(#running-game-instances-container, #rbx-public-running-games) [data-rc-server-filtered],
+#game-detail-page :is(#running-game-instances-container, #rbx-public-running-games) [data-rc-server-page-hidden] {
   display: none !important;
 }
 
@@ -716,6 +774,11 @@ html[data-rc-ui-active] .rc-private-server-native-card {
   .rc-private-server-summary,
   .rc-private-server-actions {
     grid-column: 1;
+    border-right: 0;
+  }
+
+  .rc-private-server-modern-card > .rc-private-server-actions {
+    padding-right: 0;
     border-right: 0;
   }
 

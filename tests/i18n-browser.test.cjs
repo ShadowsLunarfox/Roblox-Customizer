@@ -55,7 +55,7 @@ test('Extension UI switches between English and both Chinese variants without lo
         response.setHeader('Content-Type', 'image/svg+xml'); response.end('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="#647abb"/></svg>');
       } else { response.setHeader('Content-Type', 'text/html; charset=utf-8'); response.end(fixture(url.pathname, url.searchParams.get('lang') || 'en')); }
     });
-    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+    await new Promise(resolve => server.listen(Number(process.env.GAME_SERVER_TEST_PORT) || 0, '127.0.0.1', resolve));
     t.after(() => new Promise(resolve => { server.closeAllConnections(); server.close(resolve); }));
     const browser = await isolatedChrome(t, 'ui-languages');
     await browser.send('Emulation.setFocusEmulationEnabled', { enabled: true });

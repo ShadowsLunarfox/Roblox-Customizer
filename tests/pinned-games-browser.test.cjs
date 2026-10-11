@@ -36,7 +36,7 @@ function fixture() {
     const read=()=>JSON.parse(localStorage.getItem('pinnedGames')||'[]');
     function emit(games){listeners.forEach(fn=>fn({pinnedGames:{newValue:games}},'local'))}
     function write(games){localStorage.setItem('pinnedGames',JSON.stringify(games));emit(games)}
-    window.chrome={storage:{local:{async get(){return {pinnedGames:read()}}},onChanged:{addListener:fn=>listeners.push(fn)}},runtime:{lastError:null,sendMessage(message,callback){setTimeout(()=>{let games=read(),status; if(message.action==='pin'){if(games.length===10){callback({ok:false,status:'full',games});return}games.push(record(message.placeId));status='pinned';write(games)}else if(message.action==='unpin'){games=games.filter(g=>g.universeId!==message.universeId);status='unpinned';write(games)}callback({ok:true,games,status})},15)}}};
+    window.chrome={storage:{local:{async get(){return {pinnedGames:read()}}},onChanged:{addListener:fn=>listeners.push(fn)}},runtime:{lastError:null,sendMessage(message,callback){setTimeout(()=>{let games=read(),status; if(message.action==='pin'){games.push(record(message.placeId));status='pinned';write(games)}else if(message.action==='unpin'){games=games.filter(g=>g.universeId!==message.universeId);status='unpinned';write(games)}callback({ok:true,games,status})},15)}}};
     addEventListener('storage',event=>{if(event.key==='pinnedGames')emit(read())});
     window.launches=[];window.favoriteClicks=0;window.notifyClicks=0;window.voteClicks=0;
     window.Roblox={GameLauncher:{joinMultiplayerGame:(...args)=>{launches.push(args);return Promise.resolve()}}};
@@ -88,9 +88,13 @@ class Browser {
     await this.send('Input.dispatchMouseEvent', { type: 'mouseReleased', button: 'left', clickCount: 1, ...position });
     await pause(90);
   }
+  async togglePin() {
+    await this.click('#rc-pin-game');
+    if (await this.evaluate("document.querySelector('#rc-pin-game').getAttribute('aria-pressed')==='false'")) await this.click('#rc-confirm-pin-game');
+  }
 }
 
-test('Game pins appear beside Favorite, persist below Home friends, join natively and show List Full', { skip: !process.env.CHROME_BIN, timeout: 30000 }, async t => {
+test('Game pins appear beside Favorite, persist below Home friends, join natively and pass ten pins', { skip: !process.env.CHROME_BIN, timeout: 30000 }, async t => {
   const profile = fs.mkdtempSync(path.join(workspace, '.tmp-pinned-games-browser-'));
   const server = http.createServer((request, response) => {
     response.setHeader('Cache-Control','no-store');
@@ -146,7 +150,7 @@ test('Game pins appear beside Favorite, persist below Home friends, join nativel
       fs.writeFileSync(path.join(process.env.PINNED_GAMES_SCREENSHOTS, `pin-${width}.png`), Buffer.from(screenshot.data, 'base64'));
     }
   }
-  await browser.click('#rc-pin-game');
+  await browser.togglePin();
   assert.deepEqual(await browser.evaluate(iconRow), expectedRow, 'The longer Unpin Game label still fits in one row');
   assert.equal(await browser.evaluate("document.querySelector('#rc-pin-game').getAttribute('aria-pressed')"), 'true');
   assert.equal(await browser.evaluate("JSON.parse(localStorage.getItem('pinnedGames')).length"), 10);
@@ -180,12 +184,14 @@ test('Game pins appear beside Favorite, persist below Home friends, join nativel
   assert.match(await browser.evaluate("document.querySelector('#rc-pinned-games-notification').textContent"), /Could not join/);
   await browser.evaluate("document.querySelector('.rc-pinned-game-join').addEventListener('click',event=>event.preventDefault(),{once:true});document.querySelector('.rc-pinned-game-join').click()");
   assert.equal(await browser.evaluate('launches.length'), 1, 'Synthetic clicks cannot start the launcher');
-  await browser.evaluate("go('/games/11')"); await pause(110); await browser.click('#rc-pin-game');
-  assert.equal(await browser.evaluate("document.querySelector('#rc-pinned-games-notification').textContent"), 'List Full');
-  assert.equal(await browser.evaluate("JSON.parse(localStorage.getItem('pinnedGames')).length"), 10);
+  await browser.evaluate("go('/games/11')"); await pause(110); await browser.togglePin();
+  assert.equal(await browser.evaluate("document.querySelector('#rc-pinned-games-notification').textContent"), 'Game pinned to Home');
+  assert.equal(await browser.evaluate("JSON.parse(localStorage.getItem('pinnedGames')).length"), 11);
   await browser.evaluate("go('/home')"); await pause(110); await browser.click('.rc-pinned-game-remove');
-  assert.equal(await browser.evaluate("document.querySelectorAll('.rc-pinned-game-card').length"), 9);
-  await browser.evaluate("go('/games/11')"); await pause(110); await browser.click('#rc-pin-game');
+  assert.equal(await browser.evaluate("document.querySelectorAll('.rc-pinned-game-card').length"), 10);
+  await browser.evaluate("go('/games/11')"); await pause(110); await browser.togglePin();
+  assert.equal(await browser.evaluate("document.querySelector('#rc-pin-game').getAttribute('aria-pressed')"), 'false');
+  await browser.togglePin();
   assert.equal(await browser.evaluate("document.querySelector('#rc-pin-game').getAttribute('aria-pressed')"), 'true');
   await browser.evaluate("go('/home')"); await pause(110);
   await browser.send('Page.reload'); await pause(220);
@@ -200,7 +206,7 @@ test('Game pins appear beside Favorite, persist below Home friends, join nativel
   await secondary.send('Page.enable'); await pause(160);
   await browser.click('.rc-pinned-game-remove'); await pause(90);
   assert.equal(await secondary.evaluate("document.querySelector('#rc-pin-game').disabled"), false);
-  await secondary.click('#rc-pin-game'); await pause(120);
+  await secondary.togglePin(); await pause(120);
   await browser.send('Page.bringToFront');
   await browser.evaluate('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))');
   assert.equal(await browser.evaluate("document.querySelectorAll('.rc-pinned-game-card').length"), 10);

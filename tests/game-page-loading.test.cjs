@@ -5,13 +5,16 @@ const vm = require('node:vm');
 const { test } = require('node:test');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'src/pages/games/game-page.js'), 'utf8');
+const labels = fs.readFileSync(path.join(__dirname, '..', 'src/shared/native-labels.js'), 'utf8');
 const exposed = source.replace(/  syncPrivateServers\(\);\s*  schedule\(\);\s*\}\)\(\);\s*$/, `
-  globalThis.gameLoading = { initialize, waitForServerContent,
+  globalThis.gameLoading = { initialize, waitForServerContent, syncServerPaneLoading,
     bind(state) {
       currentPage = () => state;
       aboutReady = () => state.about.loaded;
       syncPrivateServers = () => {};
+      publicServerCards = container => container?.loaded ? [{}] : [];
       moveRecommendations = () => {};
+      schedule = () => {};
     }
   };
 })();`);
@@ -28,8 +31,11 @@ function environment(readyState = 'interactive') {
     disconnect() { observers.delete(this); }
   }
   const pane = () => ({ isConnected: true, loaded: true, textContent: '',
-    classList: { contains: () => true },
+    active: false, rect: { top: 2000, bottom: 2200, height: 200 },
+    classList: { contains() { return this.owner.active; } },
+    getBoundingClientRect() { return this.rect; },
     querySelector(selector) {
+      if (selector.includes('#running-game-instances-container')) return this.publicList ? this : null;
       if (selector.includes('.card-item')) return this.loaded ? {} : null;
       if (selector.includes('/private-server/configure')) return this.configure ? {} : null;
       return null;
@@ -38,6 +44,9 @@ function environment(readyState = 'interactive') {
   const about = pane();
   const store = pane();
   const servers = pane();
+  servers.publicList = true;
+  about.active = true;
+  for (const node of [about, store, servers]) node.classList.owner = node;
   const page = { isConnected: true, getAttribute: name => name === 'data-place-id' ? '123' : null,
     querySelector: selector => ({ '#about': about, '#store': store, '#game-instances': servers })[selector] || null };
   const document = { readyState, querySelector: () => null, addEventListener() {} };
@@ -45,16 +54,20 @@ function environment(readyState = 'interactive') {
   const clicks = [];
   const restored = [];
   const state = { page, about, placeId: '123', links: ['about', 'store', 'servers'].map(name => ({
-    click() { clicks.push({ name, time }); about.loaded = name === 'about'; }
+    click() {
+      clicks.push({ name, time }); about.loaded = name === 'about';
+      for (const [key, node] of Object.entries({ about, store, servers })) node.active = key === name;
+    }
   })) };
   const context = vm.createContext({ document, location, URL, Intl,
     Date: class extends Date { static now() { return time; } },
     MutationObserver: Observer, ResizeObserver: Observer, window: { addEventListener() {} },
-    history: { state: { native: true }, replaceState(...args) { restored.push(args); } },
+    history: { state: { native: true }, replaceState(...args) { restored.push(args); } }, innerHeight: 800,
     setTimeout(callback, delay) { timers.set(++timerId, { callback, due: time + delay }); return timerId; },
     clearTimeout(id) { timers.delete(id); }
   });
   vm.runInContext(exposed, context);
+  vm.runInContext(labels, context);
   const api = context.gameLoading;
   api.bind(state);
   return { api, document, page, about, store, servers, state, location, clicks, restored, timers,
@@ -149,4 +162,95 @@ test('initialization leaves the native tabs alone while HTML is still parsing', 
   const env = environment('loading');
   await env.api.initialize();
   assert.deepEqual(env.clicks, []);
+});
+
+test('private content cannot finish loading while public servers are still pending', async () => {
+  const env = environment();
+  env.servers.loaded = false;
+  env.servers.configure = true;
+  const loading = env.api.waitForServerContent(env.page);
+  let finished = false;
+  loading.then(() => { finished = true; });
+  await Promise.resolve();
+  assert.equal(finished, false);
+  env.update(env.servers, { loaded: true });
+  assert.equal(await loading, true);
+});
+
+test('only public empty-state messages finish server loading across languages', async () => {
+  for (const text of ['No private servers found', '没有私人服务器', '尚無私人伺服器']) {
+    const env = environment();
+    env.servers.loaded = false;
+    env.servers.textContent = text;
+    const loading = env.api.waitForServerContent(env.page, 100);
+    env.advance(100);
+    assert.equal(await loading, false, text);
+  }
+  for (const text of ['No public servers available.', '没有可用的公共服务器', '暫無伺服器']) {
+    const env = environment();
+    env.servers.loaded = false;
+    env.servers.textContent = text;
+    assert.equal(await env.api.waitForServerContent(env.page), true, text);
+  }
+});
+
+test('a timed-out offscreen server list recovers on approach and stays active until leaving', async () => {
+  const env = environment();
+  env.servers.loaded = false;
+  const loading = env.api.initialize();
+  for (let i = 0; i < 4; i++) await Promise.resolve();
+  assert.deepEqual(env.clicks.map(({ name }) => name), ['store', 'servers']);
+  env.advance(15_000);
+  await loading;
+  assert.equal(env.about.active, true);
+  env.api.syncServerPaneLoading();
+  assert.equal(env.clicks.length, 3, 'No offscreen retry loop');
+
+  env.servers.rect = { top: 900, bottom: 1100, height: 200 };
+  env.api.syncServerPaneLoading();
+  assert.deepEqual(env.clicks.map(({ name }) => name), ['store', 'servers', 'about', 'servers']);
+  assert.equal(env.restored.at(-1)[2], env.location.href);
+  env.advance(60_000);
+  env.api.syncServerPaneLoading();
+  assert.equal(env.servers.active, true, 'A second slow load stays selected while nearby');
+  assert.equal(env.clicks.length, 4, 'No repeated tab clicks while loading');
+  env.update(env.servers, { loaded: true });
+  env.api.syncServerPaneLoading();
+  assert.equal(env.clicks.length, 4, 'Loaded content remains untouched');
+
+  env.servers.rect = { top: 2000, bottom: 2200, height: 200 };
+  env.api.syncServerPaneLoading();
+  assert.equal(env.about.active, true, 'About is restored when scrolling back up');
+  env.servers.rect = { top: 400, bottom: 600, height: 200 };
+  env.api.syncServerPaneLoading();
+  assert.equal(env.clicks.length, 5, 'Revisiting an intact list does not reload it');
+});
+
+test('native content discarded after initialization recovers without replaying Store', async () => {
+  const env = environment();
+  await env.api.initialize();
+  env.servers.loaded = false;
+  env.servers.rect = { top: 400, bottom: 600, height: 200 };
+  env.api.syncServerPaneLoading();
+  assert.deepEqual(env.clicks.map(({ name }) => name), ['store', 'servers', 'about', 'servers']);
+  env.servers.loaded = true;
+  env.api.syncServerPaneLoading();
+  env.document.hidden = true;
+  env.servers.rect = { top: 2000, bottom: 2200, height: 200 };
+  env.api.syncServerPaneLoading();
+  assert.equal(env.clicks.length, 4, 'Hidden documents cannot change native tabs');
+  env.document.hidden = false;
+  env.api.syncServerPaneLoading();
+  assert.equal(env.clicks.length, 5);
+});
+
+test('recovery never clicks stale tabs after game navigation', async () => {
+  const env = environment();
+  await env.api.initialize();
+  env.servers.loaded = false;
+  env.servers.rect = { top: 400, bottom: 600, height: 200 };
+  env.state.placeId = '456';
+  env.location.pathname = '/games/456/Next';
+  env.api.syncServerPaneLoading();
+  assert.equal(env.clicks.length, 3);
 });

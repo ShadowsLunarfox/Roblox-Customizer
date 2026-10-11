@@ -92,7 +92,7 @@ test('private cards stay hidden before startup and reveal complete data together
       response.setHeader('Content-Type', 'text/html; charset=utf-8'); response.end(fixture(url));
     }
   });
-  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  await new Promise(resolve => server.listen(Number(process.env.GAME_SERVER_TEST_PORT) || 0, '127.0.0.1', resolve));
   const child = spawn(process.env.CHROME_BIN, ['--headless=new', '--disable-gpu', '--disable-background-networking',
     '--no-first-run', '--no-default-browser-check', '--remote-debugging-port=0', `--user-data-dir=${profile}`, 'about:blank'],
   { windowsHide: true, stdio: 'ignore' });
@@ -101,6 +101,7 @@ test('private cards stay hidden before startup and reveal complete data together
     if (browser) { await Promise.race([browser.send('Browser.close').catch(() => {}), pause(1000)]); browser.socket.close(); }
     if (child.exitCode === null) await Promise.race([new Promise(resolve => child.once('exit', resolve)), pause(1000)]);
     if (child.exitCode === null) child.kill();
+    await pause(300);
     await new Promise(resolve => server.close(resolve));
     assert.equal(path.dirname(path.resolve(profile)), workspace);
     fs.rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
@@ -112,6 +113,9 @@ test('private cards stay hidden before startup and reveal complete data together
   const target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find(tab => tab.type === 'page');
   browser = new Browser(target.webSocketDebuggerUrl);
   await browser.send('Page.enable'); await browser.send('Runtime.enable');
+  await browser.send('Network.enable');
+  await browser.send('Network.setCacheDisabled', { cacheDisabled: true });
+  await browser.send('Emulation.setFocusEmulationEnabled', { enabled: true });
   await browser.send('Fetch.enable', { patterns: [{ urlPattern: 'https://*' }] });
   for (const query of ['', '?shared=1', '?late-image=1']) {
     await browser.send('Page.navigate', { url: `http://127.0.0.1:${server.address().port}/games/4623386862/Piggy${query}` });

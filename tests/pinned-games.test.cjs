@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { webcrypto } = require('node:crypto');
 const { test } = require('node:test');
 const core = require('../src/home/pinned-games-core.js');
 const source = fs.readFileSync(path.join(__dirname, '..', 'src/background/pinned-games-background.js'), 'utf8');
@@ -12,15 +13,19 @@ const record = id => ({ placeId: id, universeId: id + 1000, name: `Game ${id}`,
 function worker(initial = [], options = {}) {
   let listener;
   let data = clean(initial);
+  let folders = clean(options.folders || []);
   let writes = 0;
   const requests = [];
   const context = vm.createContext({
-    RobloxCustomizerPinnedGames: core, URL, URLSearchParams, AbortController, setTimeout, clearTimeout,
+    RobloxCustomizerPinnedGames: core, URL, URLSearchParams, AbortController, setTimeout, clearTimeout, crypto: webcrypto,
     chrome: {
       runtime: { id: 'test-extension', onMessage: { addListener(fn) { listener = fn; } } },
       storage: { local: {
-        async get() { return { [core.STORAGE_KEY]: clean(data) }; },
-        async set(value) { if (options.storageError) throw new Error('Storage unavailable'); data = clean(value[core.STORAGE_KEY]); writes++; }
+        async get() { return { [core.STORAGE_KEY]: clean(data), [core.FOLDERS_KEY]: clean(folders) }; },
+        async set(value) {
+          if (options.storageError) throw new Error('Storage unavailable');
+          data = clean(value[core.STORAGE_KEY]); folders = clean(value[core.FOLDERS_KEY]); writes++;
+        }
       } }
     },
     async fetch(value, config) {
@@ -59,16 +64,17 @@ function worker(initial = [], options = {}) {
       if (handled !== true) resolve(null);
     });
   }
-  return { send, requests, get data() { return clean(data); }, get writes() { return writes; } };
+  return { send, requests, get data() { return clean(data); }, get folders() { return clean(folders); }, get writes() { return writes; } };
 }
 
-test('pin records are bounded, deduplicated and accept only Roblox CDN icons', () => {
+test('pin records preserve large collections, deduplicate and accept only Roblox CDN icons', () => {
   const input = [null, {}, { ...record(1), placeId: '1' }, record(1), record(1),
     { ...record(2), iconUrl: 'https://rbxcdn.com.attacker.test/image.png' },
     { ...record(3), iconUrl: 'javascript:alert(1)' }, ...Array.from({ length: 15 }, (_, index) => record(index + 4))];
   const games = core.normalize(input);
-  assert.equal(games.length, 10);
-  assert.equal(new Set(games.map(game => game.universeId)).size, 10);
+  assert.equal(games.length, 18);
+  assert.equal(new Set(games.map(game => game.universeId)).size, 18);
+  assert.equal(core.normalize(Array.from({ length: 1500 }, (_, i) => record(i + 1))).length, 1500);
   assert.equal(games[1].iconUrl, ''); assert.equal(games[2].iconUrl, '');
   assert.equal(core.iconUrl('http://tr.rbxcdn.com/test.png'), '');
   assert.equal(core.iconUrl('https://user:pass@tr.rbxcdn.com/test.png'), '');
@@ -142,12 +148,12 @@ test('private page fallback cannot create unverified pins or trust mismatched ID
   assert.equal(env.data[0].iconUrl, '');
 });
 
-test('concurrent pins from multiple tabs stop at ten without a lost update', async () => {
+test('concurrent pins from multiple tabs pass ten without a lost update', async () => {
   const env = worker(Array.from({ length: 9 }, (_, index) => record(index + 1)));
   const results = await Promise.all([env.send('pin', { placeId: 10 }, '/games/10'), env.send('pin', { placeId: 11 }, '/games/11')]);
-  assert.equal(results[0].status, 'pinned'); assert.equal(results[1].status, 'full');
-  assert.equal(env.data.length, 10); assert.equal(env.writes, 1);
-  assert.equal(env.requests.length, 3, 'A full list requires no extra metadata request');
+  assert.equal(results[0].status, 'pinned'); assert.equal(results[1].status, 'pinned');
+  assert.equal(env.data.length, 11); assert.equal(env.writes, 2);
+  assert.equal(env.requests.length, 6);
 });
 
 test('duplicates and subplaces share one pin, and unpinning makes space', async () => {
@@ -160,12 +166,12 @@ test('duplicates and subplaces share one pin, and unpinning makes space', async 
   assert.equal((await env.send('pin', { placeId: 1 }, '/games/1')).status, 'pinned');
 });
 
-test('a full list still permits unpinning and adding a replacement', async () => {
+test('a large list still permits unpinning and adding another game', async () => {
   const env = worker(Array.from({ length: 10 }, (_, index) => record(index + 1)));
-  assert.equal((await env.send('pin', { placeId: 11 }, '/games/11')).status, 'full');
-  await env.send('unpin', { universeId: 1005 });
   assert.equal((await env.send('pin', { placeId: 11 }, '/games/11')).status, 'pinned');
-  assert.equal(env.data.length, 10); assert.equal(env.data.some(game => game.placeId === 5), false);
+  await env.send('unpin', { universeId: 1005 });
+  assert.equal((await env.send('pin', { placeId: 12 }, '/games/12')).status, 'pinned');
+  assert.equal(env.data.length, 11); assert.equal(env.data.some(game => game.placeId === 5), false);
 });
 
 test('missing thumbnails retain a usable pin and stale icons refresh in a single batch', async () => {
@@ -204,4 +210,147 @@ test('worker rejects mismatched place IDs, invalid IDs, unrelated pages and othe
   assert.equal(await env.send('list', {}, '/home', { url: 'http://www.roblox.com/home' }), null);
   assert.equal(await env.send('unpin', { universeId: '1001' }), null);
   assert.equal(env.requests.length, 0); assert.equal(env.writes, 0);
+});
+
+test('old pins migrate without data loss and invalid folder records and memberships are sanitized', () => {
+  const games = [record(1), { ...record(2), folderId: 'folder-1' }, { ...record(3), folderId: 'missing' }];
+  assert.deepEqual(core.state([games[0]], undefined), { games: [games[0]], folders: [] });
+  const state = core.state(games, [null, {}, { id: 'folder-1', name: ' Search ' },
+    { id: 'folder-1', name: 'Duplicate' }, { id: '<script>', name: 'Invalid ID' }, { id: 'empty', name: '  ' }]);
+  assert.deepEqual(state.folders, [{ id: 'folder-1', name: 'Search' }]);
+  assert.equal(state.games[1].folderId, 'folder-1');
+  assert.equal(state.games[2].folderId, undefined);
+  assert.equal(core.folderName('x'.repeat(100)).length, 80);
+});
+
+test('folders create, rename and persist; moving and deleting folders never unpins games', async () => {
+  const env = worker([record(1), record(2)]);
+  const first = await env.send('create-folder', { name: '  收藏 <img onerror=alert(1)>  ' });
+  const second = await env.send('create-folder', { name: 'Private projects' });
+  assert.equal(first.ok, true); assert.equal(second.ok, true);
+  assert.notEqual(first.folderId, second.folderId);
+  assert.equal(env.folders[0].name, '收藏 <img onerror=alert(1)>');
+  assert.equal((await env.send('move', { universeId: 1001, folderId: first.folderId })).ok, true);
+  assert.equal((await env.send('move', { universeId: 1002, folderId: second.folderId })).ok, true);
+  await env.send('rename-folder', { folderId: first.folderId, name: 'Search' });
+  const restarted = worker(env.data, { folders: env.folders });
+  assert.deepEqual((await restarted.send('list')).folders, env.folders);
+  await restarted.send('delete-folder', { folderId: first.folderId });
+  assert.equal(restarted.data.length, 2);
+  assert.equal(restarted.data[0].folderId, undefined);
+  assert.equal(restarted.data[1].folderId, second.folderId);
+  assert.deepEqual(restarted.folders, [{ id: second.folderId, name: 'Private projects' }]);
+  await restarted.send('move', { universeId: 1002, folderId: '' });
+  assert.equal(restarted.data[1].folderId, undefined);
+  assert.equal(env.requests.length, 0, 'Folder changes need no Roblox network requests');
+});
+
+test('concurrent folder edits and pins serialize without losing category changes', async () => {
+  const env = worker([record(1)], { folders: [{ id: 'friends', name: 'Friends' }] });
+  await Promise.all([
+    env.send('move', { universeId: 1001, folderId: 'friends' }),
+    env.send('pin', { placeId: 2 }, '/games/2'),
+    env.send('rename-folder', { folderId: 'friends', name: 'Together' })
+  ]);
+  assert.equal(env.data.length, 2);
+  assert.equal(env.data[0].folderId, 'friends');
+  assert.equal(env.folders[0].name, 'Together');
+  await Promise.all([env.send('delete-folder', { folderId: 'friends' }), env.send('move', { universeId: 1002, folderId: 'friends' })]);
+  assert.equal(env.data.length, 2);
+  assert.equal(env.data.every(game => !game.folderId), true, 'Deleted folders cannot be resurrected by a late move');
+});
+
+test('folder actions reject invalid input, unrelated routes and missing targets without losing data', async () => {
+  const env = worker([record(1)], { folders: [{ id: 'one', name: 'One' }] });
+  for (const [action, input] of [
+    ['create-folder', { name: '  ' }], ['create-folder', { name: {} }],
+    ['rename-folder', { folderId: 'one', name: '' }], ['delete-folder', { folderId: '../one' }],
+    ['move', { universeId: '1001', folderId: 'one' }], ['move', { universeId: 1001, folderId: null }]
+  ]) assert.equal(await env.send(action, input), null);
+  assert.equal(await env.send('create-folder', { name: 'No' }, '/games/1'), null);
+  assert.equal(await env.send('delete-folder', { folderId: 'one' }, '/catalog/1'), null);
+  for (const [action, input] of [
+    ['rename-folder', { folderId: 'missing', name: 'Other' }],
+    ['delete-folder', { folderId: 'missing' }], ['move', { universeId: 1001, folderId: 'missing' }],
+    ['move', { universeId: 9000, folderId: 'one' }]
+  ]) assert.equal((await env.send(action, input)).ok, false);
+  assert.equal(env.writes, 0);
+  const failing = worker([record(1)], { storageError: true });
+  assert.equal((await failing.send('create-folder', { name: 'Test' })).ok, false);
+  assert.deepEqual(failing.folders, []);
+  assert.equal(failing.data.length, 1);
+});
+
+test('large metadata refreshes use small batches and preserve all pins and folder membership', async () => {
+  const games = Array.from({ length: 125 }, (_, i) => ({ ...record(i + 1), updatedAt: 0, folderId: 'all' }));
+  const env = worker(games, { folders: [{ id: 'all', name: 'Large library' }] });
+  const response = await env.send('list');
+  assert.equal(response.games.length, 125);
+  assert.equal(response.games.every(game => game.folderId === 'all'), true);
+  assert.equal(env.requests.length, 2);
+  assert.equal(env.requests.every(request => new URL(request.url).searchParams.get('universeIds').split(',').length <= 10), true);
+  assert.equal(response.games.filter(game => game.updatedAt > 0).length, 10);
+});
+
+test('unavailable thumbnails cannot starve later pins after a worker restart', async () => {
+  const games = Array.from({ length: 35 }, (_, i) => ({ ...record(i + 1), updatedAt: 0 }));
+  const first = worker(games, { thumbnailState: 'Blocked' });
+  await first.send('list');
+  assert.equal(first.data.filter(game => game.checkedAt > 0).length, 10);
+  assert.equal(first.data.every(game => game.updatedAt === 0), true);
+  const restarted = worker(first.data, { thumbnailState: 'Blocked' });
+  await restarted.send('list');
+  assert.equal(new URL(restarted.requests[0].url).searchParams.get('universeIds'),
+    Array.from({ length: 10 }, (_, i) => String(1011 + i)).join(','));
+  assert.equal(restarted.data.length, 35);
+  assert.equal(restarted.data.filter(game => game.checkedAt > 0).length, 20);
+});
+
+test('game page pins save their selected folder in the same write, including private experiences', async () => {
+  for (const options of [{}, { missingGame: true, privateGame: {} }]) {
+    const env = worker([], { ...options, folders: [{ id: 'projects', name: 'Projects' }] });
+    const response = await env.send('pin', { placeId: 1, folderId: 'projects' }, '/games/1');
+    assert.equal(response.ok, true);
+    assert.equal(env.data[0].folderId, 'projects');
+    assert.equal(env.writes, 1, 'The pin and its category are saved atomically');
+    assert.equal((await env.send('pin', { placeId: 1, folderId: '' }, '/games/1')).status, 'already-pinned');
+    assert.equal(env.data[0].folderId, 'projects', 'A duplicate pin never overwrites an existing category');
+  }
+  const env = worker([], { folders: [{ id: 'other', name: 'Other' }] });
+  assert.equal((await env.send('pin', { placeId: 1, folderId: 'deleted' }, '/games/1')).ok, false);
+  assert.equal(env.requests.length, 0);
+  assert.equal(env.writes, 0);
+  for (const folderId of [null, 1, {}, '../projects']) {
+    assert.equal(await env.send('pin', { placeId: 1, folderId }, '/games/1'), null);
+  }
+});
+
+test('game pages move the current pin and verified subplaces without allowing unrelated games', async () => {
+  const folders = [{ id: 'projects', name: 'Projects' }];
+  const env = worker([record(1), record(2)], { folders });
+  assert.equal((await env.send('move', { placeId: 1, universeId: 1001, folderId: 'projects' }, '/games/1')).ok, true);
+  assert.equal(env.data[0].folderId, 'projects');
+  assert.equal(env.requests.length, 0, 'Moving a root place needs no metadata request');
+  assert.equal((await env.send('move', { placeId: 1, universeId: 1001, folderId: '' }, '/games/1')).ok, true);
+  assert.equal(env.data[0].folderId, undefined);
+  assert.equal(await env.send('move', { placeId: 2, universeId: 1001, folderId: 'projects' }, '/games/1'), null);
+  assert.equal(await env.send('move', { universeId: 1001, folderId: 'projects' }, '/games/1'), null);
+  assert.equal((await env.send('move', { placeId: 1, universeId: 1002, folderId: 'projects' }, '/games/1')).ok, false);
+  assert.equal(env.data[1].folderId, undefined);
+  const subplace = worker([record(1)], { folders, sharedUniverse: 1001 });
+  assert.equal((await subplace.send('move', { placeId: 999, universeId: 1001, folderId: 'projects' }, '/games/999')).ok, true);
+  assert.equal(subplace.data[0].folderId, 'projects');
+  const offline = worker([record(1)], { folders, networkError: true });
+  assert.equal((await offline.send('move', { placeId: 999, universeId: 1001, folderId: 'projects' }, '/games/999')).ok, false);
+  assert.equal(offline.writes, 0);
+});
+
+test('a folder deleted in another tab cannot leave a new pin with dangling membership', async () => {
+  const env = worker([], { folders: [{ id: 'projects', name: 'Projects' }] });
+  const results = await Promise.all([
+    env.send('delete-folder', { folderId: 'projects' }),
+    env.send('pin', { placeId: 1, folderId: 'projects' }, '/games/1')
+  ]);
+  assert.equal(results[0].ok, true); assert.equal(results[1].ok, false);
+  assert.equal(env.data.length, 0);
 });

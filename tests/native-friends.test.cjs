@@ -194,3 +194,82 @@ test('server player counts are exposed even when Roblox has no ping value', () =
   assert.equal(button.props['data-rc-playing'], 12);
   assert.equal(button.props['data-rc-ping'], undefined);
 });
+
+test('current private cards expose their numeric ID without replacing native children or callbacks', () => {
+  const { window } = environment('/games/893973440/Flee-the-Facility');
+  const { react } = runtime(window);
+  const nativeChildren = { type: 'div', props: { className: 'card-item', children: 'Native controls' } };
+  const join = () => 'native join';
+  const original = { type: 'li', key: 'native-key', props: {
+    className: 'rbx-private-game-server-item col-md-3', children: nativeChildren, onClick: join
+  } };
+  function Card() { return original; }
+  for (const factory of [react.createElement, window.ReactJSX.jsx, window.ReactJSX.jsxs]) {
+    for (const [vipServerId, id] of [[111, null], [222, '12345678-1234-1234-1234-123456789012']]) {
+      const element = factory(Card, { placeId: 893973440, serverListType: 'private', vipServerId, id,
+        gameServerStatus: 'Running', accessCode: 'must-stay-private' });
+      const result = element.type(element.props);
+      assert.equal(result.props['data-private-server-id'], String(vipServerId));
+      assert.strictEqual(result.props.children, nativeChildren);
+      assert.strictEqual(result.props.onClick, join);
+      assert.equal(result.key, 'native-key');
+      assert.equal(JSON.stringify(result).includes('must-stay-private'), false);
+    }
+  }
+});
+
+test('private identity discovery ignores wrong routes, other games and unfamiliar native structures', () => {
+  for (const pathname of ['/home', '/games/893973440/Flee-the-Facility']) {
+    const { window } = environment(pathname);
+    const { react } = runtime(window);
+    const original = { type: 'li', props: { className: 'rbx-private-game-server-item' } };
+    function Card() { return original; }
+    if (pathname === '/home') {
+      const element = react.createElement(Card, { placeId: 893973440, serverListType: 'private',
+        vipServerId: 111, id: null, gameServerStatus: 'Running' });
+      assert.strictEqual(element.type(element.props), original);
+    }
+    for (const changes of [{ placeId: 999 }, { vipServerId: 0 }, { serverListType: 'public' }]) {
+      const element = react.createElement(Card, { placeId: 893973440, serverListType: 'private',
+        vipServerId: 111, id: null, gameServerStatus: 'Running', ...changes });
+      assert.strictEqual(element.type(element.props), original);
+    }
+    const different = { type: 'section', props: { children: 'A new native deployment' } };
+    const element = react.createElement(() => different, { placeId: 893973440,
+      serverListType: 'private', vipServerId: 111, id: null, gameServerStatus: 'Running' });
+    assert.strictEqual(element.type(element.props), different);
+  }
+});
+
+test('compact VIP rows expose identity without requiring legacy card props or exposing access codes', () => {
+  for (const pathname of ['/home', '/games/893973440/Flee-the-Facility']) {
+    const { window } = environment(pathname);
+    const { react } = runtime(window);
+    const children = [{ type: 'div', props: { children: 'Native summary' } }, { type: 'button', props: {} }];
+    const original = { type: 'div', key: 'native-row', props: {
+      className: 'flex items-center justify-between padding-y-medium width-full', children
+    } };
+    const onJoinClick = () => 'native join';
+    const props = { name: 'Same server name', playerCountStatus: '0 of 5 people max',
+      thumbnailTargetId: 500, onJoinClick, isJoinDisabled: false, vipServerId: 111,
+      showEditIcon: true, joinLabel: '加入', accessCode: 'must-stay-private' };
+    for (const factory of [react.createElement, window.ReactJSX.jsx, window.ReactJSX.jsxs]) {
+      const card = factory(() => original, props);
+      const result = card.type(card.props);
+      if (pathname === '/home') assert.strictEqual(result, original);
+      else {
+        assert.equal(result.props['data-private-server-id'], '111');
+        assert.equal(result.props['data-rc-private-server-compact'], '');
+        assert.strictEqual(result.props.children, children);
+        assert.strictEqual(card.props.onJoinClick, onJoinClick);
+        assert.equal(result.key, original.key);
+        assert.equal(JSON.stringify(result).includes('must-stay-private'), false);
+      }
+      for (const changes of [{ vipServerId: undefined }, { vipServerId: 0 },
+        { placeId: 999 }, { onJoinClick: undefined }, { playerCountStatus: undefined }]) {
+        const other = factory(() => original, { ...props, ...changes });
+        assert.strictEqual(other.type(other.props), original, 'Ignore Create, friends and public rows');
+      }
+    }
+  }
+});
