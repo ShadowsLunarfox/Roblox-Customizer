@@ -4,6 +4,27 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) {
   color: var(--rc-text);
 }
 
+/* A separate backing preserves the containing block of native fixed dialogs. */
+html[data-rc-ui-active] #game-detail-page #store {
+  position: relative;
+  isolation: isolate;
+  background: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html[data-rc-ui-active] #game-detail-page #store::after {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: rgb(var(--rc-glass-color) / var(--rc-surface-opacity, .62));
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  pointer-events: none;
+  content: "";
+}
+
 html[data-rc-ui-active] #game-detail-page #store > :not(script, style) {
   zoom: 1;
 }
@@ -50,6 +71,7 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .
 }
 
 html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -61,16 +83,34 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .
   padding: 10px;
   border: 1px solid rgb(var(--rc-foreground-rgb) / 18%);
   border-radius: 14px;
-  background: rgb(var(--rc-glass-color) / var(--rc-surface-opacity, .62)) !important;
+  background: transparent !important;
   color: var(--rc-text);
-  transition: border-color .15s ease, background-color .15s ease;
+  transition: border-color .15s ease;
+}
+
+/* Blur only the backing so native purchase dialogs keep their viewport positioning. */
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card::before,
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-item::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgb(var(--rc-glass-color) / var(--rc-surface-opacity, .62));
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  pointer-events: none;
+  content: "";
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card > :not(script, style),
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-item > :not(.subscription-card-overlays, script, style) {
+  position: relative;
 }
 
 html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card:hover {
   border-color: var(--rc-control-border);
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-product-card-thumbnail {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :is(.store-product-card-thumbnail, .store-card > a:has(img)) {
   position: relative;
   display: flex;
   align-items: center;
@@ -83,14 +123,14 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .
   background: var(--rc-inset-bg);
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-product-card-thumbnail :is(a, .thumbnail-2d-container) {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :is(.store-product-card-thumbnail, .store-card > a:has(img)) :is(a, .thumbnail-2d-container) {
   display: block;
   width: 100%;
   max-width: 100%;
   height: 100%;
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-product-card-thumbnail img {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :is(.store-product-card-thumbnail, .store-card > a:has(img)) img {
   display: block;
   width: 100%;
   height: 100%;
@@ -107,18 +147,21 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :
   gap: 10px;
   width: 100%;
   min-width: 0;
-  max-width: none;
+  max-width: 100%;
   margin: 12px 0 0;
   padding: 0;
 }
 
 html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :is(.store-product-card-name, .store-card-name) {
+  display: block;
   height: auto;
   min-height: 2.8em;
+  max-height: none;
   margin: 0;
   overflow: visible;
   white-space: normal;
   overflow-wrap: anywhere;
+  -webkit-line-clamp: unset;
   font-size: 15px;
   font-weight: 700;
   line-height: 1.4;
@@ -147,6 +190,7 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .
 }
 
 html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-footer {
+  width: 100%;
   height: auto;
   margin-top: 0;
 }
@@ -164,19 +208,35 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .
 
 html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .PurchaseButton:not(:disabled, .disabled, [aria-disabled="true"]) {
   border-color: transparent;
-  background: #335fff;
-  color: #fff;
+  background: var(--rc-accent, #335fff);
+  color: var(--rc-accent-text, #fff);
 }
 
 html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .pending-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   max-width: calc(100% - 16px);
+  padding: 4px 6px;
   border: 1px solid var(--rc-control-border);
+  border-radius: 6px;
   background: var(--rc-control-bg);
   color: var(--rc-text);
+  font-size: 12px;
+  line-height: 1.3;
 }
 
 html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .pending-icon {
+  display: inline-flex;
   color: inherit;
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .pending-icon svg {
+  width: 14px;
+  height: 14px;
 }
 
 html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .overview-pagination-container {
@@ -205,6 +265,81 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :
 
 html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) [hidden]:not([hidden="until-found"]) {
   display: none !important;
+}
+
+/* Retain the native compact subscription layout, carousel and payment actions. */
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-item {
+  box-sizing: border-box;
+  position: relative;
+  max-width: 100%;
+  min-width: 0;
+  height: auto;
+  min-height: 144px;
+  padding: 12px;
+  border: 1px solid rgb(var(--rc-foreground-rgb) / 18%);
+  border-radius: 14px;
+  background: transparent !important;
+  color: var(--rc-text);
+}
+
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-info {
+  align-items: flex-start;
+  min-width: 0;
+  overflow: visible;
+}
+
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-thumbnail,
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-thumbnail .subscription-thumbnail-container-class {
+  max-width: 100%;
+  border-radius: 10px;
+}
+
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-thumbnail img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: inherit;
+}
+
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-text {
+  min-width: 0;
+  gap: 4px;
+}
+
+html[data-rc-ui-active] #game-detail-page #store :is(.subscription-card-title, .subscription-card-description, .subscription-card-price, .subscription-card-price span) {
+  max-height: none;
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-ui-active] #game-detail-page #store :is(.subscription-card-description, .subscription-card-price, .subscription-card-price span) {
+  color: var(--rc-text-secondary);
+}
+
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--rc-text);
+}
+
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-price {
+  flex-wrap: wrap;
+}
+
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-item > button {
+  width: 100%;
+  min-height: 40px;
+  border-radius: 10px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-item > button:not(:disabled, .disabled, [aria-disabled="true"]) {
+  border-color: transparent;
+  background: var(--rc-accent, #335fff);
+  color: var(--rc-accent-text, #fff);
 }
 
 @media (max-width: 767px) {

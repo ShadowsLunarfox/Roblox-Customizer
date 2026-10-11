@@ -53,6 +53,70 @@
   --rc-panel-opacity: max(var(--rc-page-panel-opacity, .31), var(--rc-surface-opacity-floor));
 }
 
+/* Experimental palette overrides are active only after explicit opt-in.
+   Repeat the tokens on theme roots so body/portal themes cannot shadow them. */
+html[data-rc-custom-colors],
+html[data-rc-custom-colors] :is(.dark-theme, .light-theme) {
+  --rc-color-scheme: var(--rc-custom-color-scheme);
+  --rc-glass-color: var(--rc-custom-background-rgb);
+  --rc-foreground-rgb: var(--rc-custom-text-rgb);
+  --rc-text: var(--rc-custom-text);
+  --rc-text-secondary: var(--rc-custom-text-secondary);
+  --rc-text-muted: var(--rc-custom-text-muted);
+  --rc-surface: var(--rc-custom-background);
+  --rc-control-bg: var(--rc-custom-control-bg);
+  --rc-control-hover: var(--rc-custom-control-hover);
+  --rc-control-border: var(--rc-custom-control-border);
+  --rc-inset-bg: rgb(var(--rc-custom-text-rgb) / 6%);
+  --rc-link: var(--rc-custom-accent);
+  --rc-focus: var(--rc-custom-accent);
+  --rc-accent: var(--rc-custom-accent);
+  --rc-accent-text: var(--rc-custom-accent-text);
+  --rc-accent-hover: var(--rc-custom-accent-hover);
+  --rc-surface-opacity-floor: var(--rc-custom-surface-floor);
+  --rc-surface-opacity: max(var(--rc-glass-opacity, .62), var(--rc-surface-opacity-floor));
+  --rc-panel-opacity: max(var(--rc-page-panel-opacity, .31), var(--rc-surface-opacity-floor));
+  --color-content-emphasis: var(--rc-text);
+  --color-content-default: var(--rc-text-secondary);
+  --color-surface-100: var(--rc-surface);
+  --color-stroke-default: var(--rc-control-border);
+  --color-stroke-emphasis: var(--rc-control-border);
+  --color-action-emphasis-background: var(--rc-accent);
+  --color-selection-start: var(--rc-accent);
+}
+
+html[data-rc-custom-colors] body {
+  color: var(--rc-text) !important;
+}
+
+html[data-rc-custom-colors]:not([data-rc-background-active]),
+html[data-rc-custom-colors]:not([data-rc-background-active]) body {
+  background-color: var(--rc-surface) !important;
+  background-image: none !important;
+}
+
+/* Clear the main page canvas; individual cards retain their glass surfaces. */
+html[data-rc-custom-colors] :is(#wrap, #rbx-body, .rbx-body, #content,
+  #container-main, main.container-main, .content, .content-container,
+  #footer-container, footer.container-footer, #HomeContainer, .home-container) {
+  background-color: transparent !important;
+  background-image: none !important;
+  color: var(--rc-text);
+}
+
+html[data-rc-custom-colors] :is(#content, #HomeContainer, #game-detail-page, #header, #navigation)
+  :is(h1, h2, h3, h4, h5, h6, .text-label, .text-name, .text-title,
+    .text-title-medium, .text-body-medium, .game-card-name):not(:where(
+      button, [role="button"], [role="alert"], .text-error, .text-success, .text-warning),
+      :where(button, [role="button"], [role="alert"], .text-error, .text-success, .text-warning,
+        .menu-option.active, [data-rc-settings-active-tab], .bg-action-emphasis) *) {
+  color: var(--rc-text);
+}
+
+html[data-rc-custom-colors] input:is([type="checkbox"], [type="radio"], [type="range"]) {
+  accent-color: var(--rc-accent);
+}
+
 /* Native form affordances and option menus need the same theme as our panels. */
 :is(#rc-settings-overlay, .rc-public-server-filters, .rc-public-server-pagination,
     #rc-x-feed-panel, #rc-youtube-feed-panel, #rc-avatar-2d,

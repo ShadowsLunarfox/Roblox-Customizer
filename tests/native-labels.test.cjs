@@ -37,6 +37,21 @@ test('Chinese native controls and empty states do not depend on English copy', (
   assert.equal(labels.matches('chat', '聊天模拟器'), false);
 });
 
+test('avatar navigation recognizes current English and Chinese filter names', () => {
+  const cases = {
+    recent: ['Recently Worn', '最近穿戴'], body: ['Body Parts', '身体部位', '身體部位'],
+    expired: ['Expired', '已过期', '已過期'], heads: ['Head', '頭部'],
+    't-shirts': ['T 恤'], sweaters: ['织衫', '織衫'], bottoms: ['裤裙', '褲裙'],
+    'dresses & skirts': ['裙子'], 'classic shirts': ['经典上衣', '經典上衣'],
+    'classic t-shirts': ['经典 T 恤', '經典 T 恤'],
+    emotes: ['Actions', '动作', '動作'], walk: ['Walking', '步行'], fall: ['Falling', '跌落']
+  };
+  for (const [expected, names] of Object.entries(cases)) {
+    for (const name of names) assert.equal(labels.classify('avatar', name), expected, name);
+  }
+  assert.equal(labels.classify('avatar', 'Recently Worn Simulator'), '');
+});
+
 test('localized accessible preview labels identify 2D and 3D controls', () => {
   for (const [text, expected] of [['3D', '3'], ['Switch to 2D', '2'], ['切换至３Ｄ视图', '3'],
     ['切換到 2D 模式', '2'], ['以 3D 檢視', '3']]) assert.equal(labels.previewMode(text), expected, text);

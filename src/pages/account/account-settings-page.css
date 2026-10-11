@@ -153,17 +153,17 @@ html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content :is(.set
 }
 
 html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content :is([data-rc-settings-menu], .settings-left-navigation) .menu-option:is(.active, [aria-selected="true"]) {
-  background: #335fff !important;
-  color: #fff !important;
+  background: var(--rc-accent, #335fff) !important;
+  color: var(--rc-accent-text, #fff) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content :is([data-rc-settings-menu], .settings-left-navigation) .menu-option:is(.active, [aria-selected="true"]) .menu-option-content {
-  color: #fff !important;
+  color: var(--rc-accent-text, #fff) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-active-tab] {
-  background: #335fff !important;
-  color: #fff !important;
+  background: var(--rc-accent, #335fff) !important;
+  color: var(--rc-accent-text, #fff) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-tab]:not([data-rc-settings-active-tab]):not([aria-disabled="true"]):hover {
@@ -283,8 +283,8 @@ html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc
 }
 
 html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-surface] [role="radio"]:not(input, [data-rc-settings-choice])[aria-checked="true"] {
-  border-color: #335fff;
-  box-shadow: inset 0 0 0 1px #335fff;
+  border-color: var(--rc-accent, #335fff);
+  box-shadow: inset 0 0 0 1px var(--rc-accent, #335fff);
 }
 
 html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-surface] :is([role="combobox"], [role="radio"]:not(input, [data-rc-settings-choice])):is(:disabled, [aria-disabled="true"]) {
@@ -479,8 +479,8 @@ html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content :is(
   .btn-primary-lg, .btn-primary-md, .btn-primary-sm, .btn-primary-xs,
   .foundation-web-button.bg-action-emphasis
 ):not(:disabled):not(.disabled):not([aria-disabled="true"]) {
-  background-color: #335fff !important;
-  color: #fff !important;
+  background-color: var(--rc-accent, #335fff) !important;
+  color: var(--rc-accent-text, #fff) !important;
   border-color: transparent !important;
 }
 
@@ -529,7 +529,7 @@ html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content select o
 
 html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content :is(input:is([type="checkbox"], [type="radio"]), [data-rc-settings-choice]) {
   box-sizing: border-box;
-  accent-color: #335fff;
+  accent-color: var(--rc-accent, #335fff);
   flex: 0 0 20px;
   width: 20px !important;
   min-width: 20px !important;
@@ -560,7 +560,7 @@ html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc
 }
 
 html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content [data-rc-settings-choice][aria-checked="true"] {
-  border-color: #335fff;
+  border-color: var(--rc-accent, #335fff);
 }
 
 /* Preserve the native switch's track, thumb positions, labels, and state. */
@@ -569,7 +569,7 @@ html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content :is(.btn
 }
 
 html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content :is(.btn-toggle, [role="switch"]):is(.on, [aria-checked="true"]):not(:disabled, .disabled, [aria-disabled="true"]) {
-  background-color: #335fff !important;
+  background-color: var(--rc-accent, #335fff) !important;
 }
 
 /* Range inputs need their own track; text-field padding hides it in light mode. */
@@ -585,7 +585,7 @@ html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content input[ty
   padding: 0;
   border: 0;
   background: transparent !important;
-  accent-color: #335fff;
+  accent-color: var(--rc-accent, #335fff);
 }
 
 html[data-rc-ui-active][data-rc-frost-page="account-settings"] #content input[type="range"]::-webkit-slider-runnable-track {

@@ -36,6 +36,56 @@
     return Number.isFinite(number) ? Math.max(minimum, Math.min(maximum, number)) : fallback;
   };
 
+  function colorPreferences(settings) {
+    const color = (value, fallback) => typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value)
+      ? value.toLowerCase() : fallback;
+    return {
+      experimentalCustomColors: settings.experimentalCustomColors === true,
+      customTextColor: color(settings.customTextColor, '#f4f6fb'),
+      customBackgroundColor: color(settings.customBackgroundColor, '#14161c'),
+      customAccentColor: color(settings.customAccentColor, '#335fff')
+    };
+  }
+
+  function applyCustomColors(root, settings) {
+    const colors = colorPreferences(settings);
+    const enabled = colors.experimentalCustomColors;
+    const rgb = hex => hex.slice(1).match(/../g).map(channel => parseInt(channel, 16));
+    const mix = (first, second, amount) => `#${first.map((channel, i) =>
+      Math.round(channel * amount + second[i] * (1 - amount)).toString(16).padStart(2, '0')).join('')}`;
+    const luminance = channels => channels.map(channel => channel / 255)
+      .map(channel => channel <= .04045 ? channel / 12.92 : ((channel + .055) / 1.055) ** 2.4)
+      .reduce((sum, channel, i) => sum + channel * [.2126, .7152, .0722][i], 0);
+    const text = rgb(colors.customTextColor);
+    const background = rgb(colors.customBackgroundColor);
+    const accent = rgb(colors.customAccentColor);
+    const accentLuminance = luminance(accent);
+    const accentText = (accentLuminance + .05) / .05 >= 1.05 / (accentLuminance + .05)
+      ? '#000000' : '#ffffff';
+    const lightBackground = luminance(background) > .45;
+    const properties = {
+      '--rc-custom-text': colors.customTextColor,
+      '--rc-custom-text-secondary': mix(text, background, .85),
+      '--rc-custom-text-muted': mix(text, background, .75),
+      '--rc-custom-text-rgb': text.join(' '),
+      '--rc-custom-background': colors.customBackgroundColor,
+      '--rc-custom-background-rgb': background.join(' '),
+      '--rc-custom-control-bg': mix(text, background, .08),
+      '--rc-custom-control-hover': mix(text, background, .15),
+      '--rc-custom-control-border': mix(text, background, .5),
+      '--rc-custom-accent': colors.customAccentColor,
+      '--rc-custom-accent-text': accentText,
+      '--rc-custom-accent-hover': mix(accentText === '#ffffff' ? [0, 0, 0] : [255, 255, 255], accent, .12),
+      '--rc-custom-color-scheme': lightBackground ? 'light' : 'dark',
+      '--rc-custom-surface-floor': lightBackground ? '.82' : '0'
+    };
+    root.toggleAttribute('data-rc-custom-colors', enabled);
+    for (const [name, value] of Object.entries(properties)) {
+      const next = enabled ? value : '';
+      if (root.style.getPropertyValue?.(name) !== next) root.style.setProperty(name, next);
+    }
+  }
+
   function feedPreferences(settings) {
     const preferences = {};
     for (const page of ['Game', 'Community', 'Profile']) {
@@ -54,6 +104,7 @@
     root.style.setProperty('--rc-glass-blur', `${bounded(visuals.glassBlur, 0, 40, 18)}px`);
     root.style.setProperty('--rc-glass-opacity', String(opacity / 100));
     root.style.setProperty('--rc-page-panel-opacity', String(opacity / 200));
+    applyCustomColors(root, visuals);
     root.toggleAttribute('data-rc-background-active', visuals.backgroundActive === true);
     root.removeAttribute('data-rc-hide-recommended');
     for (const part of ['Upper', 'Lower']) {
@@ -124,7 +175,7 @@
   globalThis.RobloxCustomizerStartup = {
     syncRoute,
     setPreferences(settings) {
-      // Cache only appearance flags and numbers, never media URLs or file data.
+      // Cache only appearance flags, numbers and validated colors, never media data.
       cachedVisuals = {
         version: 1,
         glassBlur: bounded(settings.glassBlur, 0, 40, 18),
@@ -137,6 +188,7 @@
           ? settings.hideRecommendedLower : settings.hideRecommended === true,
         hideFavorites: settings.hideFavorites === true,
         hideStandoutGames: settings.hideStandoutGames === true,
+        ...colorPreferences(settings),
         ...feedPreferences(settings)
       };
       applyVisuals(cachedVisuals);

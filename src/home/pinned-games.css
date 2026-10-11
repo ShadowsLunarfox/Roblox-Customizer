@@ -471,13 +471,13 @@ html[data-rc-ui-active] #rc-pinned-games-notification {
   min-height: 38px;
   margin-top: auto;
   border-radius: 8px;
-  background: #335fff;
-  color: #fff;
+  background: var(--rc-accent, #335fff);
+  color: var(--rc-accent-text, #fff);
   font-size: 14px;
   font-weight: 700;
   text-decoration: none;
 }
-#rc-pinned-games .rc-pinned-game-join:hover { background: #244de0; }
+#rc-pinned-games .rc-pinned-game-join:hover { background: var(--rc-accent-hover, #244de0); }
 #rc-pinned-games .rc-pinned-game-remove {
   position: absolute;
   top: 14px;

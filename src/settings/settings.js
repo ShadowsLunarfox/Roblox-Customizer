@@ -21,6 +21,8 @@
   const DEFAULTS = {
     source: 'none', url: '', urlType: 'auto', fileKey: '', fileName: '',
     fit: 'cover', dim: 20, glassBlur: 18, glassOpacity: 62, uiLanguage: 'auto',
+    experimentalCustomColors: false,
+    customTextColor: '#f4f6fb', customBackgroundColor: '#14161c', customAccentColor: '#335fff',
     hideFavorites: false, hideStandoutGames: false,
     hideRecommendedUpper: false, hideRecommendedLower: false,
     hiddenRecommendedGames: [], friendRows: 3,
@@ -44,7 +46,6 @@
   let homeGreetingAvatarRetried = false;
   let homeGreetingTickTimer = 0;
   let persistTimer = 0;
-  let urlTimer = 0;
   let mediaSelection = 0;
   let settingsChanged = false;
   let saveQueue = Promise.resolve(true);
@@ -77,6 +78,11 @@
     delete saved.clockDateFormat;
     delete saved.clockTimeZone;
     if (!['auto', 'en', 'zh-CN', 'zh-TW'].includes(saved.uiLanguage)) saved.uiLanguage = 'auto';
+    saved.experimentalCustomColors = saved.experimentalCustomColors === true;
+    for (const key of ['customTextColor', 'customBackgroundColor', 'customAccentColor']) {
+      saved[key] = typeof saved[key] === 'string' && /^#[0-9a-f]{6}$/i.test(saved[key])
+        ? saved[key].toLowerCase() : DEFAULTS[key];
+    }
     return { ...DEFAULTS, ...saved };
   }
 
@@ -704,25 +710,23 @@
     }
   }
 
-  function selectedSource() {
-    return modal.querySelector('input[name="rc-source"]:checked').value;
+  function refreshSourceControls() {
+    modal.querySelector('#rc-file').disabled = !modal.querySelector('input[name="rc-source"][value="file"]').checked;
   }
 
-  function refreshSourceControls() {
-    const source = selectedSource();
-    modal.querySelector('#rc-file').disabled = source !== 'file';
-    modal.querySelector('#rc-url').disabled = source !== 'url';
-    modal.querySelector('#rc-url-type').disabled = source !== 'url';
+  function refreshColorControls() {
+    if (!modal) return;
+    modal.querySelector('#rc-custom-colors-enabled').checked = settings.experimentalCustomColors;
+    modal.querySelector('#rc-custom-color-fields').disabled = !settings.experimentalCustomColors;
+    for (const [id, key] of [['text', 'customTextColor'], ['background', 'customBackgroundColor'], ['accent', 'customAccentColor']]) {
+      modal.querySelector(`#rc-custom-${id}-color`).value = settings[key];
+      modal.querySelector(`#rc-custom-${id}-value`).value = settings[key].toUpperCase();
+    }
   }
 
   async function closeModal() {
     if (!modal || modalClosing) return;
     modalClosing = true;
-    if (urlTimer) {
-      clearTimeout(urlTimer);
-      urlTimer = 0;
-      if (selectedSource() === 'url') applyUrlSelection();
-    }
     const saved = await (persistTimer ? flushSettingsSave() : saveQueue);
     if (!saved) {
       modalClosing = false;
@@ -751,6 +755,7 @@
       document.dispatchEvent(new CustomEvent('rc-game-feed-preferences-changed'));
     }
     globalThis.RobloxCustomizerStartup?.setPreferences(settings);
+    refreshColorControls();
     if (!previous || HOME_VISIBILITY.some(control => previous[control.key] !== settings[control.key])
       || previous.hiddenRecommendedGames !== settings.hiddenRecommendedGames) {
       applyHomePreferences();
@@ -806,19 +811,6 @@
     queueSettingsSave(saveImmediately ? 0 : 250);
   }
 
-  function applyUrlSelection() {
-    if (!modal) return;
-    try {
-      const url = new URL(modal.querySelector('#rc-url').value.trim());
-      if (url.protocol !== 'https:') throw new TypeError();
-      changeSettings({ ...settings, source: 'url', url: url.href,
-        urlType: modal.querySelector('#rc-url-type').value }, true);
-      setStatus('');
-    } catch {
-      setStatus('Enter a valid HTTPS image or MP4 URL.', true);
-    }
-  }
-
   async function applyFileSelection(file) {
     const selection = ++mediaSelection;
     if (!file) return;
@@ -844,15 +836,11 @@
 
   function removeBackground() {
     ++mediaSelection;
-    clearTimeout(urlTimer);
-    urlTimer = 0;
     changeSettings({ ...settings, source: 'none', url: '', urlType: 'auto',
       fileKey: '', fileName: '', fit: DEFAULTS.fit, dim: DEFAULTS.dim }, true);
     modal.querySelector('input[name="rc-source"][value="none"]').checked = true;
     modal.querySelector('#rc-file').value = '';
     modal.querySelector('#rc-current-file').textContent = '';
-    modal.querySelector('#rc-url').value = '';
-    modal.querySelector('#rc-url-type').value = 'auto';
     modal.querySelector('#rc-fit').value = settings.fit;
     modal.querySelector('#rc-dim').value = settings.dim;
     modal.querySelector('#rc-dim-value').value = `${settings.dim}%`;
@@ -891,16 +879,6 @@
           <input id="rc-file" type="file" accept="image/*,video/mp4,.mp4">
           <span id="rc-current-file" class="rc-settings-hint"></span>
         </div>
-        <div class="rc-settings-field">
-          <label class="rc-source-label"><input type="radio" name="rc-source" value="url"> Media URL</label>
-          <input id="rc-url" type="url" inputmode="url" placeholder="https://example.com/background.gif">
-          <label for="rc-url-type" class="rc-settings-hint">URL format</label>
-          <select id="rc-url-type">
-            <option value="auto">Detect automatically</option>
-            <option value="image">Image or GIF</option>
-            <option value="video">MP4 video</option>
-          </select>
-        </div>
         <div class="rc-settings-options">
           <label for="rc-fit">Image fit</label>
           <select id="rc-fit"><option value="cover">Fill screen</option><option value="contain">Show entire image</option></select>
@@ -915,6 +893,21 @@
           <label for="rc-glass-opacity">Glass opacity <output id="rc-glass-opacity-value"></output></label>
           <input id="rc-glass-opacity" type="range" min="25" max="90" step="1">
         </div>
+        <section class="rc-settings-colors" aria-labelledby="rc-custom-colors-title">
+          <h3 id="rc-custom-colors-title">Custom colors <span class="rc-experimental-badge">Experimental</span></h3>
+          <p id="rc-custom-colors-hint" class="rc-settings-hint">Changes text, page and panel backgrounds, and accents. Some Roblox elements may keep their own colors.</p>
+          <label class="rc-settings-toggle"><input id="rc-custom-colors-enabled" type="checkbox" aria-describedby="rc-custom-colors-hint"> Enable custom colors</label>
+          <fieldset id="rc-custom-color-fields" disabled>
+            <legend>Color palette</legend>
+            <label for="rc-custom-text-color">Text color</label>
+            <div class="rc-color-value"><input id="rc-custom-text-color" type="color"><output id="rc-custom-text-value" for="rc-custom-text-color" translate="no"></output></div>
+            <label for="rc-custom-background-color">Background color</label>
+            <div class="rc-color-value"><input id="rc-custom-background-color" type="color"><output id="rc-custom-background-value" for="rc-custom-background-color" translate="no"></output></div>
+            <label for="rc-custom-accent-color">Accent color</label>
+            <div class="rc-color-value"><input id="rc-custom-accent-color" type="color"><output id="rc-custom-accent-value" for="rc-custom-accent-color" translate="no"></output></div>
+          </fieldset>
+          <button id="rc-reset-colors" type="button" class="rc-button rc-button-secondary">Reset and disable</button>
+        </section>
         <div class="rc-settings-home">
           <h3>Home page</h3>
           <label for="rc-hide-favorites" class="rc-settings-toggle">
@@ -985,9 +978,10 @@
       </div>`;
     document.body.append(modal);
     globalThis.RobloxCustomizerCurrency?.mountSettings(modal.querySelector('#rc-currency-settings'));
-    modal.querySelector(`input[name="rc-source"][value="${settings.source}"]`).checked = true;
-    modal.querySelector('#rc-url').value = settings.url;
-    modal.querySelector('#rc-url-type').value = settings.urlType;
+    // Previously saved URL backgrounds still render, but have no source control.
+    const sourceControl = [...modal.querySelectorAll('input[name="rc-source"]')]
+      .find(input => input.value === settings.source);
+    if (sourceControl) sourceControl.checked = true;
     modal.querySelector('#rc-fit').value = settings.fit;
     modal.querySelector('#rc-dim').value = settings.dim;
     modal.querySelector('#rc-dim-value').value = `${settings.dim}%`;
@@ -1013,12 +1007,11 @@
     });
     modal.querySelector('#rc-current-file').textContent = settings.fileName ? `Current file: ${settings.fileName}` : '';
     refreshSourceControls();
+    refreshColorControls();
     if (backgroundError) setStatus(backgroundError, true);
 
     modal.querySelectorAll('input[name="rc-source"]').forEach(input => input.addEventListener('change', () => {
       ++mediaSelection;
-      clearTimeout(urlTimer);
-      urlTimer = 0;
       refreshSourceControls();
       if (input.value === 'none') {
         changeSettings({ ...settings, source: 'none' }, true);
@@ -1030,8 +1023,6 @@
         } else {
           setStatus('Choose a local file to use as the background.', true);
         }
-      } else {
-        applyUrlSelection();
       }
     }));
     modal.querySelector('#rc-file').addEventListener('change', event => {
@@ -1040,25 +1031,6 @@
       modal.querySelector('input[name="rc-source"][value="file"]').checked = true;
       refreshSourceControls();
       void applyFileSelection(file);
-    });
-    modal.querySelector('#rc-url').addEventListener('input', () => {
-      ++mediaSelection;
-      modal.querySelector('input[name="rc-source"][value="url"]').checked = true;
-      refreshSourceControls();
-      clearTimeout(urlTimer);
-      urlTimer = setTimeout(() => {
-        urlTimer = 0;
-        applyUrlSelection();
-      }, 450);
-    });
-    modal.querySelector('#rc-url').addEventListener('change', () => {
-      clearTimeout(urlTimer);
-      urlTimer = 0;
-      if (selectedSource() === 'url') applyUrlSelection();
-    });
-    modal.querySelector('#rc-url-type').addEventListener('change', event => {
-      if (selectedSource() === 'url') applyUrlSelection();
-      else changeSettings({ ...settings, urlType: event.target.value }, true);
     });
     modal.querySelector('#rc-fit').addEventListener('change', event => {
       changeSettings({ ...settings, fit: event.target.value }, true);
@@ -1074,6 +1046,23 @@
     modal.querySelector('#rc-glass-opacity').addEventListener('input', event => {
       modal.querySelector('#rc-glass-opacity-value').value = `${event.target.value}%`;
       changeSettings({ ...settings, glassOpacity: Number(event.target.value) });
+    });
+    modal.querySelector('#rc-custom-colors-enabled').addEventListener('change', event => {
+      changeSettings({ ...settings, experimentalCustomColors: event.target.checked }, true);
+    });
+    for (const [id, key] of [['text', 'customTextColor'], ['background', 'customBackgroundColor'], ['accent', 'customAccentColor']]) {
+      const input = modal.querySelector(`#rc-custom-${id}-color`);
+      const update = immediate => {
+        if (!settings.experimentalCustomColors) return;
+        changeSettings({ ...settings, [key]: input.value }, immediate);
+      };
+      input.addEventListener('input', () => update(false));
+      input.addEventListener('change', () => update(true));
+    }
+    modal.querySelector('#rc-reset-colors').addEventListener('click', () => {
+      changeSettings({ ...settings, experimentalCustomColors: false,
+        customTextColor: DEFAULTS.customTextColor, customBackgroundColor: DEFAULTS.customBackgroundColor,
+        customAccentColor: DEFAULTS.customAccentColor }, true);
     });
     for (const control of HOME_VISIBILITY) {
       modal.querySelector(`#${control.id}`).addEventListener('change', event => {

@@ -18,11 +18,12 @@ A browser extension for Chrome and Edge that adds custom backgrounds, frosted pa
 
 ## 🌟 Features
 
-- **Animated backgrounds:** Use images, GIFs, or MP4 videos from a local file or HTTPS media URL. Choose whether the background fills the screen or shows the entire image, and adjust dimming.
+- **Animated backgrounds:** Use images, GIFs, or MP4 videos from a local file. Choose whether the background fills the screen or shows the entire image, and adjust dimming.
 - **Frosted interface:** Tune glass blur and opacity for menus and page panels, with styling that follows Roblox's light or dark theme. Interface features and layout improvements work with Roblox's default background; a custom wallpaper is optional.
+- **Experimental custom colors (opt-in):** Enable **Custom colors → Enable custom colors** to choose text, page/panel background, and accent colors. Changes save automatically and work with or without a wallpaper. Some Roblox elements may keep their own colors. Turn the switch off to restore the normal theme while keeping your palette, or use **Reset and disable** to clear it.
 - **Theme-aware controls:** Text, icons, inputs, menus, and extension settings switch with Roblox's theme. Light panels retain a minimum backing opacity to keep text readable over dark wallpapers.
 - **Personalized Home:** Customize greetings and the clock, show up to three friend rows, and pin games. Hide Favorites, Standout Games, or the upper and lower recommendations separately; hide and restore individual recommended games.
-- **Game browsing tools:** View badge information and public/private server details. Search public servers by country, latency, ping, and player count, or sort by player count.
+- **Game browsing tools:** Private servers across games use a custom card layout built from Roblox's server data before rendering, with native Join, Create, Configure, subscription, and refresh actions. Older private-server layouts retain the adapter fallback. View badge and server details, and search public servers by country, latency, ping, and player count, or sort by player count.
 - **Game data & social feeds:** Explore gamepasses, badges, and places using Roblox and Rolimons data. Enable X and YouTube feeds separately for Game, Community, and Profile pages in **Social feed panels** settings.
 - **Robux currency estimates:** Display approximate purchase equivalents in your chosen currency across Roblox and Creator Hub. Actual checkout prices may vary.
 - **Page recovery:** Resynchronize interface features after tab suspension or restoration, repair removed background layers, and release stalled requests so loading controls remain usable.
@@ -65,7 +66,7 @@ No build step is required. Keep the unpacked extension folder in a permanent loc
 Changes apply immediately and save automatically.
 
 - **Choose your language:** Open the Customizer settings and use **Extension language / 扩展语言 / 擴充功能語言**. Choose **Automatic** to follow Roblox (or your browser when Roblox has no language setting), or select English, 简体中文, or 繁體中文. This setting changes extension controls; game titles, descriptions, and posts keep their original content.
-- **Set the mood:** Select a local background or paste a direct HTTPS media URL, then adjust image fit, dimming, blur, and opacity. GIFs and MP4 videos remain animated.
+- **Set the mood:** Select a local background, then adjust image fit, dimming, blur, and opacity. GIFs and MP4 videos remain animated.
 - **Make Home yours:** Set morning, afternoon, and evening greetings; choose 12- or 24-hour time, seconds, and date visibility; adjust friend rows and section switches.
 - **Keep favorite games close:** Use **Pin Game** on a game page to pin public or non-public experiences to Home. The button is also available on private game pages without Favorite. There is no extension-imposed pin limit; games are saved locally with join and unpin controls. Joining still follows Roblox's access permissions.
 - **Organize pinned games:** Click **New folder** in Home's **Pinned Games** section to create categories. On a game page, click **Pin Game** to open the folder picker, choose a folder (or **Uncategorized**), then confirm with **Pin Game**. **Cancel** or Escape closes the picker without saving. Changing the folder of an already pinned game moves it immediately. Filter Home pins by **All games**, **Uncategorized**, or any folder; rename or delete the selected folder. Deleting a folder keeps its games in **Uncategorized**. Existing pins remain intact, and **Show more games** loads larger collections in groups of 24. Folder panels and controls follow your **Frost blur** and **Glass opacity** settings in both themes.
@@ -84,11 +85,11 @@ To restore the default background, select **Roblox default background** or **Rem
 | Issue | Try this |
 | --- | --- |
 | Extension or settings entry is missing | Confirm it is enabled, reload it, refresh Roblox, and reopen the settings gear menu. |
-| Background does not appear | Use a direct HTTPS image/video URL or a local file. If automatic detection fails, select the URL format manually. |
+| Background does not appear | Choose a supported local image, GIF, or MP4 file. |
 | Server details, feeds, or rates are unavailable | Retry after a moment; these features depend on Roblox and external data services. |
 | Layout looks unusual | Refresh Roblox and temporarily disable other Roblox extensions to check for conflicting styles. |
 
-Preferences and pinned games are stored locally in your browser. Local background files are stored locally for reuse; URL backgrounds load from the address you provide.
+Preferences and pinned games are stored locally in your browser. Local background files are stored locally for reuse. Previously saved URL backgrounds remain supported until you replace or remove them.
 
 ## 🗂️ Project layout
 

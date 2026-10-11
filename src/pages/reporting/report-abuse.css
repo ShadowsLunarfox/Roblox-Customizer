@@ -137,16 +137,16 @@ html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(
 html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(
   .btn-primary-md, .btn-primary-lg, button[type="submit"], input[type="submit"]
 ):not(:disabled, .disabled, [aria-disabled="true"]) {
-  border: 1px solid #5278ff !important;
-  background: linear-gradient(135deg, #4269ef, #3359d6) !important;
-  color: #fff !important;
+  border: 1px solid var(--rc-accent, #5278ff) !important;
+  background: var(--rc-accent, linear-gradient(135deg, #4269ef, #3359d6)) !important;
+  color: var(--rc-accent-text, #fff) !important;
   box-shadow: 0 4px 14px rgb(35 67 180 / 20%);
 }
 
 html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(
   .btn-primary-md, .btn-primary-lg, button[type="submit"], input[type="submit"]
 ):not(:disabled, .disabled, [aria-disabled="true"]):hover {
-  background: linear-gradient(135deg, #5077fa, #4268e5) !important;
+  background: var(--rc-accent-hover, linear-gradient(135deg, #5077fa, #4268e5)) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(

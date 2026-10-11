@@ -18,7 +18,7 @@
   ].join(', ');
   const MAIN_CATEGORY_LABELS = new Set([
     'recent', 'avatars', 'body', 'makeup', 'clothing', 'accessories',
-    'backgrounds', 'animations'
+    'backgrounds', 'animations', 'expired', 'recently added', 'characters'
   ]);
   const SUBCATEGORY_LABELS = new Set([
     'recently added', 'currently wearing', 'purchased', 'creations',
@@ -58,6 +58,7 @@
   let markedPreview = null;
   let marked3DSquareNodes = [];
   let marked3DSurface = null;
+  let marked3DBackdrops = [];
   let markedNative2DToggles = [];
   let markedCategories = null;
   let markedItems = null;
@@ -71,6 +72,7 @@
   let markedContentPath = [];
   let markedSubcategoryPath = [];
   let markedCategoryBranches = [];
+  let markedSubcategoryBranches = [];
   let markedEditorFlow = null;
   let compareHost = null;
   let studio = null;
@@ -163,7 +165,9 @@
   }
 
   function categoryPopup(control) {
-    if (MAIN_CATEGORY_LABELS.has(categoryLabel(control))) return null;
+    // Recently Added and Characters can be top-level tabs or popup options.
+    const label = categoryLabel(control);
+    if (MAIN_CATEGORY_LABELS.has(label) && !SUBCATEGORY_LABELS.has(label)) return null;
     const menu = control.closest(CATEGORY_MENU_SELECTORS);
     if (menu) return menu;
     const categoryMenu = control.closest('.avatar-category-menu');
@@ -175,14 +179,18 @@
   }
 
   function markCategoryNavigation(root) {
-    const interactive = [...root.querySelectorAll(CATEGORY_CONTROL_SELECTORS)];
-    // Some Roblox subcategories are plain text elements with a handler on their
-    // row. Recognize those labels without treating inventory item names as tabs.
+    // Native menus can put the same action on both a row and its link. Style
+    // only the innermost action, leaving all native handlers in place.
+    const interactive = [...root.querySelectorAll(CATEGORY_CONTROL_SELECTORS)]
+      .filter(node => !node.querySelector(CATEGORY_CONTROL_SELECTORS));
+    // Some categories are text labels with the handler on a surrounding row.
     const textControls = [...root.querySelectorAll('span, li, div, p, label')].filter(node =>
-      node.children.length === 0 && SUBCATEGORY_LABELS.has(categoryLabel(node))
-      && !node.closest(CATEGORY_CONTROL_SELECTORS));
+      node.children.length === 0
+      && (MAIN_CATEGORY_LABELS.has(categoryLabel(node)) || SUBCATEGORY_LABELS.has(categoryLabel(node)))
+      && !interactive.some(control => control.contains(node)));
     const allControls = [...interactive, ...textControls]
-      .filter(node => !node.closest('#rc-avatar-2d') && !node.closest(CARD_SELECTORS));
+      .filter(node => !node.closest('#rc-avatar-2d') && !node.closest(CARD_SELECTORS))
+      .sort((a, b) => a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
     const mainControls = markedCategories
       ? allControls.filter(node => markedCategories.contains(node)
         && MAIN_CATEGORY_LABELS.has(categoryLabel(node))
@@ -205,7 +213,7 @@
     const scope = itemColumn || root;
     const subControls = mainRow ? allControls.filter(node => scope.contains(node)
       && !mainControls.includes(node)
-      && !MAIN_CATEGORY_LABELS.has(categoryLabel(node))
+      && (!mainRow.contains(node) || categoryPopup(node))
       && (SUBCATEGORY_LABELS.has(categoryLabel(node))
         || categoryPopup(node)
         || markedCategories?.contains(node))
@@ -227,24 +235,38 @@
       'data-rc-avatar-subcategories');
     markedSubControls = updateMarkedList(markedSubControls, subControls,
       'data-rc-avatar-sub-control');
-    const clothingHeadings = subControls.filter(node =>
+    const headingCandidates = subControls.filter(node =>
       CLOTHING_SECTION_LABELS.has(categoryLabel(node)));
+    const clothingHeadings = [];
     const clothingSections = [];
-    for (const heading of clothingHeadings) {
+    for (const heading of headingCandidates) {
       for (let row = heading.parentElement; row && row !== scope; row = row.parentElement) {
         if (mainControls.some(node => row.contains(node)) || row.querySelector(CARD_SELECTORS)) break;
-        if (clothingHeadings.some(node => node !== heading && row.contains(node))) break;
-        if (subControls.some(node => node !== heading && !CLOTHING_SECTION_LABELS.has(categoryLabel(node))
-          && row.contains(node))) {
-          clothingSections.push(row);
-          break;
-        }
+        const options = subControls.filter(node => row.contains(node));
+        if (options.length < 2) continue;
+        // A label such as Outerwear can also be an option in the Tops row.
+        // A section heading must precede its options, in its own native row.
+        if (options[0] !== heading || groups.has(row)
+          && headingCandidates.some(node => node !== heading && row.contains(node))) break;
+        clothingHeadings.push(heading);
+        clothingSections.push(row);
+        break;
       }
     }
     markedClothingSections = updateMarkedList(markedClothingSections,
       [...new Set(clothingSections)], 'data-rc-avatar-clothing-section');
     markedClothingHeadings = updateMarkedList(markedClothingHeadings,
       clothingHeadings, 'data-rc-avatar-clothing-heading');
+    const subcategoryBranches = new Set();
+    for (const control of subControls) {
+      for (let node = control.parentElement; node && node !== scope; node = node.parentElement) {
+        if (groups.has(node) || mainControls.some(main => node.contains(main))
+          || node.querySelector(CARD_SELECTORS)) break;
+        if (!clothingSections.includes(node)) subcategoryBranches.add(node);
+      }
+    }
+    markedSubcategoryBranches = updateMarkedList(markedSubcategoryBranches,
+      [...subcategoryBranches], 'data-rc-avatar-subcategory-branch');
     markCategoryFlow(root, mainControls, [...groups]);
   }
 
@@ -377,8 +399,44 @@
       node.style.setProperty('--rc-avatar-3d-square-size', `${Math.round(node.getBoundingClientRect().width)}px`);
     }
     marked3DSquareNodes = next;
-    marked3DSurface = mark(marked3DSurface, next.at(-1) || null,
+    // Square renderers need the same stage background without being resized.
+    const surface = next.findLast(node => node !== canvas) || canvas?.parentElement || null;
+    marked3DSurface = mark(marked3DSurface, surface,
       'data-rc-avatar-3d-surface');
+    mark3DBackdrops(preview, canvas, path);
+  }
+
+  function mark3DBackdrops(preview, canvas, path) {
+    const backdrops = new Set(path);
+    if (canvas) {
+      const root = viewColumn?.contains(preview) ? viewColumn : compareHost || preview;
+      // Legacy avatar backgrounds also sit on the native wrapper outside the
+      // discovered renderer. Stop at the extension's outer frosted card.
+      for (let node = preview.parentElement; node && root.contains(node); node = node.parentElement) {
+        if (node === viewColumn) break;
+        backdrops.add(node);
+        if (node === root) break;
+      }
+      const scene = canvas.getBoundingClientRect();
+      const previous = new Set(marked3DBackdrops);
+      // Native backdrops can be siblings of the canvas or pseudo-elements,
+      // rather than backgrounds on the canvas's own ancestor chain.
+      for (const node of root.querySelectorAll('*')) {
+        if (backdrops.has(node) || node.closest('#rc-avatar-2d, button, a, input, select, textarea, [role="button"], [role="menu"], [role="dialog"]')) continue;
+        const rect = node.getBoundingClientRect();
+        const overlapWidth = Math.max(0, Math.min(rect.right, scene.right) - Math.max(rect.left, scene.left));
+        const overlapHeight = Math.max(0, Math.min(rect.bottom, scene.bottom) - Math.max(rect.top, scene.top));
+        // Cover both a full-stage image and four separately tiled images.
+        if (!scene.width || !scene.height || overlapWidth < scene.width * .35
+          || overlapHeight < scene.height * .35) continue;
+        // Keep recognized layers marked after their URL has been cleared by
+        // CSS. Small control icons and item thumbnails never qualify.
+        if (previous.has(node) || ['', '::before', '::after'].some(pseudo =>
+          getComputedStyle(node, pseudo || null).backgroundImage.includes('url('))) backdrops.add(node);
+      }
+    }
+    marked3DBackdrops = updateMarkedList(marked3DBackdrops, [...backdrops],
+      'data-rc-avatar-backdrop');
   }
 
   function hideNative2DToggle(scope) {
@@ -539,6 +597,8 @@
     compareHost?.removeAttribute('data-rc-avatar-compare');
     markedPreview?.removeAttribute('data-rc-avatar-3d');
     marked3DSurface?.removeAttribute('data-rc-avatar-3d-surface');
+    for (const node of marked3DBackdrops) node.removeAttribute('data-rc-avatar-backdrop');
+    marked3DBackdrops = [];
     for (const node of markedNative2DToggles) node.removeAttribute('data-rc-avatar-native-2d-toggle');
     for (const node of marked3DSquareNodes) {
       node.removeAttribute('data-rc-avatar-3d-square');
@@ -559,11 +619,13 @@
     for (const node of markedContentPath) node.removeAttribute('data-rc-avatar-content-path');
     for (const node of markedSubcategoryPath) node.removeAttribute('data-rc-avatar-subcategory-path');
     for (const node of markedCategoryBranches) node.removeAttribute('data-rc-avatar-category-branch');
+    for (const node of markedSubcategoryBranches) node.removeAttribute('data-rc-avatar-subcategory-branch');
     markedEditorFlow?.removeAttribute('data-rc-avatar-editor-flow');
     markedEditorFlow = null;
     markedMainControls = markedSubcategories = markedSubControls = [];
     markedClothingSections = markedClothingHeadings = [];
     markedNavPath = markedContentPath = markedSubcategoryPath = markedCategoryBranches = [];
+    markedSubcategoryBranches = [];
     studio?.removeAttribute('data-rc-avatar-studio');
     viewColumn?.removeAttribute('data-rc-avatar-view-column');
     itemColumn?.removeAttribute('data-rc-avatar-item-column');
@@ -638,8 +700,15 @@
     queueMicrotask(() => {
       syncQueued = false;
       observer.disconnect();
+      previewObserver.disconnect();
       try { sync(); }
-      finally { observer.observe(document, OBSERVER_OPTIONS); }
+      finally {
+        observer.observe(document, OBSERVER_OPTIONS);
+        if (onAvatarPage() && markedPreview?.isConnected) {
+          previewObserver.observe(viewColumn || compareHost || markedPreview, { subtree: true, attributes: true,
+            attributeOldValue: true, attributeFilter: ['class', 'style'] });
+        }
+      }
     });
   }
 
@@ -672,6 +741,14 @@
   document.addEventListener('DOMContentLoaded', queueSync, { once: true });
   const OBSERVER_OPTIONS = { childList: true, characterData: true, subtree: true,
     attributes: true, attributeFilter: ['aria-label', 'title'] };
+  const backgroundDeclarations = value => (value || '').match(/(?:^|;)\s*background[^;]*/gi)?.join(';') || '';
+  const previewObserver = new MutationObserver(records => {
+    // Background choices may update only a class or inline image. Ignore the
+    // renderer's width/height writes and disconnect during our own layout work.
+    if (records.some(record => record.attributeName === 'class'
+      || backgroundDeclarations(record.oldValue)
+        !== backgroundDeclarations(record.target.getAttribute('style')))) queueSync();
+  });
   const observer = new MutationObserver(records => {
     if (!onAvatarPage()) {
       if (markedPage) queueSync();

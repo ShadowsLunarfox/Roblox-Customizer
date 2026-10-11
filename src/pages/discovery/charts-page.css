@@ -96,9 +96,9 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .fil
 }
 
 html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filter-select.btn-primary-md:not(:disabled, [aria-disabled="true"]) {
-  border-color: #5278ff !important;
-  background: linear-gradient(135deg, #4269ef, #3359d6) !important;
-  color: #fff !important;
+  border-color: var(--rc-accent, #5278ff) !important;
+  background: var(--rc-accent, linear-gradient(135deg, #4269ef, #3359d6)) !important;
+  color: var(--rc-accent-text, #fff) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filter-select.btn-primary-md .icon-expand-arrow-selected {

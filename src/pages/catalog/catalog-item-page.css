@@ -678,7 +678,7 @@ html[data-rc-frost-page="catalog"] #item-info-container-frontend .item-details-s
 html[data-rc-frost-page="catalog"] #item-info-container-frontend .item-details-section > .price-row-container {
   grid-column: 2;
   align-items: stretch;
-  border-top: 3px solid #335fff;
+  border-top: 3px solid var(--rc-accent, #335fff);
 }
 
 html[data-rc-frost-page="catalog"] #item-info-container-frontend .price-row-container::before {

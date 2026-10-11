@@ -716,7 +716,8 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
 
 [data-rc-recommended-card] > .rc-hide-recommended-game:hover,
 [data-rc-recommended-card] > .rc-hide-recommended-game:focus-visible {
-  background: #385dba !important;
+  background: var(--rc-accent-hover, #385dba) !important;
+  color: var(--rc-accent-text, #fff) !important;
   outline: 2px solid #fff !important;
   outline-offset: 1px !important;
 }
@@ -891,6 +892,94 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
   grid-column: 2;
 }
 
+#rc-settings-overlay .rc-settings-colors {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rc-control-hover, #383b46);
+}
+
+#rc-settings-overlay .rc-settings-colors h3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--rc-text);
+  font-size: 16px;
+}
+
+#rc-settings-overlay .rc-experimental-badge {
+  padding: 3px 7px;
+  border: 1px solid var(--rc-control-border);
+  border-radius: 999px;
+  background: var(--rc-control-bg);
+  color: var(--rc-text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+#rc-settings-overlay .rc-settings-colors > .rc-settings-hint {
+  margin: 0;
+}
+
+#rc-settings-overlay #rc-custom-color-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--rc-control-border);
+  border-radius: 8px;
+}
+
+#rc-settings-overlay #rc-custom-color-fields legend {
+  padding: 0 6px;
+  color: var(--rc-text-secondary);
+  font-size: 12px;
+}
+
+#rc-settings-overlay #rc-custom-color-fields:disabled > label,
+#rc-settings-overlay #rc-custom-color-fields:disabled output {
+  opacity: .55;
+}
+
+#rc-settings-overlay .rc-color-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#rc-settings-overlay .rc-color-value input[type="color"] {
+  width: 44px;
+  min-width: 44px;
+  height: 36px;
+  padding: 3px;
+  border: 1px solid var(--rc-control-border);
+  border-radius: 6px;
+  background: var(--rc-control-bg);
+  cursor: pointer;
+  color-scheme: var(--rc-color-scheme);
+}
+
+#rc-settings-overlay .rc-color-value input[type="color"]:disabled {
+  cursor: default;
+}
+
+#rc-settings-overlay .rc-color-value output {
+  color: var(--rc-text-secondary);
+  font: 12px/1.2 monospace;
+}
+
+#rc-settings-overlay #rc-reset-colors {
+  justify-self: start;
+  max-width: 100%;
+  white-space: normal;
+}
+
 #rc-settings-overlay .rc-settings-home {
   margin-top: 18px;
   padding-top: 16px;
@@ -949,7 +1038,7 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
 }
 
 #rc-settings-overlay .rc-settings-toggle input {
-  accent-color: #4479f2;
+  accent-color: var(--rc-accent, #4479f2);
 }
 
 #rc-settings-overlay .rc-settings-hidden-recommendations {
@@ -1004,15 +1093,15 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
   padding: 5px 9px;
   border: 1px solid #718ff0;
   border-radius: 5px;
-  background: #334b91;
-  color: #fff;
+  background: var(--rc-accent, #334b91);
+  color: var(--rc-accent-text, #fff);
   font: 700 12px/1.2 Arial, sans-serif;
   cursor: pointer;
 }
 
 #rc-settings-overlay .rc-hidden-recommended-game button:hover,
 #rc-settings-overlay .rc-hidden-recommended-game button:focus-visible {
-  background: #4565bf;
+  background: var(--rc-accent-hover, #4565bf);
 }
 
 #rc-settings-overlay .rc-settings-friends {
@@ -1160,7 +1249,7 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
 
 #rc-settings-overlay input[type="radio"],
 #rc-settings-overlay input[type="range"] {
-  accent-color: #4479f2;
+  accent-color: var(--rc-accent, #4479f2);
 }
 
 #rc-settings-overlay #rc-settings-status {
@@ -1193,8 +1282,8 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
 }
 
 #rc-settings-overlay .rc-button-primary {
-  background: #335fff;
-  color: #fff;
+  background: var(--rc-accent, #335fff);
+  color: var(--rc-accent-text, #fff);
 }
 
 #rc-settings-overlay .rc-button-secondary:hover:not(:disabled) {
@@ -1202,7 +1291,7 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
 }
 
 #rc-settings-overlay .rc-button-primary:hover:not(:disabled) {
-  background: #244de0;
+  background: var(--rc-accent-hover, #244de0);
 }
 
 #rc-settings-overlay .rc-button:disabled {

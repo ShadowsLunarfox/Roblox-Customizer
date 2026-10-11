@@ -120,7 +120,7 @@ html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content 
 }
 
 html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content input:is([type="checkbox"], [type="radio"]) {
-  accent-color: #335fff;
+  accent-color: var(--rc-accent, #335fff);
 }
 
 html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(.btn-toggle, [role="switch"]):not(:disabled, .disabled, [aria-disabled="true"]) {
@@ -128,7 +128,7 @@ html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content 
 }
 
 html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(.btn-toggle, [role="switch"]):is(.on, [aria-checked="true"]):not(:disabled, .disabled, [aria-disabled="true"]) {
-  background-color: #335fff !important;
+  background-color: var(--rc-accent, #335fff) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(
@@ -182,8 +182,8 @@ html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content 
   .btn-primary-md, .btn-primary-sm, .foundation-web-button.bg-action-emphasis
 ):not(:disabled, .disabled, [aria-disabled="true"]) {
   border-color: transparent;
-  background: #335fff;
-  color: #fff;
+  background: var(--rc-accent, #335fff);
+  color: var(--rc-accent-text, #fff);
 }
 
 html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(.text-error, .text-danger, .alert-warning, .alert-danger, .input-validation-error) {

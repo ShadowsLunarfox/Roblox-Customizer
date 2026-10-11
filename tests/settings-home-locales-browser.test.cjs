@@ -60,6 +60,8 @@ test('Settings sliders align with their labels and Chinese Home switches persist
     await visibility(false, true);
     await browser.click('.rc-settings-menu-entry');
     await browser.waitFor("!!document.querySelector('#rc-settings-overlay .rc-settings-glass')");
+    assert.deepEqual(await browser.evaluate("[...document.querySelectorAll('input[name=rc-source]')].map(n=>n.value)"), ['none', 'file']);
+    assert.equal(await browser.evaluate("!!document.querySelector('#rc-url,#rc-url-type')"), false);
     assert.equal(await browser.evaluate("document.documentElement.hasAttribute('data-rc-background-active')"), false, 'No wallpaper is needed');
     for (const theme of ['light', 'dark']) for (const width of [1280, 390, 320]) {
       await browser.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
@@ -101,5 +103,17 @@ test('Settings sliders align with their labels and Chinese Home switches persist
     await browser.waitFor(ready); await visibility(false, true);
     await browser.click('.rc-settings-menu-entry');
     assert.deepEqual(await browser.evaluate("[document.querySelector('#rc-glass-blur').value,document.querySelector('#rc-glass-opacity').value,document.querySelector('#rc-hide-recommended-upper').checked,document.querySelector('#rc-hide-recommended-lower').checked]"), ['39', '26', true, false]);
+    await browser.click('#rc-done');
+    await browser.evaluate("chrome.storage.local.set({customBackground:{...JSON.parse(localStorage.getItem('customBackground')),source:'url',url:location.origin+'/icons/icon-128.png',urlType:'auto'}})");
+    await browser.waitFor("document.querySelector('#rc-background-layer img')?.naturalWidth>0");
+    await browser.click('.rc-settings-menu-entry');
+    assert.equal(await browser.evaluate("!!document.querySelector('input[name=rc-source]:checked')"), false, 'Opening settings keeps the previously saved background');
+    await browser.click('#rc-remove');
+    await browser.waitFor("JSON.parse(localStorage.getItem('customBackground')).source==='none'&&!document.documentElement.hasAttribute('data-rc-background-active')");
+    await browser.click('input[name=rc-source][value=file]');
+    assert.equal(await browser.evaluate("document.querySelector('#rc-file').disabled"), false);
+    await browser.evaluate(`(()=>{const transfer=new DataTransfer();transfer.items.add(new File(['<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10" fill="blue"/></svg>'],'wallpaper.svg',{type:'image/svg+xml'}));const input=document.querySelector('#rc-file');input.files=transfer.files;input.dispatchEvent(new Event('change',{bubbles:true}))})()`);
+    await browser.waitFor("JSON.parse(localStorage.getItem('customBackground')).source==='file'&&document.querySelector('#rc-background-layer img')?.naturalWidth===10");
+    await browser.click('#rc-done');
     assert.deepEqual(browser.errors, []);
   });

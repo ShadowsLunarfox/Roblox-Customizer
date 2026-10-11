@@ -10,7 +10,7 @@
   const TAB_IDS = ['tab-about', 'tab-store', 'tab-game-instances'];
   const PRIVATE_SERVER_CONFIGURE_SELECTOR = 'a[href*="/private-server/configure?"], a[href*="/private-server/configure/"]';
   const PRIVATE_SERVER_SECTION_SELECTOR = '#private-server-container, #private-game-instances-container, #rbx-private-running-games, '
-    + '[data-rc-private-server-list], [data-rc-private-server-compact], .rc-private-server-more';
+    + '[data-rc-private-server-list], [data-rc-private-server-compact], [data-rc-server-view="private"], .rc-private-server-more';
   const NON_PUBLIC_SERVER_SECTION_SELECTOR = PRIVATE_SERVER_SECTION_SELECTOR
     + ', #friends-game-instances-container, #rbx-friends-running-games';
   const PUBLIC_SERVER_CONTAINER_SELECTOR = '#running-game-instances-container, #rbx-public-running-games';
@@ -2537,9 +2537,43 @@
   }
 
   function privateServerName(row) {
+    if (row.matches('[data-rc-server-view="private"]')) return row.querySelector('.rc-private-server-title');
     return row.matches('.rbx-private-game-server-item')
       ? row.querySelector('.game-server-details .section-header > .font-bold')
       : row.querySelector('.text-title-medium');
+  }
+
+  function hydratePrivateServerView(row, details) {
+    setText(row.querySelector('.rc-private-server-owner'), details.ownerName);
+    const playing = Number.isSafeInteger(details.playing) && details.playing >= 0 ? details.playing : null;
+    const maximum = Number.isSafeInteger(details.maxPlayers) && details.maxPlayers >= 0 ? details.maxPlayers : null;
+    const count = row.querySelector('.rc-private-server-count');
+    if (playing !== null && maximum !== null) setText(count, `${playing} of ${maximum} people max`);
+    const nativeStatus = row.getAttribute('data-rc-server-status') || '';
+    setText(row.querySelector('.rc-private-server-status'),
+      globalThis.RobloxCustomizerNativeLabels?.playerCount(nativeStatus) ? '' : nativeStatus);
+    renderServerMetrics(row.querySelector('.rc-server-view-metrics'), combinedServerMetrics(row, details));
+    const roster = row.querySelector('.rc-private-server-roster');
+    const pictures = details.playerImages.filter(url => typeof url === 'string'
+      && /^https:\/\/(?:[a-z0-9-]+\.)*rbxcdn\.com\//i.test(url));
+    const nativePlayers = row.querySelector('.rc-server-view-native-players');
+    const useNative = !pictures.length && !!nativePlayers?.querySelector('img');
+    if (nativePlayers) nativePlayers.hidden = !useNative;
+    const signature = JSON.stringify([pictures, playing, useNative]);
+    if (roster.dataset.rcPlayers === signature) return;
+    roster.dataset.rcPlayers = signature;
+    roster.replaceChildren();
+    if (pictures.length) for (const url of pictures) {
+      const image = document.createElement('img');
+      image.src = url;
+      image.alt = 'Player';
+      roster.append(image);
+    } else if (!useNative) {
+      const label = document.createElement('span');
+      label.className = 'rc-private-server-roster-count';
+      setText(label, playing ? `${playing} players online` : 'No players online');
+      roster.append(label);
+    }
   }
 
   function syncPrivateServers() {
@@ -2569,7 +2603,7 @@
     for (const configure of page.querySelectorAll(PRIVATE_SERVER_CONFIGURE_SELECTOR)) {
       // Current cards mount Configure inside a dropdown after it opens. The
       // dropdown is not a server row; its card is discovered below instead.
-      if (configure.closest('.rbx-private-game-server-item, [data-rc-private-server-compact]')) continue;
+      if (configure.closest('.rbx-private-game-server-item, [data-rc-private-server-compact], [data-rc-server-view]')) continue;
       let serverId;
       try {
         const url = new URL(configure.href, location.href);
@@ -2587,14 +2621,14 @@
       if (!privateListOwners.has(list)) privateListOwners.set(list, { ownerRow, ownerActions, serverId, configure });
     }
     // Shared private servers can have a Join button without an owner's Configure link.
-    for (const candidate of page.querySelectorAll('.card-item, .rbx-private-game-server-item, [data-rc-private-server-compact]')) {
+    for (const candidate of page.querySelectorAll('.card-item, .rbx-private-game-server-item, [data-rc-private-server-compact], [data-rc-server-view="private"]')) {
       const row = candidate.closest('.rbx-private-game-server-item') || candidate;
-      if (!row.matches('[data-rc-private-server-compact]')
+      if (!row.matches('[data-rc-private-server-compact], [data-rc-server-view="private"]')
         && !row.closest('#private-server-container, #private-game-instances-container, #rbx-private-running-games')) continue;
       const list = row.parentElement;
       if (!list || privateListOwners.has(list)) continue;
       list.setAttribute('data-rc-private-server-list', '');
-      if (row.matches('[data-rc-private-server-compact]')) {
+      if (row.matches('[data-rc-private-server-compact], [data-rc-server-view="private"]')) {
         list.setAttribute('data-rc-private-server-compact-list', '');
       }
       privateListOwners.set(list, { ownerRow: null, ownerActions: null, serverId: 0, configure: null });
@@ -2615,7 +2649,7 @@
         if (candidate.classList.contains('rc-private-server-more')) return false;
         // This native list also contains the Plus banner, Create and Load More.
         // Their typography is shared with servers; only marked VIP rows qualify.
-        if (compactList) return candidate.matches('[data-rc-private-server-compact]');
+        if (compactList) return candidate.matches('[data-rc-private-server-compact], [data-rc-server-view="private"]');
         return candidate.matches('.card-item, .rbx-private-game-server-item') || !!candidate.querySelector('.text-title-medium');
       });
       privateRows.set(list, rows);
@@ -2630,13 +2664,15 @@
       for (const row of rows) {
         if (processedRows.has(row)) continue;
         const main = row.firstElementChild;
+        const rendered = row.matches('[data-rc-server-view="private"]');
         const modernRow = row.matches('.rbx-private-game-server-item');
         const nativeName = privateServerName(row);
-        const nativeAvatar = modernRow ? row.querySelector('.rbx-private-owner .owner-avatar img')
+        const nativeAvatar = rendered ? row.querySelector('.rc-server-view-avatar img')
+          : modernRow ? row.querySelector('.rbx-private-owner .owner-avatar img')
           : row.querySelector('.thumbnail-2d-container img')
           || [...row.querySelectorAll('img')].find(image =>
             !image.closest('.rc-private-server-summary, .rc-private-server-roster'));
-        const name = nativeName?.textContent.trim() || '';
+        const name = rendered ? row.getAttribute('data-rc-server-name') || '' : nativeName?.textContent.trim() || '';
         const nameKey = name.toLowerCase();
         const rowServerId = privateServerIdFromRow(row) || (row === ownerRow ? serverId : 0);
         const nativeStatus = main?.querySelector('.rbx-private-game-server-status, .text-body-medium')?.textContent.trim() || '';
@@ -2647,20 +2683,29 @@
           .filter(image => !image.closest(PRIVATE_SERVER_RENDER_SELECTOR))
           .map(image => [image.getAttribute('src'), image.getAttribute('srcset'), image.getAttribute('sizes')]);
         syncPrivateServerSource(row, rowServerId, nameKey,
-          JSON.stringify([rowServerId, name, nativeStatus, nativeCount, nativeImages]));
+          rendered ? row.getAttribute('data-rc-server-source')
+            : JSON.stringify([rowServerId, name, nativeStatus, nativeCount, nativeImages]));
         if (rowServerId) serverIds.add(rowServerId);
         else if (nameKey && name.length <= 100 && privateNameCounts.get(nameKey) === 1) {
           serverNames.add(name);
         }
         const details = rowServerId ? privateDetails.get(rowServerId)
           : privateNameCounts.get(nameKey) === 1 ? privateDetailsByName.get(nameKey) : null;
-        const ready = main && name && nativeAvatar?.getAttribute('src')?.trim()
+        const ready = main && name && (nativeAvatar?.getAttribute('src')?.trim()
+          || rendered && row.hasAttribute('data-rc-server-avatar-placeholder'))
           && Number.isSafeInteger(details?.id) && details.id > 0
           && typeof details.name === 'string' && details.name.trim()
           && typeof details.ownerName === 'string' && Array.isArray(details.playerImages);
         row.toggleAttribute('data-rc-private-server-pending', !ready);
         if (!ready) {
           row.removeAttribute('data-rc-private-server-ready');
+          continue;
+        }
+        if (rendered) {
+          hydratePrivateServerView(row, details);
+          row.setAttribute('data-rc-private-server-ready', '');
+          processedRows.add(row);
+          serverLists.get(list).push(row);
           continue;
         }
         const nativeControls = [...row.querySelectorAll('button, a[href], [role="button"]')]
@@ -2938,7 +2983,8 @@
     'data-rc-profile-social-user-id', 'data-rc-profile-x-url', 'data-rc-profile-youtube-url',
     'data-rc-instance-id', 'data-rc-ping', 'data-btr-instance-id', 'data-rc-playing',
     'data-playing', 'data-player-count', 'src', 'srcset', 'sizes', 'alt',
-    'data-private-server-id', 'data-vip-server-id', 'data-server-id', 'data-serverid'
+    'data-private-server-id', 'data-vip-server-id', 'data-server-id', 'data-serverid',
+    'data-rc-server-source'
   ], characterData: true, childList: true, subtree: true });
   window.addEventListener('load', schedule, { once: true });
   window.addEventListener('resize', schedule);

@@ -153,8 +153,8 @@ html[data-rc-ui-active][data-rc-frost-page="robux"] #robux-redesign-page :is(
   .robux-section > [data-product-id] > .foundation-web-button,
   [data-testid^="subscription-tile-"] .foundation-web-button.bg-action-emphasis
 ):not(:disabled):not([aria-disabled="true"]) {
-  background-color: #335fff !important;
-  color: #fff !important;
+  background-color: var(--rc-accent, #335fff) !important;
+  color: var(--rc-accent-text, #fff) !important;
   border-color: transparent !important;
 }
 

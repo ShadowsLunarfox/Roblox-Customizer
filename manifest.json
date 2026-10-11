@@ -85,6 +85,7 @@
         "https://roblox.com/*"
       ],
       "js": [
+        "src/shared/server-card-view.js",
         "src/shared/page-bridge.js"
       ],
       "run_at": "document_start",

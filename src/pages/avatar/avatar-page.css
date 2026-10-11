@@ -155,13 +155,14 @@ html[data-rc-frost-page="avatar"] [data-rc-avatar-3d-surface] {
   overflow: hidden;
   border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 14%);
   border-radius: 9px;
-  background: radial-gradient(circle at 50% 28%, rgb(115 133 190 / 24%), rgb(var(--rc-foreground-rgb, 255 255 255) / 4%) 65%),
-    rgb(var(--rc-glass-color, 20 22 28) / max(.31, var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31)))) !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  background: radial-gradient(circle at 50% 28%, rgb(115 133 190 / 24%), rgb(var(--rc-foreground-rgb, 255 255 255) / 4%) 65%) !important;
 }
 
-html[data-rc-frost-page="avatar"] [data-rc-avatar-3d-surface] :is(canvas, :has(canvas)) {
+/* Remove the native tiled picture, including separate backdrop layers and
+   pseudo-elements. The card supplies frost behind the sharp, interactive model. */
+html[data-rc-frost-page="avatar"] [data-rc-avatar-backdrop]:not([data-rc-avatar-3d-surface], [data-rc-avatar-view-column]),
+html[data-rc-frost-page="avatar"] [data-rc-avatar-backdrop]::before,
+html[data-rc-frost-page="avatar"] [data-rc-avatar-backdrop]::after {
   background-image: none !important;
   background-color: transparent !important;
 }
@@ -330,7 +331,7 @@ html[data-rc-frost-page="avatar"] [data-rc-avatar-main-row] {
   box-sizing: border-box;
   display: flex !important;
   flex-wrap: wrap !important;
-  align-items: center !important;
+  align-items: stretch !important;
   justify-content: center !important;
   gap: 8px !important;
   width: 100% !important;
@@ -380,24 +381,16 @@ html[data-rc-frost-page="avatar"] [data-rc-avatar-main-control] {
   font-size: 14px;
   line-height: 1.3;
   text-align: center;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
   text-decoration: none !important;
   opacity: 1 !important;
   cursor: pointer;
   pointer-events: auto !important;
 }
 
-html[data-rc-frost-page="avatar"] [data-rc-avatar-main-control]:hover,
-html[data-rc-frost-page="avatar"] [data-rc-avatar-sub-control]:hover {
-  background: rgb(var(--rc-foreground-rgb, 255 255 255) / 23%) !important;
-}
-
-html[data-rc-frost-page="avatar"] [data-rc-avatar-main-control]:is(.active, [aria-selected="true"], [aria-current="page"]),
-html[data-rc-frost-page="avatar"] :is(.active, [aria-selected="true"]):has(> [data-rc-avatar-main-control]) > [data-rc-avatar-main-control],
-html[data-rc-frost-page="avatar"] [data-rc-avatar-sub-control]:is(.active, [aria-selected="true"], [aria-current="page"]) {
-  border-color: rgb(149 176 255 / 75%) !important;
-  background: #335fff !important;
-  color: #fff !important;
+html[data-rc-frost-page="avatar"] [data-rc-avatar-main-row] > :has(> [data-rc-avatar-main-control]) > [data-rc-avatar-main-control] {
+  height: 100% !important;
 }
 
 html[data-rc-frost-page="avatar"] [data-rc-avatar-subcategories] {
@@ -437,15 +430,24 @@ html[data-rc-frost-page="avatar"] [data-rc-avatar-subcategories] > :has([data-rc
   width: auto !important;
 }
 
+/* Remove legacy floated columns and nested panel boxes around native actions. */
+html[data-rc-frost-page="avatar"] [data-rc-avatar-subcategory-branch] {
+  display: contents !important;
+}
+
 html[data-rc-frost-page="avatar"] [data-rc-avatar-subcategories] [data-rc-avatar-sub-control] {
   box-sizing: border-box;
-  display: inline-flex;
+  display: inline-flex !important;
   align-items: center;
+  justify-content: center;
   position: relative !important;
   inset: auto !important;
   float: none !important;
   min-height: 42px;
   height: auto !important;
+  width: auto !important;
+  max-width: 100%;
+  min-width: 0;
   margin: 3px 6px 3px 0 !important;
   padding: 8px 12px !important;
   border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 18%) !important;
@@ -454,6 +456,9 @@ html[data-rc-frost-page="avatar"] [data-rc-avatar-subcategories] [data-rc-avatar
   color: var(--rc-text, #fff) !important;
   font-size: 14px;
   font-weight: 650;
+  line-height: 1.3;
+  white-space: normal;
+  overflow-wrap: anywhere;
   text-decoration: none !important;
   opacity: 1 !important;
   cursor: pointer;
@@ -487,24 +492,32 @@ html[data-rc-frost-page="avatar"] [data-rc-avatar-clothing-section] > * {
   margin: 0 !important;
 }
 
-html[data-rc-frost-page="avatar"] [data-rc-avatar-clothing-section] > :has([data-rc-avatar-clothing-heading]) {
-  flex: 0 0 180px !important;
-}
-
-html[data-rc-frost-page="avatar"] [data-rc-avatar-clothing-heading] {
+html[data-rc-frost-page="avatar"] [data-rc-avatar-subcategories] [data-rc-avatar-clothing-heading] {
   box-sizing: border-box;
-  width: 180px !important;
-  min-height: 40px !important;
+  flex: 0 1 140px !important;
+  width: 140px !important;
+  min-height: 42px !important;
   margin: 0 !important;
   background: rgb(var(--rc-foreground-rgb, 255 255 255) / 11%) !important;
 }
 
 html[data-rc-frost-page="avatar"] [data-rc-avatar-clothing-section] [data-rc-avatar-sub-control]:not([data-rc-avatar-clothing-heading]) {
-  min-height: 40px;
-  margin: 0 6px 0 0 !important;
+  min-height: 42px;
+  margin: 0 !important;
 }
 
-html[data-rc-frost-page="avatar"] :is([data-rc-avatar-subcategories], [data-rc-avatar-sub-control]):is([hidden], .ng-hide) {
+html[data-rc-frost-page="avatar"] :is([data-rc-avatar-main-control], [data-rc-avatar-sub-control]):hover {
+  background: rgb(var(--rc-foreground-rgb, 255 255 255) / 23%) !important;
+}
+
+html[data-rc-frost-page="avatar"] :is([data-rc-avatar-main-control], [data-rc-avatar-sub-control]):is(.active, [aria-selected="true"], [aria-current="page"]),
+html[data-rc-frost-page="avatar"] :is(.active, [aria-selected="true"]) > :is([data-rc-avatar-main-control], [data-rc-avatar-sub-control]) {
+  border-color: var(--rc-accent, rgb(149 176 255 / 75%)) !important;
+  background: var(--rc-accent, #335fff) !important;
+  color: var(--rc-accent-text, #fff) !important;
+}
+
+html[data-rc-frost-page="avatar"] :is([data-rc-avatar-main-control], [data-rc-avatar-subcategories], [data-rc-avatar-sub-control], [data-rc-avatar-clothing-section], [data-rc-avatar-subcategory-branch], [data-rc-avatar-subcategory-path]):is([hidden], .ng-hide, .hidden) {
   display: none !important;
 }
 

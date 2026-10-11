@@ -277,6 +277,7 @@ div:has(> div > div > a:is([href*="/private-server/configure?"], [href*="/privat
 #game-detail-page #rbx-private-running-games
 .rbx-private-game-server-item[data-private-server-id]:not([data-rc-private-server-ready]),
 #game-detail-page [data-rc-private-server-compact]:not([data-rc-private-server-ready]),
+#game-detail-page [data-rc-server-view="private"]:not([data-rc-private-server-ready]),
 #game-detail-page [data-rc-private-server-pending] {
   display: none !important;
 }
@@ -307,6 +308,139 @@ div:has(> div > div > a:is([href*="/private-server/configure?"], [href*="/privat
 
 .rc-private-server-card.rc-private-server-collapsed {
   display: none !important;
+}
+
+/* Data-first presentation for private servers across game pages. */
+.rc-server-view {
+  box-sizing: border-box !important;
+  display: block !important;
+  float: none !important;
+  flex: 0 0 100%;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0;
+  min-height: 220px !important;
+  margin: 0 0 14px !important;
+  padding: 18px 20px !important;
+  border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 14%) !important;
+  border-radius: 8px !important;
+  background: rgb(var(--rc-glass-color, 20 22 28) / max(.28, var(--rc-surface-opacity-floor, 0))) !important;
+  list-style: none;
+}
+
+.rc-server-view-body {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  grid-template-rows: 1fr auto;
+  min-height: 182px;
+}
+
+html[data-rc-ui-active] .rc-server-view {
+  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+}
+
+.rc-server-view-summary {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  padding: 0 16px 8px 0;
+  border-right: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 18%);
+}
+
+.rc-server-view-avatar {
+  width: 100%;
+  margin: 7px 0 5px;
+  text-align: center;
+}
+
+.rc-server-view-avatar :is(.rbx-private-owner, .owner-avatar, .thumbnail-2d-container, .avatar-card-image) {
+  display: block !important;
+  width: 78px !important;
+  height: 78px !important;
+  margin: auto !important;
+}
+
+.rc-server-view-native-avatar,
+.rc-server-view-native-avatar > div {
+  width: 78px !important;
+  height: 78px !important;
+  margin: auto;
+}
+
+.rc-server-view-avatar img {
+  width: 78px !important;
+  height: 78px !important;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.rc-server-view-avatar .text-name {
+  display: none !important;
+}
+
+.rc-server-view-actions {
+  grid-column: 1;
+  grid-row: 2;
+  min-width: 0;
+  padding-right: 16px;
+  border-right: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 18%);
+}
+
+.rc-server-view-actions > div,
+.rc-server-view-actions .game-server-details {
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.rc-server-view-actions :is(.game-server-details, .section-header) {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rc-server-view-actions .section-header {
+  align-items: flex-end;
+}
+
+.rc-server-view-actions button {
+  max-width: 100%;
+  min-height: 36px;
+}
+
+.rc-server-view-actions .game-server-join-btn,
+.rc-server-view-actions > .flex > div:last-child {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.rc-server-view-roster {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  min-width: 0;
+  padding: 8px 0 8px 20px;
+}
+
+.rc-server-view-roster :is(.rc-server-view-native-players, .rc-private-server-roster) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+.rc-server-view-native-players[hidden] { display: none !important; }
+.rc-server-view-native-players :is(.player-avatar, .avatar-card-image, .thumbnail-2d-container) { float: none; width: 48px; height: 48px; margin: 0; }
+.rc-server-view-native-players img { width: 48px; height: 48px; max-width: 100%; border-radius: 50%; }
+
+@media (max-width: 640px) {
+  .rc-server-view-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto; }
+  .rc-server-view-summary, .rc-server-view-actions { padding-right: 0; border-right: 0; }
+  .rc-server-view-roster { grid-column: 1; grid-row: 3; min-height: 70px; padding: 14px 0 0; margin-top: 14px; border-top: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 18%); }
 }
 
 /* Current native cards wrap their menu, subscription and Join in one card-item.
@@ -514,12 +648,12 @@ div:has(> div > div > a:is([href*="/private-server/configure?"], [href*="/privat
 }
 
 .rc-public-server-filter-search {
-  background: #335fff;
-  color: #fff;
+  background: var(--rc-accent, #335fff);
+  color: var(--rc-accent-text, #fff);
 }
 
 .rc-public-server-filter-search:hover:not(:disabled) {
-  background: #244de0;
+  background: var(--rc-accent-hover, #244de0);
 }
 
 .rc-public-server-filter-search:disabled {
@@ -707,15 +841,15 @@ div:has(> div > div > a:is([href*="/private-server/configure?"], [href*="/privat
   min-height: 36px;
   border: 0;
   border-radius: 7px;
-  background: #5367b3;
-  color: #fff;
+  background: var(--rc-accent, #5367b3);
+  color: var(--rc-accent-text, #fff);
   font: 600 13px Arial, sans-serif;
   cursor: pointer;
 }
 
 .rc-private-server-proxy button:hover,
 .rc-private-server-proxy button:focus-visible {
-  background: #6479cb;
+  background: var(--rc-accent-hover, #6479cb);
 }
 
 .rc-private-server-roster {
@@ -947,16 +1081,16 @@ html[data-rc-ui-active] #game-detail-page #store .rc-store-category {
   left: 0;
   width: 3px;
   border-radius: 3px;
-  background: #62b8ff;
+  background: var(--rc-accent, #62b8ff);
   content: "";
 }
 
 #game-detail-page #store [data-rc-store-section="passes"] .rc-store-section-title::before {
-  background: #bc91ff;
+  background: var(--rc-accent, #bc91ff);
 }
 
 #game-detail-page #store [data-rc-store-section="products"] .rc-store-section-title::before {
-  background: #ffc36a;
+  background: var(--rc-accent, #ffc36a);
 }
 
 /* Give Servers a little more breathing room and scale its contents inward. */
@@ -1103,8 +1237,8 @@ html[data-rc-ui-active] #game-detail-page .btr-game-main-container > .game-main-
 #game-detail-page .game-main-content:has(> #game-details-carousel-container)
 #game-details-play-button-container .btn-common-play-game-lg:not(:disabled):not([aria-disabled="true"]) {
   border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 16%) !important;
-  color: #fff !important;
-  background: linear-gradient(135deg, #4772ff, #355cf3) !important;
+  color: var(--rc-accent-text, #fff) !important;
+  background: var(--rc-accent, linear-gradient(135deg, #4772ff, #355cf3)) !important;
   box-shadow: 0 6px 20px rgb(42 82 231 / 24%);
 }
 
@@ -1395,9 +1529,9 @@ html[data-rc-ui-active] #game-detail-page #rc-rolimons-panel {
 #game-detail-page .rc-rolimons-tab:hover,
 #game-detail-page .rc-rolimons-tab:focus-visible,
 #game-detail-page .rc-rolimons-tab.rc-rolimons-tab-active {
-  background: #335fff;
-  color: #fff;
-  border-color: rgb(0 162 255 / 75%);
+  background: var(--rc-accent, #335fff);
+  color: var(--rc-accent-text, #fff);
+  border-color: var(--rc-accent, rgb(0 162 255 / 75%));
 }
 
 #game-detail-page .rc-rolimons-results {

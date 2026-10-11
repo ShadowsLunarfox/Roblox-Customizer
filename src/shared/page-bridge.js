@@ -112,6 +112,10 @@
               try { result = exposePrivateServerIdentity(result, args[0]); }
               catch { /* Keep unfamiliar native cards usable. */ }
             }
+            if (isPrivateServerCard(args[0])) {
+              try { result = window.RobloxCustomizerServerView?.render(result, args[0]) || result; }
+              catch { /* Preserve native cards if a future structure is unfamiliar. */ }
+            }
             if (isServerList(args[0]) || isServerCard(args[0])) {
               try {
                 return isServerList(args[0])

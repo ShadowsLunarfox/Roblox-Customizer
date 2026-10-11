@@ -7,14 +7,18 @@
     ['Automatic (Roblox / browser)', '自动（Roblox / 浏览器）', '自動（Roblox / 瀏覽器）'],
     ['Changes apply immediately and save automatically. GIFs and MP4 videos stay animated.', '更改立即生效并自动保存。GIF 和 MP4 视频会保持动态播放。', '變更立即生效並自動儲存。GIF 和 MP4 影片會保持動態播放。'],
     ['Roblox default background', 'Roblox 默认背景', 'Roblox 預設背景'],
-    ['Local file', '本地文件', '本機檔案'], ['Media URL', '媒体网址', '媒體網址'],
-    ['URL format', '网址格式', '網址格式'], ['Detect automatically', '自动检测', '自動偵測'],
-    ['Image or GIF', '图片或 GIF', '圖片或 GIF'], ['MP4 video', 'MP4 视频', 'MP4 影片'],
+    ['Local file', '本地文件', '本機檔案'],
     ['Image fit', '图片适应方式', '圖片顯示方式'], ['Fill screen', '填满屏幕', '填滿畫面'],
     ['Show entire image', '显示完整图片', '顯示完整圖片'], ['Dark overlay', '背景暗度', '背景暗度'],
     ['Frosted menus and page panels', '毛玻璃菜单和页面面板', '毛玻璃選單與頁面面板'],
     ["Works with Roblox's default background or your own image or video.", '适用于 Roblox 默认背景，以及您自己的图片或视频。', '適用於 Roblox 預設背景，以及您自己的圖片或影片。'],
     ['Frost blur', '模糊强度', '模糊強度'], ['Glass opacity', '面板不透明度', '面板不透明度'],
+    ['Custom colors', '自定义颜色', '自訂色彩'], ['Experimental', '实验性', '實驗性'],
+    ['Enable custom colors', '启用自定义颜色', '啟用自訂色彩'],
+    ['Changes text, page and panel backgrounds, and accents. Some Roblox elements may keep their own colors.', '更改文字、页面和面板背景，以及强调色。部分 Roblox 元素可能保留原有颜色。', '變更文字、頁面與面板背景，以及強調色。部分 Roblox 元素可能保留原有色彩。'],
+    ['Color palette', '配色', '配色'], ['Text color', '文字颜色', '文字色彩'],
+    ['Background color', '背景颜色', '背景色彩'], ['Accent color', '强调色', '強調色'],
+    ['Reset and disable', '重置并停用', '重設並停用'],
     ['Home page', '主页', '首頁'], ['Hide Favorites', '隐藏收藏', '隱藏最愛'],
     ['Hide Standout Games', '隐藏精选游戏', '隱藏精選遊戲'],
     ['Hide upper Recommended Games', '隐藏上方推荐游戏', '隱藏上方推薦遊戲'],
@@ -46,7 +50,6 @@
     ['Current file: {name}', '当前文件：{name}', '目前檔案：{name}'], ['Selected file: {name}', '已选择文件：{name}', '已選擇檔案：{name}'],
     ['Background removed.', '背景已移除。', '背景已移除。'], ['Loading background...', '正在加载背景…', '正在載入背景…'],
     ['Choose a local file to use as the background.', '请选择一个本地文件作为背景。', '請選擇一個本機檔案作為背景。'],
-    ['Enter a valid HTTPS image or MP4 URL.', '请输入有效的 HTTPS 图片或 MP4 网址。', '請輸入有效的 HTTPS 圖片或 MP4 網址。'],
     ['Choose an image, GIF, or MP4 file.', '请选择图片、GIF 或 MP4 文件。', '請選擇圖片、GIF 或 MP4 檔案。'],
     ['Saved file is unavailable. Choose it again.', '保存的文件不可用，请重新选择。', '儲存的檔案無法使用，請重新選擇。'],
     ['Could not load the saved background.', '无法加载已保存的背景。', '無法載入已儲存的背景。'],
@@ -149,6 +152,7 @@
     ['Minimum players cannot exceed maximum players.', '最少玩家数不能大于最多玩家数。', '最少玩家數不能大於最多玩家數。'],
     ['Minimum latency cannot exceed maximum ping.', '最低延迟不能大于最高延迟。', '最低延遲不能大於最高延遲。'],
     ['{start}–{end} of {count} matches loaded', '已加载 {count} 个匹配结果，显示 {start}–{end}', '已載入 {count} 個符合結果，顯示 {start}–{end}'],
+    ['Private server', '私人服务器', '私人伺服器'],
     ['No players online', '暂无在线玩家', '暫無線上玩家'], ['{count} players online', '{count} 位玩家在线', '{count} 位玩家在線上'],
     ['Player', '玩家', '玩家'], ['Unknown country', '未知国家 / 地区', '未知國家 / 地區'], ['Detecting country…', '正在检测地区…', '正在偵測地區…'],
     ['Ping reported by Roblox; your connection may differ.', '延迟由 Roblox 提供，您的实际连接可能不同。', '延遲由 Roblox 提供，您的實際連線可能不同。'],
@@ -269,7 +273,7 @@
     + '#rc-catalog-item-3d-refresh, #rc-catalog-item-3d-status, #rc-profile-enhancements, #rc-profile-inline-about, '
     + '#rc-x-feed-panel, #rc-youtube-feed-panel, #rc-rolimons-panel, .rc-public-server-filters, '
     + '.rc-public-server-pagination, .rc-private-server-more, .rc-server-metrics, .rc-private-server-summary, '
-    + '.rc-private-server-roster, .rc-private-server-proxy, .rc-private-server-loading, .rc-badge-earned-date, .rc-robux-equivalent';
+    + '.rc-private-server-roster, .rc-private-server-proxy, .rc-private-server-loading, .rc-server-view, .rc-badge-earned-date, .rc-robux-equivalent';
   const IGNORE = '[data-rc-i18n-ignore], script, style, textarea, '
     + '.rc-pinned-game-details, .rc-home-greeting-title, .rc-home-greeting-username, .rc-home-greeting-initial, '
     + '.rc-hidden-recommended-game > span, .rc-limited-item-text > strong, .rc-private-server-title, '

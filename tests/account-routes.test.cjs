@@ -323,3 +323,46 @@ test('Startup restores separate feed choices before rendering and retains them a
     assert.equal(env.root.hasAttribute(`data-rc-hide-${page}-${platform}-feed`), false);
   }
 });
+
+test('Custom colors require explicit opt-in and validate saved colors before caching or applying them', () => {
+  const normalize = normalizeSettings();
+  const defaults = normalize();
+  assert.equal(defaults.experimentalCustomColors, false);
+  const normalized = normalize({ experimentalCustomColors: 'true', customTextColor: '#AABBCC',
+    customBackgroundColor: 'red; background: url(https://example.com)', customAccentColor: '#123' });
+  assert.equal(normalized.experimentalCustomColors, false);
+  assert.equal(normalized.customTextColor, '#aabbcc');
+  assert.equal(normalized.customBackgroundColor, defaults.customBackgroundColor);
+  assert.equal(normalized.customAccentColor, defaults.customAccentColor);
+  const env = harness('/home', startup, { version: 1, customTextColor: '#123456' });
+  assert.equal(env.root.hasAttribute('data-rc-custom-colors'), false);
+  assert.equal(env.properties.get('--rc-custom-text'), '');
+  env.startup.setPreferences({ experimentalCustomColors: true, customTextColor: '#AABBCC',
+    customBackgroundColor: 'url(https://example.com)', customAccentColor: '#facc15' });
+  assert.equal(env.root.hasAttribute('data-rc-custom-colors'), true);
+  assert.equal(env.properties.get('--rc-custom-text'), '#aabbcc');
+  assert.equal(env.properties.get('--rc-custom-text-rgb'), '170 187 204');
+  assert.equal(env.properties.get('--rc-custom-background'), defaults.customBackgroundColor);
+  assert.equal(env.properties.get('--rc-custom-accent-text'), '#000000');
+  env.startup.setPreferences({ experimentalCustomColors: true, customBackgroundColor: '#ffffff', customAccentColor: '#2244aa' });
+  assert.equal(env.properties.get('--rc-custom-color-scheme'), 'light');
+  assert.equal(env.properties.get('--rc-custom-accent-text'), '#ffffff');
+  env.startup.setPreferences({ experimentalCustomColors: false });
+  assert.equal(env.root.hasAttribute('data-rc-custom-colors'), false);
+  assert.equal(env.properties.get('--rc-custom-text'), '');
+  assert.equal(env.properties.get('--rc-custom-background'), '');
+  assert.equal(env.properties.get('--rc-custom-accent'), '');
+});
+
+test('An opted-in palette is restored from the appearance cache and retained across routes', () => {
+  const env = harness('/home', startup, { version: 1, experimentalCustomColors: true,
+    customTextColor: '#123456', customBackgroundColor: '#eef2ff', customAccentColor: '#facc15' });
+  assert.equal(env.root.hasAttribute('data-rc-custom-colors'), true);
+  assert.equal(env.properties.get('--rc-custom-background'), '#eef2ff');
+  env.location.href = 'https://www.roblox.com/my/account#!/security';
+  env.events.get('popstate')();
+  assert.equal(env.root.hasAttribute('data-rc-custom-colors'), true);
+  assert.equal(env.properties.get('--rc-custom-text'), '#123456');
+  env.startup.setPreferences({});
+  assert.equal(env.root.hasAttribute('data-rc-custom-colors'), false, 'Authoritative preferences can disable a cached palette');
+});

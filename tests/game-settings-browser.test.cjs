@@ -11,6 +11,20 @@ const scripts = ['src/shared/startup.js', 'src/pages/games/private-server-config
 const art = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="480" height="480"%3E%3Crect width="480" height="480" fill="%23386b94"/%3E%3Ccircle cx="240" cy="240" r="100" fill="%23ffd47c"/%3E%3C/svg%3E';
 const configPath = '/private-server/configure/4169319554';
 const storePath = '/games/130950966579217/Title-Unavailable#!/store/developer-products';
+// Native compact layout from Roblox's published GameSubscriptions.css.
+const subscriptionStyles = `
+  .subscription-card-item{scroll-snap-align:start;box-sizing:border-box;border-radius:8px;flex-direction:column;flex:0 0 calc(50% - 8px);gap:8px;min-width:0;height:144px;padding:12px;display:flex}
+  .has-peek .subscription-card-item{flex:0 0 calc(50% - 46px)}
+  @media(max-width:767px){.subscription-card-item,.has-peek .subscription-card-item{flex:0 0 calc(100% - 60px)}}
+  .subscription-card-info{flex:1;align-items:center;gap:8px;min-width:0;min-height:0;display:flex;overflow:hidden}
+  .subscription-card-thumbnail{flex-shrink:0;width:56px;height:56px}
+  .subscription-thumbnail-container-class{display:block;border-radius:8px;width:56px!important;height:56px!important}
+  .subscription-card-text{flex-direction:column;flex:1;min-width:0;display:flex}
+  .subscription-card-title,.subscription-card-description,.subscription-card-price span{text-overflow:ellipsis;white-space:nowrap;overflow:hidden}
+  .subscription-card-price{align-items:center;gap:4px;margin-top:4px;display:flex;overflow:hidden}
+  .subscription-card-item button{width:100%}.subscription-card-overlays{position:absolute}
+  .subscriptions-scroll-container{scroll-snap-type:x mandatory;gap:16px;margin-top:7px;padding-bottom:4px;display:flex;overflow-x:auto}
+`;
 
 function panel(variant, id, title, body) {
   if (variant === 'utility') return `<div id="${id}"><h2>${title}</h2>${body}</div>`;
@@ -43,7 +57,10 @@ function productCards(page = 1) {
 
 function store(standalone) {
   const products = `<div id="rbx-developer-products" class="container-list game-dev-store game-passes"><div class="container-header"><h2>Products</h2></div><ul class="hlist store-cards store-developer-products-row">${productCards()}</ul><div class="overview-pagination-container"><button type="button" id="previous" disabled>Previous</button><button type="button" id="next">Next</button></div><p class="text-description" id="empty" hidden>No products available.</p></div>`;
-  return `<div id="game-detail-page" data-place-id="130950966579217">${standalone ? products : `<div class="tab-content"><section id="store">${products}</section></div>`}</div><div role="dialog" id="purchase-dialog" hidden><p>Sample purchase confirmation</p><button type="button" id="cancel">Cancel</button></div>`;
+  const passes = `<section><h2>Passes</h2><ul class="store-cards"><li class="list-item"><div class="store-card"><a href="/game-pass/1903230850/Admin-Commands"><span class="thumbnail-2d-container"><img alt="Game pass" src='${art}' width="150" height="150"></span></a><div class="store-card-caption"><a class="store-card-name" href="/game-pass/1903230850/Admin-Commands">Admin Commands with a long game pass name</a><div class="store-card-price"><span class="text-robux">250</span></div><div class="store-card-footer"><button class="PurchaseButton" data-product-id="90">Buy</button></div></div></div></li></ul></section>`;
+  // Current GameSubscriptions host classes, including the native detail/payment overlay host.
+  const subscriptions = `<section><h2>Subscriptions</h2><div class="subscriptions-scroll-container has-peek"><div class="subscription-card-item bg-shift-200"><div class="subscription-card-info" id="subscription-details"><div class="subscription-card-thumbnail"><span class="subscription-thumbnail-container-class"><img src='${art}' alt="Subscription"></span></div><div class="subscription-card-text"><span class="subscription-card-title">每月会员 / 每月會員 — A longer subscription title</span><span class="subscription-card-description">A complete description with benefits that must wrap without covering the price or purchase button.</span><div class="subscription-card-price"><span>MYR 19.90 / 每月</span></div></div></div><button id="subscribe">Subscribe</button><div class="subscription-card-overlays"><div role="dialog" id="subscription-dialog" hidden><p>Subscription details</p><button id="close-subscription">Cancel</button></div></div></div></div></section>`;
+  return `<div id="game-detail-page" data-place-id="130950966579217">${standalone ? products : `<div class="tab-content"><section id="store">${products}${passes}${subscriptions}</section></div>`}</div><div role="dialog" id="purchase-dialog" hidden><p>Sample purchase confirmation</p><button type="button" id="cancel">Cancel</button></div>`;
 }
 
 function fixture(url) {
@@ -52,6 +69,7 @@ function fixture(url) {
   const markup = isConfig ? (variant.startsWith('summary-') ? configurationSummary(variant) : configuration(variant)) : store(variant === 'standalone');
   return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
     ${process.env.GAME_SETTINGS_NATIVE_CSS ? '<link rel="stylesheet" href="/native.css">' : ''}
+    <style>${subscriptionStyles}</style>
     <style>*{box-sizing:border-box}body{margin:0;font:16px/1.5 Arial;background:#151821;color:#f4f6fb}.light-theme{background:#f4f4f5;color:#202227}#content{width:1120px;max-width:calc(100% - 32px);margin:24px auto}#game-detail-page{width:100%;margin:0}.container-header h2{margin:0}.section-content,.bg-surface-100{background:#24262c;padding:15px}.light-theme .section-content,.light-theme .bg-surface-100{background:white}h1,h2,p{margin:0 0 12px}input,button{font:inherit}label{display:block}button{padding:8px 12px;border:1px solid #777;border-radius:4px;background:#444;color:inherit}button:disabled{opacity:.4}.btn-primary-md,.btn-primary-sm{background:#335fff;color:white}.form-group{margin:16px 0}input:not([type=checkbox],[type=hidden]){width:100%}.switch-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.btn-toggle{position:relative;width:40px;height:24px;padding:2px;border:0;border-radius:12px;background:#888}.toggle-flip{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:white}.btn-toggle.on .toggle-flip{left:auto;right:2px}.hidden,.ng-hide,[hidden]{display:none!important}.store-cards .list-item{float:left;width:25%;margin-bottom:12px}.store-cards:before,.store-cards:after{content:' ';display:table}.store-cards:after{clear:both}.store-card{max-width:150px;margin-right:5%}.store-product-card-thumbnail img{width:150px;height:150px}.store-product-card-name{white-space:nowrap;overflow:hidden;height:1.2em}.store-card-price .text-robux{float:left}.store-card-footer{height:30px;margin-top:6px}[role=dialog]:not([hidden]){position:fixed;inset:20%;z-index:50;background:#444;padding:24px}.light-theme [role=dialog]{background:white}a{color:inherit}</style>
     <style>.summary-heading{display:flex;align-items:baseline;justify-content:space-between;gap:20px;margin-bottom:24px}.summary-heading h1{margin:0}.summary-art{float:left;width:256px;margin-right:16px}.summary-art img{display:block;border-radius:10px}.summary-details{margin-left:272px}.summary-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #8886}.summary-row .text-label{flex:none;width:148px}.summary-row .text-overflow{min-width:0}.summary-row #rename{flex:none;margin-left:auto}.icon-edit{display:block;width:16px;height:16px;background:currentColor;clip-path:polygon(15% 65%,65% 15%,85% 35%,35% 85%,10% 90%)}#later-controls{clear:both;padding-top:24px}@media(max-width:640px){.summary-heading{display:block}.summary-art{float:none;width:256px;max-width:100%;margin:0 0 20px}.summary-details{margin:0}.summary-row{flex-wrap:wrap}.summary-row .text-label{width:100%}}</style>
     ${styles.map(file => `<link rel="stylesheet" href="/${file}">`).join('')}
@@ -69,6 +87,8 @@ function fixture(url) {
       if(control.dataset.action){window.actions.push(control.dataset.action);if(control.dataset.action==='regenerate')document.querySelector('#confirmation').hidden=false;if(control.dataset.action==='confirm')document.querySelector('#confirmation').hidden=true}
       if(control.dataset.productId){window.actions.push(control.dataset.productId);document.querySelector('#purchase-dialog').hidden=false}
       if(control.id==='cancel')document.querySelector('#purchase-dialog').hidden=true;
+      if(control.id==='subscribe'){window.actions.push('subscribe');document.querySelector('#subscription-dialog').hidden=false}
+      if(control.id==='close-subscription')document.querySelector('#subscription-dialog').hidden=true;
       if(control.id==='next'){window.page++;document.querySelector('.store-cards').innerHTML=${JSON.stringify(productCards(2))};document.querySelector('#previous').disabled=false}
     });
     </script></body></html>`;
@@ -99,13 +119,13 @@ async function checkLayouts(browser, kind) {
       for (const width of [1360, 768, 390, 320]) {
         await browser.send('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor: 1, mobile: width < 600 });
         await browser.evaluate('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))');
-        const layout = await browser.evaluate(`(()=>{const selector=${JSON.stringify(kind === 'config' ? '[data-rc-private-config-panel]' : '.store-card')};return {overflow:document.documentElement.scrollWidth>innerWidth,panels:[...document.querySelectorAll(selector)].map(n=>({color:getComputedStyle(n).color,blur:getComputedStyle(n,'::before').backdropFilter})),bounds:[...document.querySelectorAll('#content h1,#content h2,#content p,#content input:not([type=hidden]),#content button,#content .store-product-card-name,#content .store-product-card-thumbnail img')].filter(n=>n.getBoundingClientRect().width).map(n=>{const r=n.getBoundingClientRect(),p=n.closest('.store-card')?.getBoundingClientRect();return {id:n.id||n.className||n.tagName,fits:r.left>=-.5&&r.right<=innerWidth+.5&&(!p||r.left>=p.left&&r.right<=p.right),unclipped:n.tagName==='INPUT'||n.scrollWidth<=n.clientWidth+1}})}})()`);
+        const layout = await browser.evaluate(`(()=>{const selector=${JSON.stringify(kind === 'config' ? '[data-rc-private-config-panel]' : '.store-card, .subscription-card-item')};return {overflow:document.documentElement.scrollWidth>innerWidth,panels:[...document.querySelectorAll(selector)].map(n=>({color:getComputedStyle(n).color,blur:getComputedStyle(n,'::before').backdropFilter})),bounds:[...document.querySelectorAll('#content h1,#content h2,#content p,#content input:not([type=hidden]),#content button,#content .store-product-card-name,#content .store-card-name,#content .store-product-card-thumbnail img,#content .store-card > a img,#content .subscription-card-title,#content .subscription-card-description,#content .subscription-card-price span,#content .subscription-card-thumbnail img')].filter(n=>n.getBoundingClientRect().width).map(n=>{const r=n.getBoundingClientRect(),p=n.closest('.store-card')?.getBoundingClientRect();return {id:n.id||n.className||n.tagName,fits:r.left>=-.5&&r.right<=innerWidth+.5&&(!p||r.left>=p.left&&r.right<=p.right),unclipped:n.tagName==='INPUT'||n.scrollWidth<=n.clientWidth+1}})}})()`);
         const label = `${kind} ${theme} ${width} background ${background}`;
         assert.equal(layout.overflow, false, label);
         assert.ok(layout.panels.length, label);
         for (const p of layout.panels) {
           assert.equal(p.color, theme === 'light' ? 'rgb(27, 35, 48)' : 'rgb(244, 246, 251)', label);
-          if (kind === 'config') assert.match(p.blur, /blur\(24px\)/, label);
+          assert.match(p.blur, /blur\(24px\)/, label);
         }
         if (kind === 'config') {
           const backings = await browser.evaluate(`([...document.querySelectorAll('[data-rc-private-config-panel]')].map(n=>{const s=getComputedStyle(n),b=getComputedStyle(n,'::before');return {id:n.id,position:s.position,isolation:s.isolation,width:n.clientWidth,height:n.clientHeight,backingWidth:parseFloat(b.width),backingHeight:parseFloat(b.height),background:b.backgroundColor,visibility:b.visibility,display:b.display,opacity:b.opacity,content:b.content,zIndex:b.zIndex,padding:s.padding}}))`);
@@ -122,18 +142,32 @@ async function checkLayouts(browser, kind) {
         }
         if (kind === 'store') {
           const rows = await browser.evaluate(`([...document.querySelectorAll('.developer-product-tile:not(.hidden)')].map(n=>{const r=n.getBoundingClientRect(),b=n.querySelector('.PurchaseButton').getBoundingClientRect();return {top:r.top,height:r.height,bottom:b.bottom}}))`);
+          if (width >= 768) assert.ok(Math.abs(rows[0].top-rows[1].top)<1, `${label}: compact cards share a row`);
           for (const a of rows) for (const b of rows) if (Math.abs(a.top-b.top)<1) {
             assert.ok(Math.abs(a.height-b.height)<1, `${label}: cards have equal row heights`);
             assert.ok(Math.abs(a.bottom-b.bottom)<1, `${label}: Buy buttons align`);
           }
+          const cards = await browser.evaluate(`([...document.querySelectorAll('.store-card')].map(n=>{const image=n.querySelector('img').getBoundingClientRect(),caption=n.querySelector('.store-product-card-caption,.store-card-caption').getBoundingClientRect();return {square:Math.abs(image.width-image.height)<1,below:caption.top>=image.bottom}}))`);
+          assert.ok(cards.every(n=>n.square&&n.below), `${label}: square artwork stays above the details`);
+          const subscription = await browser.evaluate(`(()=>{const n=document.querySelector('.subscription-card-item');if(!n)return null;const r=n.getBoundingClientRect(),host=n.parentElement.getBoundingClientRect(),image=n.querySelector('img').getBoundingClientRect();return {width:r.width,host:host.width,image:image.width}})()`);
+          if (subscription) {
+            const expectedWidth = width <= 767 ? subscription.host - 60 : subscription.host / 2 - 46;
+            assert.ok(Math.abs(subscription.width-expectedWidth)<1, `${label}: native subscription carousel sizing survives`);
+            assert.equal(subscription.image, 56, `${label}: compact subscription artwork survives`);
+          }
           assert.equal(await browser.evaluate("getComputedStyle(document.querySelector('.store-cards')).display"), 'grid');
           assert.equal(await browser.evaluate("getComputedStyle(document.querySelector('#hidden-product')).display"), 'none');
         }
-        if (process.env.GAME_SETTINGS_SCREENSHOTS && !background && width !== 768 && theme === 'light') {
+        if (process.env.GAME_SETTINGS_SCREENSHOTS && !background && width !== 768) {
           await browser.evaluate('scrollTo(0,0)');
           const shot = await browser.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
           const variant = await browser.evaluate("new URL(location.href).searchParams.get('variant')");
-          fs.writeFileSync(path.join(workspace, `.tmp-${kind}-${variant}-${width}.png`), Buffer.from(shot.data, 'base64'));
+          fs.writeFileSync(path.join(workspace, `.tmp-${kind}-${variant}-${theme}-${width}.png`), Buffer.from(shot.data, 'base64'));
+          if (kind === 'store' && variant === 'legacy') {
+            await browser.evaluate("document.querySelector('.subscription-card-item').scrollIntoView({block:'center'})");
+            const subscriptionShot = await browser.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+            fs.writeFileSync(path.join(workspace, `.tmp-store-subscriptions-${theme}-${width}.png`), Buffer.from(subscriptionShot.data, 'base64'));
+          }
         }
       }
     }
@@ -225,25 +259,39 @@ test('Private-server summaries receive a complete backing without forms and besi
   assert.deepEqual(browser.errors, []);
 });
 
-test('Developer Products keep aligned native cards, prices, pagination and purchase confirmations', { skip: !process.env.CHROME_BIN, timeout: 30000 }, async t => {
+test('Store restores compact cards while retaining native purchases, subscriptions and pagination', { skip: !process.env.CHROME_BIN, timeout: 30000 }, async t => {
   const { browser, base } = await setup(t, 'game-store');
   for (const variant of ['legacy', 'standalone']) {
-    const url = `${base}${storePath.replace('#', `?variant=${variant}#`)}`;
+    const route = variant === 'legacy' ? '/games/606849621/Jailbreak#!/store' : storePath;
+    const url = `${base}${route.replace('#', `?variant=${variant}#`)}`;
     await browser.send('Page.navigate', { url });
     await waitForDocument(browser, '.PurchaseButton', url);
-    const original = await browser.evaluate("[...document.querySelectorAll('.store-card')].map(n=>({name:n.querySelector('.store-product-card-name').textContent,price:n.querySelector('.text-robux').textContent,product:n.querySelector('button').dataset.productId,href:n.querySelector('a').getAttribute('href')}))");
+    const original = await browser.evaluate("[...document.querySelectorAll('.store-card')].map(n=>({name:n.querySelector('.store-product-card-name, .store-card-name').textContent,price:n.querySelector('.text-robux').textContent,product:n.querySelector('button').dataset.productId,href:n.querySelector('a').getAttribute('href')}))");
     await checkLayouts(browser, 'store');
-    assert.deepEqual(await browser.evaluate("[...document.querySelectorAll('.store-card')].map(n=>({name:n.querySelector('.store-product-card-name').textContent,price:n.querySelector('.text-robux').textContent,product:n.querySelector('button').dataset.productId,href:n.querySelector('a').getAttribute('href')}))"), original);
+    assert.deepEqual(await browser.evaluate("[...document.querySelectorAll('.store-card')].map(n=>({name:n.querySelector('.store-product-card-name, .store-card-name').textContent,price:n.querySelector('.text-robux').textContent,product:n.querySelector('button').dataset.productId,href:n.querySelector('a').getAttribute('href')}))"), original);
     await browser.click('.PurchaseButton[disabled]');assert.deepEqual(await browser.evaluate('window.actions'), []);
     await browser.click('.PurchaseButton:not([disabled])');
     assert.deepEqual(await browser.evaluate('window.actions'), ['10']);
     assert.equal(await browser.evaluate("document.querySelector('#purchase-dialog').hidden"), false);
     await browser.click('#cancel');
+    if(variant==='legacy'){
+      await browser.click('.PurchaseButton[data-product-id="90"]');
+      assert.equal(await browser.evaluate("document.querySelector('#purchase-dialog').hidden"),false);
+      await browser.click('#cancel');
+      await browser.click('#subscribe');
+      assert.equal(await browser.evaluate("document.querySelector('#subscription-dialog').hidden"),false);
+      const dialog = await browser.evaluate(`(()=>{const n=document.querySelector('#subscription-dialog'),r=n.getBoundingClientRect();return {position:getComputedStyle(n).position,left:r.left,top:r.top,width:r.width,height:r.height,viewportWidth:innerWidth,viewportHeight:innerHeight}})()`);
+      assert.equal(dialog.position,'fixed');
+      assert.ok(Math.abs(dialog.left-dialog.viewportWidth*.2)<1&&Math.abs(dialog.top-dialog.viewportHeight*.2)<1&&Math.abs(dialog.width-dialog.viewportWidth*.6)<1&&Math.abs(dialog.height-dialog.viewportHeight*.6)<1,`native subscription dialog stays positioned against the viewport: ${JSON.stringify(dialog)}`);
+      await browser.click('#close-subscription');
+      assert.equal(await browser.evaluate("document.querySelector('#subscription-dialog').hidden"),true);
+      assert.deepEqual(await browser.evaluate('window.actions'),['10','90','subscribe']);
+    }
     await browser.click('#next');
     assert.equal(await browser.evaluate('window.page'), 2);
     assert.equal(await browser.evaluate("document.querySelector('.PurchaseButton').dataset.productId"), '20');
     assert.equal(await browser.evaluate("getComputedStyle(document.querySelector('.store-cards')).display"), 'grid');
-    assert.equal(await browser.evaluate('location.hash'), '#!/store/developer-products');
+    assert.equal(await browser.evaluate('location.hash'), variant === 'legacy' ? '#!/store' : '#!/store/developer-products');
     await browser.evaluate("document.querySelector('.store-cards').replaceChildren();document.querySelector('#empty').hidden=false");
     assert.equal(await browser.evaluate("document.querySelector('#empty').checkVisibility()"), true);
   }
