@@ -36,8 +36,8 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .
   pointer-events: none;
   border-radius: inherit;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31)));
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
 }
 
 html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container :is(
@@ -54,7 +54,7 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container :
 html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container :is(
   .filter-select:not(.btn-primary-md), .topic-container button
 ) {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(22%, var(--rc-surface-opacity-floor, 0))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.22, var(--rc-surface-opacity-floor, 0))) !important;
   border-color: var(--rc-catalog-border) !important;
 }
 
@@ -64,8 +64,8 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container :
   border-radius: 12px !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.5, var(--rc-surface-opacity, var(--rc-glass-opacity, .62)))) !important;
   background-image: none !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
   box-shadow: 0 10px 28px rgb(0 0 0 / 24%) !important;
 }
 
@@ -101,7 +101,7 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .
 html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu :is(
   li.active > a, li.active > button, [role="option"][aria-selected="true"]
 ) {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(28%, var(--rc-surface-opacity-floor, 0))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.28, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu :is(
@@ -109,7 +109,7 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .
   li:not(.disabled, [aria-disabled="true"]) > button:not(:disabled, [aria-disabled="true"]),
   [role="option"]:not([aria-disabled="true"])
 ):is(:hover, :focus-visible) {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(18%, var(--rc-surface-opacity-floor, 0))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.18, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .filters-modal-container :is(
@@ -123,13 +123,13 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .
 }
 
 html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .filters-modal-container .filter-option:hover {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(18%, var(--rc-surface-opacity-floor, 0))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.18, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container :is(
   #avatar-shop-keyword-input, .filters-modal-container input:not([type="radio"], [type="checkbox"])
 ) {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(24%, var(--rc-surface-opacity-floor, 0))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.24, var(--rc-surface-opacity-floor, 0))) !important;
   border-color: var(--rc-catalog-border) !important;
   color: var(--color-content-emphasis, inherit) !important;
   border-radius: 9px;
@@ -178,8 +178,8 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .
   border-radius: 14px !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   background-image: none !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
   box-shadow: 0 4px 14px rgb(0 0 0 / 12%);
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }

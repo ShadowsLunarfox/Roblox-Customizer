@@ -30,6 +30,11 @@
   let fallbackTimer = 0;
   let cachedVisuals = null;
   let visualRoot = null;
+  let gameHeader = null;
+  let gameMedia = null;
+  let gameActions = null;
+  let gameTitle = null;
+  let gameButtons = null;
 
   const bounded = (value, minimum, maximum, fallback) => {
     const number = Number(value);
@@ -101,9 +106,13 @@
     const root = document.documentElement;
     if (!root || !visuals) return;
     const opacity = bounded(visuals.glassOpacity, 25, 90, 62);
-    root.style.setProperty('--rc-glass-blur', `${bounded(visuals.glassBlur, 0, 40, 18)}px`);
-    root.style.setProperty('--rc-glass-opacity', String(opacity / 100));
-    root.style.setProperty('--rc-page-panel-opacity', String(opacity / 200));
+    const disableTransparency = visuals.disableTransparency === true;
+    const disableBlur = visuals.disableBlur === true;
+    root.toggleAttribute('data-rc-disable-transparency', disableTransparency);
+    root.toggleAttribute('data-rc-disable-blur', disableBlur);
+    root.style.setProperty('--rc-glass-blur', disableBlur ? '0px' : `${bounded(visuals.glassBlur, 0, 40, 18)}px`);
+    root.style.setProperty('--rc-glass-opacity', disableTransparency ? '1' : String(opacity / 100));
+    root.style.setProperty('--rc-page-panel-opacity', disableTransparency ? '1' : String(opacity / 200));
     applyCustomColors(root, visuals);
     root.toggleAttribute('data-rc-background-active', visuals.backgroundActive === true);
     root.removeAttribute('data-rc-hide-recommended');
@@ -142,9 +151,38 @@
     }, 1800);
   }
 
+  function syncGameHeader() {
+    // Native mounts determine this structure. Keep it out of relational CSS
+    // selectors that must be reconsidered whenever an unrelated portal changes.
+    if (gameHeader?.isConnected && gameMedia?.parentElement === gameHeader
+      && gameActions?.parentElement === gameHeader && gameTitle?.parentElement === gameActions
+      && gameButtons?.parentElement === gameActions) return;
+    const media = document.querySelector('#game-details-carousel-container');
+    const header = media?.parentElement?.matches('#game-detail-page .game-main-content')
+      ? media.parentElement : null;
+    if (gameHeader && gameHeader !== header) {
+      gameHeader.removeAttribute('data-rc-game-header');
+      gameHeader.removeAttribute('data-rc-game-header-split');
+      gameActions?.removeAttribute('data-rc-game-actions');
+    }
+    gameHeader = header; gameMedia = media;
+    if (!header) { gameActions = gameTitle = gameButtons = null; return; }
+    gameActions?.removeAttribute('data-rc-game-actions');
+    gameActions = header.querySelector(':scope > .game-calls-to-action');
+    gameTitle = gameActions?.querySelector(':scope > .game-title-container');
+    gameButtons = gameActions?.querySelector(':scope > .game-buttons-container');
+    const split = !!(gameTitle && gameButtons);
+    header.toggleAttribute('data-rc-game-header', true);
+    header.toggleAttribute('data-rc-game-header-split', split);
+    gameActions?.toggleAttribute('data-rc-game-actions', split);
+  }
+
   function syncRoute() {
     const root = document.documentElement;
     if (!root) return;
+    syncGameHeader();
+    root.toggleAttribute('data-rc-home-friends',
+      !!document.querySelector('#HomeContainer .friend-carousel-container'));
     // Interface features are available with Roblox's default background too.
     if (!root.hasAttribute('data-rc-ui-active')) root.setAttribute('data-rc-ui-active', '');
     if (visualRoot !== root) {
@@ -180,6 +218,8 @@
         version: 1,
         glassBlur: bounded(settings.glassBlur, 0, 40, 18),
         glassOpacity: bounded(settings.glassOpacity, 25, 90, 62),
+        disableTransparency: settings.disableTransparency === true,
+        disableBlur: settings.disableBlur === true,
         backgroundActive: (settings.source === 'url' && !!settings.url)
           || (settings.source === 'file' && !!settings.fileKey),
         hideRecommendedUpper: typeof settings.hideRecommendedUpper === 'boolean'

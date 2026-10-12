@@ -85,6 +85,17 @@ html[data-rc-custom-colors] :is(.dark-theme, .light-theme) {
   --color-selection-start: var(--rc-accent);
 }
 
+/* Effect switches also cover themed portals and inset panels. Keep each
+   surface's original filter as the fallback so re-enabling restores its look. */
+html[data-rc-disable-blur] {
+  --rc-backdrop-filter: none;
+}
+
+html[data-rc-disable-transparency],
+html[data-rc-disable-transparency] :is(.dark-theme, .light-theme) {
+  --rc-surface-opacity-floor: 1;
+}
+
 html[data-rc-custom-colors] body {
   color: var(--rc-text) !important;
 }

@@ -11,6 +11,7 @@
   const OWN_SELECTOR = '.rc-robux-equivalent, #rc-settings-overlay, .rc-settings-currency';
   const STACK_SELECTOR = '.item-card-price, .store-card-price, .store-product-card-price, .price-container-text, .reseller-price-container, .item-card-container .price-container';
   const entries = new Map();
+  const labelTargets = new WeakMap();
   const roots = new Set();
   const stackedHosts = new Set();
   const balanceHosts = new Set();
@@ -21,6 +22,7 @@
   let timer = null;
   let loading = false;
   let started = false;
+  let refreshAll = false;
   let writeQueue = Promise.resolve();
   let names;
   function refreshCurrencyNames() {
@@ -83,6 +85,7 @@
     if (!target || isOwn(target) || amountOf(target) === null || entries.has(target)) return;
     const label = svg ? document.createElementNS('http://www.w3.org/2000/svg', 'title') : document.createElement('span');
     label.classList.add('rc-robux-equivalent');
+    labelTargets.set(label, target);
     entries.set(target, { label, svg, amount: null, text: '' });
     render(target, entries.get(target));
   }
@@ -100,9 +103,9 @@
     const balanceAmount = element.closest('#nav-robux-amount');
     const headerBalance = balanceAmount?.closest('a, button');
     const stack = element.closest(STACK_SELECTOR);
-    if (stack) { stack.setAttribute('data-rc-currency-stack', ''); stackedHosts.add(stack); }
+    if (stack) { if (!stack.hasAttribute('data-rc-currency-stack')) stack.setAttribute('data-rc-currency-stack', ''); stackedHosts.add(stack); }
     if (headerBalance) {
-      headerBalance.setAttribute('data-rc-currency-balance', '');
+      if (!headerBalance.hasAttribute('data-rc-currency-balance')) headerBalance.setAttribute('data-rc-currency-balance', '');
       balanceHosts.add(headerBalance);
     }
     if (entry.svg) {
@@ -159,11 +162,13 @@
     timer = null;
     if (!settings.enabled) { roots.clear(); clear(); return; }
     const pendingRoots = [...roots];
+    const repaintAll = refreshAll;
+    refreshAll = false;
     roots.clear();
     for (const root of pendingRoots) if (!pendingRoots.some(other => other !== root && other.contains(root))) discover(root);
     for (const [target, entry] of entries) {
       if (!target.isConnected || isOwn(target)) { entry.label.remove(); entries.delete(target); }
-      else render(target, entry);
+      else if (repaintAll || pendingRoots.some(root => root.contains(target))) render(target, entry);
     }
     for (const host of stackedHosts) if (!host.isConnected || !host.querySelector('.rc-robux-equivalent')) { host.removeAttribute('data-rc-currency-stack'); stackedHosts.delete(host); }
     for (const host of balanceHosts) if (!host.isConnected || !host.querySelector('.rc-robux-equivalent')) { host.removeAttribute('data-rc-currency-balance'); balanceHosts.delete(host); }
@@ -172,6 +177,7 @@
 
   function queue(root) {
     if (root) roots.add(root);
+    if (!root || root === document.body || root === document.documentElement) refreshAll = true;
     if (timer === null) timer = setTimeout(flush, 80);
   }
 
@@ -265,16 +271,34 @@
         if (isOwn(record.target)) continue;
         if (record.type === 'childList') {
           const nodes = [...record.addedNodes, ...record.removedNodes];
-          if (nodes.length && nodes.every(node => node.nodeType === Node.ELEMENT_NODE && node.matches('.rc-robux-equivalent'))) continue;
+          if (nodes.length && nodes.every(node => node.nodeType === Node.ELEMENT_NODE && node.matches('.rc-robux-equivalent'))) {
+            // React can remove an injected label without changing its native price.
+            // Repair that one target; our own label moves are already connected.
+            for (const node of record.removedNodes) {
+              const target = labelTargets.get(node);
+              if (!node.isConnected && target?.isConnected) {
+                queue(target.nodeType === Node.ELEMENT_NODE ? target : target.parentElement);
+              }
+            }
+            continue;
+          }
           for (const node of record.addedNodes) if (node.nodeType === Node.ELEMENT_NODE && !isOwn(node)) queue(node);
         }
-        // Scan a small surrounding subtree for icons and values split across siblings.
+        // Hover classes and labels do not change prices. Only currency-related attribute
+        // changes need discovery; remember the old value when a native marker is removed.
         const element = record.target.nodeType === Node.ELEMENT_NODE ? record.target : record.target.parentElement;
-        if (element && element !== document.body && element !== document.documentElement) queue(element.parentElement || element);
-        else queue();
+        if (record.type === 'attributes' && !/robux/i.test(record.oldValue || '')
+          && !element?.matches(`${VALUE_SELECTOR}, ${ICON_SELECTOR}, ${STACK_SELECTOR}`)
+          && !element?.closest(VALUE_SELECTOR) && !entries.has(element)) continue;
+        // A body portal is already covered by its added subtree. Do not expand that
+        // hover popup into a full-page scan and reformat every recorded price.
+        if (element && element !== document.body && element !== document.documentElement) {
+          queue(record.type === 'characterData' ? element.parentElement || element : element);
+        }
+        for (const node of record.removedNodes || []) if (node.nodeType === Node.ELEMENT_NODE) queue(node);
       }
     });
-    observer.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['class', 'data-testid', 'aria-label', 'value'] });
+    observer.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeOldValue: true, attributeFilter: ['class', 'data-testid', 'aria-label', 'value'] });
     for (const event of ['input', 'change']) document.addEventListener(event, event => {
       if (event.target.matches?.('input') && !isOwn(event.target)) queue(event.target.parentElement);
     }, true);

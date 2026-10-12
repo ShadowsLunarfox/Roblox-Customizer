@@ -494,9 +494,21 @@
     });
   }
 
+  let observedPath = location.pathname;
   const observer = new MutationObserver(records => {
-    if (records.some(record => !record.target.parentElement?.closest(
-      '#rc-pinned-games, .rc-game-pin-control, .rc-game-pin-folder, #rc-pinned-games-notification, #rc-home-greeting'))) queueSync();
+    const routeChanged = observedPath !== location.pathname;
+    observedPath = location.pathname;
+    const page = HOME_PATH.test(location.pathname)
+      ? '#HomeContainer, .home-container, [data-testid="home-page"]'
+      : GAME_PATH.test(location.pathname) ? '#game-detail-page' : '';
+    if (routeChanged || page && records.some(record => {
+      const target = record.target instanceof Element ? record.target : record.target.parentElement;
+      if (target?.closest('#rc-pinned-games, .rc-game-pin-control, .rc-game-pin-folder, '
+        + '#rc-pinned-games-notification, #rc-home-greeting, .friend-tile-dropdown, .popover, '
+        + '.tooltip, [role="tooltip"], [data-radix-popper-content-wrapper]')) return false;
+      return target?.closest(page) || [...record.addedNodes || [], ...record.removedNodes || []].some(node =>
+        node instanceof Element && (node.matches(page) || node.querySelector(page)));
+    })) queueSync();
   });
   observer.observe(document, OBSERVE);
   chrome.storage.onChanged.addListener((changes, area) => {

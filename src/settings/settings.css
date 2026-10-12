@@ -64,8 +64,8 @@ html:not([data-rc-background-active]) #rc-background-layer {
 #left-navigation-container > .rbx-left-col {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   background-image: none !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
 }
 
 #header.rbx-header,
@@ -87,8 +87,8 @@ html:not([data-rc-background-active]) #rc-background-layer {
   pointer-events: none;
   border-radius: inherit;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62)));
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
 }
 
 /* Native feedback banners can exceed their off-screen offset and leave a strip
@@ -103,9 +103,9 @@ html[data-rc-ui-active] #header .navbar-search {
 }
 
 html[data-rc-ui-active] #header #navbar-search-input {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(24%, var(--rc-surface-opacity-floor, 0))) !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.24, var(--rc-surface-opacity-floor, 0))) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
 }
 
 /* Let the wallpaper show through both versions of the header search dropdown. */
@@ -114,8 +114,8 @@ html[data-rc-ui-active] #search-landing-root .search-landing-container {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
   background-image: none !important;
   border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 14%) !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
   box-shadow: 0 8px 28px rgb(0 0 0 / 24%) !important;
 }
 
@@ -148,7 +148,7 @@ html[data-rc-ui-active] #search-landing-root .search-landing-container .horizont
 html[data-rc-ui-active] :is(
   #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu,
   #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu,
-  [role="menu"]:has(.rc-settings-menu-entry, a[href*="/transactions"], a[href*="/redeem"])
+  [data-rc-header-menu]
 ) {
   --rc-header-menu-highlight: rgb(var(--rc-foreground-rgb, 255 255 255) / 12%);
   box-sizing: border-box;
@@ -161,8 +161,8 @@ html[data-rc-ui-active] :is(
   border-radius: 14px !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.5, var(--rc-surface-opacity, var(--rc-glass-opacity, .62)))) !important;
   background-image: none !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
   box-shadow: 0 10px 28px rgb(0 0 0 / 24%) !important;
   color: var(--color-content-emphasis, inherit) !important;
 }
@@ -191,7 +191,7 @@ html[data-rc-ui-active] .popover:has(
 html[data-rc-ui-active] :is(
   #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu,
   #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu,
-  [role="menu"]:has(.rc-settings-menu-entry, a[href*="/transactions"], a[href*="/redeem"])
+  [data-rc-header-menu]
 ) :is(div, ul, li, a, button, [role="menuitem"]) {
   background-color: transparent !important;
   background-image: none !important;
@@ -203,8 +203,8 @@ html[data-rc-ui-active] :is(
 html[data-rc-ui-active] :is(
   #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu,
   #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu,
-  [role="menu"]:has(.rc-settings-menu-entry, a[href*="/transactions"], a[href*="/redeem"])
-) :is(a, button, [role="menuitem"]:not(:has(a, button))) {
+  [data-rc-header-menu]
+) :is(a, button, [role="menuitem"][data-rc-menu-action]) {
   min-height: 40px;
   padding: 10px 12px !important;
   border-radius: 9px;
@@ -216,16 +216,16 @@ html[data-rc-ui-active] :is(
 html[data-rc-ui-active] :is(
   #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu,
   #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu,
-  [role="menu"]:has(.rc-settings-menu-entry, a[href*="/transactions"], a[href*="/redeem"])
-) :is(a, button, [role="menuitem"]:not(:has(a, button))):not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible) {
+  [data-rc-header-menu]
+) :is(a, button, [role="menuitem"][data-rc-menu-action]):not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible) {
   background-color: var(--rc-header-menu-highlight) !important;
 }
 
 html[data-rc-ui-active] :is(
   #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu,
   #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu,
-  [role="menu"]:has(.rc-settings-menu-entry, a[href*="/transactions"], a[href*="/redeem"])
-) :is(a, button, [role="menuitem"]:not(:has(a, button))):focus-visible {
+  [data-rc-header-menu]
+) :is(a, button, [role="menuitem"][data-rc-menu-action]):focus-visible {
   outline: 2px solid var(--color-content-emphasis, #fff) !important;
   outline-offset: -2px;
 }
@@ -233,12 +233,12 @@ html[data-rc-ui-active] :is(
 html[data-rc-ui-active] .light-theme :is(
   #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu,
   #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu,
-  [role="menu"]:has(.rc-settings-menu-entry, a[href*="/transactions"], a[href*="/redeem"])
+  [data-rc-header-menu]
 ),
 html.light-theme[data-rc-ui-active] :is(
   #settings-popover-menu, #buy-robux-popover-menu, #robux-popover-menu,
   #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu,
-  [role="menu"]:has(.rc-settings-menu-entry, a[href*="/transactions"], a[href*="/redeem"])
+  [data-rc-header-menu]
 ) {
   --rc-header-menu-highlight: rgb(0 0 0 / 8%);
 }
@@ -291,8 +291,8 @@ html[data-rc-ui-active] [data-rc-chat-panel]::before {
   pointer-events: none;
   border-radius: inherit;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
 }
 
 html[data-rc-ui-active] :is(#chat-container, #chat-main, #dialog-container, [data-rc-chat-panel]) :is(
@@ -338,7 +338,7 @@ html[data-rc-ui-active] [data-rc-chat-surface] {
 
 html[data-rc-ui-active] :is(#chat-container, #chat-main, #dialog-container, [data-rc-chat-panel]) :is(.chat-search-input, .dialog-input),
 html[data-rc-ui-active] [data-rc-chat-input] {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(24%, var(--rc-surface-opacity-floor, 0))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.24, var(--rc-surface-opacity-floor, 0))) !important;
   background-image: none !important;
 }
 
@@ -370,8 +370,8 @@ html[data-rc-ui-active] .light-theme :is(#chat-container, [data-rc-chat-panel]) 
   border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 14%);
   border-radius: 16px;
   background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62)));
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
   color: var(--rc-text, #f7f7f8);
   font-family: Arial, sans-serif;
 }
@@ -510,8 +510,8 @@ html[data-rc-ui-active] .light-theme :is(#chat-container, [data-rc-chat-panel]) 
   border-radius: 10px !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   background-image: none !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
 }
 
 /* Native tile sizes do not include our padding. Fit the contents to the card. */
@@ -706,7 +706,7 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
   padding: 4px 9px !important;
   border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 35%) !important;
   border-radius: 7px !important;
-  background: rgb(22 24 31 / 90%) !important;
+  background: rgb(22 24 31 / max(.9, var(--rc-surface-opacity-floor, 0))) !important;
   color: #fff !important;
   box-shadow: 0 2px 8px rgb(0 0 0 / 32%) !important;
   font: 700 12px/1.2 Arial, sans-serif !important;
@@ -890,6 +890,28 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"] {
 
 #rc-settings-overlay .rc-settings-glass > input[type="range"] {
   grid-column: 2;
+}
+
+#rc-settings-overlay .rc-effect-toggles {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#rc-settings-overlay .rc-effect-toggles button[aria-pressed="true"] {
+  border-color: var(--rc-accent, #335fff);
+  background: var(--rc-accent, #335fff);
+  color: var(--rc-accent-text, #fff);
+}
+
+#rc-settings-overlay .rc-effect-toggles button[aria-pressed="true"]:is(:hover, :focus-visible) {
+  background: var(--rc-accent-hover, #244de0);
+}
+
+#rc-settings-overlay .rc-settings-glass > input:disabled {
+  opacity: .5;
+  cursor: not-allowed;
 }
 
 #rc-settings-overlay .rc-settings-colors {

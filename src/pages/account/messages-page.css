@@ -27,14 +27,14 @@ html[data-rc-ui-active][data-rc-frost-page="messages"] #private-message-web-app 
   border: 1px solid var(--rc-inbox-border) !important;
   border-radius: 16px !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
   box-shadow: inset 0 1px rgb(var(--rc-foreground-rgb, 255 255 255) / 10%), 0 12px 32px rgb(0 0 0 / 16%) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="messages"] #private-message-web-app [role="tablist"] {
   border-radius: 10px;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(16%, var(--rc-surface-opacity-floor, 0))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.16, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="messages"] #private-message-web-app [role="tab"] {
@@ -64,7 +64,7 @@ html[data-rc-ui-active][data-rc-frost-page="messages"] #private-message-web-app 
 ) {
   border-color: var(--rc-inbox-border) !important;
   border-radius: 10px;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(24%, var(--rc-surface-opacity-floor, 0))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.24, var(--rc-surface-opacity-floor, 0))) !important;
   color: var(--color-content-emphasis, inherit) !important;
 }
 
@@ -80,8 +80,8 @@ html[data-rc-ui-active][data-rc-frost-page="messages"] #private-message-web-app 
   border: 1px solid var(--rc-inbox-border);
   border-radius: 14px;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.88, var(--rc-surface-opacity, var(--rc-glass-opacity, .62)))) !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px))) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px))) !important;
 }
 
 @media (max-width: 640px) {

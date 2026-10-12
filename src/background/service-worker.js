@@ -1,6 +1,7 @@
 if (typeof importScripts === 'function') {
   importScripts('../currency/robux-currency-core.js', 'robux-currency-background.js',
-    '../home/pinned-games-core.js', 'pinned-games-background.js');
+    '../home/pinned-games-core.js', 'pinned-games-background.js',
+    '../playtime/playtime-core.js', 'playtime-background.js');
 }
 
 const BADGE_QUERY = 'rc-badge-ownership';

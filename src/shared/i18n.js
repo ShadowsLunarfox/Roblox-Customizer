@@ -2,6 +2,47 @@
 (() => {
   'use strict';
   const messages = [
+    ['Playtime tracking', '游戏时长记录', '遊戲時長記錄'],
+    ['Hidden game status may prevent tracking. Past sessions, long connection gaps, and time while your browser is closed cannot be recovered.', '隐藏游戏状态可能导致无法记录。过去的游玩、长时间连接中断及浏览器关闭期间的时长无法补回。', '隱藏遊戲狀態可能導致無法記錄。過去的遊玩、長時間連線中斷及瀏覽器關閉期間的時長無法補回。'],
+    ['Enable playtime tracking', '启用游戏时长记录', '啟用遊戲時長記錄'],
+    ['Estimates playtime from Roblox presence while your browser is running. Stored only on this computer, separately for each account.', '在浏览器运行时，根据 Roblox 在线状态估算游戏时长。记录仅保存在此电脑上，各账号分别存储。', '在瀏覽器執行時，根據 Roblox 上線狀態估算遊戲時長。記錄僅儲存在此電腦上，各帳號分別儲存。'],
+    ['View playtime history', '查看游戏时长记录', '查看遊戲時長記錄'],
+    ['Your playtime', '您的游戏时长', '您的遊戲時長'],
+    ['Total playtime', '累计游玩时长', '累計遊玩時長'],
+    ['Not recorded yet', '暂无记录', '暫無記錄'],
+    ['Local estimate for this game.', '此游戏在本机记录的估算时长。', '此遊戲在本機記錄的估算時長。'],
+    ['Enable playtime tracking to start recording this game.', '启用游戏时长记录后，即可开始记录此游戏。', '啟用遊戲時長記錄後，即可開始記錄此遊戲。'],
+    ['Your most played', '您最常玩的游戏', '您最常玩的遊戲'],
+    ['Previous games', '上一组游戏', '上一組遊戲'],
+    ['Next games', '下一组游戏', '下一組遊戲'],
+    ['View history', '查看记录', '查看記錄'],
+    ['Playtime history', '游戏时长记录', '遊戲時長記錄'],
+    ['View all', '查看全部', '查看全部'],
+    ['Playing now', '正在游玩', '正在遊玩'],
+    ['Tracking is paused. Saved totals are kept.', '记录已暂停，已保存的累计时长会保留。', '記錄已暫停，已儲存的累計時長會保留。'],
+    ['Waiting for Roblox status.', '正在等待 Roblox 状态。', '正在等待 Roblox 狀態。'],
+    ['No game detected. Waiting for your next session.', '尚未检测到游戏，等待您下次游玩。', '尚未偵測到遊戲，等待您下次遊玩。'],
+    ['Sign in to Roblox to track playtime.', '请登录 Roblox 以记录游戏时长。', '請登入 Roblox 以記錄遊戲時長。'],
+    ['Roblox status is unavailable. Timing is paused until it returns.', '无法获取 Roblox 状态，恢复后将继续记录。', '無法取得 Roblox 狀態，恢復後將繼續記錄。'],
+    ['Could not update playtime. Please try again.', '无法更新游戏时长，请重试。', '無法更新遊戲時長，請重試。'],
+    ['Saved for {name}', '{name} 的本地记录', '{name} 的本機記錄'],
+    ['{hours}h {minutes}m', '{hours}小时 {minutes}分钟', '{hours}小時 {minutes}分鐘'],
+    ['{minutes}m', '{minutes}分钟', '{minutes}分鐘'],
+    ['{seconds}s', '{seconds}秒', '{seconds}秒'],
+    ['{minutes}m {seconds}s', '{minutes}分{seconds}秒', '{minutes}分{seconds}秒'],
+    ['{hours}h {minutes}m {seconds}s', '{hours}时{minutes}分{seconds}秒', '{hours}時{minutes}分{seconds}秒'],
+    ['{count} sessions', '{count}次游玩', '{count}次遊玩'],
+    ['Last played', '上次游玩', '上次遊玩'],
+    ['No playtime recorded yet. Join a game with tracking enabled to start.', '暂无时长记录。启用记录后，加入游戏即可开始。', '暫無時長記錄。啟用記錄後，加入遊戲即可開始。'],
+    ['Search games', '搜索游戏', '搜尋遊戲'],
+    ['Sort playtime', '时长排序', '時長排序'],
+    ['Most time played', '游玩时长最多', '遊玩時長最多'],
+    ['Recently played', '最近游玩', '最近遊玩'],
+    ['No matching games.', '没有匹配的游戏。', '沒有相符的遊戲。'],
+    ['Export JSON', '导出 JSON', '匯出 JSON'],
+    ['Clear this account', '清除此账号的记录', '清除此帳號的記錄'],
+    ['Delete saved playtime', '删除已保存的游戏时长', '刪除已儲存的遊戲時長'],
+    ['Delete all saved playtime for this account? This cannot be undone.', '删除此账号的全部本地游戏时长？此操作无法撤销。', '刪除此帳號的全部本機遊戲時長？此操作無法復原。'],
     ['Roblox Customizer', 'Roblox 自定义工具', 'Roblox 自訂工具'],
     ['Extension language', '扩展语言', '擴充功能語言'],
     ['Automatic (Roblox / browser)', '自动（Roblox / 浏览器）', '自動（Roblox / 瀏覽器）'],
@@ -13,6 +54,8 @@
     ['Frosted menus and page panels', '毛玻璃菜单和页面面板', '毛玻璃選單與頁面面板'],
     ["Works with Roblox's default background or your own image or video.", '适用于 Roblox 默认背景，以及您自己的图片或视频。', '適用於 Roblox 預設背景，以及您自己的圖片或影片。'],
     ['Frost blur', '模糊强度', '模糊強度'], ['Glass opacity', '面板不透明度', '面板不透明度'],
+    ['Disable transparency', '关闭透明效果', '關閉透明效果'], ['Disable blur', '关闭模糊效果', '關閉模糊效果'],
+    ['Your blur and opacity values are kept when effects are disabled.', '关闭效果时会保留您的模糊强度和不透明度设置。', '關閉效果時會保留您的模糊強度與不透明度設定。'],
     ['Custom colors', '自定义颜色', '自訂色彩'], ['Experimental', '实验性', '實驗性'],
     ['Enable custom colors', '启用自定义颜色', '啟用自訂色彩'],
     ['Changes text, page and panel backgrounds, and accents. Some Roblox elements may keep their own colors.', '更改文字、页面和面板背景，以及强调色。部分 Roblox 元素可能保留原有颜色。', '變更文字、頁面與面板背景，以及強調色。部分 Roblox 元素可能保留原有色彩。'],
@@ -268,7 +311,7 @@
   const pending = new Set();
   let timer = null;
 
-  const ROOTS = '#rc-settings-overlay, .rc-settings-menu-entry, .rc-hide-recommended-game, #rc-home-greeting, '
+  const ROOTS = '#rc-playtime-home, #rc-playtime-game-page, #rc-playtime-dialog, #rc-playtime-settings, #rc-settings-overlay, .rc-settings-menu-entry, .rc-hide-recommended-game, #rc-home-greeting, '
     + '.rc-game-pin-control, .rc-game-pin-folder, #rc-pinned-games, #rc-pinned-games-notification, #rc-avatar-2d, #rc-catalog-item-2d, '
     + '#rc-catalog-item-3d-refresh, #rc-catalog-item-3d-status, #rc-profile-enhancements, #rc-profile-inline-about, '
     + '#rc-x-feed-panel, #rc-youtube-feed-panel, #rc-rolimons-panel, .rc-public-server-filters, '

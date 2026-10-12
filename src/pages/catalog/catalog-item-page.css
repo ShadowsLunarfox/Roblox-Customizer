@@ -10,8 +10,8 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   border-radius: 16px !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   background-image: none !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
   box-shadow: 0 6px 24px rgb(0 0 0 / 16%) !important;
 }
 
@@ -371,8 +371,8 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   border: 1px solid var(--color-stroke-default, rgb(var(--rc-foreground-rgb, 255 255 255) / 16%)) !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   background-image: none !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
   box-shadow: 0 4px 14px rgb(0 0 0 / 12%) !important;
 }
 
@@ -380,7 +380,7 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   #item-list-container-recommendations, #item-list-container-included-items, #item-recommendations-container, #recommendations-container,
   #sponsored-catalog-items, #populated-sponsored-catalog-items, .recommendations-container
 ) .item-card-thumb-container {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(24%, var(--rc-surface-opacity-floor, 0))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.24, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
@@ -580,8 +580,8 @@ html[data-rc-ui-active] [data-rc-item-studio] > :is([data-rc-item-3d], #rc-catal
   border-color: rgb(var(--rc-foreground-rgb, 255 255 255) / 15%);
   background: linear-gradient(145deg, rgb(var(--rc-glass-color, 32 37 52) / max(.75, var(--rc-surface-opacity-floor, 0))), rgb(var(--rc-glass-color, 22 24 34) / max(.68, var(--rc-surface-opacity-floor, 0)))) !important;
   color: var(--rc-text, #f5f6f7);
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
 }
 
 /* The current shopping-cart template has its own 420px preview width offset. */
@@ -803,8 +803,8 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #item-info-container-front
   .price-row-container, .item-info-row-container:has(.description-content)
 ) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
 }
 
 /* One backing groups the native specifications and favorite control in place. */
@@ -872,8 +872,8 @@ html[data-rc-frost-page="catalog"] #favorites-button[data-rc-item-spec-favorites
 
 html[data-rc-ui-active][data-rc-frost-page="catalog"] #content #rc-catalog-item-specs {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
 }
 
 @container rc-item-information (max-width: 680px) {
@@ -1059,8 +1059,8 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] .shopping-cart-modal::befo
   pointer-events: none;
   border-radius: inherit;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31)));
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
 }
 
 html[data-rc-ui-active][data-rc-frost-page="catalog"] #content .shopping-cart-modal :is(
@@ -1181,8 +1181,8 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #asset-resale-data-contain
   border-radius: 10px !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
   background-image: none !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
   color: var(--rc-market-text, var(--rc-text, #f5f6f7)) !important;
 }
 
@@ -1427,8 +1427,8 @@ html[data-rc-ui-active] [data-rc-market-root] {
 }
 
 html[data-rc-ui-active] #content #asset-resale-data-container [data-rc-market-section]:not([data-rc-market-section="chart"]) {
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
 }
 
 /* Separate ancestor backings let product tiles and popups blur the page behind them. */
@@ -1455,8 +1455,8 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #content #asset-resale-dat
   pointer-events: none;
   border-radius: inherit;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62)));
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
 }
 
 /* Nested item wrappers continue to share the outer wrapper's backing. */

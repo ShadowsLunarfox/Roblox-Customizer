@@ -39,8 +39,8 @@ html[data-rc-frost-page="profile"] #rc-profile-identity-backdrop {
   border-radius: 0 0 16px 16px;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
   background-image: none !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
   box-shadow: inset 0 1px rgb(var(--rc-foreground-rgb, 255 255 255) / 12%), 0 14px 35px rgb(0 0 0 / 18%);
 }
 
@@ -56,8 +56,8 @@ html[data-rc-ui-active][data-rc-frost-page="profile"] :is(#content, main, [role=
   border-radius: 16px !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
   background-image: none !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
   box-shadow: 0 16px 36px rgb(0 0 0 / 17%), inset 0 1px rgb(var(--rc-foreground-rgb, 255 255 255) / 10%) !important;
 }
 
@@ -69,8 +69,8 @@ html[data-rc-frost-page="profile"] [data-rc-profile-summary],
 html[data-rc-frost-page="profile"] #user-profile-header-bg:not([data-rc-profile-summary]) {
   padding: 14px 20px !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
 }
 
 html[data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-hero] :is(
@@ -97,8 +97,8 @@ html[data-rc-frost-page="profile"] [data-rc-profile-banner] :is(button, [role="b
   border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 20%) !important;
   border-radius: 9px !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px))) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px))) !important;
   color: var(--rc-text, #fff) !important;
 }
 
@@ -135,8 +135,8 @@ html[data-rc-frost-page="profile"] [data-rc-profile-section] {
 html[data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-section] {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
   background-image: none !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
 }
 
 html[data-rc-frost-page="profile"] :is(#content, main, [role="main"])
@@ -603,8 +603,8 @@ html[data-rc-frost-page="profile"] :is(
   border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 15%);
   border-radius: 12px;
   background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31)));
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
   color: var(--rc-text, #f5f6f7);
 }
 
@@ -687,8 +687,8 @@ html[data-rc-frost-page="profile"] :is(
   border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 15%);
   border-radius: 12px;
   background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31)));
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
   color: var(--rc-text, #f5f6f7);
 }
 

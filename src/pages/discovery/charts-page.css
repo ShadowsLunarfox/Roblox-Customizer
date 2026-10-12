@@ -28,8 +28,8 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app :is(
   border-radius: 18px !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   background-image: none !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app :is(
@@ -67,8 +67,8 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .fil
   pointer-events: none;
   border-radius: inherit;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62)));
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
 }
 
 html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filters-container:has(.filters-modal-container) {
@@ -92,7 +92,7 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .fil
 }
 
 html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filter-select:not(.btn-primary-md) {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(28%, var(--rc-surface-opacity-floor, 0))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.28, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filter-select.btn-primary-md:not(:disabled, [aria-disabled="true"]) {
@@ -114,8 +114,8 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .fil
   border-radius: 14px !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.9, var(--rc-surface-opacity, var(--rc-glass-opacity, .62)))) !important;
   background-image: none !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
   box-shadow: 0 16px 40px rgb(0 0 0 / 24%) !important;
 }
 
@@ -129,7 +129,7 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .fil
 }
 
 html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filters-modal-container .filter-option:is(:hover, :focus-visible, .selected-option) {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(18%, var(--rc-surface-opacity-floor, 0))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.18, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
 /* Section titles share one line with their native See All link when space permits. */
@@ -155,7 +155,7 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .see
   padding: 7px 28px 7px 10px;
   border: 1px solid var(--rc-charts-border);
   border-radius: 9px;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(28%, var(--rc-surface-opacity-floor, 0)));
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.28, var(--rc-surface-opacity-floor, 0)));
   white-space: nowrap;
 }
 
@@ -191,8 +191,8 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app :is(
   border-radius: 14px !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   background-image: none !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
   box-shadow: 0 4px 14px rgb(0 0 0 / 12%);
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }

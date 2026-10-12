@@ -84,8 +84,8 @@ html[data-rc-ui-active][data-rc-frost-page="avatar"] [data-rc-avatar-studio] > :
   border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 12%);
   border-radius: 16px;
   background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
 }
 
 html[data-rc-ui-active][data-rc-frost-page="avatar"] [data-rc-avatar-studio] > [data-rc-avatar-view-column] {
@@ -199,8 +199,8 @@ html[data-rc-frost-page="avatar"] [data-rc-avatar-3d] canvas {
 
 html[data-rc-ui-active] #rc-avatar-2d {
   background: linear-gradient(145deg, rgb(var(--rc-glass-color, 32 37 52) / max(.75, var(--rc-surface-opacity-floor, 0))), rgb(var(--rc-glass-color, 22 24 34) / max(.68, var(--rc-surface-opacity-floor, 0)))) !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
 }
 
 #rc-avatar-2d .rc-avatar-2d-heading {
@@ -348,8 +348,8 @@ html[data-rc-frost-page="avatar"] [data-rc-avatar-main-row] {
   border-radius: 14px;
   background: rgb(var(--rc-glass-color, 24 27 35) / max(.78, var(--rc-surface-opacity, var(--rc-glass-opacity, .62)))) !important;
   color: var(--rc-text, #fff) !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
 }
 
 html[data-rc-frost-page="avatar"] [data-rc-avatar-main-row] > :has(> [data-rc-avatar-main-control]) {
@@ -413,8 +413,8 @@ html[data-rc-frost-page="avatar"] [data-rc-avatar-subcategories] {
   border-radius: 12px;
   background: rgb(var(--rc-glass-color, 24 27 35) / max(.78, var(--rc-surface-opacity, var(--rc-glass-opacity, .62)))) !important;
   color: var(--rc-text, #fff) !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
 }
 
 /* Contain native floated options without overriding the menu's hidden state. */

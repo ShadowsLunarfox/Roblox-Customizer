@@ -38,7 +38,7 @@
     if (!current) return;
     const tiles = nativeTiles(current.list);
     tiles.forEach((tile, index) => {
-      tile.setAttribute('data-rc-native-friend-cell', '');
+      if (!tile.hasAttribute('data-rc-native-friend-cell')) tile.setAttribute('data-rc-native-friend-cell', '');
       tile.toggleAttribute('data-rc-native-friends-hidden', index >= COLUMNS * maxRows);
     });
   }
@@ -78,9 +78,12 @@
   }
 
   globalThis.RobloxCustomizerRuntime?.onResume(queueSync);
+  const STRUCTURE_SELECTOR = '.friend-carousel-container, .react-friends-carousel-container, '
+    + '.friends-carousel-list-container, .friends-carousel-list-container-not-full, .friends-carousel-tile';
   new MutationObserver(records => {
-    if (records.some(record =>
-      !(record.target instanceof Element && record.target.closest('#rc-home-greeting')))) {
+    // Menus and tooltips are often inserted into body portals. They do not change the grid.
+    if (records.some(record => [...record.addedNodes, ...record.removedNodes].some(node =>
+      node instanceof Element && (node.matches(STRUCTURE_SELECTOR) || node.querySelector(STRUCTURE_SELECTOR))))) {
       queueSync();
     }
   }).observe(document, { childList: true, subtree: true });

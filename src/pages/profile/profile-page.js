@@ -428,7 +428,7 @@
       const panelColor = nestedInHero ? 'transparent'
         : 'rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31)))';
       const panelBlur = nestedInHero ? 'none'
-        : 'blur(var(--rc-glass-blur, 18px)) saturate(1.2)';
+        : 'var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2))';
       summary.style.setProperty('background-color', panelColor, 'important');
       summary.style.setProperty('background-image', 'none', 'important');
       summary.style.setProperty('backdrop-filter', panelBlur, 'important');

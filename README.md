@@ -19,10 +19,11 @@ A browser extension for Chrome and Edge that adds custom backgrounds, frosted pa
 ## 🌟 Features
 
 - **Animated backgrounds:** Use images, GIFs, or MP4 videos from a local file. Choose whether the background fills the screen or shows the entire image, and adjust dimming.
-- **Frosted interface:** Tune glass blur and opacity for menus and page panels, with styling that follows Roblox's light or dark theme. Interface features and layout improvements work with Roblox's default background; a custom wallpaper is optional.
+- **Frosted interface:** Tune glass blur and opacity for menus and page panels, with styling that follows Roblox's light or dark theme. **Disable transparency** makes panels opaque; **Disable blur** removes their backdrop filters. The two buttons work independently and keep your slider values for when you turn effects back on. Interface features and layout improvements work with Roblox's default background; a custom wallpaper is optional.
 - **Experimental custom colors (opt-in):** Enable **Custom colors → Enable custom colors** to choose text, page/panel background, and accent colors. Changes save automatically and work with or without a wallpaper. Some Roblox elements may keep their own colors. Turn the switch off to restore the normal theme while keeping your palette, or use **Reset and disable** to clear it.
 - **Theme-aware controls:** Text, icons, inputs, menus, and extension settings switch with Roblox's theme. Light panels retain a minimum backing opacity to keep text readable over dark wallpapers.
 - **Personalized Home:** Customize greetings and the clock, show up to three friend rows, and pin games. Hide Favorites, Standout Games, or the upper and lower recommendations separately; hide and restore individual recommended games.
+- **Local playtime history (opt-in):** Track played experiences and estimated total time for the signed-in account, with a Home summary, searchable history, JSON export, and account-specific clear controls. Records stay in this browser on your computer.
 - **Game browsing tools:** Private servers across games use a custom card layout built from Roblox's server data before rendering, with native Join, Create, Configure, subscription, and refresh actions. Older private-server layouts retain the adapter fallback. View badge and server details, and search public servers by country, latency, ping, and player count, or sort by player count.
 - **Game data & social feeds:** Explore gamepasses, badges, and places using Roblox and Rolimons data. Enable X and YouTube feeds separately for Game, Community, and Profile pages in **Social feed panels** settings.
 - **Robux currency estimates:** Display approximate purchase equivalents in your chosen currency across Roblox and Creator Hub. Actual checkout prices may vary.
@@ -34,8 +35,8 @@ A browser extension for Chrome and Edge that adds custom backgrounds, frosted pa
 
 | Page or area | Route examples | What changes |
 | --- | --- | --- |
-| Home | `/home` | Greeting, clock, friends, pinned games, recommendation controls, and aligned game cards. |
-| Game details | `/games/{id}` | Media and play controls, Store product cards and purchase controls, information panels, badges, server cards and filters, and social feeds. |
+| Home | `/home` | Greeting, clock, friends and their hover menus, pinned games, local playtime history, recommendation controls, and aligned game cards. |
+| Game details | `/games/{id}` | Media and play controls, this game's local playtime and last-played time, Store product cards and purchase controls, information panels, badges, server cards and filters, and social feeds. |
 | Private-server configuration | `/private-server/configure/{id}` | Configuration panels, server name and link fields, access controls, and native save actions. |
 | Game passes & Badges | `/game-pass/{id}`, `/badges/{id}` | Responsive artwork and detail panels, native purchase controls, and related experience links. |
 | Charts | `/charts` | Game cards, browsing controls, and filter panels. |
@@ -73,6 +74,17 @@ Changes apply immediately and save automatically.
 - **Curate recommendations:** Click **Hide** on a recommended game. Restore it through **Hidden recommendations** in the plugin settings.
 - **Find a server:** Open a game's Servers tab, set your filters, and click **Search**. Use **Previous/Next** to browse results or **Reset** to clear the filters.
 - **Choose a currency:** Find a currency by name or code in the converter settings. Use **Refresh rates** to update available exchange rates.
+- **Track your playtime:** In Customizer settings, enable **Playtime tracking** (off by default). **Your most played** in the Home greeting and clock panel shows up to five game cards at once, ranked by accumulated playtime, with the icon, name, and time below. Use the left/right arrows, swipe, or drag to browse more games; smaller screens show fewer cards. **View history**, or **View playtime history** in settings, opens search, sorting, JSON export, and account-specific clear controls. Tracking works with the default background too.
+
+### ⏱️ Local playtime history
+
+Each game page also shows **Your playtime** across the bottom of the game header, with the recorded total for that experience and the last-played date and time. The title sits above the cover and play controls, and the layout stacks on smaller screens. The panel updates automatically, supports English and both Chinese interfaces, and keeps saved records visible when tracking is paused. Games without local records are clearly marked; you can opt in to tracking directly from the panel.
+
+The tracker checks the signed-in account's Roblox presence about every 30 seconds while your browser is running. Durations include seconds, so short recorded sessions no longer all appear as `0m`. Only time between confirmed **in-game** samples counts; browsing game pages and using Studio do not. A brief failed or delayed check can be recovered when the same account and experience are confirmed again within two minutes. Subplaces within an experience share a total. Each Roblox account has separate totals, session counts, and last-played dates, saved in the extension's local browser storage. No playtime records are uploaded or synced to another computer.
+
+Times are estimates, not exact Roblox process measurements. Short sessions can be missed, hidden or unavailable presence cannot be tracked, and long gaps after sleep or connection failures are skipped. Chrome or Edge must remain running; closed-browser time and sessions before enabling the feature cannot be recovered. Roblox presence can also reflect play on another device signed into the same account.
+
+Pausing tracking keeps saved history. **Clear this account** deletes that account's local history after confirmation; other accounts and customization settings remain. Export records before uninstalling if you want to keep them, because uninstalling removes extension storage. The `alarms` permission schedules checks, and `presence.roblox.com` access reads the signed-in player's game status; existing Roblox game and thumbnail access supplies titles and artwork.
 
 ## 🔄 Updating & removing
 
@@ -89,7 +101,7 @@ To restore the default background, select **Roblox default background** or **Rem
 | Server details, feeds, or rates are unavailable | Retry after a moment; these features depend on Roblox and external data services. |
 | Layout looks unusual | Refresh Roblox and temporarily disable other Roblox extensions to check for conflicting styles. |
 
-Preferences and pinned games are stored locally in your browser. Local background files are stored locally for reuse. Previously saved URL backgrounds remain supported until you replace or remove them.
+Preferences, pinned games, and playtime history are stored locally in your browser. Local background files are stored locally for reuse. Previously saved URL backgrounds remain supported until you replace or remove them.
 
 ## 🗂️ Project layout
 
@@ -104,6 +116,7 @@ Roblox Customizer/
 │   ├── settings/          Customizer settings and background controls
 │   ├── home/              Friends layout and pinned games
 │   ├── currency/          Robux conversion logic and display
+│   ├── playtime/          Local playtime records, Home summary, and history UI
 │   └── pages/
 │       ├── account/       Settings, messages, trades, and transactions
 │       ├── avatar/        Avatar editor

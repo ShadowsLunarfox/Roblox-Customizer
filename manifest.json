@@ -20,10 +20,12 @@
   },
   "permissions": [
     "storage",
+    "alarms",
     "declarativeNetRequestWithHostAccess"
   ],
   "host_permissions": [
     "https://users.roblox.com/*",
+    "https://presence.roblox.com/*",
     "https://accountinformation.roblox.com/*",
     "https://inventory.roblox.com/*",
     "https://badges.roblox.com/*",
@@ -117,7 +119,8 @@
         "src/pages/community/community-directory.css",
         "src/pages/profile/profile-page.css",
         "src/pages/avatar/avatar-page.css",
-        "src/home/pinned-games.css"
+        "src/home/pinned-games.css",
+        "src/playtime/playtime.css"
       ],
       "js": [
         "src/shared/startup.js",
@@ -130,7 +133,9 @@
         "src/pages/avatar/avatar-page.js",
         "src/pages/catalog/catalog-item-page.js",
         "src/home/pinned-games-core.js",
-        "src/home/pinned-games.js"
+        "src/home/pinned-games.js",
+        "src/playtime/playtime-core.js",
+        "src/playtime/playtime.js"
       ],
       "run_at": "document_start"
     },

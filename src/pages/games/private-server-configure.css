@@ -54,8 +54,8 @@ html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] [data-rc-
   border: 1px solid rgb(var(--rc-foreground-rgb) / 18%);
   border-radius: inherit;
   background: rgb(var(--rc-glass-color) / max(.72, var(--rc-surface-opacity, .62)));
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
 }
 
 /* Include native floated artwork in the complete page backing. */

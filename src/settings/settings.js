@@ -21,6 +21,7 @@
   const DEFAULTS = {
     source: 'none', url: '', urlType: 'auto', fileKey: '', fileName: '',
     fit: 'cover', dim: 20, glassBlur: 18, glassOpacity: 62, uiLanguage: 'auto',
+    disableTransparency: false, disableBlur: false,
     experimentalCustomColors: false,
     customTextColor: '#f4f6fb', customBackgroundColor: '#14161c', customAccentColor: '#335fff',
     hideFavorites: false, hideStandoutGames: false,
@@ -78,6 +79,8 @@
     delete saved.clockDateFormat;
     delete saved.clockTimeZone;
     if (!['auto', 'en', 'zh-CN', 'zh-TW'].includes(saved.uiLanguage)) saved.uiLanguage = 'auto';
+    saved.disableTransparency = saved.disableTransparency === true;
+    saved.disableBlur = saved.disableBlur === true;
     saved.experimentalCustomColors = saved.experimentalCustomColors === true;
     for (const key of ['customTextColor', 'customBackgroundColor', 'customAccentColor']) {
       saved[key] = typeof saved[key] === 'string' && /^#[0-9a-f]{6}$/i.test(saved[key])
@@ -195,9 +198,11 @@
     const root = document.documentElement;
     if (!root) return;
     const clampedOpacity = Math.max(25, Math.min(90, Number(opacity) || 62));
-    root.style.setProperty('--rc-glass-blur', `${Math.max(0, Math.min(40, Number(blur) || 0))}px`);
-    root.style.setProperty('--rc-glass-opacity', String(clampedOpacity / 100));
-    root.style.setProperty('--rc-page-panel-opacity', String(clampedOpacity / 200));
+    root.toggleAttribute('data-rc-disable-transparency', settings.disableTransparency === true);
+    root.toggleAttribute('data-rc-disable-blur', settings.disableBlur === true);
+    root.style.setProperty('--rc-glass-blur', settings.disableBlur ? '0px' : `${Math.max(0, Math.min(40, Number(blur) || 0))}px`);
+    root.style.setProperty('--rc-glass-opacity', settings.disableTransparency ? '1' : String(clampedOpacity / 100));
+    root.style.setProperty('--rc-page-panel-opacity', settings.disableTransparency ? '1' : String(clampedOpacity / 200));
   }
 
   function homeFormatter(key, locale, options) {
@@ -616,6 +621,7 @@
 
   function syncMenu() {
     document.getElementById('rc-settings-launcher')?.remove();
+    markHeaderMenus();
 
     const nativeItem = findNativeSettingsItem();
     if (nativeItem) {
@@ -661,6 +667,22 @@
     link.setAttribute('aria-haspopup', 'dialog');
     item.append(link);
     menu.prepend(item);
+  }
+
+  function markHeaderMenus() {
+    const menus = new Set(document.querySelectorAll('#settings-popover-menu, #buy-robux-popover-menu, '
+      + '#robux-popover-menu, #navbar-settings .dropdown-menu, #navbar-robux .dropdown-menu'));
+    for (const anchor of document.querySelectorAll('.rc-settings-menu-entry, a[href*="/my/account"], '
+      + 'a[href*="/settings"], a[href*="/transactions"], a[href*="/redeem"]')) {
+      const menu = anchor.closest('[role="menu"]');
+      if (menu) menus.add(menu);
+    }
+    for (const menu of menus) {
+      if (!menu.hasAttribute('data-rc-header-menu')) menu.setAttribute('data-rc-header-menu', '');
+      for (const item of menu.querySelectorAll('[role="menuitem"]')) {
+        item.toggleAttribute('data-rc-menu-action', !item.querySelector('a, button'));
+      }
+    }
   }
 
   function queueMenuSync() {
@@ -724,6 +746,20 @@
     }
   }
 
+  function refreshEffectControls() {
+    if (!modal) return;
+    for (const [id, key, slider, suffix] of [
+      ['transparency', 'disableTransparency', 'opacity', '%'],
+      ['blur', 'disableBlur', 'blur', 'px']
+    ]) {
+      modal.querySelector(`#rc-disable-${id}`).setAttribute('aria-pressed', String(settings[key]));
+      modal.querySelector(`#rc-glass-${slider}`).disabled = settings[key];
+      const value = settings[slider === 'blur' ? 'glassBlur' : 'glassOpacity'];
+      modal.querySelector(`#rc-glass-${slider}`).value = value;
+      modal.querySelector(`#rc-glass-${slider}-value`).value = `${value}${suffix}`;
+    }
+  }
+
   async function closeModal() {
     if (!modal || modalClosing) return;
     modalClosing = true;
@@ -755,6 +791,7 @@
       document.dispatchEvent(new CustomEvent('rc-game-feed-preferences-changed'));
     }
     globalThis.RobloxCustomizerStartup?.setPreferences(settings);
+    refreshEffectControls();
     refreshColorControls();
     if (!previous || HOME_VISIBILITY.some(control => previous[control.key] !== settings[control.key])
       || previous.hiddenRecommendedGames !== settings.hiddenRecommendedGames) {
@@ -888,6 +925,11 @@
         <div class="rc-settings-glass">
           <h3>Frosted menus and page panels</h3>
           <p class="rc-settings-hint">Works with Roblox's default background or your own image or video.</p>
+          <div class="rc-effect-toggles" aria-describedby="rc-effects-hint">
+            <button id="rc-disable-transparency" type="button" class="rc-button rc-button-secondary" aria-pressed="false">Disable transparency</button>
+            <button id="rc-disable-blur" type="button" class="rc-button rc-button-secondary" aria-pressed="false">Disable blur</button>
+          </div>
+          <p id="rc-effects-hint" class="rc-settings-hint">Your blur and opacity values are kept when effects are disabled.</p>
           <label for="rc-glass-blur">Frost blur <output id="rc-glass-blur-value"></output></label>
           <input id="rc-glass-blur" type="range" min="0" max="40" step="1">
           <label for="rc-glass-opacity">Glass opacity <output id="rc-glass-opacity-value"></output></label>
@@ -958,6 +1000,7 @@
             <select id="rc-clock-hour-format"><option value="24">24-hour</option><option value="12">12-hour</option></select>
           </div>
         </div>
+        <div id="rc-playtime-settings"></div>
         <div class="rc-settings-social">
           <h3>Social feed panels</h3>
           <p class="rc-settings-hint">Choose feeds separately for each page type.</p>
@@ -978,6 +1021,7 @@
       </div>`;
     document.body.append(modal);
     globalThis.RobloxCustomizerCurrency?.mountSettings(modal.querySelector('#rc-currency-settings'));
+    globalThis.RobloxCustomizerPlaytimeUI?.mountSettings(modal.querySelector('#rc-playtime-settings'));
     // Previously saved URL backgrounds still render, but have no source control.
     const sourceControl = [...modal.querySelectorAll('input[name="rc-source"]')]
       .find(input => input.value === settings.source);
@@ -1007,6 +1051,7 @@
     });
     modal.querySelector('#rc-current-file').textContent = settings.fileName ? `Current file: ${settings.fileName}` : '';
     refreshSourceControls();
+    refreshEffectControls();
     refreshColorControls();
     if (backgroundError) setStatus(backgroundError, true);
 
@@ -1047,6 +1092,11 @@
       modal.querySelector('#rc-glass-opacity-value').value = `${event.target.value}%`;
       changeSettings({ ...settings, glassOpacity: Number(event.target.value) });
     });
+    for (const [id, key] of [['transparency', 'disableTransparency'], ['blur', 'disableBlur']]) {
+      modal.querySelector(`#rc-disable-${id}`).addEventListener('click', () => {
+        changeSettings({ ...settings, [key]: !settings[key] }, true);
+      });
+    }
     modal.querySelector('#rc-custom-colors-enabled').addEventListener('change', event => {
       changeSettings({ ...settings, experimentalCustomColors: event.target.checked }, true);
     });
@@ -1149,18 +1199,52 @@
     applyCurrentSettings();
   });
 
+  const HOME_CONTENT_SELECTOR = '#HomeContainer, .home-container, [data-testid="home-page"], main';
+  const FLOATING_UI_SELECTOR = '.friend-tile-dropdown, .popover, .tooltip, [role="tooltip"], [role="menu"], '
+    + '[data-radix-popper-content-wrapper], [data-popper-placement]';
+  const SETTINGS_MENU_SELECTOR = '#navbar-settings, #settings-popover-menu, #navbar-robux, '
+    + '#buy-robux-popover-menu, #robux-popover-menu, [data-rc-header-menu], '
+    + 'a[href*="/my/account"], a[href*="/settings"], a[href*="/transactions"], a[href*="/redeem"]';
+  function homeContentMutation(record) {
+    if (!/^\/home\/?$/i.test(location.pathname)) return false;
+    const target = record.target instanceof Element ? record.target : record.target.parentElement;
+    if (target?.closest(`#rc-home-greeting, #rc-settings-overlay, #rc-pinned-games, ${FLOATING_UI_SELECTOR}`)) return false;
+    if (record.type !== 'childList') return !!target?.closest(HOME_CONTENT_SELECTOR)
+      && !!(homeSectionKind(record.oldValue) || homeSectionKind(target.getAttribute('aria-label'))
+        || homeSectionKind(target.textContent));
+    const nodes = [...record.addedNodes, ...record.removedNodes];
+    if (nodes.length && nodes.every(node => node instanceof Element && node.matches(FLOATING_UI_SELECTOR))) return false;
+    if (target?.closest(HOME_CONTENT_SELECTOR)) return true;
+    return nodes.some(node => node instanceof Element
+      && (node.matches(HOME_CONTENT_SELECTOR) || node.querySelector(HOME_CONTENT_SELECTOR)));
+  }
+  function settingsMenuMutation(record) {
+    const target = record.target instanceof Element ? record.target : record.target.parentElement;
+    if (target?.closest('#rc-settings-overlay, .rc-settings-menu-entry')) return false;
+    if (target?.closest(SETTINGS_MENU_SELECTOR)) return true;
+    const nodes = record.type === 'childList' ? record.addedNodes : [target];
+    return [...nodes].some(node => {
+      if (!(node instanceof Element)) return false;
+      if (node.matches(SETTINGS_MENU_SELECTOR) || node.querySelector(SETTINGS_MENU_SELECTOR)) return true;
+      const buttons = [...(node.matches('button, [role="menuitem"]') ? [node] : []), ...node.querySelectorAll('button, [role="menuitem"]')];
+      return buttons.some(button => {
+        const label = button.textContent.trim();
+        return /^settings$/i.test(label) || globalThis.RobloxCustomizerNativeLabels?.matches('settings', label);
+      });
+    });
+  }
+  let observedHomePath = location.pathname;
   new MutationObserver(records => {
     if (document.body && (backgroundPending || backgroundLayer && !backgroundLayer.isConnected)) {
       void applyBackground();
     }
     const outsideGreeting = records.filter(record =>
       !(record.target instanceof Element && record.target.closest('#rc-home-greeting')));
-    if (outsideGreeting.some(record => record.type === 'childList'
-      ? record.addedNodes.length || record.removedNodes.length
-      : homeSectionKind(record.oldValue) || homeSectionKind(record.target.getAttribute?.('aria-label'))
-        || homeSectionKind(record.target.textContent))) queueHomeSync();
+    const routeChanged = observedHomePath !== location.pathname;
+    observedHomePath = location.pathname;
+    if (routeChanged || outsideGreeting.some(homeContentMutation)) queueHomeSync();
     if (outsideGreeting.some(record => record.type === 'childList' || record.type === 'attributes')) {
-      queueMenuSync();
+      if (routeChanged || outsideGreeting.some(settingsMenuMutation)) queueMenuSync();
       syncFrostPage();
     }
   }).observe(document, { childList: true, subtree: true, characterData: true, characterDataOldValue: true,

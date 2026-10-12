@@ -12,8 +12,8 @@ html[data-rc-ui-active][data-rc-frost-page="report-abuse"] body #content {
   border-radius: 20px !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.72, var(--rc-surface-opacity, var(--rc-glass-opacity, .62)))) !important;
   background-image: none !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
   box-shadow: 0 16px 48px rgb(0 0 0 / 20%);
   color: var(--color-content-emphasis, inherit);
 }
@@ -83,7 +83,7 @@ html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(
   padding: 10px 12px !important;
   border: 1px solid var(--rc-report-border) !important;
   border-radius: 10px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(32%, var(--rc-surface-opacity-floor, 0))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.32, var(--rc-surface-opacity-floor, 0))) !important;
   color: inherit;
   font-size: 16px;
   line-height: 1.5;

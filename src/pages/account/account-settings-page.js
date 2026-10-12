@@ -56,6 +56,7 @@
 
   function synchronize() {
     queued = false;
+    if (!/^\/my\/account\/?$/i.test(location.pathname) && !attributes.size) return;
     const desired = new Map();
     const mark = (node, name) => {
       if (!node) return;

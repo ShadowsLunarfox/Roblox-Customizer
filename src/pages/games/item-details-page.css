@@ -25,8 +25,8 @@ html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page
   border-radius: 20px;
   color: var(--rc-text);
   background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, .62)) !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
   box-shadow: 0 12px 32px rgb(0 0 0 / 12%);
 }
 

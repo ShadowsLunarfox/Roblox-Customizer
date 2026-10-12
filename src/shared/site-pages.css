@@ -59,8 +59,8 @@ html[data-rc-ui-active][data-rc-frost-page] :is(#content, main, [role="main"]) :
   .tab-container
 ) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page] :is(#content, main, [role="main"]) :is(
@@ -82,8 +82,8 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] :is(#content, main, [role="
   .charts-section-header
 ) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
 }
 
 /* Profile, friends, and messages. */
@@ -105,8 +105,8 @@ html[data-rc-ui-active][data-rc-frost-page="messages"] :is(#content, main, [role
   .message-compose
 ) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
 }
 
 /* Plus, avatar editor, inventory, and trade views. */
@@ -125,8 +125,8 @@ html[data-rc-ui-active][data-rc-frost-page="trades"] :is(#content, main, [role="
   .trade-details-container
 ) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
 }
 
 /* Page-specific styles own the account, profile, Charts, and Robux card surfaces. */
@@ -155,8 +155,8 @@ html[data-rc-ui-active][data-rc-frost-page]:not([data-rc-frost-page="catalog"]):
   [data-testid$="-tile"]
 ):not(:where([data-rc-profile-section="wearing"] *, [data-rc-profile-section="store"] *, [data-rc-profile-section="collections"] *, [data-rc-profile-section="experiences"] *, [data-rc-profile-section="favorites"] *)) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
   box-shadow: inset 0 0 0 1px rgb(var(--rc-foreground-rgb, 255 255 255) / 12%) !important;
   border-radius: 8px !important;
 }
@@ -194,8 +194,8 @@ html[data-rc-ui-active][data-rc-frost-page="community"] #group-container :is(
 html[data-rc-ui-active][data-rc-frost-page="community"] .group-description-dialog .MuiDialog-paper {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
   background-image: none !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
   box-shadow: inset 0 0 0 1px rgb(var(--rc-foreground-rgb, 255 255 255) / 12%) !important;
   border-radius: 12px !important;
 }
@@ -273,7 +273,7 @@ html[data-rc-ui-active][data-rc-frost-page="community"] #group-container :is(
   .section-content,
   .group-profile-header
 ) :is(.group-banner, .group-notifications-upsell-banner) {
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(12%, var(--rc-surface-opacity-floor, 0))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.12, var(--rc-surface-opacity-floor, 0))) !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
@@ -297,7 +297,7 @@ html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-
   flex-shrink: 0;
   padding: 6px 26px 6px 10px !important;
   border-radius: 8px !important;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(24%, var(--rc-surface-opacity-floor, 0))) !important;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.24, var(--rc-surface-opacity-floor, 0))) !important;
   font-size: 13px !important;
   font-weight: 600 !important;
   text-decoration: none !important;
@@ -353,8 +353,8 @@ html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-
   border: 1px solid var(--color-stroke-default, rgb(var(--rc-foreground-rgb, 255 255 255) / 16%)) !important;
   border-radius: 14px !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
   box-shadow: 0 4px 14px rgb(0 0 0 / 12%);
   color: var(--color-content-emphasis, var(--rc-text, #f3f4f6)) !important;
   text-decoration: none !important;
@@ -421,7 +421,7 @@ html[data-rc-ui-active][data-rc-frost-page="community"] #group-container .group-
   margin: auto 0 0 !important;
   padding: 4px 8px !important;
   border-radius: 7px;
-  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(35%, var(--rc-surface-opacity-floor, 0)));
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.35, var(--rc-surface-opacity-floor, 0)));
   font-size: 13px !important;
   font-weight: 600;
   color: inherit !important;

@@ -21,8 +21,8 @@
 
 html[data-rc-ui-active] :is(#rc-x-feed-panel, #rc-youtube-feed-panel) {
   background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62)));
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px));
-  backdrop-filter: blur(var(--rc-glass-blur, 18px));
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)));
 }
 
 :is(#rc-x-feed-panel, #rc-youtube-feed-panel).rc-x-feed-floating {
@@ -253,8 +253,8 @@ html[data-rc-ui-active] #game-detail-page :is(#running-game-instances-container,
 html[data-rc-ui-active] #game-detail-page #store {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   background-image: none !important;
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2) !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
 }
 
 /* The Servers pane already has glass; nested list panels should not darken it again. */
@@ -267,11 +267,8 @@ html[data-rc-ui-active] #game-detail-page #game-instances > .section-content {
   backdrop-filter: none !important;
 }
 
-#game-detail-page #game-instances
-div:has(> div > div > a:is([href*="/private-server/configure?"], [href*="/private-server/configure/"])):not([data-rc-private-server-compact-list]):not(:has(> [data-rc-private-server-compact]))
-> div:has(.text-title-medium):not([data-rc-private-server-ready]),
-#game-detail-page #game-instances [data-rc-private-server-list]:not([data-rc-private-server-compact-list])
-> div:has(.text-title-medium):not([data-rc-private-server-ready]),
+#game-detail-page #game-instances [data-private-server-id]:not([data-rc-private-server-ready]),
+#game-detail-page #game-instances [data-vip-server-id]:not([data-rc-private-server-ready]),
 #game-detail-page :is(#private-server-container, #private-game-instances-container)
 .card-item:not([data-rc-private-server-ready]):not(.rc-private-server-actions),
 #game-detail-page #rbx-private-running-games
@@ -336,8 +333,8 @@ div:has(> div > div > a:is([href*="/private-server/configure?"], [href*="/privat
 }
 
 html[data-rc-ui-active] .rc-server-view {
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
 }
 
 .rc-server-view-summary {
@@ -1058,8 +1055,8 @@ html[data-rc-ui-active] #game-detail-page #about .social-links .contents {
 html[data-rc-ui-active] #game-detail-page #store .rc-store-category {
   border-color: rgb(var(--rc-foreground-rgb, 255 255 255) / 20%);
   background: rgb(var(--rc-glass-color, 20 22 28) / max(.2, var(--rc-surface-opacity-floor, 0)));
-  -webkit-backdrop-filter: blur(10px) saturate(1.1);
-  backdrop-filter: blur(10px) saturate(1.1);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(10px) saturate(1.1));
+  backdrop-filter: var(--rc-backdrop-filter, blur(10px) saturate(1.1));
 }
 
 #game-detail-page #store .rc-store-section-title {
@@ -1121,10 +1118,10 @@ html[data-rc-ui-active] #game-detail-page .btr-game-main-container > .game-main-
 }
 
 /* A single, balanced header around the native media and game controls. */
-#game-detail-page .game-main-content:has(> #game-details-carousel-container) {
+#game-detail-page .game-main-content[data-rc-game-header] {
   box-sizing: border-box !important;
   display: grid !important;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, .48fr);
+  grid-template-columns: minmax(0, 1fr) minmax(280px, .5fr);
   align-items: stretch;
   gap: 24px;
   width: 100% !important;
@@ -1139,13 +1136,49 @@ html[data-rc-ui-active] #game-detail-page .btr-game-main-container > .game-main-
   box-shadow: 0 18px 48px rgb(0 0 0 / 22%), inset 0 1px 0 rgb(var(--rc-foreground-rgb, 255 255 255) / 6%);
 }
 
-#game-detail-page .game-main-content:has(> #game-details-carousel-container)::before,
-#game-detail-page .game-main-content:has(> #game-details-carousel-container)::after,
+/* Flatten only the known native wrapper for visual placement. React keeps
+   ownership of its title and controls; no native nodes are moved or copied. */
+#game-detail-page .game-main-content[data-rc-game-header]
+> .game-calls-to-action[data-rc-game-actions] {
+  display: contents !important;
+}
+
+#game-detail-page .game-main-content[data-rc-game-header]
+> .game-calls-to-action[data-rc-game-actions]::before,
+#game-detail-page .game-main-content[data-rc-game-header]
+> .game-calls-to-action[data-rc-game-actions]::after {
+  display: none !important;
+}
+
+#game-detail-page .game-main-content[data-rc-game-header]
+> .game-calls-to-action[data-rc-game-actions] > .game-title-container {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+
+#game-detail-page .game-main-content[data-rc-game-header-split]
+> #game-details-carousel-container {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+#game-detail-page .game-main-content[data-rc-game-header]
+> .game-calls-to-action[data-rc-game-actions] > .game-buttons-container {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: center;
+  min-width: 0;
+}
+
+#game-detail-page .game-main-content > #rc-playtime-game-page { grid-column: 1 / -1; }
+
+#game-detail-page .game-main-content[data-rc-game-header]::before,
+#game-detail-page .game-main-content[data-rc-game-header]::after,
 #game-detail-page .game-main-content > #game-details-invite-link-expired-modal-container:empty {
   display: none !important;
 }
 
-#game-detail-page .game-main-content:has(> #game-details-carousel-container) > .game-calls-to-action {
+#game-detail-page .game-main-content[data-rc-game-header] > .game-calls-to-action {
   box-sizing: border-box !important;
   position: relative !important;
   inset: auto !important;
@@ -1162,12 +1195,12 @@ html[data-rc-ui-active] #game-detail-page .btr-game-main-container > .game-main-
   padding: 10px 4px !important;
 }
 
-#game-detail-page .game-main-content:has(> #game-details-carousel-container) .game-title-container {
+#game-detail-page .game-main-content[data-rc-game-header] .game-title-container {
   margin: 0 !important;
   padding: 0 !important;
 }
 
-#game-detail-page .game-main-content:has(> #game-details-carousel-container) .game-name {
+#game-detail-page .game-main-content[data-rc-game-header] .game-name {
   margin: 0 0 12px !important;
   font-size: clamp(26px, 2.6vw, 34px) !important;
   font-weight: 800 !important;
@@ -1178,7 +1211,7 @@ html[data-rc-ui-active] #game-detail-page .btr-game-main-container > .game-main-
   overflow-wrap: anywhere;
 }
 
-#game-detail-page .game-main-content:has(> #game-details-carousel-container) .game-creator {
+#game-detail-page .game-main-content[data-rc-game-header] .game-creator {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -1188,12 +1221,12 @@ html[data-rc-ui-active] #game-detail-page .btr-game-main-container > .game-main-
   line-height: 1.5;
 }
 
-#game-detail-page .game-main-content:has(> #game-details-carousel-container) .game-creator .text-label {
+#game-detail-page .game-main-content[data-rc-game-header] .game-creator .text-label {
   color: inherit !important;
   opacity: .65;
 }
 
-#game-detail-page .game-main-content:has(> #game-details-carousel-container) .game-creator .text-name {
+#game-detail-page .game-main-content[data-rc-game-header] .game-creator .text-name {
   min-width: 0;
   width: auto;
   color: inherit !important;
@@ -1201,7 +1234,7 @@ html[data-rc-ui-active] #game-detail-page .btr-game-main-container > .game-main-
   overflow-wrap: anywhere;
 }
 
-#game-detail-page .game-main-content:has(> #game-details-carousel-container) #game-age-recommendation-container:has(> *) {
+#game-detail-page .game-main-content[data-rc-game-header] #game-age-recommendation-container:not(:empty) {
   display: inline-flex;
   align-items: center;
   width: fit-content;
@@ -1215,26 +1248,35 @@ html[data-rc-ui-active] #game-detail-page .btr-game-main-container > .game-main-
   line-height: 1.5;
 }
 
-#game-detail-page .game-main-content:has(> #game-details-carousel-container)
-#game-age-recommendation-container :is(a, button, p, span) {
+#game-detail-page .game-main-content #game-age-recommendation-container :is(a, button, p, span) {
   color: inherit !important;
 }
 
-#game-detail-page .game-main-content:has(> #game-details-carousel-container) .game-buttons-container {
+#game-detail-page .game-main-content[data-rc-game-header] .game-buttons-container {
   position: static !important;
   width: 100% !important;
   margin: 0 !important;
   padding: 0 !important;
 }
 
-#game-detail-page .game-main-content:has(> #game-details-carousel-container) #game-details-play-button-container .btn-common-play-game-lg {
+#game-detail-page .game-main-content[data-rc-game-header-split]
+.game-buttons-container {
+  box-sizing: border-box !important;
+  padding: 16px !important;
+  border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 13%);
+  border-radius: 16px;
+  background: rgb(var(--rc-foreground-rgb, 255 255 255) / 5%);
+  box-shadow: inset 0 1px 0 rgb(var(--rc-foreground-rgb, 255 255 255) / 5%);
+}
+
+#game-detail-page .game-main-content[data-rc-game-header] #game-details-play-button-container .btn-common-play-game-lg {
   width: 100% !important;
   min-height: 56px;
   border-radius: 12px !important;
   transition: background-color .15s, box-shadow .15s, transform .15s;
 }
 
-#game-detail-page .game-main-content:has(> #game-details-carousel-container)
+#game-detail-page .game-main-content[data-rc-game-header]
 #game-details-play-button-container .btn-common-play-game-lg:not(:disabled):not([aria-disabled="true"]) {
   border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 16%) !important;
   color: var(--rc-accent-text, #fff) !important;
@@ -1242,26 +1284,26 @@ html[data-rc-ui-active] #game-detail-page .btr-game-main-container > .game-main-
   box-shadow: 0 6px 20px rgb(42 82 231 / 24%);
 }
 
-#game-detail-page .game-main-content:has(> #game-details-carousel-container)
+#game-detail-page .game-main-content[data-rc-game-header]
 #game-details-play-button-container .btn-common-play-game-lg:not(:disabled):not([aria-disabled="true"]):hover {
   box-shadow: 0 8px 24px rgb(42 82 231 / 38%);
   transform: translateY(-1px);
 }
 
-#game-detail-page .game-main-content:has(> #game-details-carousel-container)
+#game-detail-page .game-main-content[data-rc-game-header]
 #game-details-play-button-container .btn-common-play-game-lg:focus-visible {
   outline: 2px solid var(--rc-focus, #a9c7ff);
   outline-offset: 4px;
 }
 
-#game-detail-page .game-main-content:has(> #game-details-carousel-container) .favorite-follow-vote-share {
+#game-detail-page .game-main-content[data-rc-game-header] .favorite-follow-vote-share {
   box-sizing: border-box;
-  margin: 14px 0 0 !important;
-  padding: 14px 0 0 !important;
+  margin: 12px 0 0 !important;
+  padding: 12px 0 0 !important;
   border-top: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 12%);
 }
 
-#game-detail-page .game-main-content:has(> #game-details-carousel-container)
+#game-detail-page .game-main-content[data-rc-game-header]
 .favorite-follow-vote-share :is(a, .icon-label, .vote-text, .vote-numbers, .count-left, .count-right) {
   color: inherit !important;
 }
@@ -1296,20 +1338,30 @@ html[data-rc-ui-active] #game-detail-page .btr-game-main-container > .game-main-
 }
 
 @media (max-width: 800px) {
-  #game-detail-page .game-main-content:has(> #game-details-carousel-container) {
+  #game-detail-page .game-main-content[data-rc-game-header] {
     grid-template-columns: minmax(0, 1fr);
     gap: 20px;
     padding: 16px !important;
     border-radius: 18px !important;
   }
-  #game-detail-page .game-main-content:has(> #game-details-carousel-container) > .game-calls-to-action {
+  #game-detail-page .game-main-content[data-rc-game-header] > .game-calls-to-action {
     gap: 20px;
     padding: 0 2px 4px !important;
   }
+  #game-detail-page .game-main-content[data-rc-game-header]
+  > .game-calls-to-action[data-rc-game-actions] > .game-buttons-container {
+    grid-column: 1;
+    grid-row: 3;
+  }
+}
+
+@media (max-width: 400px) {
+  #game-detail-page .game-main-content[data-rc-game-header-split]
+  .game-buttons-container { padding: 8px !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #game-detail-page .game-main-content:has(> #game-details-carousel-container)
+  #game-detail-page .game-main-content[data-rc-game-header]
   #game-details-play-button-container .btn-common-play-game-lg { transition: none; }
 }
 

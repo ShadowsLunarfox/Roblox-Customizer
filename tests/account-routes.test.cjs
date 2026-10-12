@@ -229,6 +229,34 @@ test('user-specific routes honor cached visual preferences and wallpaper can sti
   assert.equal(env.root.hasAttribute('data-rc-ui-active'), true);
 });
 
+test('Effect switches default off, accept only booleans, and retain slider values through cache and route changes', () => {
+  const normalize = normalizeSettings();
+  for (const input of [undefined, {}, { disableTransparency: 'true', disableBlur: 1 }]) {
+    const preferences = normalize(input);
+    assert.equal(preferences.disableTransparency, false);
+    assert.equal(preferences.disableBlur, false);
+  }
+  const cached = { version: 1, glassBlur: 24, glassOpacity: 75, disableTransparency: true, disableBlur: true };
+  const env = harness('/home', startup, cached);
+  const check = (transparency, blur) => {
+    assert.equal(env.root.hasAttribute('data-rc-disable-transparency'), transparency);
+    assert.equal(env.root.hasAttribute('data-rc-disable-blur'), blur);
+    assert.equal(env.properties.get('--rc-glass-opacity'), transparency ? '1' : '0.75');
+    assert.equal(env.properties.get('--rc-page-panel-opacity'), transparency ? '1' : '0.375');
+    assert.equal(env.properties.get('--rc-glass-blur'), blur ? '0px' : '24px');
+  };
+  check(true, true);
+  env.location.href = 'https://www.roblox.com/my/account#!/security';
+  env.events.get('popstate')();
+  check(true, true);
+  env.startup.setPreferences({ ...cached, disableBlur: false });
+  check(true, false);
+  env.startup.setPreferences({ ...cached, disableTransparency: false });
+  check(false, true);
+  env.startup.setPreferences({ ...cached, disableTransparency: false, disableBlur: false });
+  check(false, false);
+});
+
 test('Home visibility preferences are cached independently and missing flags remain visible', () => {
   const oldCache = harness('/home', startup, { version: 1, hideRecommended: true });
   assert.equal(oldCache.root.hasAttribute('data-rc-hide-recommended-upper'), true);

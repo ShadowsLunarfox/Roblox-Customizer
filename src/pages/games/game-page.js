@@ -2964,9 +2964,32 @@
     syncYouTubeFeed();
   });
 
+  const FLOATING_UI = '.friend-tile-dropdown, .popover, .tooltip, [role="tooltip"], [role="menu"], '
+    + '[data-radix-popper-content-wrapper], [data-popper-placement]';
+  const OWNED_UI = '#rc-settings-overlay, #rc-home-greeting, #rc-playtime-game-page, '
+    + '#rc-x-feed-panel, #rc-youtube-feed-panel, #rc-rolimons-panel, '
+    + '.rc-public-server-filters, .rc-public-server-pagination, ' + PRIVATE_SERVER_RENDER_SELECTOR;
+  let observedFeaturePath = location.pathname;
+  function featureMutation(record, scope) {
+    const target = record.target instanceof Element ? record.target : record.target.parentElement;
+    if (target === document.documentElement && record.type === 'attributes') return true;
+    if (target?.closest(`${OWNED_UI}, ${FLOATING_UI}`)) return false;
+    const nodes = [...record.addedNodes || [], ...record.removedNodes || []];
+    if (nodes.length && nodes.every(node => node instanceof Element && node.matches(FLOATING_UI))) return false;
+    if (target?.closest(scope)) return true;
+    return nodes.some(node => node instanceof Element && (node.matches(scope) || node.querySelector(scope)));
+  }
+
   new MutationObserver(records => {
+    const routeChanged = observedFeaturePath !== location.pathname;
+    observedFeaturePath = location.pathname;
+    const scope = GAME_PATH.test(location.pathname) ? '#game-detail-page'
+      : COMMUNITY_PATH.test(location.pathname) ? '#group-container'
+      : PROFILE_PATH.test(location.pathname) ? '#profile-container, .profile-container, [data-testid="profile-page"], #content, #container-main, main, [role="main"]' : '';
+    if (!routeChanged && (!scope || !records.some(record => featureMutation(record, scope)))) return;
     const gamePage = document.querySelector('#game-detail-page');
-    if (GAME_PATH.test(location.pathname) && pageMatchesPath(gamePage)) {
+    if (GAME_PATH.test(location.pathname) && pageMatchesPath(gamePage)
+      && (routeChanged || records.some(record => featureMutation(record, '#game-instances')))) {
       hidePrivateServerLoadMore(gamePage);
       hideNativePublicServerControls(gamePage,
         gamePage.querySelector(PUBLIC_SERVER_CONTAINER_SELECTOR));

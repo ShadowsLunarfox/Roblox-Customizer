@@ -280,8 +280,11 @@
         panels.add(panel);
         dirtyPanels.add(panel);
         changed = true;
-      } else if (target && (record.type === 'attributes' || isChatHeader(target)
-        || target.matches(`${NATIVE_PANEL}, ${CHAT_INPUT}`))) {
+      } else if (target && (isChatHeader(target)
+        || target.matches(`${NATIVE_HOST}, ${NATIVE_PANEL}, ${CHAT_LIST_PANEL}, ${CHAT_INPUT}`))) {
+        // Hover/animation classes on a page container do not introduce chat.
+        // Discover new subtrees through childList; retry attributes only on
+        // actual chat anchors, rather than walking every descendant again.
         discoveryRoots.add(target);
         changed = true;
       }

@@ -19,8 +19,8 @@ html[data-rc-ui-active] #game-detail-page #store::after {
   z-index: -1;
   border-radius: inherit;
   background: rgb(var(--rc-glass-color) / var(--rc-surface-opacity, .62));
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
   pointer-events: none;
   content: "";
 }
@@ -95,8 +95,8 @@ html[data-rc-ui-active] #game-detail-page #store .subscription-card-item::before
   inset: 0;
   border-radius: inherit;
   background: rgb(var(--rc-glass-color) / var(--rc-surface-opacity, .62));
-  -webkit-backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
-  backdrop-filter: blur(var(--rc-glass-blur, 18px)) saturate(1.2);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
   pointer-events: none;
   content: "";
 }
