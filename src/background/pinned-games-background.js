@@ -11,6 +11,7 @@
     queue = result.catch(() => {});
     return result;
   }
+  globalThis.RobloxCustomizerPinnedGamesBackground = Object.freeze({ withStorageLock: serial });
 
   async function json(url, credentials = 'omit') {
     const controller = new AbortController();

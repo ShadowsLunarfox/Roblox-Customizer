@@ -419,6 +419,21 @@
     dialog.append(header, summary, status, tools, element('div', 'rc-playtime-list'), element('p', 'rc-playtime-empty'),
       button('Show more games', () => { limit += 20; renderHistory(); }, 'rc-playtime-more'), actions,
       confirmation, element('p', 'rc-playtime-note'));
+    // Backdrop events target the dialog too; distinguish them from its padding.
+    // Require both ends outside so selecting text or dragging out keeps it open.
+    const onBackdrop = event => {
+      const panel = event.currentTarget, bounds = panel.getBoundingClientRect();
+      return event.target === panel && (event.clientX < bounds.left || event.clientX >= bounds.right
+        || event.clientY < bounds.top || event.clientY >= bounds.bottom);
+    };
+    let backdropPress = false;
+    dialog.addEventListener('pointerdown', event => { backdropPress = event.button === 0 && onBackdrop(event); });
+    dialog.addEventListener('pointercancel', () => { backdropPress = false; });
+    dialog.addEventListener('click', event => {
+      const dismiss = backdropPress && onBackdrop(event);
+      backdropPress = false;
+      if (dismiss) { event.stopPropagation(); event.currentTarget.close(); }
+    });
     dialog.addEventListener('close', () => { dialog.remove(); dialog = null; opener?.isConnected && opener.focus(); });
     document.body.append(dialog); renderHistory(); dialog.showModal(); search.focus(); load('refresh');
   }

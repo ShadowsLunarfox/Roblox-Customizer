@@ -9,7 +9,7 @@ class Browser {
   constructor(url) {
     this.socket=new WebSocket(url);this.pending=new Map();this.next=1;this.errors=[];
     this.ready=new Promise((resolve,reject)=>{this.socket.addEventListener('open',resolve);this.socket.addEventListener('error',reject,{once:true})});
-    this.socket.addEventListener('message',event=>{const message=JSON.parse(event.data);if(message.id){const request=this.pending.get(message.id);this.pending.delete(message.id);message.error?request.reject(new Error(JSON.stringify(message.error))):request.resolve(message.result)}else if(message.method==='Runtime.exceptionThrown')this.errors.push(message.params.exceptionDetails.text)});
+    this.socket.addEventListener('message',event=>{const message=JSON.parse(event.data);if(message.id){const request=this.pending.get(message.id);this.pending.delete(message.id);message.error?request.reject(new Error(JSON.stringify(message.error))):request.resolve(message.result)}else if(message.method==='Runtime.exceptionThrown')this.errors.push(message.params.exceptionDetails.exception?.description||message.params.exceptionDetails.text)});
   }
   async send(method,params={}) {
     await this.ready;const id=this.next++;

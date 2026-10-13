@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "__MSG_extensionName__",
   "default_locale": "en",
-  "version": "1.26.116",
+  "version": "1.0.0.0",
   "description": "__MSG_extensionDescription__",
   "icons": {
     "16": "icons/icon-16.png",
@@ -46,7 +46,7 @@
     "https://latest.currency-api.pages.dev/*"
   ],
   "background": {
-    "service_worker": "src/background/service-worker.js"
+    "service_worker": "src/background/service-worker-bundle.js"
   },
   "web_accessible_resources": [
     {
@@ -108,6 +108,7 @@
         "src/pages/games/item-details-page.css",
         "src/shared/site-pages.css",
         "src/pages/discovery/charts-page.css",
+        "src/pages/discovery/search-page.css",
         "src/pages/catalog/catalog-page.css",
         "src/pages/catalog/catalog-item-page.css",
         "src/pages/account/account-pages.css",
@@ -125,6 +126,7 @@
       "js": [
         "src/shared/startup.js",
         "src/home/friends.js",
+        "src/settings/backup-core.js",
         "src/settings/settings.js",
         "src/shared/frosted-ui.js",
         "src/pages/account/account-settings-page.js",

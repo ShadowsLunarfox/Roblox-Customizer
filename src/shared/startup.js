@@ -19,6 +19,8 @@
     [/^\/transactions\/?$/i, 'transactions'],
     [/^\/report-abuse\/?$/i, 'report-abuse'],
     [/^\/upgrades\/robux\/?$/i, 'robux'],
+    [/^\/discover\/?$/i, 'game-search'],
+    [/^\/search\/users\/?$/i, 'user-search'],
     [/^\/search\/(?:communities|groups)\/?$/i, 'community-search'],
     [/^\/(?:communities|groups)\/create\/?$/i, 'community-create'],
     [/^\/(?:communities|groups)\/\d+(?:\/|$)/i, 'community'],
@@ -29,6 +31,7 @@
   let avatarReady = false;
   let fallbackTimer = 0;
   let cachedVisuals = null;
+  let storedVisuals = '';
   let visualRoot = null;
   let gameHeader = null;
   let gameMedia = null;
@@ -207,7 +210,10 @@
 
   try {
     const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
-    if (cached?.version === 1) cachedVisuals = cached;
+    if (cached?.version === 1) {
+      cachedVisuals = cached;
+      storedVisuals = JSON.stringify(cached);
+    }
   } catch { /* Storage can be unavailable; extension storage remains authoritative. */ }
 
   globalThis.RobloxCustomizerStartup = {
@@ -232,7 +238,13 @@
         ...feedPreferences(settings)
       };
       applyVisuals(cachedVisuals);
-      try { localStorage.setItem(CACHE_KEY, JSON.stringify(cachedVisuals)); } catch { /* Optional cache. */ }
+      const serialized = JSON.stringify(cachedVisuals);
+      if (serialized !== storedVisuals) {
+        try {
+          localStorage.setItem(CACHE_KEY, serialized);
+          storedVisuals = serialized;
+        } catch { /* Optional cache. */ }
+      }
       preferencesReady = true;
       revealAvatar();
     },

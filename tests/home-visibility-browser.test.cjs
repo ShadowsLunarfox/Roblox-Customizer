@@ -124,10 +124,10 @@ test('Home hide switches are independent, persistent, and handle native carousel
     await browser.click(selector);await browser.waitFor(`JSON.parse(localStorage.getItem('customBackground')).${key}===true`);
   }
   await assertVisibility(Object.keys(controls));
-  await browser.click('#rc-remove');
+  await browser.click('input[name="rc-source"][value="none"]');
   await browser.waitFor("JSON.parse(localStorage.getItem('customBackground')).source==='none'");
   await assertVisibility(Object.keys(controls));
-  assert.equal(await browser.evaluate("JSON.parse(localStorage.getItem('customBackground')).glassBlur"),32,'Removing wallpaper preserves appearance preferences');
+  assert.equal(await browser.evaluate("JSON.parse(localStorage.getItem('customBackground')).glassBlur"),32,'Selecting the default background preserves appearance preferences');
   assert.equal(await browser.evaluate("JSON.parse(localStorage.getItem('customBackground')).glassOpacity"),85);
   assert.equal(await browser.evaluate("JSON.parse(localStorage.getItem('customBackground')).friendRows"),4,'Other Home preferences survive setting changes');
   await browser.click('#rc-done');
@@ -181,7 +181,7 @@ test('Home hide switches are independent, persistent, and handle native carousel
   await browser.waitFor("!document.documentElement.hasAttribute('data-rc-background-active') && document.querySelector('#rc-settings-status').textContent.includes('unavailable')");
   assert.match(await browser.evaluate("getComputedStyle(document.querySelector('[role=menu]')).backdropFilter"),/blur\(32px\)/,'A missing saved background cannot disable interface features');
   await assertVisibility(['standout','upper','lower']);
-  await browser.click('#rc-remove');
+  await browser.click('input[name="rc-source"][value="none"]');
   await browser.waitFor("JSON.parse(localStorage.getItem('customBackground')).source==='none'");
   // Home-only markers are cleared if Roblox reuses the DOM while changing routes.
   await browser.click('#rc-done');

@@ -63,6 +63,16 @@ test('Settings sliders align with their labels and Chinese Home switches persist
     assert.deepEqual(await browser.evaluate("[...document.querySelectorAll('input[name=rc-source]')].map(n=>n.value)"), ['none', 'file']);
     assert.equal(await browser.evaluate("!!document.querySelector('#rc-url,#rc-url-type')"), false);
     assert.equal(await browser.evaluate("document.documentElement.hasAttribute('data-rc-background-active')"), false, 'No wallpaper is needed');
+    await browser.send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
+    assert.deepEqual(await browser.evaluate("[...document.querySelectorAll('.rc-settings-nav-button')].map(n=>n.dataset.rcSettingsCategory)"),
+      ['appearance', 'home', 'social', 'currency', 'data']);
+    assert.equal(await browser.evaluate("(()=>{const dialog=document.querySelector('.rc-settings-dialog').getBoundingClientRect(),nav=document.querySelector('.rc-settings-nav').getBoundingClientRect(),content=document.querySelector('.rc-settings-content').getBoundingClientRect();return dialog.width>=850&&nav.right<content.left})()"),
+      true, 'Desktop settings use a wider panel with a category rail');
+    for (const category of ['home', 'social', 'currency', 'data', 'appearance']) {
+      await browser.click(`.rc-settings-nav-button[data-rc-settings-category="${category}"]`);
+      assert.equal(await browser.evaluate(`(()=>{const content=document.querySelector('.rc-settings-content').getBoundingClientRect(),section=document.querySelector('#rc-settings-category-${category}').getBoundingClientRect(),button=document.querySelector('.rc-settings-nav-button[data-rc-settings-category="${category}"]');return button.getAttribute('aria-current')==='true'&&section.top>=content.top-2&&section.top<content.bottom})()`),
+        true, `${category} navigation scrolls its category into view`);
+    }
     for (const theme of ['light', 'dark']) for (const width of [1280, 390, 320]) {
       await browser.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
       await browser.evaluate(`document.body.className='${theme}-theme'`);
@@ -79,6 +89,8 @@ test('Settings sliders align with their labels and Chinese Home switches persist
       }
       assert.ok(layout.rows[0].slider.bottom < layout.rows[1].slider.top, 'Blur precedes opacity');
       assert.equal(layout.overflow, false, `${theme}/${width}: no horizontal overflow`);
+      if (width === 320) assert.equal(await browser.evaluate("(()=>{const nav=document.querySelector('.rc-settings-nav').getBoundingClientRect(),content=document.querySelector('.rc-settings-content').getBoundingClientRect();return nav.bottom<=content.top+1})()"),
+        true, `${theme}/${width}: categories sit above content on narrow screens`);
     }
     const key = async name => {
       await browser.send('Input.dispatchKeyEvent', { type: 'keyDown', key: name, code: name });
@@ -108,7 +120,7 @@ test('Settings sliders align with their labels and Chinese Home switches persist
     await browser.waitFor("document.querySelector('#rc-background-layer img')?.naturalWidth>0");
     await browser.click('.rc-settings-menu-entry');
     assert.equal(await browser.evaluate("!!document.querySelector('input[name=rc-source]:checked')"), false, 'Opening settings keeps the previously saved background');
-    await browser.click('#rc-remove');
+    await browser.click('input[name="rc-source"][value="none"]');
     await browser.waitFor("JSON.parse(localStorage.getItem('customBackground')).source==='none'&&!document.documentElement.hasAttribute('data-rc-background-active')");
     await browser.click('input[name=rc-source][value=file]');
     assert.equal(await browser.evaluate("document.querySelector('#rc-file').disabled"), false);

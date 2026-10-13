@@ -13,6 +13,7 @@
     queue = result.catch(() => {});
     return result;
   };
+  globalThis.RobloxCustomizerPlaytimeBackground = Object.freeze({ withStorageLock: serialize });
   async function browserSession() {
     if (sessionId) return sessionId;
     const session = chrome.storage.session;
@@ -23,7 +24,8 @@
   }
   async function read() {
     const saved = await chrome.storage.local.get([core.STORAGE_KEY, core.ENABLED_KEY]);
-    return { state: core.normalize(saved[core.STORAGE_KEY]), enabled: saved[core.ENABLED_KEY] === true };
+    // A missing preference uses the default; an explicit opt-out remains off.
+    return { state: core.normalize(saved[core.STORAGE_KEY]), enabled: saved[core.ENABLED_KEY] !== false };
   }
   async function save(state) { await chrome.storage.local.set({ [core.STORAGE_KEY]: state }); }
   async function ensureAlarm() {
@@ -106,9 +108,9 @@
     }
     // The user can disable tracking while an HTTP request is in flight.
     const current = await chrome.storage.local.get(core.ENABLED_KEY);
-    if (current[core.ENABLED_KEY] !== true) next = core.pause(state, 'disabled', Date.now());
+    if (current[core.ENABLED_KEY] === false) next = core.pause(state, 'disabled', Date.now());
     await save(next);
-    return core.snapshot(next, current[core.ENABLED_KEY] === true);
+    return core.snapshot(next, current[core.ENABLED_KEY] !== false);
   }
   async function handle(message) {
     if (message.action === 'snapshot') { const { state, enabled } = await read(); return core.snapshot(state, enabled); }

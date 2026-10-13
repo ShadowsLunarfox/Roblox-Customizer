@@ -121,7 +121,7 @@ test('Transparency and blur buttons work independently across panels, themes, la
     assert.deepEqual(browser.errors, []);
   });
 
-test('Experimental colors opt in, apply live, survive reloads and themes, and reset without changing wallpaper or blur',
+test('Experimental colors opt in, apply on commit, survive reloads and themes, and reset without changing wallpaper or blur',
   { skip: !process.env.CHROME_BIN, timeout: 30000 }, async t => {
     const origin = await serveFixture(t);
     const browser = await isolatedChrome(t, 'custom-colors');
@@ -129,7 +129,7 @@ test('Experimental colors opt in, apply live, survive reloads and themes, and re
     const url = `${origin}/games/606849621/Jailbreak`;
     await browser.send('Page.navigate', { url });
     await waitForDocument(browser, '.rc-settings-menu-entry', url);
-    const change = async (id, value, event = 'input') => {
+    const change = async (id, value, event = 'change') => {
       await browser.evaluate(`(()=>{const n=document.getElementById(${JSON.stringify(id)});n.value=${JSON.stringify(value)};n.dispatchEvent(new Event(${JSON.stringify(event)},{bubbles:true}))})()`);
     };
     const sample = () => browser.evaluate(`(()=>{const style=id=>getComputedStyle(document.getElementById(id));return {text:style('sample-text').color,canvas:getComputedStyle(document.body).backgroundColor,accent:style('sample-buy').backgroundColor,accentText:style('sample-buy').color,surface:getComputedStyle(document.querySelector('.rc-settings-dialog')).backgroundColor,custom:document.documentElement.hasAttribute('data-rc-custom-colors')}})()`);

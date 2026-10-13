@@ -56,6 +56,25 @@ for (const [name, script] of [['startup', startup], ['settings fallback', fallba
     }
   });
 
+  test(`${name} styles game and user search independently of the keyword and clears the style on navigation`, () => {
+    const env = harness('/discover/?keyword=mm2', script);
+    for (const [url, expected] of [
+      ['/discover/?keyword=mm2', 'game-search'], ['/discover?keyword=%E6%B8%B8%E6%88%8F', 'game-search'],
+      ['/DISCOVER/', 'game-search'], ['/search/users?keyword=blue%27', 'user-search'],
+      ['/search/users/?keyword=%E7%8E%A9%E5%AE%B6', 'user-search'], ['/SEARCH/USERS', 'user-search'],
+      ['/charts', 'charts'], ['/search/communities?keyword=blue', 'community-search'],
+      ['/discover-extra', undefined], ['/discover/details', undefined],
+      ['/search/users-extra', undefined], ['/search/users/123', undefined],
+      ['/users/123/profile', 'profile'], ['/home', undefined]
+    ]) {
+      env.location.href = new URL(url, 'https://www.roblox.com').href;
+      env.events.get('popstate')();
+      assert.equal(env.root.dataset.rcFrostPage, expected, url);
+      assert.equal(env.root.hasAttribute('data-rc-ui-active'), true);
+      assert.equal(env.root.hasAttribute('data-rc-background-active'), false);
+    }
+  });
+
   test(`${name} limits private-server configuration styling to native configuration routes`, () => {
     const env = harness('/private-server/configure/4169319554', script);
     for (const url of ['/private-server/configure/4169319554', '/private-server/configure/123/',

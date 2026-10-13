@@ -1,0 +1,111 @@
+(function (root) {
+  'use strict';
+  const FORMAT = 'roblox-customizer-backup';
+  const VERSION = 1;
+  const MAX_BYTES = 256 * 1024 * 1024;
+  const KEYS = Object.freeze(['customBackground', 'robuxCurrency', 'pinnedGames',
+    'pinnedGameFolders', 'playtimeTrackingEnabled', 'rcPlaytimeHistory']);
+  const fail = () => { throw new Error('Invalid backup file. No data was imported.'); };
+  const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+  const count = value => Number.isSafeInteger(value) && value >= 0;
+  function jsonValue(value, depth = 0) {
+    if (depth > 32) fail();
+    if (value === null || typeof value === 'string' || typeof value === 'boolean') return;
+    if (typeof value === 'number' && Number.isFinite(value)) return;
+    if (Array.isArray(value)) { value.forEach(item => jsonValue(item, depth + 1)); return; }
+    if (!object(value)) fail();
+    for (const [key, item] of Object.entries(value)) {
+      if (['__proto__', 'prototype', 'constructor'].includes(key)) fail();
+      jsonValue(item, depth + 1);
+    }
+  }
+  function background(value) {
+    if (!object(value)) fail();
+    const settings = { ...value };
+    delete settings._writer;
+    const options = { source: ['none', 'file', 'url'], fit: ['cover', 'contain'],
+      urlType: ['auto', 'image', 'video'], uiLanguage: ['auto', 'en', 'zh-CN', 'zh-TW'] };
+    for (const [key, allowed] of Object.entries(options)) {
+      if (key in settings && !allowed.includes(settings[key])) fail();
+    }
+    // Preserve row counts saved by older versions; the current UI bounds them.
+    for (const [key, min, max] of [['dim',0,80], ['glassBlur',0,40], ['glassOpacity',25,90], ['friendRows',1,100]]) {
+      if (key in settings && (!Number.isFinite(settings[key]) || settings[key] < min || settings[key] > max)) fail();
+    }
+    for (const [key, item] of Object.entries(settings)) {
+      if (/^(?:hide|show|disable|clockShow|clockHour)|^experimentalCustomColors$/.test(key)
+        && key !== 'hiddenRecommendedGames' && typeof item !== 'boolean') fail();
+      if (/^custom(?:Text|Background|Accent)Color$/.test(key) && !/^#[0-9a-f]{6}$/i.test(item)) fail();
+      if (['url','fileKey','fileName','greetingMorning','greetingAfternoon','greetingEvening'].includes(key)
+        && typeof item !== 'string') fail();
+    }
+    if (settings.fileKey && settings.fileKey.length > 100) fail();
+    if (settings.source === 'file' && !settings.fileKey) fail();
+    if (settings.source === 'url') {
+      try { if (!['http:', 'https:'].includes(new URL(settings.url).protocol)) fail(); } catch { fail(); }
+    }
+    if ('hiddenRecommendedGames' in settings && (!Array.isArray(settings.hiddenRecommendedGames)
+      || settings.hiddenRecommendedGames.some(game => !object(game) || !/^\d+$/.test(String(game.placeId))
+        || typeof game.name !== 'string'))) fail();
+    return settings;
+  }
+  function data(value) {
+    jsonValue(value);
+    if (!object(value) || KEYS.some(key => !Object.hasOwn(value, key))
+      || Object.keys(value).some(key => !KEYS.includes(key))) fail();
+    if (typeof value.playtimeTrackingEnabled !== 'boolean' || !object(value.robuxCurrency)
+      || typeof value.robuxCurrency.enabled !== 'boolean'
+      || !root.RobloxCustomizerCurrencyCore.CURRENCIES.includes(value.robuxCurrency.currency)) fail();
+    if (!Array.isArray(value.pinnedGames) || !Array.isArray(value.pinnedGameFolders)) fail();
+    const pins = root.RobloxCustomizerPinnedGames.state(value.pinnedGames, value.pinnedGameFolders);
+    if (pins.games.length !== value.pinnedGames.length || pins.folders.length !== value.pinnedGameFolders.length
+      || value.pinnedGames.some(game => game.folderId && !pins.folders.some(folder => folder.id === game.folderId))) fail();
+    const history = value.rcPlaytimeHistory;
+    if (!object(history) || history.version !== 1 || !Array.isArray(history.accounts)) fail();
+    const cleanHistory = root.RobloxCustomizerPlaytime.normalize(history);
+    if (history.accounts.length !== cleanHistory.accounts.length) fail();
+    for (const account of history.accounts) {
+      const clean = cleanHistory.accounts.find(item => item.userId === account.userId);
+      if (!Array.isArray(account.games) || clean.games.length !== account.games.length) fail();
+      for (const game of account.games) {
+        if (!count(game.totalMs) || !count(game.sessions)
+          || ['firstPlayedAt','lastPlayedAt','metadataCheckedAt'].some(key => !count(game[key]) || game[key] > 8640000000000000)) fail();
+      }
+    }
+    // A backup is history, never permission to continue an old timing sample.
+    cleanHistory.active = null;
+    cleanHistory.status = { kind: value.playtimeTrackingEnabled ? 'idle' : 'disabled', checkedAt: 0 };
+    return { customBackground: background(value.customBackground),
+      robuxCurrency: root.RobloxCustomizerCurrencyCore.normalizeSettings(value.robuxCurrency),
+      pinnedGames: pins.games, pinnedGameFolders: pins.folders,
+      playtimeTrackingEnabled: value.playtimeTrackingEnabled, rcPlaytimeHistory: cleanHistory };
+  }
+  function snapshot(saved) {
+    const pins = root.RobloxCustomizerPinnedGames.state(saved.pinnedGames, saved.pinnedGameFolders);
+    return data({ customBackground: saved.customBackground || {},
+      robuxCurrency: root.RobloxCustomizerCurrencyCore.normalizeSettings(saved.robuxCurrency),
+      pinnedGames: pins.games,
+      pinnedGameFolders: pins.folders,
+      playtimeTrackingEnabled: saved.playtimeTrackingEnabled !== false,
+      rcPlaytimeHistory: root.RobloxCustomizerPlaytime.normalize(saved.rcPlaytimeHistory) });
+  }
+  function validate(value) {
+    if (!object(value) || value.format !== FORMAT) fail();
+    if (value.version !== VERSION) throw new Error('This backup version is not supported. No data was imported.');
+    const clean = data(value.data);
+    const media = value.media;
+    if (clean.customBackground.fileKey) {
+      if (!object(media) || media.key !== clean.customBackground.fileKey || typeof media.name !== 'string'
+        || !/^(?:image\/[a-z0-9.+-]+|video\/mp4)$/i.test(media.type)
+        || typeof media.base64 !== 'string' || media.base64.length % 4
+        || !/^[A-Za-z0-9+/]*={0,2}$/.test(media.base64) || !count(media.size)
+        || media.size !== media.base64.length / 4 * 3 - (media.base64.endsWith('==') ? 2 : media.base64.endsWith('=') ? 1 : 0)
+        || !count(media.lastModified)) fail();
+    } else if (media !== null) fail();
+    return { format: FORMAT, version: VERSION, createdAt: value.createdAt,
+      extensionVersion: value.extensionVersion, data: clean, media };
+  }
+  const api = Object.freeze({ FORMAT, VERSION, MAX_BYTES, KEYS, data, snapshot, validate });
+  root.RobloxCustomizerBackup = api;
+  if (typeof module === 'object' && module.exports) module.exports = api;
+})(globalThis);

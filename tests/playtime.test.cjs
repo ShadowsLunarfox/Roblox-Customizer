@@ -134,9 +134,18 @@ function harness(options = {}) {
     fail(value) { fail = value; }, csrf(value) { csrf = value; }, hold(value) { hold = value; },
     async alarm() { for (const listener of events.alarm) listener({ name: 'rc-playtime-poll' }); return message('snapshot'); } };
 }
-test('background uses a single 30-second alarm, migrates old alarms and defaults to disabled', async () => {
-  const off = harness({ local: {} });
+test('background enables tracking by default, uses one 30-second alarm and honors saved opt-outs', async () => {
+  const fresh = harness({ local: {} });
+  assert.equal((await fresh.message('snapshot')).enabled, true);
+  assert.equal(fresh.alarms.get('rc-playtime-poll').periodInMinutes, 0.5);
+  assert.equal(fresh.requests.length, 0, 'Worker initialization still avoids eager network requests');
+  assert.equal((await fresh.message('refresh')).enabled, true);
+  fresh.advance(30000);
+  assert.equal((await fresh.alarm()).totalMs, 30000, 'A missing preference records time without an enable action');
+  const off = harness({ local: { [core.ENABLED_KEY]: false } });
+  for (const name of ['installed', 'startup']) for (const listener of off.events[name]) listener();
   assert.equal((await off.message('snapshot')).enabled, false);
+  assert.equal((await off.message('refresh')).enabled, false);
   assert.equal(off.alarms.size, 0); assert.equal(off.requests.length, 0);
   const on = harness({ alarms: [['rc-playtime-poll', { delayInMinutes: 1, periodInMinutes: 1 }]] });
   await on.message('snapshot');

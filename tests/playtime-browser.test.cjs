@@ -36,7 +36,7 @@ function fixture(pathname = '/home') {
     ${content}
     <script>
       const listeners=[];
-      window.saved={customBackground:{source:'none',glassBlur:23,glassOpacity:62},playtimeTrackingEnabled:false};
+      window.saved={customBackground:{source:'none',glassBlur:23,glassOpacity:62}};
       window.playtimeRequests=[];
       window.setSaved=async patch=>{const changes={};for(const [key,value] of Object.entries(patch)){changes[key]={oldValue:saved[key],newValue:value};saved[key]=structuredClone(value)}listeners.forEach(fn=>fn(changes,'local'))};
       window.makeHistory=()=>({version:1,currentUserId:123,accounts:[{userId:123,name:'Player',displayName:'Player',games:Array.from({length:27},(_,i)=>({universeId:100+i,placeId:200+i,name:i===0?'<img src=x onerror=alert(1)> English 简体中文 繁體中文 LongGameTitleLongGameTitleLongGameTitle':i===1?'中文冒险':'Game '+i,iconUrl:'https://tr.rbxcdn.com/playtime-fixture-'+i,totalMs:(i+1)*60000,sessions:i+1,firstPlayedAt:1800000000000,lastPlayedAt:1800000000000+i*60000,metadataCheckedAt:1800000000000}))}],active:null,status:{kind:'idle',checkedAt:1800000000000}});
@@ -45,7 +45,7 @@ function fixture(pathname = '/home') {
         playtimeRequests.push(message.action);
         if(message.action==='set-enabled')await setSaved({playtimeTrackingEnabled:message.enabled});
         if(message.action==='clear'){if(message.userId!==saved.rcPlaytimeHistory?.currentUserId){callback({ok:false,error:'account-changed'});return}await setSaved({rcPlaytimeHistory:RobloxCustomizerPlaytime.normalize(null)})}
-        callback(RobloxCustomizerPlaytime.snapshot(saved.rcPlaytimeHistory,saved.playtimeTrackingEnabled));
+        callback(RobloxCustomizerPlaytime.snapshot(saved.rcPlaytimeHistory,saved.playtimeTrackingEnabled!==false));
       })}}};
       window.exported=null;
       const makeObjectURL=URL.createObjectURL.bind(URL);URL.createObjectURL=blob=>{window.exportBlob=blob;return makeObjectURL(blob)};
@@ -88,6 +88,10 @@ test('Game pages show only this experience’s local playtime and last-played ti
       playing:!p.querySelector('.rc-playtime-playing').hidden,enable:!p.querySelector('button').hidden,
       hint:p.querySelector('.rc-playtime-hint').textContent}:null})()`);
     let state = await panel();
+    assert.equal(state.enable, false, 'A fresh install already has tracking enabled');
+    await browser.evaluate('setSaved({playtimeTrackingEnabled:false})');
+    await browser.waitFor('!document.querySelector(".rc-playtime-game-enable").hidden');
+    state = await panel();
     assert.equal(state.parent, 'game-main-content');
     assert.equal(state.total, 'Not recorded yet'); assert.equal(state.last, 'Not recorded yet');
     assert.equal(state.iso, null); assert.equal(state.enable, true);
@@ -300,9 +304,12 @@ test('Playtime settings and Home history support search, sorting, export, clear 
     await browser.send('Page.navigate', { url: `${origin}/home` });
     await waitForDocument(browser, '.rc-settings-menu-entry');
     await browser.waitFor('!!window.RobloxCustomizerPlaytimeUI');
-    assert.equal(await browser.evaluate("!!document.querySelector('#rc-playtime-home')"), false, 'Fresh disabled installs have no extra Home section');
+    await browser.waitFor('!!document.querySelector("#rc-playtime-home")');
     await browser.click('.rc-settings-menu-entry');
     await browser.waitFor("!!document.querySelector('#rc-playtime-settings input')");
+    assert.equal(await browser.evaluate('document.querySelector("#rc-playtime-settings input").checked'),true,'Tracking is checked by default');
+    await browser.click('#rc-playtime-settings input');
+    await browser.waitFor('saved.playtimeTrackingEnabled===false && !document.querySelector("#rc-playtime-home")');
     await browser.click('#rc-playtime-settings input');
     await browser.waitFor("saved.playtimeTrackingEnabled && !!document.querySelector('#rc-playtime-home')");
     assert.equal(await browser.evaluate("document.querySelector('.rc-home-greeting-clock').parentElement===document.querySelector('#rc-playtime-home').parentElement"), true, 'The card shares the clock area');
@@ -362,6 +369,59 @@ test('Playtime settings and Home history support search, sorting, export, clear 
     await browser.waitFor("!!document.querySelector('#rc-playtime-dialog[open]')");
     assert.deepEqual(browser.errors, []);
   });
+test('Playtime history dismisses on outside clicks, preserves inside gestures and restores its opener',
+  { skip: !process.env.CHROME_BIN, timeout: 30000 }, async t => {
+    const origin = await serve(t), browser = await isolatedChrome(t, 'playtime-dismiss');
+    await icons(browser);
+    await browser.send('Emulation.setFocusEmulationEnabled', { enabled: true });
+    await browser.send('Page.navigate', { url: `${origin}/home` });
+    await waitForDocument(browser, '.rc-settings-menu-entry');
+    await browser.evaluate('setSaved({rcPlaytimeHistory:makeHistory(),playtimeTrackingEnabled:true})');
+    await browser.waitFor('!!document.querySelector(".rc-playtime-history")');
+    await browser.evaluate(`const behind=document.createElement('button');behind.id='behind-history';
+      behind.style.cssText='position:fixed;left:0;top:0;width:12px;height:12px;padding:0';
+      window.behindClicks=0;behind.onclick=()=>behindClicks++;document.body.append(behind);
+      const menu=document.querySelector('#settings-popover-menu');menu.style.top='auto';menu.style.bottom='0'`);
+    const press = point => browser.send('Input.dispatchMouseEvent', { type:'mousePressed', button:'left', buttons:1, clickCount:1, ...point });
+    const release = point => browser.send('Input.dispatchMouseEvent', { type:'mouseReleased', button:'left', clickCount:1, ...point });
+    const outside = { x:5, y:5 };
+    for (const width of [1280,390]) for (const locale of ['en','zh-CN','zh-TW']) {
+      await browser.send('Emulation.setDeviceMetricsOverride', { width, height:900, deviceScaleFactor:1, mobile:false });
+      await browser.evaluate(`RobloxCustomizerI18n.setLanguage(${JSON.stringify(locale)})`);
+      await browser.click('.rc-playtime-history');
+      await browser.waitFor('!!document.querySelector("#rc-playtime-dialog[open]")');
+      const padding = await browser.evaluate(`(()=>{const r=document.querySelector('#rc-playtime-dialog').getBoundingClientRect();
+        return{x:r.left+6,y:r.top+6}})()`);
+      await press(padding); await release(padding);
+      assert.equal(await browser.evaluate('document.querySelector("#rc-playtime-dialog").open'),true,'Blank space inside the window stays open');
+      await browser.click('#rc-playtime-dialog input');
+      assert.equal(await browser.evaluate('document.activeElement.type'),'search','Inside controls remain usable');
+      await press(padding);
+      await browser.send('Input.dispatchMouseEvent', { type:'mouseMoved', button:'left', buttons:1, ...outside });
+      await release(outside);
+      assert.equal(await browser.evaluate('document.querySelector("#rc-playtime-dialog").open'),true,'A drag starting inside does not dismiss the window');
+      await press(outside);
+      await browser.send('Input.dispatchMouseEvent', { type:'mouseMoved', button:'left', buttons:1, ...padding });
+      await release(padding);
+      assert.equal(await browser.evaluate('document.querySelector("#rc-playtime-dialog").open'),true,'Releasing inside does not dismiss the window');
+      await browser.click('.rc-playtime-clear');
+      await press(outside); await release(outside);
+      await browser.waitFor('!document.querySelector("#rc-playtime-dialog")');
+      assert.equal(await browser.evaluate('document.activeElement.classList.contains("rc-playtime-history")'),true,`${width}/${locale}: focus returns to the Home button`);
+      assert.equal(await browser.evaluate('saved.rcPlaytimeHistory.accounts[0].games.length'),27,'Dismissing the confirmation preserves history');
+      assert.equal(await browser.evaluate('behindClicks'),0,'The dismissing click does not activate the page behind the dialog');
+    }
+    await browser.click('.rc-settings-menu-entry');
+    await browser.waitFor('!!document.querySelector("#rc-playtime-settings button")');
+    await browser.click('#rc-playtime-settings button');
+    await browser.waitFor('!!document.querySelector("#rc-playtime-dialog[open]")');
+    await press(outside); await release(outside);
+    await browser.waitFor('!document.querySelector("#rc-playtime-dialog")');
+    assert.equal(await browser.evaluate('!!document.querySelector("#rc-settings-overlay")'),true,'Only the history dialog closes when opened above settings');
+    assert.equal(await browser.evaluate('document.activeElement.matches("#rc-playtime-settings button")'),true);
+    assert.deepEqual(browser.errors,[]);
+  });
+
 test('Playtime panels fit mobile, light/dark and Chinese locales, and honor custom colors and effect switches',
   { skip: !process.env.CHROME_BIN, timeout: 30000 }, async t => {
     const origin = await serve(t), browser = await isolatedChrome(t, 'playtime-themes');

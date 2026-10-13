@@ -83,9 +83,9 @@ test('Extension UI switches between English and both Chinese variants without lo
     await change('#rc-currency-search', 'CNY', 'input');
     await change('#rc-glass-blur', '32', 'input');
     const labels = {
-      'zh-CN': ['Roblox 自定义工具', '扩展语言', '关闭', '隐藏上方推荐游戏', '货币名称或代码', '置顶游戏', '隐藏'],
-      'zh-TW': ['Roblox 自訂工具', '擴充功能語言', '關閉', '隱藏上方推薦遊戲', '貨幣名稱或代碼', '釘選遊戲', '隱藏'],
-      en: ['Roblox Customizer', 'Extension language', 'Close', 'Hide upper Recommended Games', 'Currency name or code', 'Pinned Games', 'Hide']
+      'zh-CN': ['Roblox 自定义工具', '扩展语言', '关闭', '隐藏上方推荐游戏', '货币名称或代码', '置顶游戏', '隐藏', '外观', '语言与数据'],
+      'zh-TW': ['Roblox 自訂工具', '擴充功能語言', '關閉', '隱藏上方推薦遊戲', '貨幣名稱或代碼', '釘選遊戲', '隱藏', '外觀', '語言與資料'],
+      en: ['Roblox Customizer', 'Extension language', 'Close', 'Hide upper Recommended Games', 'Currency name or code', 'Pinned Games', 'Hide', 'Appearance', 'Language & data']
     };
     for (const language of ['zh-CN', 'zh-TW', 'en', 'zh-TW']) {
       await locale(language);
@@ -97,7 +97,9 @@ test('Extension UI switches between English and both Chinese variants without lo
         document.querySelector('label[for="rc-hide-recommended-upper"]').textContent.trim(),
         document.querySelector('#rc-currency-search').placeholder,
         document.querySelector('#rc-pinned-games-title').textContent,
-        document.querySelector('.rc-hide-recommended-game').textContent
+        document.querySelector('.rc-hide-recommended-game').textContent,
+        document.querySelector('.rc-settings-nav-button[data-rc-settings-category="appearance"] span:last-child').textContent,
+        document.querySelector('.rc-settings-nav-button[data-rc-settings-category="data"] span:last-child').textContent
       ]`), labels[language]);
       assert.deepEqual(await browser.evaluate("[document.querySelector('#rc-greeting-morning').value,document.querySelector('#rc-currency-select').value,document.querySelector('#rc-currency-search').value,document.querySelector('#rc-glass-blur').value]"), ['Hide', 'CNY', 'CNY', '32']);
       assert.equal(await text('#rc-pinned-games .rc-pinned-game-details h3'), 'Search');
