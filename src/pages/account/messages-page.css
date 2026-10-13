@@ -1,5 +1,9 @@
 /* The current React inbox lives outside #content. Its layout containers and
    utility-class row backgrounds must share one glass surface on the main pane. */
+[data-rc-hide-unread-action] {
+  display: none !important;
+}
+
 html[data-rc-ui-active][data-rc-frost-page="messages"] #private-message-web-app {
   --rc-inbox-border: var(--color-stroke-default, rgb(var(--rc-foreground-rgb, 255 255 255) / 17%));
   --rc-inbox-selected: var(--color-state-press, rgb(128 128 128 / 22%));

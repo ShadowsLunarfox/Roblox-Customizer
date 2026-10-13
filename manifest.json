@@ -150,6 +150,16 @@
         "src/pages/games/game-page.js"
       ],
       "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://www.roblox.com/my/messages*",
+        "https://roblox.com/my/messages*"
+      ],
+      "js": [
+        "src/pages/account/messages-page.js"
+      ],
+      "run_at": "document_start"
     }
   ]
 }
