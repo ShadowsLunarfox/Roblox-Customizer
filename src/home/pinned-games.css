@@ -1,4 +1,5 @@
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) {
+/* Preserve native styling while features are disabled for the page language. */
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   display: flex;
   flex-wrap: nowrap;
@@ -11,12 +12,12 @@
   container: rc-game-actions / inline-size;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)::before,
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)::after {
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before,
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after {
   display: none;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > li {
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > li:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: relative;
   top: auto;
   bottom: auto;
@@ -26,7 +27,7 @@
   margin: 0;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .rc-game-pin-control {
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .rc-game-pin-control:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   order: 0;
   display: flex;
   flex: 0 0 auto;
@@ -36,7 +37,7 @@
   list-style: none;
 }
 
-#rc-pin-game {
+#rc-pin-game:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -51,12 +52,12 @@
   cursor: pointer;
 }
 
-#rc-pin-game svg { width: 28px; height: 28px; }
-#rc-pin-game .icon-label { font-size: 12px; line-height: 16px; white-space: nowrap; }
-#rc-pin-game[aria-pressed="true"] { color: var(--rc-focus, #8bc4ff); }
-#rc-pin-game:disabled { opacity: .55; cursor: wait; }
+#rc-pin-game svg:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { width: 28px; height: 28px; }
+#rc-pin-game .icon-label:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { font-size: 12px; line-height: 16px; white-space: nowrap; }
+#rc-pin-game[aria-pressed="true"]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { color: var(--rc-focus, #8bc4ff); }
+#rc-pin-game:disabled:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { opacity: .55; cursor: wait; }
 
-#game-detail-page .rc-game-pin-folder {
+#game-detail-page .rc-game-pin-folder:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid;
   gap: 6px;
   box-sizing: border-box;
@@ -72,8 +73,8 @@
   color: var(--rc-text, #f4f6fb);
   color-scheme: var(--rc-color-scheme, dark);
 }
-#game-detail-page .rc-game-pin-folder label { margin: 0; font-size: 14px; line-height: 20px; color: inherit; }
-#rc-pin-game-folder {
+#game-detail-page .rc-game-pin-folder label:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin: 0; font-size: 14px; line-height: 20px; color: inherit; }
+#rc-pin-game-folder:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
@@ -89,14 +90,14 @@
   text-overflow: ellipsis;
   cursor: pointer;
 }
-#rc-pin-game-folder option { background: var(--rc-control-bg, #292b35); color: var(--rc-text, #f4f6fb); }
-#rc-pin-game-folder:disabled { opacity: .55; cursor: wait; }
-#rc-pin-game-folder:focus-visible { outline: 2px solid var(--rc-focus, #8bc4ff); outline-offset: 3px; }
-#game-detail-page #rc-pin-game-folder-help { margin: 0; color: var(--rc-text-secondary, #c3cad6); font-size: 12px; line-height: 18px; }
-#game-detail-page .rc-game-pin-folder[hidden],
-#game-detail-page .rc-game-pin-folder [hidden] { display: none !important; }
-#game-detail-page .rc-game-pin-folder-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
-#game-detail-page .rc-game-pin-folder-actions button {
+#rc-pin-game-folder option:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { background: var(--rc-control-bg, #292b35); color: var(--rc-text, #f4f6fb); }
+#rc-pin-game-folder:disabled:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { opacity: .55; cursor: wait; }
+#rc-pin-game-folder:focus-visible:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { outline: 2px solid var(--rc-focus, #8bc4ff); outline-offset: 3px; }
+#game-detail-page #rc-pin-game-folder-help:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin: 0; color: var(--rc-text-secondary, #c3cad6); font-size: 12px; line-height: 18px; }
+#game-detail-page .rc-game-pin-folder[hidden]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+#game-detail-page .rc-game-pin-folder [hidden]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: none !important; }
+#game-detail-page .rc-game-pin-folder-actions:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+#game-detail-page .rc-game-pin-folder-actions button:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-height: 40px;
   padding: 8px 14px;
   border: 1px solid var(--rc-control-border, #727c90);
@@ -107,18 +108,18 @@
   line-height: 20px;
   cursor: pointer;
 }
-#game-detail-page .rc-game-pin-folder-actions button:disabled { opacity: .55; cursor: wait; }
-#game-detail-page .rc-game-pin-folder-actions button:focus-visible { outline: 2px solid var(--rc-focus, #8bc4ff); outline-offset: 3px; }
+#game-detail-page .rc-game-pin-folder-actions button:disabled:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { opacity: .55; cursor: wait; }
+#game-detail-page .rc-game-pin-folder-actions button:focus-visible:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { outline: 2px solid var(--rc-focus, #8bc4ff); outline-offset: 3px; }
 
 /* Non-public experiences may have no Favorite button or native action row. */
-#game-detail-page .rc-game-pin-standalone {
+#game-detail-page .rc-game-pin-standalone:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   clear: both;
   width: 100%;
   margin-block: 12px;
 }
 
-#game-detail-page .rc-game-pin-standalone #rc-pin-game {
+#game-detail-page .rc-game-pin-standalone #rc-pin-game:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex-direction: row;
   gap: 8px;
   min-height: 44px;
@@ -129,16 +130,16 @@
   color: var(--rc-text, #f4f6fb);
 }
 
-#game-detail-page .rc-game-pin-standalone #rc-pin-game:hover {
+#game-detail-page .rc-game-pin-standalone #rc-pin-game:hover:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-image: linear-gradient(rgb(var(--rc-foreground-rgb, 255 255 255) / 8%), rgb(var(--rc-foreground-rgb, 255 255 255) / 8%));
 }
-#game-detail-page .rc-game-pin-standalone #rc-pin-game[aria-pressed="true"] { color: var(--rc-focus, #8bc4ff); }
-#game-detail-page .rc-game-pin-standalone #rc-pin-game svg { width: 22px; height: 22px; }
-#game-detail-page .rc-game-pin-standalone #rc-pin-game .icon-label { font-size: 14px; line-height: 20px; }
+#game-detail-page .rc-game-pin-standalone #rc-pin-game[aria-pressed="true"]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { color: var(--rc-focus, #8bc4ff); }
+#game-detail-page .rc-game-pin-standalone #rc-pin-game svg:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { width: 22px; height: 22px; }
+#game-detail-page .rc-game-pin-standalone #rc-pin-game .icon-label:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { font-size: 14px; line-height: 20px; }
 
 /* Keep the native buttons in place while replacing their float-based layout. */
 #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
-  > :is(.game-favorite-button-container, .game-follow-button-container) {
+  > :is(.game-favorite-button-container, .game-follow-button-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex: 0 0 56px;
   width: 56px;
   min-width: 56px;
@@ -147,16 +148,16 @@
 }
 
 #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
-  :is(.game-favorite-button-container, .game-follow-button-container) .tooltip-container {
+  :is(.game-favorite-button-container, .game-follow-button-container) .tooltip-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: block;
   width: 100%;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .game-favorite-button-container { order: 1; }
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .game-follow-button-container { order: 2; }
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .game-favorite-button-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { order: 1; }
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .game-follow-button-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { order: 2; }
 
 #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
-  :is(.favorite-button, .follow-button) {
+  :is(.favorite-button, .follow-button):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -167,7 +168,7 @@
 }
 
 #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
-  :is(.favorite-button, .follow-button) > :is(a, button) {
+  :is(.favorite-button, .follow-button) > :is(a, button):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -175,7 +176,7 @@
 }
 
 #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
-  :is(.icon-favorite, .icon-follow-game, .icon-notifications-bell) {
+  :is(.icon-favorite, .icon-follow-game, .icon-notifications-bell):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex: none;
   width: 28px;
   height: 28px;
@@ -183,7 +184,7 @@
   padding: 0;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .icon-label {
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .icon-label:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin: 0;
   padding: 0;
   display: block;
@@ -192,7 +193,7 @@
   white-space: nowrap;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .voting-panel {
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .voting-panel:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   order: 3;
   flex: 1 1 110px;
   width: auto;
@@ -200,7 +201,7 @@
   max-width: 110px;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .users-vote {
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .users-vote:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-template-rows: 28px auto;
@@ -209,7 +210,7 @@
   padding: 0;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .users-vote :is(.upvote, .downvote) {
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .users-vote :is(.upvote, .downvote):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: static;
   display: flex;
   align-items: center;
@@ -221,9 +222,9 @@
   margin: 0;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .users-vote .upvote { grid-area: 1 / 1; }
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .users-vote .downvote { grid-area: 1 / 2; justify-content: flex-end; }
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .users-vote .vote-details {
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .users-vote .upvote:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { grid-area: 1 / 1; }
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .users-vote .downvote:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { grid-area: 1 / 2; justify-content: flex-end; }
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .users-vote .vote-details:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   grid-area: 2 / 1 / auto / -1;
   display: grid;
   position: static !important;
@@ -234,7 +235,7 @@
   min-width: 0;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .vote-details .vote-container {
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .vote-details .vote-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: relative !important;
   inset: auto !important;
   grid-row: 1;
@@ -243,7 +244,7 @@
   margin: 0 !important;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .vote-numbers {
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .vote-numbers:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid;
   position: static !important;
   grid-row: 2;
@@ -257,11 +258,11 @@
   line-height: 16px;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .vote-numbers::before,
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .vote-numbers::after { display: none; }
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .vote-numbers:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before,
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .vote-numbers:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after { display: none; }
 
 #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
-  .vote-numbers :is(.count-left, .count-right, .vote-text) {
+  .vote-numbers :is(.count-left, .count-right, .vote-text):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   float: none;
   min-width: 0;
   padding: 0;
@@ -270,7 +271,7 @@
   white-space: nowrap;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .social-media-share {
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .social-media-share:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   order: 4;
   flex: 0 0 32px;
   width: 32px;
@@ -279,7 +280,7 @@
   height: auto;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .share-game-container {
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .share-game-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: relative;
   top: auto;
   right: auto;
@@ -288,23 +289,23 @@
   width: 100%;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .social-media-share:empty {
+#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .social-media-share:empty:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: none;
 }
 
 /* A game sidebar can be narrow even on a wide desktop monitor. */
 @container rc-game-actions (max-width: 340px) {
   #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
-    > :is(.game-favorite-button-container, .game-follow-button-container) {
+    > :is(.game-favorite-button-container, .game-follow-button-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     flex-basis: 48px;
     width: 48px;
     min-width: 48px;
     max-width: 48px;
   }
   #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
-    :is(.favorite-button, .follow-button) { width: 48px; }
-  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .icon-label { font-size: 11px; }
-  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .social-media-share {
+    :is(.favorite-button, .follow-button):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { width: 48px; }
+  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .icon-label:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { font-size: 11px; }
+  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .social-media-share:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     flex-basis: 28px;
     width: 28px;
     min-width: 28px;
@@ -314,21 +315,21 @@
 
 @container rc-game-actions (max-width: 280px) {
   #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
-    > :is(.game-favorite-button-container, .game-follow-button-container) {
+    > :is(.game-favorite-button-container, .game-follow-button-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     flex-basis: 40px;
     width: 40px;
     min-width: 40px;
     max-width: 40px;
   }
   #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
-    :is(.favorite-button, .follow-button) { width: 40px; }
-  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .icon-label,
+    :is(.favorite-button, .follow-button):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { width: 40px; }
+  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .icon-label:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
   #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
-    .vote-numbers :is(.count-left, .count-right, .vote-text) { font-size: 10px; }
-  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .voting-panel { min-width: 72px; }
+    .vote-numbers :is(.count-left, .count-right, .vote-text):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { font-size: 10px; }
+  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .voting-panel:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { min-width: 72px; }
 }
 
-#rc-pinned-games {
+#rc-pinned-games:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   clear: both;
   width: 100%;
@@ -339,7 +340,7 @@
   color: inherit;
 }
 
-#rc-pinned-games .rc-pinned-games-heading {
+#rc-pinned-games .rc-pinned-games-heading:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -348,22 +349,22 @@
   margin-bottom: 14px;
 }
 
-#rc-pinned-games h2 { margin: 0; color: inherit; font-size: 22px; font-weight: 700; }
-#rc-pinned-games .rc-pinned-games-count { opacity: .7; font-size: 13px; white-space: nowrap; }
-#rc-pinned-games .rc-pinned-folder-toolbar,
-#rc-pinned-games .rc-pinned-folder-filters,
-#rc-pinned-games .rc-pinned-folder-actions,
-#rc-pinned-games .rc-pinned-folder-editor {
+#rc-pinned-games h2:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin: 0; color: inherit; font-size: 22px; font-weight: 700; }
+#rc-pinned-games .rc-pinned-games-count:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { opacity: .7; font-size: 13px; white-space: nowrap; }
+#rc-pinned-games .rc-pinned-folder-toolbar:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+#rc-pinned-games .rc-pinned-folder-filters:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+#rc-pinned-games .rc-pinned-folder-actions:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+#rc-pinned-games .rc-pinned-folder-editor:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
   min-width: 0;
 }
-#rc-pinned-games .rc-pinned-folder-toolbar { justify-content: space-between; margin-bottom: 14px; }
-#rc-pinned-games .rc-pinned-folder-filters { flex: 1 1 240px; }
+#rc-pinned-games .rc-pinned-folder-toolbar:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { justify-content: space-between; margin-bottom: 14px; }
+#rc-pinned-games .rc-pinned-folder-filters:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { flex: 1 1 240px; }
 #rc-pinned-games :is(.rc-pinned-folder-new, .rc-pinned-folder-filter, .rc-pinned-folder-actions button,
-    .rc-pinned-folder-editor button, .rc-pinned-folder-editor input, .rc-pinned-game-move, .rc-pinned-games-more) {
+    .rc-pinned-folder-editor button, .rc-pinned-folder-editor input, .rc-pinned-game-move, .rc-pinned-games-more):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   min-width: 0;
   max-width: 100%;
@@ -377,18 +378,18 @@
   font-size: 14px;
   line-height: 20px;
 }
-#rc-pinned-games :is(button, select) { cursor: pointer; }
-#rc-pinned-games :is(button, select):disabled { opacity: .55; cursor: wait; }
+#rc-pinned-games :is(button, select):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { cursor: pointer; }
+#rc-pinned-games :is(button, select):disabled:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { opacity: .55; cursor: wait; }
 #rc-pinned-games :is(.rc-pinned-folder-new, .rc-pinned-folder-filter, .rc-pinned-folder-actions button,
-    .rc-pinned-folder-editor button, .rc-pinned-games-more):hover {
+    .rc-pinned-folder-editor button, .rc-pinned-games-more):hover:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-image: linear-gradient(rgb(var(--rc-foreground-rgb, 255 255 255) / 8%), rgb(var(--rc-foreground-rgb, 255 255 255) / 8%));
 }
-#rc-pinned-games .rc-pinned-folder-filter { display: inline-flex; align-items: center; gap: 8px; text-align: start; }
-#rc-pinned-games .rc-pinned-folder-filter > span:first-child { min-width: 0; overflow-wrap: anywhere; }
-#rc-pinned-games .rc-pinned-folder-filter[aria-pressed="true"] { border-color: var(--rc-focus, #8bc4ff); box-shadow: inset 0 0 0 1px var(--rc-focus, #8bc4ff); }
-#rc-pinned-games .rc-pinned-folder-count { flex: none; font-size: 12px; opacity: .8; }
-#rc-pinned-games .rc-pinned-folder-delete { color: var(--rc-error, #ff9f9f); }
-#rc-pinned-games .rc-pinned-folder-editor {
+#rc-pinned-games .rc-pinned-folder-filter:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: inline-flex; align-items: center; gap: 8px; text-align: start; }
+#rc-pinned-games .rc-pinned-folder-filter > span:first-child:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { min-width: 0; overflow-wrap: anywhere; }
+#rc-pinned-games .rc-pinned-folder-filter[aria-pressed="true"]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { border-color: var(--rc-focus, #8bc4ff); box-shadow: inset 0 0 0 1px var(--rc-focus, #8bc4ff); }
+#rc-pinned-games .rc-pinned-folder-count:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { flex: none; font-size: 12px; opacity: .8; }
+#rc-pinned-games .rc-pinned-folder-delete:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { color: var(--rc-error, #ff9f9f); }
+#rc-pinned-games .rc-pinned-folder-editor:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   padding: 12px;
   margin-bottom: 14px;
   border: 1px solid var(--rc-control-border, #727c90);
@@ -396,42 +397,42 @@
   background: var(--rc-surface, #25272c);
   color: var(--rc-text, #f4f6fb);
 }
-#rc-pinned-games .rc-pinned-folder-editor label { flex: 0 0 100%; margin: 0; font-size: 14px; }
-#rc-pinned-games .rc-pinned-folder-editor input { flex: 1 1 180px; width: 180px; }
-#rc-pinned-games .rc-pinned-game-folder { display: grid; gap: 4px; min-width: 0; margin: 10px 0 0; color: inherit; font-size: 12px; }
-#rc-pinned-games .rc-pinned-game-move { width: 100%; padding-inline: 8px; text-overflow: ellipsis; }
-#rc-pinned-games .rc-pinned-game-move option { background: var(--rc-control-bg, #292b35); color: var(--rc-text, #f4f6fb); }
-#rc-pinned-games .rc-pinned-games-more { display: block; margin: 16px auto 0; }
+#rc-pinned-games .rc-pinned-folder-editor label:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { flex: 0 0 100%; margin: 0; font-size: 14px; }
+#rc-pinned-games .rc-pinned-folder-editor input:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { flex: 1 1 180px; width: 180px; }
+#rc-pinned-games .rc-pinned-game-folder:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: grid; gap: 4px; min-width: 0; margin: 10px 0 0; color: inherit; font-size: 12px; }
+#rc-pinned-games .rc-pinned-game-move:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { width: 100%; padding-inline: 8px; text-overflow: ellipsis; }
+#rc-pinned-games .rc-pinned-game-move option:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { background: var(--rc-control-bg, #292b35); color: var(--rc-text, #f4f6fb); }
+#rc-pinned-games .rc-pinned-games-more:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: block; margin: 16px auto 0; }
 
 /* New folder controls use the same live glass settings as the pinned cards.
    The theme's opacity floor keeps text readable in light mode, even on dark wallpaper. */
-#game-detail-page .rc-game-pin-folder,
-#game-detail-page .rc-game-pin-standalone #rc-pin-game,
-#rc-pin-game-folder,
-#game-detail-page .rc-game-pin-folder-actions button,
-#rc-pinned-games .rc-pinned-folder-editor,
+#game-detail-page .rc-game-pin-folder:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+#game-detail-page .rc-game-pin-standalone #rc-pin-game:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+#rc-pin-game-folder:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+#game-detail-page .rc-game-pin-folder-actions button:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+#rc-pinned-games .rc-pinned-folder-editor:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
 #rc-pinned-games :is(.rc-pinned-folder-new, .rc-pinned-folder-filter, .rc-pinned-folder-actions button,
-    .rc-pinned-folder-editor button, .rc-pinned-folder-editor input, .rc-pinned-game-move, .rc-pinned-games-more) {
+    .rc-pinned-folder-editor button, .rc-pinned-folder-editor input, .rc-pinned-game-move, .rc-pinned-games-more):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62)));
   -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
   backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
 }
-#game-detail-page #rc-confirm-pin-game {
+#game-detail-page #rc-confirm-pin-game:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border-color: rgb(51 95 255 / 65%);
   background-color: rgb(36 77 224 / var(--rc-surface-opacity, var(--rc-glass-opacity, .62)));
   color: #fff;
 }
-#game-detail-page .rc-game-pin-folder-actions button:hover {
+#game-detail-page .rc-game-pin-folder-actions button:hover:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-image: linear-gradient(rgb(var(--rc-foreground-rgb, 255 255 255) / 8%), rgb(var(--rc-foreground-rgb, 255 255 255) / 8%));
 }
-#rc-pinned-games .rc-pinned-games-grid {
+#rc-pinned-games .rc-pinned-games-grid:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 158px), 1fr));
   align-items: stretch;
   gap: 14px;
 }
 
-#rc-pinned-games .rc-pinned-game-card {
+#rc-pinned-games .rc-pinned-game-card:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   position: relative;
   display: flex;
@@ -443,8 +444,8 @@
   background: rgb(128 128 128 / 10%);
 }
 
-html[data-rc-ui-active] #rc-pinned-games .rc-pinned-game-card,
-html[data-rc-ui-active] #rc-pinned-games-notification {
+html[data-rc-ui-active] #rc-pinned-games .rc-pinned-game-card:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active] #rc-pinned-games-notification:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border-color: rgb(var(--rc-foreground-rgb, 255 255 255) / 15%);
   background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62)));
   -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
@@ -452,8 +453,8 @@ html[data-rc-ui-active] #rc-pinned-games-notification {
   color: var(--rc-text, #f7f7f8);
 }
 
-#rc-pinned-games .rc-pinned-game-details { display: block; min-width: 0; color: inherit; text-decoration: none; }
-#rc-pinned-games .rc-pinned-game-art {
+#rc-pinned-games .rc-pinned-game-details:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: block; min-width: 0; color: inherit; text-decoration: none; }
+#rc-pinned-games .rc-pinned-game-art:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: relative;
   display: grid;
   place-items: center;
@@ -465,8 +466,8 @@ html[data-rc-ui-active] #rc-pinned-games-notification {
   font-size: 44px;
   font-weight: 700;
 }
-#rc-pinned-games .rc-pinned-game-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-#rc-pinned-games h3 {
+#rc-pinned-games .rc-pinned-game-art img:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+#rc-pinned-games h3:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -479,7 +480,7 @@ html[data-rc-ui-active] #rc-pinned-games-notification {
   line-height: 20px;
   overflow-wrap: anywhere;
 }
-#rc-pinned-games .rc-pinned-game-join {
+#rc-pinned-games .rc-pinned-game-join:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -492,8 +493,8 @@ html[data-rc-ui-active] #rc-pinned-games-notification {
   font-weight: 700;
   text-decoration: none;
 }
-#rc-pinned-games .rc-pinned-game-join:hover { background: var(--rc-accent-hover, #244de0); }
-#rc-pinned-games .rc-pinned-game-remove {
+#rc-pinned-games .rc-pinned-game-join:hover:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { background: var(--rc-accent-hover, #244de0); }
+#rc-pinned-games .rc-pinned-game-remove:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: absolute;
   top: 14px;
   right: 14px;
@@ -509,12 +510,12 @@ html[data-rc-ui-active] #rc-pinned-games-notification {
   font: 22px/1 Arial, sans-serif;
   cursor: pointer;
 }
-#rc-pinned-games .rc-pinned-game-remove:hover { background: #a53545; }
-#rc-pinned-games :is(.rc-pinned-games-empty, .rc-pinned-folder-empty) { margin: 0; opacity: .75; }
-#rc-pinned-games [hidden], #rc-pinned-games-notification[hidden] { display: none !important; }
-:is(#rc-pin-game, #rc-pinned-games a, #rc-pinned-games button, #rc-pinned-games input, #rc-pinned-games select):focus-visible { outline: 2px solid var(--rc-focus, #8bc4ff); outline-offset: 3px; }
+#rc-pinned-games .rc-pinned-game-remove:hover:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { background: #a53545; }
+#rc-pinned-games :is(.rc-pinned-games-empty, .rc-pinned-folder-empty):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin: 0; opacity: .75; }
+#rc-pinned-games [hidden]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)), #rc-pinned-games-notification[hidden]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: none !important; }
+:is(#rc-pin-game, #rc-pinned-games a, #rc-pinned-games button, #rc-pinned-games input, #rc-pinned-games select):focus-visible:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { outline: 2px solid var(--rc-focus, #8bc4ff); outline-offset: 3px; }
 
-#rc-pinned-games-notification {
+#rc-pinned-games-notification:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: fixed;
   z-index: 2147483647;
   bottom: 28px;
@@ -535,6 +536,6 @@ html[data-rc-ui-active] #rc-pinned-games-notification {
 }
 
 @media (max-width: 600px) {
-  #rc-pinned-games .rc-pinned-games-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  #rc-pinned-games h2 { font-size: 20px; }
+  #rc-pinned-games .rc-pinned-games-grid:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  #rc-pinned-games h2:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { font-size: 20px; }
 }

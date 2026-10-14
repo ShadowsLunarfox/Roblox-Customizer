@@ -1,5 +1,6 @@
+/* Preserve native styling while features are disabled for the page language. */
 /* Marketplace's React root keeps the native search, filters, and item links. */
-html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   --rc-catalog-border: var(--color-stroke-default, rgb(var(--rc-foreground-rgb, 255 255 255) / 16%));
   --rc-catalog-hover: var(--color-stroke-emphasis, rgb(var(--rc-foreground-rgb, 255 255 255) / 32%));
   background-color: transparent !important;
@@ -8,13 +9,13 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container {
 html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container :is(
   #catalog-react-page, #catalog-content, #main-view, #react-items-container,
   #results, .results-container, .catalog-results
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: transparent !important;
   background-image: none !important;
 }
 
 /* A separate backing lets filter popups blur outside the sticky header. */
-html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .catalog-header {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .catalog-header:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   isolation: isolate;
   box-sizing: border-box;
   margin-bottom: 16px;
@@ -28,7 +29,7 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .
   box-shadow: 0 8px 24px rgb(0 0 0 / 14%);
 }
 
-html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .catalog-header::before {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .catalog-header:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -43,7 +44,7 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .
 html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container :is(
   .search-bars, .catalog-heading-container, .catalog-heading-actions,
   .catalog-search-options-top-bar, .topic-container, .catalog-search
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -53,13 +54,13 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container :
 
 html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container :is(
   .filter-select:not(.btn-primary-md), .topic-container button
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.22, var(--rc-surface-opacity-floor, 0))) !important;
   border-color: var(--rc-catalog-border) !important;
 }
 
 /* Each filter menu remains readable over the item grid. */
-html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container :is(.filters-modal-container, .dropdown-menu) {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container :is(.filters-modal-container, .dropdown-menu):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border: 1px solid var(--rc-catalog-border) !important;
   border-radius: 12px !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(.5, var(--rc-surface-opacity, var(--rc-glass-opacity, .62)))) !important;
@@ -70,7 +71,7 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container :
 }
 
 /* The search category selector uses the native dropdown menu, not a filter modal. */
-html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   max-width: calc(100vw - 32px);
   max-height: min(360px, calc(100dvh - 120px));
@@ -80,8 +81,8 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .
   color: var(--color-content-emphasis, inherit) !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu > li,
-html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu :is(li > a, li > button, [role="option"]) {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu > li:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu :is(li > a, li > button, [role="option"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -89,7 +90,7 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .
   box-shadow: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu :is(li > a, li > button, [role="option"]) {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu :is(li > a, li > button, [role="option"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-height: 40px;
   padding: 10px 12px !important;
   border-radius: 8px;
@@ -100,7 +101,7 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .
 
 html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .dropdown-menu :is(
   li.active > a, li.active > button, [role="option"][aria-selected="true"]
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.28, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
@@ -108,13 +109,13 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .
   li:not(.disabled, [aria-disabled="true"]) > a:not([aria-disabled="true"]),
   li:not(.disabled, [aria-disabled="true"]) > button:not(:disabled, [aria-disabled="true"]),
   [role="option"]:not([aria-disabled="true"])
-):is(:hover, :focus-visible) {
+):is(:hover, :focus-visible):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.18, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .filters-modal-container :is(
   .header-container, .filter-options-container, .action-buttons-container, .filter-option
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -122,13 +123,13 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .
   box-shadow: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .filters-modal-container .filter-option:hover {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .filters-modal-container .filter-option:hover:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.18, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container :is(
   #avatar-shop-keyword-input, .filters-modal-container input:not([type="radio"], [type="checkbox"])
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.24, var(--rc-surface-opacity-floor, 0))) !important;
   border-color: var(--rc-catalog-border) !important;
   color: var(--color-content-emphasis, inherit) !important;
@@ -136,7 +137,7 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container :
 }
 
 /* React's display:contents wrappers allow the actual products to be grid cells. */
-html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container #results > .item-cards-stackable {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container #results > .item-cards-stackable:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid !important;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr));
   gap: 16px;
@@ -145,13 +146,13 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container #
   list-style: none;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container #results > .item-cards-stackable::before,
-html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container #results > .item-cards-stackable::after {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container #results > .item-cards-stackable:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before,
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container #results > .item-cards-stackable:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after {
   content: none !important;
   display: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .catalog-item-container {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .catalog-item-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   float: none !important;
   width: 100% !important;
@@ -166,7 +167,7 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .
 }
 
 /* One glass surface per product, including its thumbnail and description. */
-html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-container {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   display: flex !important;
   flex-direction: column;
@@ -184,7 +185,7 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-container > a.item-card-link {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-container > a.item-card-link:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -196,7 +197,7 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .
 html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-container :is(
   .item-card-link, .item-card-thumb-container, .item-card-thumb-container-inner,
   .thumbnail-2d-container, .item-card-caption
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -204,7 +205,7 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .
   box-shadow: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-thumb-container {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-thumb-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   width: 100% !important;
   height: auto !important;
   aspect-ratio: 1;
@@ -212,7 +213,7 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .
   overflow: hidden;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-caption {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-caption:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -221,7 +222,7 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .
   padding: 10px 3px 3px !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-name {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-name:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   height: auto !important;
   min-height: 2.8em;
   margin: 0 !important;
@@ -231,35 +232,35 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-price {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-price:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin-top: auto !important;
   padding-top: 5px;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-container:hover {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-container:hover:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border-color: var(--rc-catalog-hover) !important;
   box-shadow: 0 6px 20px rgb(0 0 0 / 20%);
 }
 
-html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container :is(a, button, input):focus-visible {
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container :is(a, button, input):focus-visible:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   outline: 2px solid var(--color-action-emphasis-background, var(--rc-focus, #7fa6ff));
   outline-offset: 3px;
 }
 
 @media (max-width: 640px) {
-  html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .catalog-header {
+  html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .catalog-header:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     padding: 10px;
     border-radius: 12px;
   }
 
-  html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container #results > .item-cards-stackable {
+  html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container #results > .item-cards-stackable:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 1fr));
     gap: 10px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-container {
+  html[data-rc-ui-active][data-rc-frost-page="catalog"] #catalog-react-container .item-card-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     transition: none;
   }
 }

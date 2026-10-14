@@ -1,11 +1,12 @@
+/* Preserve native styling while features are disabled for the page language. */
 /* Use Roblox's own Store cards, prices, pagination, and purchase handlers. */
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-width: 0;
   color: var(--rc-text);
 }
 
 /* A separate backing preserves the containing block of native fixed dialogs. */
-html[data-rc-ui-active] #game-detail-page #store {
+html[data-rc-ui-active] #game-detail-page #store:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: relative;
   isolation: isolate;
   background: transparent !important;
@@ -13,7 +14,7 @@ html[data-rc-ui-active] #game-detail-page #store {
   backdrop-filter: none !important;
 }
 
-html[data-rc-ui-active] #game-detail-page #store::after {
+html[data-rc-ui-active] #game-detail-page #store:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after {
   position: absolute;
   inset: 0;
   z-index: -1;
@@ -25,23 +26,23 @@ html[data-rc-ui-active] #game-detail-page #store::after {
   content: "";
 }
 
-html[data-rc-ui-active] #game-detail-page #store > :not(script, style) {
+html[data-rc-ui-active] #game-detail-page #store > :not(script, style):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   zoom: 1;
 }
 
-html[data-rc-ui-active] #game-detail-page #store .rc-store-category {
+html[data-rc-ui-active] #game-detail-page #store .rc-store-category:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background: var(--rc-inset-bg);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
 
-html[data-rc-ui-active] #game-detail-page #store :is(.rc-store-section-title, h2, h3) {
+html[data-rc-ui-active] #game-detail-page #store :is(.rc-store-section-title, h2, h3):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   color: var(--rc-text);
   white-space: normal;
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-cards:not(:where(.hidden, .ng-hide, [hidden])) {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-cards:not(:where(.hidden, .ng-hide, [hidden])):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 144px), 1fr));
   align-items: stretch;
@@ -54,13 +55,13 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .
 }
 
 /* Native float clearers otherwise consume empty cells in the grid. */
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-cards::before,
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-cards::after {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-cards:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before,
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-cards:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after {
   content: none;
   display: none;
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-cards > .list-item {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-cards > .list-item:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   float: none;
   width: 100%;
@@ -70,7 +71,7 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .
   padding: 0;
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -89,8 +90,8 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .
 }
 
 /* Blur only the backing so native purchase dialogs keep their viewport positioning. */
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card::before,
-html[data-rc-ui-active] #game-detail-page #store .subscription-card-item::before {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before,
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-item:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before {
   position: absolute;
   inset: 0;
   border-radius: inherit;
@@ -101,16 +102,16 @@ html[data-rc-ui-active] #game-detail-page #store .subscription-card-item::before
   content: "";
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card > :not(script, style),
-html[data-rc-ui-active] #game-detail-page #store .subscription-card-item > :not(.subscription-card-overlays, script, style) {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card > :not(script, style):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-item > :not(.subscription-card-overlays, script, style):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: relative;
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card:hover {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card:hover:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border-color: var(--rc-control-border);
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :is(.store-product-card-thumbnail, .store-card > a:has(img)) {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :is(.store-product-card-thumbnail, .store-card > a:has(img)):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: relative;
   display: flex;
   align-items: center;
@@ -123,14 +124,14 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :
   background: var(--rc-inset-bg);
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :is(.store-product-card-thumbnail, .store-card > a:has(img)) :is(a, .thumbnail-2d-container) {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :is(.store-product-card-thumbnail, .store-card > a:has(img)) :is(a, .thumbnail-2d-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: block;
   width: 100%;
   max-width: 100%;
   height: 100%;
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :is(.store-product-card-thumbnail, .store-card > a:has(img)) img {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :is(.store-product-card-thumbnail, .store-card > a:has(img)) img:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: block;
   width: 100%;
   height: 100%;
@@ -140,7 +141,7 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :
   border-radius: inherit;
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :is(.store-product-card-caption, .store-card-caption) {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :is(.store-product-card-caption, .store-card-caption):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -152,7 +153,7 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :
   padding: 0;
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :is(.store-product-card-name, .store-card-name) {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :is(.store-product-card-name, .store-card-name):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: block;
   height: auto;
   min-height: 2.8em;
@@ -168,7 +169,7 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :
   color: var(--rc-text);
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-price {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-price:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -178,24 +179,24 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .
   line-height: 1.5;
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-price :is(.text-robux, [class^="icon-"]) {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-price :is(.text-robux, [class^="icon-"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   float: none;
   margin: 0;
   color: inherit;
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-price::before,
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-price::after {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-price:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before,
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-price:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after {
   content: none;
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-footer {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-footer:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   width: 100%;
   height: auto;
   margin-top: 0;
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-footer .PurchaseButton {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-footer .PurchaseButton:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   width: 100%;
   min-height: 40px;
@@ -206,13 +207,13 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .PurchaseButton:not(:disabled, .disabled, [aria-disabled="true"]) {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .PurchaseButton:not(:disabled, .disabled, [aria-disabled="true"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border-color: transparent;
   background: var(--rc-accent, #335fff);
   color: var(--rc-accent-text, #fff);
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .pending-badge {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .pending-badge:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: absolute;
   top: 8px;
   right: 8px;
@@ -229,17 +230,17 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .
   line-height: 1.3;
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .pending-icon {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .pending-icon:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: inline-flex;
   color: inherit;
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .pending-icon svg {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .pending-icon svg:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   width: 14px;
   height: 14px;
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .overview-pagination-container {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .overview-pagination-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
@@ -247,28 +248,28 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .
   margin-top: 20px;
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .overview-pagination-container :is(button, a) {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .overview-pagination-container :is(button, a):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border-radius: 8px;
   min-width: 36px;
   min-height: 36px;
   color: var(--rc-text);
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .overview-pagination-container :is(button, a):not(:disabled, .disabled, [aria-disabled="true"]) {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .overview-pagination-container :is(button, a):not(:disabled, .disabled, [aria-disabled="true"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background: var(--rc-control-bg);
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :is(a, button):focus-visible {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) :is(a, button):focus-visible:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   outline: 3px solid var(--rc-focus);
   outline-offset: 3px;
 }
 
-html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) [hidden]:not([hidden="until-found"]) {
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) [hidden]:not([hidden="until-found"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: none !important;
 }
 
 /* Retain the native compact subscription layout, carousel and payment actions. */
-html[data-rc-ui-active] #game-detail-page #store .subscription-card-item {
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-item:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   position: relative;
   max-width: 100%;
@@ -282,19 +283,19 @@ html[data-rc-ui-active] #game-detail-page #store .subscription-card-item {
   color: var(--rc-text);
 }
 
-html[data-rc-ui-active] #game-detail-page #store .subscription-card-info {
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-info:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   align-items: flex-start;
   min-width: 0;
   overflow: visible;
 }
 
-html[data-rc-ui-active] #game-detail-page #store .subscription-card-thumbnail,
-html[data-rc-ui-active] #game-detail-page #store .subscription-card-thumbnail .subscription-thumbnail-container-class {
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-thumbnail:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-thumbnail .subscription-thumbnail-container-class:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   max-width: 100%;
   border-radius: 10px;
 }
 
-html[data-rc-ui-active] #game-detail-page #store .subscription-card-thumbnail img {
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-thumbnail img:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: block;
   width: 100%;
   height: 100%;
@@ -302,33 +303,33 @@ html[data-rc-ui-active] #game-detail-page #store .subscription-card-thumbnail im
   border-radius: inherit;
 }
 
-html[data-rc-ui-active] #game-detail-page #store .subscription-card-text {
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-text:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-width: 0;
   gap: 4px;
 }
 
-html[data-rc-ui-active] #game-detail-page #store :is(.subscription-card-title, .subscription-card-description, .subscription-card-price, .subscription-card-price span) {
+html[data-rc-ui-active] #game-detail-page #store :is(.subscription-card-title, .subscription-card-description, .subscription-card-price, .subscription-card-price span):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   max-height: none;
   overflow: visible;
   white-space: normal;
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active] #game-detail-page #store :is(.subscription-card-description, .subscription-card-price, .subscription-card-price span) {
+html[data-rc-ui-active] #game-detail-page #store :is(.subscription-card-description, .subscription-card-price, .subscription-card-price span):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   color: var(--rc-text-secondary);
 }
 
-html[data-rc-ui-active] #game-detail-page #store .subscription-card-title {
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-title:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   font-size: 15px;
   font-weight: 700;
   color: var(--rc-text);
 }
 
-html[data-rc-ui-active] #game-detail-page #store .subscription-card-price {
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-price:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex-wrap: wrap;
 }
 
-html[data-rc-ui-active] #game-detail-page #store .subscription-card-item > button {
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-item > button:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   width: 100%;
   min-height: 40px;
   border-radius: 10px;
@@ -336,24 +337,24 @@ html[data-rc-ui-active] #game-detail-page #store .subscription-card-item > butto
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active] #game-detail-page #store .subscription-card-item > button:not(:disabled, .disabled, [aria-disabled="true"]) {
+html[data-rc-ui-active] #game-detail-page #store .subscription-card-item > button:not(:disabled, .disabled, [aria-disabled="true"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border-color: transparent;
   background: var(--rc-accent, #335fff);
   color: var(--rc-accent-text, #fff);
 }
 
 @media (max-width: 767px) {
-  html[data-rc-ui-active] #game-detail-page #store {
+  html[data-rc-ui-active] #game-detail-page #store:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     padding: 16px !important;
   }
 
-  html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-cards {
+  html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-cards:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     gap: 12px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card {
+  html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     transition: none;
   }
 }

@@ -1,4 +1,4 @@
-(() => {
+(globalThis.RobloxCustomizerCompatibility?.runFeature || (initialize => initialize()))(() => {
   'use strict';
   const core = globalThis.RobloxCustomizerPlaytime;
   const i18n = globalThis.RobloxCustomizerI18n;
@@ -482,4 +482,4 @@
   }, 30000);
   globalThis.RobloxCustomizerPlaytimeUI = Object.freeze({ mountSettings });
   load().then(() => { if (data.enabled) load('refresh'); });
-})();
+});

@@ -1,4 +1,4 @@
-(() => {
+(globalThis.RobloxCustomizerCompatibility?.runFeature || (initialize => initialize()))(() => {
   'use strict';
 
   const attributes = new Map();
@@ -244,4 +244,4 @@
   globalThis.RobloxCustomizerRuntime?.onResume(schedule);
   document.addEventListener('DOMContentLoaded', schedule, { once: true });
   schedule();
-})();
+});

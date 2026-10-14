@@ -1,6 +1,7 @@
+/* Preserve native styling while features are disabled for the page language. */
 /* Game passes and badges share Roblox's item template, without avatar previews.
    Keep its content, purchase eligibility, menus, and responsive visibility intact. */
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   --rc-item-border: rgb(var(--rc-foreground-rgb, 255 255 255) / 16%);
   box-sizing: border-box;
   width: 100%;
@@ -11,7 +12,7 @@ html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page
   background: transparent !important;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container > .top-section {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container > .top-section:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   position: relative;
   display: grid;
@@ -31,12 +32,12 @@ html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page
 }
 
 /* Clearfix pseudo-elements must not become extra grid cells. */
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container > .top-section::before,
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container > .top-section::after {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container > .top-section:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before,
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container > .top-section:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after {
   content: none;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container :is(.item-name-container, .item-thumbnail-container, #item-details, .item-social-container) {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container :is(.item-name-container, .item-thumbnail-container, #item-details, .item-social-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   float: none !important;
   width: 100% !important;
@@ -45,14 +46,14 @@ html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page
   margin: 0 !important;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .item-name-container {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .item-name-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   grid-area: heading;
   padding: 0 36px 20px 0;
   border-bottom: 1px solid var(--rc-item-border);
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .item-name-container h1 {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .item-name-container h1:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin: 0 0 12px;
   color: var(--rc-text);
   font-size: clamp(24px, 2.6vw, 34px);
@@ -63,19 +64,19 @@ html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page
   text-overflow: clip;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container :is(.text-label, .field-label) {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container :is(.text-label, .field-label):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   color: var(--rc-text-secondary);
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container a.text-name {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container a.text-name:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   color: var(--rc-link);
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .item-thumbnail-container {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .item-thumbnail-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   grid-area: art;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .thumbnail-holder {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .thumbnail-holder:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   width: 100% !important;
   height: auto !important;
@@ -85,7 +86,7 @@ html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page
   overflow: hidden;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .thumbnail-holder > .thumbnail-span:not(.hidden, .hide, .ng-hide, [hidden]) {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .thumbnail-holder > .thumbnail-span:not(.hidden, .hide, .ng-hide, [hidden]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid;
   place-items: center;
   box-sizing: border-box;
@@ -95,7 +96,7 @@ html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page
   padding: 24px;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .thumbnail-holder > .thumbnail-span > img {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .thumbnail-holder > .thumbnail-span > img:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: block;
   width: 100% !important;
   height: 100% !important;
@@ -106,7 +107,7 @@ html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page
 }
 
 /* The related experience belongs below the art, rather than covering it. */
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .related-asset-container {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .related-asset-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: static;
   padding: 14px;
   border-top: 1px solid var(--rc-item-border);
@@ -115,13 +116,13 @@ html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .related-asset-container::after {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .related-asset-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after {
   content: "";
   display: block;
   clear: both;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .related-asset-container .asset-info {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .related-asset-container .asset-info:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   float: left;
   width: calc(100% - 64px);
   max-width: none;
@@ -130,13 +131,13 @@ html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page
   text-align: start;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .related-asset-container :is(.preview-text, a.text-name) {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .related-asset-container :is(.preview-text, a.text-name):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin: 0;
   white-space: normal;
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .related-asset-container .asset-thumbnail {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .related-asset-container .asset-thumbnail:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: block;
   float: right;
   width: 50px;
@@ -144,14 +145,14 @@ html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page
   margin: 0;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .related-asset-container .asset-thumbnail img {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .related-asset-container .asset-thumbnail img:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   width: 50px;
   height: 50px;
   border-radius: 8px;
   object-fit: cover;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   grid-area: details;
   padding: 0;
   color: var(--rc-text);
@@ -159,11 +160,11 @@ html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page
 }
 
 /* Keep Roblox's mobile description and Read More visibility rules. */
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details :is(.item-field-container, .item-type-field-container) {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details :is(.item-field-container, .item-type-field-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin: 0 0 16px;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .field-label {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .field-label:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   width: 110px;
   max-width: 40%;
   padding-right: 12px;
@@ -171,20 +172,20 @@ html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .field-content {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .field-content:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   width: calc(100% - 110px);
   min-width: 0;
   margin-block: 0;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .description-content {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .description-content:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   max-width: 100%;
   color: var(--rc-text);
   overflow-wrap: anywhere;
 }
 
 /* Leave the native purchase handler, price, and unavailable states untouched. */
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .price-container:not(.hidden, .hide, .ng-hide, [hidden]) {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .price-container:not(.hidden, .hide, .ng-hide, [hidden]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -197,7 +198,7 @@ html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page
   background: var(--rc-inset-bg);
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .price-container :is(.price-container-text, .action-button) {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .price-container :is(.price-container-text, .action-button):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   float: none;
   width: 100%;
   min-width: 0;
@@ -205,19 +206,19 @@ html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page
   margin: 0;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .price-container .price-container-text:not(.hidden, .hide, .ng-hide, [hidden]) {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .price-container .price-container-text:not(.hidden, .hide, .ng-hide, [hidden]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 4px;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .price-container .has-price-label {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .price-container .has-price-label:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   padding-left: 0;
   margin-top: 0;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .price-container .action-button :is(button, a) {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .price-container .action-button :is(button, a):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   min-height: 44px;
   border-radius: 9px;
@@ -225,26 +226,26 @@ html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .item-social-container {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .item-social-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   grid-area: social;
   padding: 0;
   list-style: none;
   color: var(--rc-text-secondary);
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-context-menu {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-context-menu:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: absolute;
   top: 24px;
   right: 24px;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container :is(a, button):focus-visible {
+html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container :is(a, button):focus-visible:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   outline: 2px solid var(--rc-focus);
   outline-offset: 3px;
 }
 
 @media (max-width: 767px) {
-  html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container > .top-section {
+  html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container > .top-section:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto;
     grid-template-areas: "heading" "art" "details" "social";
@@ -253,23 +254,23 @@ html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page
     border-radius: 16px;
   }
 
-  html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .item-thumbnail-container {
+  html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container .item-thumbnail-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     max-width: 400px;
     justify-self: center;
   }
 
-  html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-context-menu {
+  html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-context-menu:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     top: 16px;
     right: 16px;
   }
 }
 
 @media (max-width: 380px) {
-  html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container > .top-section {
+  html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container > .top-section:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     padding: 16px !important;
   }
 
-  html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .price-container {
+  html[data-rc-ui-active]:is([data-rc-frost-page="game-pass"], [data-rc-frost-page="badge"]) #item-container #item-details .price-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     padding: 14px;
   }
 }

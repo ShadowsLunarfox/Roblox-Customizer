@@ -1,4 +1,4 @@
-(() => {
+(globalThis.RobloxCustomizerCompatibility?.runFeature || (initialize => initialize()))(() => {
   'use strict';
 
   const sendMessage = globalThis.RobloxCustomizerRuntime?.sendMessage
@@ -545,4 +545,4 @@
   addEventListener('load', queueSync, { once: true });
   document.addEventListener('DOMContentLoaded', queueSync, { once: true });
   queueSync();
-})();
+});

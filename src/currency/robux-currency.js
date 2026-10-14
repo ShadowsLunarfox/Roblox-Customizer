@@ -1,4 +1,4 @@
-(function () {
+(globalThis.RobloxCustomizerCompatibility?.runFeature || (initialize => initialize()))(function () {
   'use strict';
 
   const sendMessage = globalThis.RobloxCustomizerRuntime?.sendMessage
@@ -337,4 +337,4 @@
   setInterval(() => { if (settings.enabled) loadRates(); }, 3600000);
   if (document.body) start();
   else document.addEventListener('DOMContentLoaded', start, { once: true });
-})();
+});

@@ -1,5 +1,6 @@
+/* Preserve native styling while features are disabled for the page language. */
 /* Native configuration remains authoritative for access, billing, and saving. */
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] body #content {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] body #content:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   width: calc(100% - 48px) !important;
   max-width: 1080px !important;
@@ -8,26 +9,26 @@ html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] body #con
   color: var(--rc-text);
 }
 
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(h1, h2, h3, p, label, .text-overflow) {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(h1, h2, h3, p, label, .text-overflow):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-width: 0;
   white-space: normal;
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content h1 {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content h1:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   font-size: clamp(26px, 3vw, 34px);
   line-height: 1.25;
   margin-bottom: 20px;
   color: var(--rc-text);
 }
 
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(h2, h3) {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(h2, h3):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   color: var(--rc-text);
   line-height: 1.35;
   margin-bottom: 14px;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] [data-rc-private-config-panel] {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] [data-rc-private-config-panel]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: relative;
   isolation: isolate;
   box-sizing: border-box;
@@ -43,7 +44,7 @@ html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] [data-rc-
   backdrop-filter: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] [data-rc-private-config-panel]::before {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] [data-rc-private-config-panel]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before {
   content: "";
   display: block;
   box-sizing: border-box;
@@ -59,36 +60,36 @@ html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] [data-rc-
 }
 
 /* Include native floated artwork in the complete page backing. */
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content[data-rc-private-config-panel] {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content[data-rc-private-config-panel]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flow-root;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] :is(#content[data-rc-private-config-panel], #content [data-rc-private-config-panel]) :is(
   .section, .section-content, .section-container, .container-header, .section-header,
   [data-slot="card"], .bg-surface-100, .bg-surface-200
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background: transparent !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(.container-header, .section-header) {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(.container-header, .section-header):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background: transparent !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(.form-group, .input-group, form) {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(.form-group, .input-group, form):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   min-width: 0;
   max-width: 100%;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content .form-group {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content .form-group:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin-bottom: 16px;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(.text-label, .text-description, .text-secondary, .form-control-label, .help-block) {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(.text-label, .text-description, .text-secondary, .form-control-label, .help-block):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   color: var(--rc-text-secondary);
   overflow-wrap: anywhere;
 }
@@ -96,7 +97,7 @@ html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content 
 html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(
   input:not(:where([type="hidden"], [type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"], [type="button"], [type="submit"], [type="reset"])),
   select, textarea
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   min-width: 0;
   width: 100%;
@@ -110,31 +111,31 @@ html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content 
   font: inherit;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(input, textarea)::placeholder {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(input, textarea):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::placeholder {
   color: var(--rc-text-muted);
   opacity: 1;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(input, select, textarea):disabled {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(input, select, textarea):disabled:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   opacity: .65;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content input:is([type="checkbox"], [type="radio"]) {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content input:is([type="checkbox"], [type="radio"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   accent-color: var(--rc-accent, #335fff);
 }
 
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(.btn-toggle, [role="switch"]):not(:disabled, .disabled, [aria-disabled="true"]) {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(.btn-toggle, [role="switch"]):not(:disabled, .disabled, [aria-disabled="true"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: var(--rc-control-border) !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(.btn-toggle, [role="switch"]):is(.on, [aria-checked="true"]):not(:disabled, .disabled, [aria-disabled="true"]) {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(.btn-toggle, [role="switch"]):is(.on, [aria-checked="true"]):not(:disabled, .disabled, [aria-disabled="true"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: var(--rc-accent, #335fff) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(
   .btn-primary-md, .btn-primary-sm, .btn-control-md, .btn-control-sm,
   .btn-secondary-md, .btn-secondary-sm, .btn-alert-md, .btn-alert-sm, .foundation-web-button
-):not([role="switch"], .btn-toggle) {
+):not([role="switch"], .btn-toggle):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   min-height: 40px;
   height: auto;
@@ -149,7 +150,7 @@ html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content 
    named buttons used by the access and subscription forms. */
 html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(
   .btn-generic-edit-sm, .btn-generic-edit-md, [role="button"]:has(.icon-edit)
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
@@ -166,7 +167,7 @@ html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content 
 
 html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(
   .btn-control-md, .btn-control-sm, .btn-secondary-md, .btn-secondary-sm, .foundation-web-button.bg-action-standard
-):not(:disabled, .disabled, [aria-disabled="true"]) {
+):not(:disabled, .disabled, [aria-disabled="true"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border: 1px solid var(--rc-control-border);
   background: var(--rc-control-bg);
   color: var(--rc-text);
@@ -174,27 +175,27 @@ html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content 
 
 html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(
   .btn-control-md, .btn-control-sm, .btn-secondary-md, .btn-secondary-sm, .foundation-web-button.bg-action-standard
-):not(:disabled, .disabled, [aria-disabled="true"]):hover {
+):not(:disabled, .disabled, [aria-disabled="true"]):hover:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background: var(--rc-control-hover);
 }
 
 html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(
   .btn-primary-md, .btn-primary-sm, .foundation-web-button.bg-action-emphasis
-):not(:disabled, .disabled, [aria-disabled="true"]) {
+):not(:disabled, .disabled, [aria-disabled="true"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border-color: transparent;
   background: var(--rc-accent, #335fff);
   color: var(--rc-accent-text, #fff);
 }
 
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(.text-error, .text-danger, .alert-warning, .alert-danger, .input-validation-error) {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(.text-error, .text-danger, .alert-warning, .alert-danger, .input-validation-error):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   color: var(--rc-error);
 }
 
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content .text-success {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content .text-success:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   color: var(--rc-success);
 }
 
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(.alert, [role="alert"]) {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(.alert, [role="alert"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   padding: 12px 14px;
   border: 1px solid currentColor;
   border-radius: 10px;
@@ -202,31 +203,31 @@ html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content 
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(.has-error input, [aria-invalid="true"]) {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(.has-error input, [aria-invalid="true"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border-color: var(--rc-error);
 }
 
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content img {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content img:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   max-width: 100%;
   height: auto;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(a, button, input, select, textarea, [tabindex="0"]):focus-visible {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content :is(a, button, input, select, textarea, [tabindex="0"]):focus-visible:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   outline: 3px solid var(--rc-focus);
   outline-offset: 3px;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content [hidden]:not([hidden="until-found"]) {
+html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] #content [hidden]:not([hidden="until-found"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: none !important;
 }
 
 @media (max-width: 767px) {
-  html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] body #content {
+  html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] body #content:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     width: calc(100% - 24px) !important;
     margin-block: 16px !important;
   }
 
-  html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] [data-rc-private-config-panel] {
+  html[data-rc-ui-active][data-rc-frost-page="private-server-configure"] [data-rc-private-config-panel]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     padding: 18px;
     border-radius: 14px;
   }

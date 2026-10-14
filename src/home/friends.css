@@ -1,19 +1,20 @@
+/* Preserve native styling while features are disabled for the page language. */
 /* Arrange Roblox's own React friend tiles without replacing their behavior. */
-#HomeContainer .friend-carousel-container[data-rc-native-friends],
-#HomeContainer .friend-carousel-container[data-rc-native-friends] .react-friends-carousel-container,
-#HomeContainer .friend-carousel-container[data-rc-native-friends] .friends-carousel-container {
+#HomeContainer .friend-carousel-container[data-rc-native-friends]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+#HomeContainer .friend-carousel-container[data-rc-native-friends] .react-friends-carousel-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+#HomeContainer .friend-carousel-container[data-rc-native-friends] .friends-carousel-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   height: auto !important;
   max-height: none !important;
   overflow: visible !important;
 }
 
-#HomeContainer .friend-carousel-container [data-rc-native-friends-viewport] {
+#HomeContainer .friend-carousel-container [data-rc-native-friends-viewport]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   height: auto !important;
   max-height: none !important;
   overflow: visible !important;
 }
 
-#HomeContainer .friend-carousel-container [data-rc-native-friends-list] {
+#HomeContainer .friend-carousel-container [data-rc-native-friends-list]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid !important;
   grid-template-columns: repeat(17, minmax(0, 1fr)) !important;
   grid-template-rows: none !important;
@@ -31,8 +32,8 @@
   transform: none !important;
 }
 
-#HomeContainer .friend-carousel-container [data-rc-native-friends-list] > [data-rc-native-friend-cell],
-#HomeContainer .friend-carousel-container [data-rc-native-friends-list] .friends-carousel-tile {
+#HomeContainer .friend-carousel-container [data-rc-native-friends-list] > [data-rc-native-friend-cell]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+#HomeContainer .friend-carousel-container [data-rc-native-friends-list] .friends-carousel-tile:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   width: 100% !important;
   min-width: 0 !important;
@@ -41,29 +42,29 @@
   text-align: center;
 }
 
-#HomeContainer .friend-carousel-container [data-rc-native-friends-list] > [data-rc-native-friend-cell]:hover,
-#HomeContainer .friend-carousel-container [data-rc-native-friends-list] > [data-rc-native-friend-cell]:focus-within {
+#HomeContainer .friend-carousel-container [data-rc-native-friends-list] > [data-rc-native-friend-cell]:hover:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+#HomeContainer .friend-carousel-container [data-rc-native-friends-list] > [data-rc-native-friend-cell]:focus-within:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: relative;
   z-index: 2;
 }
 
-#HomeContainer .friend-carousel-container [data-rc-native-friends-list] > [data-rc-native-friends-hidden] {
+#HomeContainer .friend-carousel-container [data-rc-native-friends-list] > [data-rc-native-friends-hidden]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: none !important;
 }
 
-#HomeContainer .friend-carousel-container [data-rc-native-friends-list] .avatar-card {
+#HomeContainer .friend-carousel-container [data-rc-native-friends-list] .avatar-card:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin-right: auto !important;
   margin-left: auto !important;
   max-width: calc(100% - 4px) !important;
 }
 
-#HomeContainer .friend-carousel-container [data-rc-native-friends-list] .avatar-card-image {
+#HomeContainer .friend-carousel-container [data-rc-native-friends-list] .avatar-card-image:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   max-width: 100% !important;
 }
 
 /* Roblox portals these menus outside HomeContainer. Cache carousel presence
    instead of checking :has() on html whenever a portal changes. */
-html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown {
+html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   width: 100%;
   max-width: calc(100vw - 48px);
@@ -85,7 +86,7 @@ html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown {
 /* The redesigned activity card has its own opaque Foundation backing.
    Share the outer glass instead of stacking two different panel styles. */
 html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown
-  :is(.in-game-friend-card, .in-game-friend-card--iarc, .in-game-friend-card-actions, ul, li) {
+  :is(.in-game-friend-card, .in-game-friend-card--iarc, .in-game-friend-card-actions, ul, li):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-width: 0;
   margin: 0;
   border: 0;
@@ -96,23 +97,23 @@ html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown
 }
 
 html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown
-  :is(.in-game-friend-card, .in-game-friend-card--iarc) {
+  :is(.in-game-friend-card, .in-game-friend-card--iarc):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   padding: 4px !important;
   gap: 10px;
 }
 
-html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown ul {
+html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown ul:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   padding: 0;
 }
 
-html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown .friend-presence-info {
+html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown .friend-presence-info:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-width: 0;
   gap: 4px;
   color: var(--rc-text);
 }
 
 html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown
-  :is(.friend-tile-is-playing, .friend-tile-game-name, .friend-tile-non-styled-button) {
+  :is(.friend-tile-is-playing, .friend-tile-game-name, .friend-tile-non-styled-button):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   max-width: 100%;
   min-width: 0;
   color: var(--rc-text) !important;
@@ -121,12 +122,12 @@ html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown
   text-overflow: clip;
 }
 
-html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown .friend-tile-is-playing {
+html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown .friend-tile-is-playing:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   color: var(--rc-text-secondary) !important;
 }
 
 html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown
-  :where(.friend-tile-dropdown-button, .in-game-friend-card-actions > button, .in-game-friend-card-actions > a) {
+  :where(.friend-tile-dropdown-button, .in-game-friend-card-actions > button, .in-game-friend-card-actions > a):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -149,36 +150,36 @@ html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown
   text-decoration: none;
 }
 
-html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown .friend-tile-dropdown-button {
+html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown .friend-tile-dropdown-button:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   justify-content: flex-start;
   gap: 8px;
   min-height: 40px;
   text-align: left;
 }
 
-html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown .friend-tile-dropdown-button > span {
+html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown .friend-tile-dropdown-button > span:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex-shrink: 0;
 }
 
 html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown
-  .in-game-friend-card-actions > :is(button, a) > span {
+  .in-game-friend-card-actions > :is(button, a) > span:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-width: 0;
   white-space: normal !important;
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown .bg-action-standard {
+html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown .bg-action-standard:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border-color: var(--rc-control-border);
   background: var(--rc-control-bg) !important;
 }
 
 html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown
-  :where(.friend-tile-dropdown-button, .in-game-friend-card-actions > button, .in-game-friend-card-actions > a):not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible) {
+  :where(.friend-tile-dropdown-button, .in-game-friend-card-actions > button, .in-game-friend-card-actions > a):not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background: var(--rc-control-hover) !important;
 }
 
 html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown
-  :is(.bg-action-emphasis, .btn-growth-sm) {
+  :is(.bg-action-emphasis, .btn-growth-sm):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border-color: transparent;
   border-radius: 8px;
   background: var(--rc-accent, #335fff) !important;
@@ -186,12 +187,12 @@ html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown
 }
 
 html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown
-  :is(.bg-action-emphasis, .btn-growth-sm):not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible) {
+  :is(.bg-action-emphasis, .btn-growth-sm):not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background: var(--rc-accent-hover, #244de0) !important;
 }
 
 html[data-rc-ui-active][data-rc-home-friends] .friend-tile-dropdown
-  :is(a, button):focus-visible {
+  :is(a, button):focus-visible:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   outline: 2px solid var(--rc-focus);
   outline-offset: 2px;
 }

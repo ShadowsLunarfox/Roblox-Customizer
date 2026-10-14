@@ -1,4 +1,4 @@
-(() => {
+(globalThis.RobloxCustomizerCompatibility?.runFeature || (initialize => initialize()))(() => {
   'use strict';
 
   const NATIVE_HOST = '#chat-container, #dialog-container, .react-chat-root';
@@ -306,4 +306,4 @@
     if (event.target instanceof Element && event.target.matches(CHAT_INPUT)) queueSync(event.target);
   });
   queueSync();
-})();
+});

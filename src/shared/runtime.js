@@ -6,6 +6,10 @@
   let resumeTimer = null;
 
   function sendMessage(message, callback) {
+    if (globalThis.RobloxCustomizerCompatibility && !globalThis.RobloxCustomizerCompatibility.enabled()) {
+      const response = { ok: false, error: 'This feature is disabled for the current Roblox language.' };
+      return Promise.resolve(response).then(value => { callback?.(value); return value; });
+    }
     // A missing worker response must not leave a section permanently busy.
     // Large inventories can legitimately take longer than other requests.
     const duration = message.type === 'rc-profile-limiteds' ? 300_000 : 60_000;

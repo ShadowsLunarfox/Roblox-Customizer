@@ -1,4 +1,4 @@
-(() => {
+(globalThis.RobloxCustomizerCompatibility?.runFeature || (initialize => initialize()))(() => {
   'use strict';
 
   const sendMessage = globalThis.RobloxCustomizerRuntime?.sendMessage
@@ -762,4 +762,4 @@
   });
   observer.observe(document, OBSERVER_OPTIONS);
   queueSync();
-})();
+});

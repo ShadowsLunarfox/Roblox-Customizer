@@ -1,4 +1,4 @@
-(() => {
+(globalThis.RobloxCustomizerCompatibility?.runFeature || (initialize => initialize()))(() => {
   'use strict';
 
   const ROUTE = /^\/private-server\/configure(?:\/\d+)?\/?$/i;
@@ -57,4 +57,4 @@
   globalThis.RobloxCustomizerRuntime?.onResume(schedule);
   document.addEventListener('DOMContentLoaded', schedule, { once: true });
   schedule();
-})();
+});

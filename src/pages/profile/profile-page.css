@@ -1,9 +1,10 @@
+/* Preserve native styling while features are disabled for the page language. */
 /* Give the native profile enough room without changing other Roblox pages. */
-html[data-rc-frost-page="profile"] #container-main {
+html[data-rc-frost-page="profile"] #container-main:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   max-width: none !important;
 }
 
-html[data-rc-frost-page="profile"] :is(#content, #profile-container, .profile-container, [data-testid="profile-page"]) {
+html[data-rc-frost-page="profile"] :is(#content, #profile-container, .profile-container, [data-testid="profile-page"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   width: 100% !important;
   max-width: 1280px !important;
@@ -16,7 +17,7 @@ html[data-rc-frost-page="profile"] :is(#content, #profile-container, .profile-co
 html[data-rc-frost-page="profile"] [data-rc-profile-feed-layout]:is(
   #content, #container-main, main, [role="main"],
   #profile-container, .profile-container, [data-testid="profile-page"]
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   width: min(100%, var(--rc-profile-feed-content-width)) !important;
   max-width: min(1280px, var(--rc-profile-feed-content-width)) !important;
@@ -25,12 +26,12 @@ html[data-rc-frost-page="profile"] [data-rc-profile-feed-layout]:is(
 }
 
 /* The native 3D viewer and identity block keep their layout and controls. */
-html[data-rc-frost-page="profile"] [data-rc-profile-glass-shell] {
+html[data-rc-frost-page="profile"] [data-rc-profile-glass-shell]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: relative;
   isolation: isolate;
 }
 
-html[data-rc-frost-page="profile"] #rc-profile-identity-backdrop {
+html[data-rc-frost-page="profile"] #rc-profile-identity-backdrop:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: absolute;
   z-index: -1;
   pointer-events: none;
@@ -44,13 +45,13 @@ html[data-rc-frost-page="profile"] #rc-profile-identity-backdrop {
   box-shadow: inset 0 1px rgb(var(--rc-foreground-rgb, 255 255 255) / 12%), 0 14px 35px rgb(0 0 0 / 18%);
 }
 
-html[data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-banner],
-html[data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-summary],
-html[data-rc-frost-page="profile"] :is(#content, main, [role="main"]) #user-profile-header-bg:not([data-rc-profile-summary]),
-html[data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-hero],
-html[data-rc-ui-active][data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-banner],
-html[data-rc-ui-active][data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-summary],
-html[data-rc-ui-active][data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-hero] {
+html[data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-banner]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-summary]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-frost-page="profile"] :is(#content, main, [role="main"]) #user-profile-header-bg:not([data-rc-profile-summary]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-hero]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-banner]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-summary]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-hero]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 17%) !important;
   border-radius: 16px !important;
@@ -61,12 +62,12 @@ html[data-rc-ui-active][data-rc-frost-page="profile"] :is(#content, main, [role=
   box-shadow: 0 16px 36px rgb(0 0 0 / 17%), inset 0 1px rgb(var(--rc-foreground-rgb, 255 255 255) / 10%) !important;
 }
 
-html[data-rc-frost-page="profile"] [data-rc-profile-banner] {
+html[data-rc-frost-page="profile"] [data-rc-profile-banner]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   overflow: hidden;
 }
 
-html[data-rc-frost-page="profile"] [data-rc-profile-summary],
-html[data-rc-frost-page="profile"] #user-profile-header-bg:not([data-rc-profile-summary]) {
+html[data-rc-frost-page="profile"] [data-rc-profile-summary]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-frost-page="profile"] #user-profile-header-bg:not([data-rc-profile-summary]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   padding: 14px 20px !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
   -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
@@ -76,7 +77,7 @@ html[data-rc-frost-page="profile"] #user-profile-header-bg:not([data-rc-profile-
 html[data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-hero] :is(
   [data-rc-profile-banner], [data-rc-profile-summary],
   .profile-header, .profile-about, .profile-statistics
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border-color: transparent !important;
   background-color: transparent !important;
   background-image: none !important;
@@ -85,15 +86,15 @@ html[data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-p
   box-shadow: none !important;
 }
 
-html[data-rc-frost-page="profile"] [data-rc-profile-banner-surface],
-html[data-rc-ui-active][data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-banner-surface] {
+html[data-rc-frost-page="profile"] [data-rc-profile-banner-surface]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-banner-surface]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
 
-html[data-rc-frost-page="profile"] [data-rc-profile-banner] :is(button, [role="button"]) {
+html[data-rc-frost-page="profile"] [data-rc-profile-banner] :is(button, [role="button"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 20%) !important;
   border-radius: 9px !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
@@ -104,24 +105,24 @@ html[data-rc-frost-page="profile"] [data-rc-profile-banner] :is(button, [role="b
 
 html[data-rc-frost-page="profile"] [data-rc-profile-summary] :is(
   a[href*="friends"], a[href*="followers"], a[href*="following"]
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border-radius: 8px;
   background: rgb(var(--rc-foreground-rgb, 255 255 255) / 9%);
 }
 
-html[data-rc-frost-page="profile"] [data-rc-profile-grid] {
+html[data-rc-frost-page="profile"] [data-rc-profile-grid]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) !important;
   align-items: start;
   gap: 18px;
 }
 
-html[data-rc-frost-page="profile"] [data-rc-profile-grid] > * {
+html[data-rc-frost-page="profile"] [data-rc-profile-grid] > *:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   grid-column: 1 / -1 !important;
   min-width: 0;
 }
 
-html[data-rc-frost-page="profile"] [data-rc-profile-section] {
+html[data-rc-frost-page="profile"] [data-rc-profile-section]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   width: 100% !important;
   max-width: 100% !important;
@@ -132,7 +133,7 @@ html[data-rc-frost-page="profile"] [data-rc-profile-section] {
   border-radius: 12px;
 }
 
-html[data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-section] {
+html[data-rc-frost-page="profile"] :is(#content, main, [role="main"]) [data-rc-profile-section]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
   background-image: none !important;
   -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
@@ -145,7 +146,7 @@ html[data-rc-frost-page="profile"] :is(#content, main, [role="main"])
     .container-header, .content-header, .section-header,
     .filter-container, .filter-panel,
     [class*="section-header"], [class*="header-container"]
-  ):not([data-rc-profile-section]) {
+  ):not([data-rc-profile-section]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -153,7 +154,7 @@ html[data-rc-frost-page="profile"] :is(#content, main, [role="main"])
   box-shadow: none !important;
 }
 
-html[data-rc-frost-page="profile"] [data-rc-profile-section] :is(.section-content, .carousel-container, .grid-container) {
+html[data-rc-frost-page="profile"] [data-rc-profile-section] :is(.section-content, .carousel-container, .grid-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   max-width: 100% !important;
   min-width: 0;
 }
@@ -162,16 +163,16 @@ html[data-rc-ui-active][data-rc-frost-page="profile"] :is(#content, main, [role=
   [data-rc-profile-section="friends"] :is(
     .container-header, [class*="section-header"], [class*="header-container"],
     [data-rc-profile-friends-header]
-  ),
+  ):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
 html[data-rc-frost-page="profile"] :is(#content, main, [role="main"])
   [data-rc-profile-section="friends"] :is(
     .container-header, [class*="section-header"], [class*="header-container"],
     [data-rc-profile-friends-header]
-  ),
+  ):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
 html[data-rc-frost-page="profile"] :is(#content, main, [role="main"])
-  [data-rc-profile-section="friends"] [data-rc-profile-friends-header]::before,
+  [data-rc-profile-section="friends"] [data-rc-profile-friends-header]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before,
 html[data-rc-frost-page="profile"] :is(#content, main, [role="main"])
-  [data-rc-profile-section="friends"] [data-rc-profile-friends-header]::after {
+  [data-rc-profile-section="friends"] [data-rc-profile-friends-header]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after {
   background: transparent !important;
   box-shadow: none !important;
   -webkit-backdrop-filter: none !important;
@@ -179,7 +180,7 @@ html[data-rc-frost-page="profile"] :is(#content, main, [role="main"])
 }
 
 /* Keep wearable assets and favorite experience tiles on a shared card rhythm. */
-html[data-rc-frost-page="profile"] [data-rc-profile-card] {
+html[data-rc-frost-page="profile"] [data-rc-profile-card]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex !important;
   flex-direction: column !important;
   box-sizing: border-box !important;
@@ -199,7 +200,7 @@ html[data-rc-frost-page="profile"] [data-rc-profile-card] {
 html[data-rc-frost-page="profile"] [data-rc-profile-card] :is(
   [class*="name" i], [class*="title" i],
   [class*="text-overflow" i], [class*="ellipsis" i]
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: block !important;
   height: auto !important;
   max-height: none !important;
@@ -212,8 +213,8 @@ html[data-rc-frost-page="profile"] [data-rc-profile-card] :is(
 
 html[data-rc-frost-page="profile"] [data-rc-profile-card] :is(
   [class*="caption" i], [class*="card-info" i], [class*="card-text" i]
-),
-html[data-rc-frost-page="profile"] [data-rc-profile-card] > a {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-frost-page="profile"] [data-rc-profile-card] > a:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   height: auto !important;
   max-height: none !important;
   overflow: visible !important;
@@ -222,12 +223,12 @@ html[data-rc-frost-page="profile"] [data-rc-profile-card] > a {
   -webkit-line-clamp: unset !important;
 }
 
-html[data-rc-frost-page="profile"] [data-rc-profile-card] > a:only-child {
+html[data-rc-frost-page="profile"] [data-rc-profile-card] > a:only-child:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   min-height: 100% !important;
 }
 
-html[data-rc-frost-page="profile"] [data-rc-profile-card-thumb] {
+html[data-rc-frost-page="profile"] [data-rc-profile-card-thumb]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: block !important;
   flex: 0 0 146px !important;
   box-sizing: border-box !important;
@@ -237,27 +238,27 @@ html[data-rc-frost-page="profile"] [data-rc-profile-card-thumb] {
   object-position: center !important;
 }
 
-html[data-rc-frost-page="profile"] [data-rc-profile-card-thumb="asset"] {
+html[data-rc-frost-page="profile"] [data-rc-profile-card-thumb="asset"]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   object-fit: contain !important;
 }
 
-html[data-rc-frost-page="profile"] [data-rc-profile-card-thumb="game"] {
+html[data-rc-frost-page="profile"] [data-rc-profile-card-thumb="game"]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   object-fit: cover !important;
 }
 
 /* These content sections share readable cards without extra carousel padding. */
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) {
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   height: auto !important;
   min-height: 0 !important;
   max-height: none !important;
 }
 
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) .profile-carousel {
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) .profile-carousel:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   padding-inline: 0 !important;
   padding-bottom: 0 !important;
 }
 
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card] {
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   width: 176px !important;
   min-width: 0 !important;
   max-width: 100% !important;
@@ -268,23 +269,23 @@ html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [dat
 }
 
 /* Roblox calculates carousel tile widths; fit each card inside its own tile. */
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) .profile-carousel [data-rc-profile-card],
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) .game-cards [data-rc-profile-card] {
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) .profile-carousel [data-rc-profile-card]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) .game-cards [data-rc-profile-card]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   width: 100% !important;
   max-width: none !important;
 }
 
 /* Sparse shelves need not shrink into the carousel's three-column minimum.
    One store item and up to two experiences still fit without scroll controls. */
-html[data-rc-frost-page="profile"] [data-rc-profile-section="store"][data-rc-profile-card-count="1"] .profile-carousel [id="collection-carousel-item"] {
+html[data-rc-frost-page="profile"] [data-rc-profile-section="store"][data-rc-profile-card-count="1"] .profile-carousel [id="collection-carousel-item"]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   width: min(176px, 100%) !important;
 }
 
-html[data-rc-frost-page="profile"] [data-rc-profile-section="experiences"]:is([data-rc-profile-card-count="1"], [data-rc-profile-card-count="2"]) .profile-carousel [id="collection-carousel-item"] {
+html[data-rc-frost-page="profile"] [data-rc-profile-section="experiences"]:is([data-rc-profile-card-count="1"], [data-rc-profile-card-count="2"]) .profile-carousel [id="collection-carousel-item"]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   width: min(176px, calc((100% - 16px) / 2)) !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card] {
+html[data-rc-ui-active][data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(calc(var(--rc-surface-opacity, var(--rc-glass-opacity, .62)) * .6), var(--rc-surface-opacity-floor, 0))) !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -292,7 +293,7 @@ html[data-rc-ui-active][data-rc-frost-page="profile"] :is([data-rc-profile-secti
   box-shadow: 0 3px 12px rgb(0 0 0 / 10%) !important;
 }
 
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card] :is(.item-card-container, .game-card-container) {
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card] :is(.item-card-container, .game-card-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex-direction: column;
   width: 100% !important;
@@ -301,7 +302,7 @@ html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [dat
   padding: 0 !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card] :is(.item-card-container, .game-card-container, .item-card-caption, .game-card-name, .game-card-info) {
+html[data-rc-ui-active][data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card] :is(.item-card-container, .game-card-container, .item-card-caption, .game-card-name, .game-card-info):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border: 0 !important;
   background-color: transparent !important;
   background-image: none !important;
@@ -311,12 +312,12 @@ html[data-rc-ui-active][data-rc-frost-page="profile"] :is([data-rc-profile-secti
 }
 
 /* Collection thumbnail shells share the card's glass instead of opaque gray. */
-html[data-rc-ui-active][data-rc-frost-page="profile"] [data-rc-profile-section="collections"] [data-rc-profile-card] :is([data-rc-profile-card-media], .thumbnail-2d-container) {
+html[data-rc-ui-active][data-rc-frost-page="profile"] [data-rc-profile-section="collections"] [data-rc-profile-card] :is([data-rc-profile-card-media], .thumbnail-2d-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: transparent !important;
   background-image: none !important;
 }
 
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card-media] {
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card-media]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: block !important;
   float: none !important;
   flex-shrink: 0;
@@ -331,8 +332,8 @@ html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [dat
   overflow: hidden !important;
 }
 
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card-media] .thumbnail-2d-container,
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card-thumb] {
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card-media] .thumbnail-2d-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card-thumb]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: block !important;
   float: none !important;
   flex: 0 0 auto !important;
@@ -344,7 +345,7 @@ html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [dat
   aspect-ratio: 1;
 }
 
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card] .item-card-caption {
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card] .item-card-caption:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -352,7 +353,7 @@ html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [dat
   padding-top: 10px !important;
 }
 
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card] :is(.item-card-name, .game-card-name) {
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card] :is(.item-card-name, .game-card-name):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-height: 2.8em;
   margin: 0 !important;
   padding: 0 !important;
@@ -362,11 +363,11 @@ html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [dat
   color: inherit !important;
 }
 
-html[data-rc-frost-page="profile"] [data-rc-profile-section="store"][data-rc-profile-card-count="1"] [data-rc-profile-card] .item-card-name {
+html[data-rc-frost-page="profile"] [data-rc-profile-section="store"][data-rc-profile-card-count="1"] [data-rc-profile-card] .item-card-name:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-height: 0;
 }
 
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"]) [data-rc-profile-card] .item-card-price {
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"]) [data-rc-profile-card] .item-card-price:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex-shrink: 0;
   height: auto !important;
   min-height: 20px;
@@ -377,13 +378,13 @@ html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [dat
   line-height: 1.4;
 }
 
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"]) [data-rc-profile-card]:not(.hide-price) .item-card-price:not(.hidden, [hidden], .ng-hide) {
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"]) [data-rc-profile-card]:not(.hide-price) .item-card-price:not(.hidden, [hidden], .ng-hide):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex !important;
   align-items: center;
   gap: 4px;
 }
 
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"]) [data-rc-profile-card] .item-card-price :is(.text-label, .text-robux-tile) {
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"]) [data-rc-profile-card] .item-card-price :is(.text-label, .text-robux-tile):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex: 1;
   min-width: 0;
   padding: 0 !important;
@@ -392,12 +393,12 @@ html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [dat
   overflow-wrap: anywhere;
 }
 
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"]) [data-rc-profile-card] .item-card-price .icon-robux-16x16 {
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"]) [data-rc-profile-card] .item-card-price .icon-robux-16x16:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex: 0 0 16px;
   margin: 0 !important;
 }
 
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) .game-cards:not(.hidden, [hidden], .ng-hide) {
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) .game-cards:not(.hidden, [hidden], .ng-hide):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: relative;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 176px), 1fr));
@@ -405,11 +406,11 @@ html[data-rc-frost-page="profile"] :is([data-rc-profile-section="experiences"], 
   overflow: visible;
 }
 
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) .game-cards > [data-rc-profile-card] {
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) .game-cards > [data-rc-profile-card]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin: 0 !important;
 }
 
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) .game-cards .experiences-sentinel {
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) .game-cards .experiences-sentinel:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -417,63 +418,63 @@ html[data-rc-frost-page="profile"] :is([data-rc-profile-section="experiences"], 
   margin: 0;
 }
 
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card] .game-card-link {
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card] .game-card-link:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex !important;
   flex-direction: column;
   height: 100% !important;
 }
 
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card] .game-card-info {
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card] .game-card-info:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   height: auto !important;
   min-height: 20px;
   margin-top: auto;
   padding-top: 6px;
 }
 
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card] [data-testid="game-tile-stats"] {
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card] [data-testid="game-tile-stats"]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   align-items: center;
   gap: 4px;
   font-size: 12px;
 }
 
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) :is([data-rc-profile-card], [data-rc-profile-card-media], [data-rc-profile-card-thumb]):is(.hidden, [hidden], .ng-hide) {
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) :is([data-rc-profile-card], [data-rc-profile-card-media], [data-rc-profile-card-thumb]):is(.hidden, [hidden], .ng-hide):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-testid="carousel-scroll-arrow"] {
+html[data-rc-ui-active][data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-testid="carousel-scroll-arrow"]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border: 1px solid var(--color-stroke-default, rgb(128 128 128 / 30%));
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
 }
 
-html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) :is(a, button, [role="button"]):focus-visible {
+html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) :is(a, button, [role="button"]):focus-visible:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   outline: 2px solid var(--color-selection-start, var(--rc-focus, #7fa6ff));
   outline-offset: 3px;
 }
 
 @media (max-width: 480px) {
-  html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) {
+  html[data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"], [data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     padding: 12px !important;
   }
 
-  html[data-rc-frost-page="profile"] :is([data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) .game-cards:not(.hidden, [hidden], .ng-hide) {
+  html[data-rc-frost-page="profile"] :is([data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) .game-cards:not(.hidden, [hidden], .ng-hide):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
   }
 
-  html[data-rc-frost-page="profile"] :is([data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card] [data-testid="game-tile-stats"] {
+  html[data-rc-frost-page="profile"] :is([data-rc-profile-section="experiences"], [data-rc-profile-section="favorites"]) [data-rc-profile-card] [data-testid="game-tile-stats"]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     display: grid;
     grid-template-columns: 16px minmax(0, 1fr);
     gap: 2px 4px;
   }
 }
 
-html[data-rc-frost-page="profile"] [data-rc-profile-native-tabs],
-html[data-rc-frost-page="profile"] .profile-tabs:has(#tab-about):has(#tab-creations) {
+html[data-rc-frost-page="profile"] [data-rc-profile-native-tabs]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-frost-page="profile"] .profile-tabs:has(#tab-about):has(#tab-creations):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: none !important;
 }
 
-html[data-rc-frost-page="profile"] [data-rc-profile-inline-about-box] {
+html[data-rc-frost-page="profile"] [data-rc-profile-inline-about-box]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   height: auto !important;
   max-height: none !important;
@@ -482,11 +483,11 @@ html[data-rc-frost-page="profile"] [data-rc-profile-inline-about-box] {
 
 /* Hide only the old preview. More/Edit controls and React's dialog host must
    remain available when a legacy description needs the API fallback. */
-html[data-rc-frost-page="profile"] [data-rc-profile-native-preview] {
+html[data-rc-frost-page="profile"] [data-rc-profile-native-preview]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: none !important;
 }
 
-html[data-rc-frost-page="profile"] #rc-profile-inline-about {
+html[data-rc-frost-page="profile"] #rc-profile-inline-about:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid !important;
   gap: 10px;
   box-sizing: border-box;
@@ -500,9 +501,9 @@ html[data-rc-frost-page="profile"] #rc-profile-inline-about {
   overflow-wrap: anywhere;
 }
 
-html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-bio,
-html[data-rc-frost-page="profile"] [data-rc-profile-native-description],
-html[data-rc-frost-page="profile"] :is([role="dialog"], .modal) .description-content {
+html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-bio:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-frost-page="profile"] [data-rc-profile-native-description]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-frost-page="profile"] :is([role="dialog"], .modal) .description-content:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: block !important;
   box-sizing: border-box;
   min-width: 0;
@@ -521,20 +522,20 @@ html[data-rc-frost-page="profile"] :is([role="dialog"], .modal) .description-con
   word-break: normal;
 }
 
-html[data-rc-frost-page="profile"] [data-rc-profile-native-description][data-rc-profile-native-preview] {
+html[data-rc-frost-page="profile"] [data-rc-profile-native-description][data-rc-profile-native-preview]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: none !important;
 }
 
-html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-joined {
+html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-joined:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   color: var(--rc-text-secondary);
   font-size: 12px;
 }
 
-html[data-rc-frost-page="profile"] [data-rc-profile-native-description] + #rc-profile-inline-about {
+html[data-rc-frost-page="profile"] [data-rc-profile-native-description] + #rc-profile-inline-about:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin-top: 10px;
 }
 
-html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-names {
+html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-names:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid;
   gap: 2px;
   min-width: 0;
@@ -542,18 +543,18 @@ html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-n
   font-size: 12px;
 }
 
-html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-names strong {
+html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-names strong:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   color: var(--rc-text);
   font-weight: 500;
 }
 
-html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-socials {
+html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-socials:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-socials a {
+html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-socials a:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: inline-flex;
   align-items: center;
   min-height: 30px;
@@ -566,23 +567,23 @@ html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-s
   text-decoration: none;
 }
 
-html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-socials a:hover {
+html[data-rc-frost-page="profile"] #rc-profile-inline-about .rc-profile-inline-socials a:hover:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background: rgb(var(--rc-foreground-rgb, 255 255 255) / 16%);
 }
 
-html[data-rc-frost-page="profile"] [data-rc-profile-native-bio-container],
+html[data-rc-frost-page="profile"] [data-rc-profile-native-bio-container]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
 html[data-rc-frost-page="profile"] :is(
   [data-rc-profile-summary], [data-rc-profile-hero]
-):has(#rc-profile-inline-about),
+):has(#rc-profile-inline-about):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
 html[data-rc-frost-page="profile"] :is(
   [data-rc-profile-summary], [data-rc-profile-hero]
-):has([data-rc-profile-native-description]) {
+):has([data-rc-profile-native-description]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   height: auto !important;
   max-height: none !important;
   overflow: visible !important;
 }
 
-#rc-profile-enhancements {
+#rc-profile-enhancements:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   grid-column: 1 / -1;
@@ -594,7 +595,7 @@ html[data-rc-frost-page="profile"] :is(
   margin: 18px auto;
 }
 
-#rc-profile-details {
+#rc-profile-details:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   grid-column: 1 / -1;
   width: 100%;
@@ -608,7 +609,7 @@ html[data-rc-frost-page="profile"] :is(
   color: var(--rc-text, #f5f6f7);
 }
 
-#rc-profile-details .rc-profile-details-header {
+#rc-profile-details .rc-profile-details-header:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -616,15 +617,15 @@ html[data-rc-frost-page="profile"] :is(
   margin-bottom: 14px;
 }
 
-#rc-profile-details h2 {
+#rc-profile-details h2:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin: 0;
   font-size: 18px;
   line-height: 1.3;
 }
 
-#rc-profile-details .rc-profile-copy-id,
-#rc-profile-details .rc-profile-links a,
-#rc-profile-details .rc-profile-jumps button {
+#rc-profile-details .rc-profile-copy-id:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+#rc-profile-details .rc-profile-links a:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+#rc-profile-details .rc-profile-jumps button:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -640,17 +641,17 @@ html[data-rc-frost-page="profile"] :is(
   cursor: pointer;
 }
 
-#rc-profile-details :is(.rc-profile-copy-id, .rc-profile-links a, .rc-profile-jumps button):hover {
+#rc-profile-details :is(.rc-profile-copy-id, .rc-profile-links a, .rc-profile-jumps button):hover:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background: rgb(var(--rc-foreground-rgb, 255 255 255) / 16%);
 }
 
-#rc-profile-details .rc-profile-facts {
+#rc-profile-details .rc-profile-facts:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
   gap: 10px;
 }
 
-#rc-profile-details .rc-profile-fact {
+#rc-profile-details .rc-profile-fact:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -660,25 +661,25 @@ html[data-rc-frost-page="profile"] :is(
   background: rgb(var(--rc-foreground-rgb, 255 255 255) / 7%);
 }
 
-#rc-profile-details .rc-profile-fact span {
+#rc-profile-details .rc-profile-fact span:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   color: var(--rc-text-secondary, #b9bbc3);
   font-size: 12px;
 }
 
-#rc-profile-details .rc-profile-fact strong {
+#rc-profile-details .rc-profile-fact strong:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   overflow-wrap: anywhere;
   font-size: 14px;
   font-weight: 600;
 }
 
-#rc-profile-details :is(.rc-profile-jumps, .rc-profile-links) {
+#rc-profile-details :is(.rc-profile-jumps, .rc-profile-links):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 14px;
 }
 
-#rc-profile-limiteds {
+#rc-profile-limiteds:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   grid-column: 1 / -1;
   width: 100%;
@@ -692,44 +693,44 @@ html[data-rc-frost-page="profile"] :is(
   color: var(--rc-text, #f5f6f7);
 }
 
-#rc-profile-limiteds .rc-limiteds-header {
+#rc-profile-limiteds .rc-limiteds-header:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
 }
 
-#rc-profile-limiteds h2 {
+#rc-profile-limiteds h2:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin: 0;
   font-size: 18px;
   line-height: 1.3;
 }
 
-#rc-profile-limiteds .rc-limiteds-summary {
+#rc-profile-limiteds .rc-limiteds-summary:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin: 5px 0 0;
   font-size: 14px;
   font-weight: 600;
 }
 
-#rc-profile-limiteds .rc-limiteds-actions {
+#rc-profile-limiteds .rc-limiteds-actions:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 8px;
 }
 
-#rc-profile-limiteds .rc-limiteds-status,
-#rc-profile-limiteds .rc-limiteds-note {
+#rc-profile-limiteds .rc-limiteds-status:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+#rc-profile-limiteds .rc-limiteds-note:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin: 10px 0 0;
   color: var(--rc-text-secondary, #b9bbc3);
   font-size: 12px;
 }
 
-#rc-profile-limiteds .rc-limiteds-status:empty {
+#rc-profile-limiteds .rc-limiteds-status:empty:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: none;
 }
 
-#rc-profile-limiteds :is(.rc-limiteds-refresh, .rc-limiteds-more, .rc-limiteds-rolimons) {
+#rc-profile-limiteds :is(.rc-limiteds-refresh, .rc-limiteds-more, .rc-limiteds-rolimons):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -745,32 +746,32 @@ html[data-rc-frost-page="profile"] :is(
   cursor: pointer;
 }
 
-#rc-profile-limiteds :is(.rc-limiteds-refresh, .rc-limiteds-more, .rc-limiteds-rolimons):hover:not(:disabled) {
+#rc-profile-limiteds :is(.rc-limiteds-refresh, .rc-limiteds-more, .rc-limiteds-rolimons):hover:not(:disabled):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background: rgb(var(--rc-foreground-rgb, 255 255 255) / 16%);
 }
 
-#rc-profile-limiteds .rc-limiteds-refresh:disabled {
+#rc-profile-limiteds .rc-limiteds-refresh:disabled:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   opacity: .55;
   cursor: wait;
 }
 
-#rc-profile-limiteds .rc-limiteds-more {
+#rc-profile-limiteds .rc-limiteds-more:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: block;
   margin: 14px auto 0;
 }
 
-#rc-profile-limiteds .rc-limiteds-more[hidden] {
+#rc-profile-limiteds .rc-limiteds-more[hidden]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: none !important;
 }
 
-#rc-profile-limiteds .rc-limiteds-grid {
+#rc-profile-limiteds .rc-limiteds-grid:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 10px;
   margin-top: 14px;
 }
 
-#rc-profile-limiteds .rc-limited-item {
+#rc-profile-limiteds .rc-limited-item:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -785,12 +786,12 @@ html[data-rc-frost-page="profile"] :is(
   text-decoration: none;
 }
 
-#rc-profile-limiteds .rc-limited-item:hover {
+#rc-profile-limiteds .rc-limited-item:hover:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background: rgb(var(--rc-foreground-rgb, 255 255 255) / 15%);
 }
 
-#rc-profile-limiteds .rc-limited-item img,
-#rc-profile-limiteds .rc-limited-item-placeholder {
+#rc-profile-limiteds .rc-limited-item img:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+#rc-profile-limiteds .rc-limited-item-placeholder:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex: 0 0 64px;
   width: 64px;
   height: 64px;
@@ -799,7 +800,7 @@ html[data-rc-frost-page="profile"] :is(
   object-fit: cover;
 }
 
-#rc-profile-limiteds .rc-limited-item-text {
+#rc-profile-limiteds .rc-limited-item-text:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -807,7 +808,7 @@ html[data-rc-frost-page="profile"] :is(
   font-size: 12px;
 }
 
-#rc-profile-limiteds .rc-limited-item-text strong {
+#rc-profile-limiteds .rc-limited-item-text strong:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   overflow: hidden;
   font-size: 13px;
   font-weight: 600;
@@ -815,16 +816,16 @@ html[data-rc-frost-page="profile"] :is(
   white-space: nowrap;
 }
 
-#rc-profile-limiteds .rc-limited-item-text span {
+#rc-profile-limiteds .rc-limited-item-text span:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   color: var(--rc-text-secondary, #d2d4db);
 }
 
 @media (max-width: 1050px) {
-  html[data-rc-frost-page="profile"] [data-rc-profile-grid] {
+  html[data-rc-frost-page="profile"] [data-rc-profile-grid]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  html[data-rc-frost-page="profile"] [data-rc-profile-grid] > * {
+  html[data-rc-frost-page="profile"] [data-rc-profile-grid] > *:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     grid-column: 1 !important;
   }
 }

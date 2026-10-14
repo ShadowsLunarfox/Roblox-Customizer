@@ -5,7 +5,7 @@ const vm = require('node:vm');
 const { test } = require('node:test');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'src/pages/games/game-page.js'), 'utf8');
-const exposed = source.replace(/  syncPrivateServers\(\);\s*  schedule\(\);\s*\}\)\(\);\s*$/, `
+const exposed = source.replace(/  syncPrivateServers\(\);\s*  schedule\(\);\s*\}\);\s*$/, `
   globalThis.servers = { filter: publicServerFilter, publicServerPlayerCount,
     filteredPublicServerCards, publicServerCards, publicServerBrowser,
     syncPublicServerFilters, navigatePublicServerPage, sortNativePublicServers, searchPublicServers,
@@ -15,7 +15,7 @@ const exposed = source.replace(/  syncPrivateServers\(\);\s*  schedule\(\);\s*\}
       syncPublicServerStatuses = () => syncPublicServerFilters(page, container, publicServerCards(container));
     }
   };
-})();`);
+});`);
 assert.notEqual(exposed, source, 'Exercise the actual content script');
 
 // Structural DOM and native loader events; no Roblox requests or layout are mocked.

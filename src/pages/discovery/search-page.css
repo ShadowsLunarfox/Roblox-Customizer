@@ -1,7 +1,8 @@
+/* Preserve native styling while features are disabled for the page language. */
 /* Native search components keep their grid, pagination, hover previews and actions.
    Route scoping avoids document-wide relational selectors and localized labels. */
 html[data-rc-ui-active]:is([data-rc-frost-page="game-search"], [data-rc-frost-page="user-search"])
-  :is(#game-search-web-app, #react-player-search-web-app) {
+  :is(#game-search-web-app, #react-player-search-web-app):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   --rc-search-border: rgb(var(--rc-foreground-rgb, 255 255 255) / 16%);
   min-width: 0;
   color: var(--rc-text);
@@ -10,8 +11,8 @@ html[data-rc-ui-active]:is([data-rc-frost-page="game-search"], [data-rc-frost-pa
 }
 
 /* The first React child groups the player-search heading and text input. */
-html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .header-section,
-html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app > div > div:first-child {
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .header-section:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app > div > div:first-child:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   min-width: 0;
   padding: 20px;
@@ -22,10 +23,10 @@ html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-w
   backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur)) saturate(1.2));
 }
 
-html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .header-section { margin-bottom: 20px; }
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .header-section:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin-bottom: 20px; }
 
 html[data-rc-ui-active]:is([data-rc-frost-page="game-search"], [data-rc-frost-page="user-search"])
-  :is(#game-search-web-app, #react-player-search-web-app) h1 {
+  :is(#game-search-web-app, #react-player-search-web-app) h1:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin: 0;
   padding: 0;
   color: var(--rc-text);
@@ -34,7 +35,7 @@ html[data-rc-ui-active]:is([data-rc-frost-page="game-search"], [data-rc-frost-pa
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .header-section p {
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .header-section p:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin: 10px 0 0;
   color: var(--rc-text-secondary);
   font-size: 14px;
@@ -43,8 +44,8 @@ html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .
 
 /* One glass surface per result, including the current wide game tiles. */
 html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
-  .game-card-container:not(.invisible, [data-testid="sentinel-tile"]),
-html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app .player-search-card {
+  .game-card-container:not(.invisible, [data-testid="sentinel-tile"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app .player-search-card:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   min-width: 0;
   border: 1px solid var(--rc-search-border) !important;
@@ -55,22 +56,22 @@ html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-w
 }
 
 html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
-  :is(.game-tile, .game-grid, .game-search-feed-container, .info-container, .info-metadata-container, .game-card-info) {
+  :is(.game-tile, .game-grid, .game-search-feed-container, .info-container, .info-metadata-container, .game-card-info):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: transparent !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
-  :is(.game-card-name, .game-card-link) { color: var(--rc-text) !important; }
+  :is(.game-card-name, .game-card-link):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { color: var(--rc-text) !important; }
 
 html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
-  :is(.game-card-info, .info-label) { color: var(--rc-text-secondary) !important; }
+  :is(.game-card-info, .info-label):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { color: var(--rc-text-secondary) !important; }
 
 /* Classic square tiles need a flexible thumbnail inside their padded card. */
 html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
-  .game-tile:not(.hover-game-tile) .game-card-container { height: 100%; padding: 8px; }
+  .game-tile:not(.hover-game-tile) .game-card-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { height: 100%; padding: 8px; }
 
 html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
-  .game-tile:not(.hover-game-tile) :is(.game-card-thumb-container, .game-card-thumb) {
+  .game-tile:not(.hover-game-tile) :is(.game-card-thumb-container, .game-card-thumb):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   width: 100% !important;
   height: auto !important;
   aspect-ratio: 1;
@@ -79,10 +80,10 @@ html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
 }
 
 html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
-  .game-tile:not(.hover-game-tile) .game-card-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .game-tile:not(.hover-game-tile) .game-card-thumb img:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { width: 100%; height: 100%; object-fit: cover; }
 
 html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
-  .game-tile:not(.hover-game-tile) .game-card-name:not(.shimmer) {
+  .game-tile:not(.hover-game-tile) .game-card-name:not(.shimmer):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -97,14 +98,14 @@ html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
 }
 
 html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app
-  :is(.player-search-card-name, .content-emphasis) { color: var(--rc-text) !important; }
+  :is(.player-search-card-name, .content-emphasis):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { color: var(--rc-text) !important; }
 
 html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app
-  :is(.player-search-card-caption > p, .content-muted) { color: var(--rc-text-secondary) !important; }
+  :is(.player-search-card-caption > p, .content-muted):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { color: var(--rc-text-secondary) !important; }
 
-html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app a.text-link { color: var(--rc-link) !important; }
+html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app a.text-link:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { color: var(--rc-link) !important; }
 
-html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app .foundation-web-input {
+html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app .foundation-web-input:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-width: 0;
   border: 1px solid var(--rc-control-border);
   border-radius: 10px;
@@ -112,7 +113,7 @@ html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-w
   color: var(--rc-text);
 }
 
-html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app .foundation-web-input input {
+html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app .foundation-web-input input:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   min-width: 0;
   min-height: 44px;
@@ -121,42 +122,42 @@ html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-w
   font-size: 16px;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app input::placeholder {
+html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app input:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::placeholder {
   color: var(--rc-text-muted);
   opacity: 1;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .load-more-btn-container button,
-html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app .foundation-web-button {
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .load-more-btn-container button:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app .foundation-web-button:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   max-width: 100%;
   border: 1px solid var(--rc-control-border);
   border-radius: 10px;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .load-more-btn-container button,
-html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app .foundation-web-button.bg-action-standard {
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .load-more-btn-container button:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app .foundation-web-button.bg-action-standard:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   color: var(--rc-text) !important;
   background: var(--rc-control-bg) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app
-  .foundation-web-button:is(.bg-action-emphasis, .bg-action-soft-emphasis):not(:disabled, [aria-disabled="true"]) {
+  .foundation-web-button:is(.bg-action-emphasis, .bg-action-soft-emphasis):not(:disabled, [aria-disabled="true"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border-color: transparent;
   color: var(--rc-accent-text, #fff) !important;
   background: var(--rc-accent, #335fff) !important;
 }
 
 html[data-rc-ui-active]:is([data-rc-frost-page="game-search"], [data-rc-frost-page="user-search"])
-  :is(#game-search-web-app, #react-player-search-web-app) :is(a, button, input, [tabindex="0"]):focus-visible {
+  :is(#game-search-web-app, #react-player-search-web-app) :is(a, button, input, [tabindex="0"]):focus-visible:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   outline: 2px solid var(--rc-focus) !important;
   outline-offset: 2px;
 }
 
 /* Empty/error messages have their own backing, without changing loading sentinels. */
 html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
-  :is(.games-search-search-text-content, .discovery-error-container, [data-testid="game-search-no-results"]),
+  :is(.games-search-search-text-content, .discovery-error-container, [data-testid="game-search-no-results"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
 html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app
-  .bg-surface-100.stroke-standard {
+  .bg-surface-100.stroke-standard:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   padding: 16px;
   border: 1px solid var(--rc-search-border);
   border-radius: 14px;
@@ -167,8 +168,8 @@ html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-w
 }
 
 @media (max-width: 600px) {
-  html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .header-section,
-  html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app > div > div:first-child {
+  html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .header-section:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+  html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app > div > div:first-child:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     padding: 16px;
   }
 }

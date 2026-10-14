@@ -1,4 +1,4 @@
-(() => {
+(globalThis.RobloxCustomizerCompatibility?.runFeature || (initialize => initialize()))(() => {
   'use strict';
 
   const HOME_CAROUSEL = 'WebHomeFriendsCarousel';
@@ -344,4 +344,4 @@
   document.addEventListener('load', event => {
     if (event.target?.tagName === 'SCRIPT') connect();
   }, true);
-})();
+});

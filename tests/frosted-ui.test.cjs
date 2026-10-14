@@ -5,9 +5,9 @@ const vm = require('node:vm');
 const { test } = require('node:test');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'src/shared/frosted-ui.js'), 'utf8');
-const exposed = source.replace(/  queueSync\(\);\s*\}\)\(\);\s*$/, `
+const exposed = source.replace(/  queueSync\(\);\s*\}\);\s*$/, `
   globalThis.frost = { panelFor, panelForHeader, syncPanels, queueSync, markSurface, introNotice, syncPanelSurfaces };
-})();`);
+});`);
 assert.notEqual(exposed, source, 'Load the actual chat discovery code');
 
 class Element {

@@ -1,4 +1,5 @@
-.rc-robux-equivalent {
+/* Preserve native styling while features are disabled for the page language. */
+.rc-robux-equivalent:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: inline-block;
   margin-inline-start: 5px;
   color: inherit;
@@ -12,8 +13,8 @@
   vertical-align: baseline;
   pointer-events: none;
 }
-[data-rc-currency-stack] { flex-wrap: wrap; }
-[data-rc-currency-stack] .rc-robux-equivalent {
+[data-rc-currency-stack]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { flex-wrap: wrap; }
+[data-rc-currency-stack] .rc-robux-equivalent:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: block;
   flex-basis: 100%;
   margin-inline-start: 0;
@@ -21,7 +22,7 @@
   font-size: 11px;
   clear: both;
 }
-[data-rc-currency-balance] {
+[data-rc-currency-balance]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: inline-flex !important;
   align-items: center;
   flex-wrap: nowrap;
@@ -29,7 +30,7 @@
   min-width: max-content;
   white-space: nowrap;
 }
-[data-rc-currency-balance] > .rc-robux-equivalent {
+[data-rc-currency-balance] > .rc-robux-equivalent:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: inline-block;
   flex: 0 0 auto;
   margin: 0 5px;
@@ -40,26 +41,26 @@
   overflow-wrap: normal;
 }
 /* The right-aligned controls grow towards the left as the balance gains its estimate. */
-#header .rbx-navbar-icon-group:has([data-rc-currency-balance]),
-#header .rbx-navbar-right-nav:has([data-rc-currency-balance]) {
+#header .rbx-navbar-icon-group:has([data-rc-currency-balance]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+#header .rbx-navbar-right-nav:has([data-rc-currency-balance]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   align-items: center;
   flex-wrap: nowrap;
   width: max-content;
   flex: 0 0 auto;
 }
-#header :is(.rbx-navbar-icon-group, .rbx-navbar-right-nav):has([data-rc-currency-balance]) > li {
+#header :is(.rbx-navbar-icon-group, .rbx-navbar-right-nav):has([data-rc-currency-balance]) > li:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   float: none;
   flex: 0 0 auto;
 }
 /* Native float spacing adds a downward offset once the controls use flex alignment. */
-#header :is(.rbx-navbar-icon-group, .rbx-navbar-right-nav):has([data-rc-currency-balance]) .age-bracket-label {
+#header :is(.rbx-navbar-icon-group, .rbx-navbar-right-nav):has([data-rc-currency-balance]) .age-bracket-label:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   padding-top: 0;
 }
 @media (max-width: 543px) {
-  [data-rc-currency-balance] > .rc-robux-equivalent { margin-inline: 3px; font-size: 10px; }
+  [data-rc-currency-balance] > .rc-robux-equivalent:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin-inline: 3px; font-size: 10px; }
 }
-.rc-settings-currency {
+.rc-settings-currency:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
   align-items: center;
@@ -69,17 +70,17 @@
   margin: 18px 0;
   padding: 16px 0;
 }
-.rc-settings-currency h3 {
+.rc-settings-currency h3:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin: 0;
   font-size: 16px;
 }
-.rc-settings-currency h3,
-.rc-settings-currency .rc-settings-toggle,
-.rc-settings-currency p,
-.rc-settings-currency output { grid-column: 1 / -1; }
-.rc-settings-currency p { margin: 0; color: var(--rc-text-secondary, #bfc1c9); font-size: 12px; line-height: 1.5; }
-.rc-settings-currency output { padding: 10px; border-radius: 8px; background: rgb(var(--rc-foreground-rgb, 255 255 255) / 6%); font-size: 14px; overflow-wrap: anywhere; }
-#rc-settings-overlay .rc-settings-currency input[type="search"] {
+.rc-settings-currency h3:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+.rc-settings-currency .rc-settings-toggle:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+.rc-settings-currency p:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+.rc-settings-currency output:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { grid-column: 1 / -1; }
+.rc-settings-currency p:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin: 0; color: var(--rc-text-secondary, #bfc1c9); font-size: 12px; line-height: 1.5; }
+.rc-settings-currency output:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { padding: 10px; border-radius: 8px; background: rgb(var(--rc-foreground-rgb, 255 255 255) / 6%); font-size: 14px; overflow-wrap: anywhere; }
+#rc-settings-overlay .rc-settings-currency input[type="search"]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   width: 100%;
   min-width: 0;
   padding: 8px 10px;
@@ -89,7 +90,7 @@
   color: var(--rc-text, #fff);
   font: inherit;
 }
-.rc-settings-currency [data-currency-refresh] { grid-column: 1 / -1; justify-self: start; }
+.rc-settings-currency [data-currency-refresh]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { grid-column: 1 / -1; justify-self: start; }
 @media (max-width: 400px) {
-  .rc-settings-currency { grid-template-columns: minmax(0, 1fr); }
+  .rc-settings-currency:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { grid-template-columns: minmax(0, 1fr); }
 }

@@ -908,6 +908,12 @@ async function getXImage(value) {
   return `data:${mime};base64,${btoa(binary)}`;
 }
 
+chrome.action?.onClicked.addListener(tab => {
+  // Messaging our content script needs no access to the tab's URL or new permissions.
+  if (!tab?.id) return;
+  void chrome.tabs.sendMessage(tab.id, { type: 'rc-open-settings' }, { frameId: 0 }).catch(() => {});
+});
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type !== BADGE_QUERY && message?.type !== PRIVATE_SERVER_QUERY
     && message?.type !== PUBLIC_SERVER_STATUS_QUERY

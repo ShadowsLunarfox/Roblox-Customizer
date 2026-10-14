@@ -6,7 +6,7 @@ const { test } = require('node:test');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'src/pages/games/game-page.js'), 'utf8');
 const labels = fs.readFileSync(path.join(__dirname, '..', 'src/shared/native-labels.js'), 'utf8');
-const exposed = source.replace(/  syncPrivateServers\(\);\s*  schedule\(\);\s*\}\)\(\);\s*$/, `
+const exposed = source.replace(/  syncPrivateServers\(\);\s*  schedule\(\);\s*\}\);\s*$/, `
   globalThis.gameLoading = { initialize, waitForServerContent, syncServerPaneLoading,
     bind(state) {
       currentPage = () => state;
@@ -17,7 +17,7 @@ const exposed = source.replace(/  syncPrivateServers\(\);\s*  schedule\(\);\s*\}
       schedule = () => {};
     }
   };
-})();`);
+});`);
 assert.notEqual(exposed, source, 'Exercise the actual content script');
 
 function environment(readyState = 'interactive') {

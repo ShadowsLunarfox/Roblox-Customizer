@@ -1,7 +1,8 @@
+/* Preserve native styling while features are disabled for the page language. */
 /* Native account pages share the customizer's wallpaper and glass preferences.
    Keep selectors inside their route and content area so chat and dialogs retain
    Roblox's own behavior. Angular's hidden and responsive variants stay native. */
-html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content {
+html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   --rc-account-border: var(--color-stroke-default, rgb(128 128 128 / 30%));
   --rc-account-hover: var(--color-state-hover, rgb(128 128 128 / 14%));
   --rc-account-selected: var(--color-state-press, rgb(128 128 128 / 22%));
@@ -17,7 +18,7 @@ html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="
   #inventory-container, #item-recommendations-container, .assets-explorer-main-content, .current-items,
   #trade-system, #trades-container, #trades-web-app, .trade-container,
   .page-content, .tab-content, .rbx-tab-content, .rbx-tabs-horizontal, .horizontal-tabs
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-width: 0;
   background-color: transparent !important;
   background-image: none !important;
@@ -31,7 +32,7 @@ html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="
   .rbx-tabs-horizontal > .nav-tabs, .horizontal-tabs > .nav-tabs,
   .messages-toolbar, .message-toolbar, .messages-action-bar, .inbox-buttons,
   .trade-list-header, .trade-filter
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   gap: 12px;
   height: auto !important;
@@ -46,38 +47,38 @@ html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="
   backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) {
+html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   padding: 0 !important;
   border: 0 !important;
   margin-bottom: 0 !important;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.container-header, .content-header, .section-header) :is(h1, h2, h3) {
+html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.container-header, .content-header, .section-header) :is(h1, h2, h3):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin: 0 !important;
   line-height: 1.3;
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) > .nav-tabs:not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]) {
+html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) > .nav-tabs:not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   gap: 4px;
   padding: 6px !important;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) > .nav-tabs::before,
-html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) > .nav-tabs::after {
+html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) > .nav-tabs:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before,
+html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) > .nav-tabs:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after {
   content: none !important;
   display: none !important;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) > .nav-tabs > .rbx-tab {
+html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) > .nav-tabs > .rbx-tab:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex: 1 1 0;
   float: none !important;
   width: auto !important;
   min-width: 0 !important;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) .rbx-tab-heading {
+html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) .rbx-tab-heading:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin-bottom: 0 !important;
   border-radius: 10px;
   background-color: transparent !important;
@@ -89,16 +90,16 @@ html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) :is(.rbx-tab.active .rbx-tab-heading, .rbx-tab-heading.active, .rbx-tab-heading[aria-selected="true"]) {
+html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) :is(.rbx-tab.active .rbx-tab-heading, .rbx-tab-heading.active, .rbx-tab-heading[aria-selected="true"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: var(--rc-account-selected) !important;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(button, a, input, select, textarea, [tabindex="0"]):focus-visible {
+html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(button, a, input, select, textarea, [tabindex="0"]):focus-visible:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   outline: 2px solid var(--rc-account-focus) !important;
   outline-offset: 3px;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.input-dropdown-btn, .input-field, select.form-control) {
+html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.input-dropdown-btn, .input-field, select.form-control):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-height: 40px;
   border-color: var(--rc-account-border) !important;
   border-radius: 10px !important;
@@ -106,12 +107,12 @@ html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="
 }
 
 /* A native hidden attribute keeps its meaning after flex/grid enhancement. */
-html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content [hidden]:not([hidden="until-found"]) {
+html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content [hidden]:not([hidden="until-found"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: none !important;
 }
 
 /* Menus need readable backing and a layer above the next glass panel. */
-html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.container-header, .inbox-buttons, .trade-list-container, .trades-list, .avatar-card-container):has(.open, [aria-expanded="true"]) {
+html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.container-header, .inbox-buttons, .trade-list-container, .trades-list, .avatar-card-container):has(.open, [aria-expanded="true"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: relative;
   z-index: 20;
   background-color: transparent !important;
@@ -121,7 +122,7 @@ html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="
 
 /* Frost a separate backing while open, allowing the menu's blur to extend
    beyond its parent instead of being clipped to the header or card. */
-html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.container-header, .inbox-buttons, .trade-list-container, .trades-list, .avatar-card-container):has(.open, [aria-expanded="true"])::before {
+html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.container-header, .inbox-buttons, .trade-list-container, .trades-list, .avatar-card-container):has(.open, [aria-expanded="true"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before {
   content: "" !important;
   display: block !important;
   position: absolute;
@@ -134,12 +135,12 @@ html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="
   backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .category-tabs:has(.menu-option:hover, .menu-option:focus-within) {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .category-tabs:has(.menu-option:hover, .menu-option:focus-within):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: relative;
   z-index: 20;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.dropdown-menu, .category-tabs .menu-secondary-container) {
+html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.dropdown-menu, .category-tabs .menu-secondary-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   max-width: min(360px, calc(100vw - 32px));
   padding: 6px !important;
@@ -153,20 +154,20 @@ html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="
   color: var(--color-content-emphasis, inherit) !important;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content .dropdown-menu {
+html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content .dropdown-menu:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   max-height: min(360px, calc(100dvh - 120px));
   overflow-y: auto;
   overscroll-behavior: contain;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .category-tabs .menu-secondary {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .category-tabs .menu-secondary:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   width: 100%;
   margin: 0;
   border: 0 !important;
   background-color: transparent !important;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content .dropdown-menu > li > :is(a, button) {
+html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content .dropdown-menu > li > :is(a, button):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-height: 40px;
   padding: 10px 12px !important;
   border-radius: 8px;
@@ -174,12 +175,12 @@ html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content .dropdown-menu > li:not(.disabled):not(.active):not([aria-disabled="true"]) > :is(a, button):not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible) {
+html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content .dropdown-menu > li:not(.disabled):not(.active):not([aria-disabled="true"]) > :is(a, button):not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: var(--rc-account-hover) !important;
 }
 
 /* Request cards retain the native avatars, menus, and accept/ignore handlers. */
-html[data-rc-ui-active][data-rc-frost-page="friends"] #content .friends-subtitle {
+html[data-rc-ui-active][data-rc-frost-page="friends"] #content .friends-subtitle:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -189,25 +190,25 @@ html[data-rc-ui-active][data-rc-frost-page="friends"] #content .friends-subtitle
   padding: 0 !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="friends"] #content .friends-content > .container-header {
+html[data-rc-ui-active][data-rc-frost-page="friends"] #content .friends-content > .container-header:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex-direction: row !important;
   align-items: center;
   flex-wrap: wrap;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="friends"] #content .friends-content > .container-header .friends-subtitle {
+html[data-rc-ui-active][data-rc-frost-page="friends"] #content .friends-content > .container-header .friends-subtitle:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex: 1 1 200px;
   width: auto;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="friends"] #content .friends-filter {
+html[data-rc-ui-active][data-rc-frost-page="friends"] #content .friends-filter:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex: 1 1 240px;
   float: none !important;
   margin: 0 0 0 auto !important;
   padding: 0 !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="friends"] #content .friends-filter-searchbar-container {
+html[data-rc-ui-active][data-rc-frost-page="friends"] #content .friends-filter-searchbar-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   width: 100% !important;
   height: 42px !important;
@@ -215,7 +216,7 @@ html[data-rc-ui-active][data-rc-frost-page="friends"] #content .friends-filter-s
   padding: 8px 10px !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="friends"] #content .ignore-button {
+html[data-rc-ui-active][data-rc-frost-page="friends"] #content .ignore-button:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: static !important;
   align-self: flex-end;
   width: auto !important;
@@ -227,7 +228,7 @@ html[data-rc-ui-active][data-rc-frost-page="friends"] #content .ignore-button {
 
 /* Roblox paginates connections in groups of 18. Cap the responsive grid at
    three columns so full pages fill every row instead of leaving two gaps. */
-html[data-rc-ui-active][data-rc-frost-page="friends"] #content .avatar-cards:not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]) {
+html[data-rc-ui-active][data-rc-frost-page="friends"] #content .avatar-cards:not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, max(280px, calc((100% - 32px) / 3))), 1fr));
   gap: 16px;
@@ -237,19 +238,19 @@ html[data-rc-ui-active][data-rc-frost-page="friends"] #content .avatar-cards:not
 }
 
 /* Native clearfix pseudo-elements must not occupy the new grid/flex cells. */
-html[data-rc-ui-active][data-rc-frost-page="friends"] #content :is(.avatar-cards, .avatar-card-btns)::before,
-html[data-rc-ui-active][data-rc-frost-page="friends"] #content :is(.avatar-cards, .avatar-card-btns)::after,
-html[data-rc-ui-active][data-rc-frost-page="friends"] #content .container-header::before,
-html[data-rc-ui-active][data-rc-frost-page="friends"] #content .container-header::after,
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .current-items > .container-header::before,
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .current-items > .container-header::after,
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems::before,
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems::after {
+html[data-rc-ui-active][data-rc-frost-page="friends"] #content :is(.avatar-cards, .avatar-card-btns):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before,
+html[data-rc-ui-active][data-rc-frost-page="friends"] #content :is(.avatar-cards, .avatar-card-btns):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after,
+html[data-rc-ui-active][data-rc-frost-page="friends"] #content .container-header:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before,
+html[data-rc-ui-active][data-rc-frost-page="friends"] #content .container-header:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after,
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .current-items > .container-header:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before,
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .current-items > .container-header:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after,
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before,
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after {
   content: none !important;
   display: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="friends"] #content .avatar-cards > .avatar-card {
+html[data-rc-ui-active][data-rc-frost-page="friends"] #content .avatar-cards > .avatar-card:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   float: none !important;
   width: 100% !important;
@@ -258,10 +259,10 @@ html[data-rc-ui-active][data-rc-frost-page="friends"] #content .avatar-cards > .
   padding: 0 !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="friends"] #content .avatar-card-container,
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems .item-card-container,
-html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.messages, .messages-list, .message-list, .message-detail, .message-compose),
-html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list, .trades-list-detail, .trade-list-container, .trade-details-container, .trade-list, .trade-details) {
+html[data-rc-ui-active][data-rc-frost-page="friends"] #content .avatar-card-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems .item-card-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.messages, .messages-list, .message-list, .message-detail, .message-compose):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list, .trades-list-detail, .trade-list-container, .trade-details-container, .trade-list, .trade-details):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   min-width: 0;
   border: 1px solid var(--rc-account-border) !important;
@@ -273,24 +274,24 @@ html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list, 
   box-shadow: 0 4px 18px rgb(0 0 0 / 12%) !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="friends"] #content .avatar-card-container:not(.hidden, [hidden]) {
+html[data-rc-ui-active][data-rc-frost-page="friends"] #content .avatar-card-container:not(.hidden, [hidden]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="friends"] #content :is(.avatar-card-content, .avatar-card-caption, .avatar-card-btns) {
+html[data-rc-ui-active][data-rc-frost-page="friends"] #content :is(.avatar-card-content, .avatar-card-caption, .avatar-card-btns):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: transparent !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="friends"] #content .avatar-card-caption {
+html[data-rc-ui-active][data-rc-frost-page="friends"] #content .avatar-card-caption:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-width: 0;
   padding-right: 12px !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="friends"] #content .avatar-card-btns:not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]) {
+html[data-rc-ui-active][data-rc-frost-page="friends"] #content .avatar-card-btns:not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   gap: 10px;
   margin-top: auto;
@@ -298,7 +299,7 @@ html[data-rc-ui-active][data-rc-frost-page="friends"] #content .avatar-card-btns
   border-color: var(--rc-account-border) !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="friends"] #content .avatar-card-btns :is(.accept-friend, .ignore-friend) {
+html[data-rc-ui-active][data-rc-frost-page="friends"] #content .avatar-card-btns :is(.accept-friend, .ignore-friend):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex: 1;
   float: none !important;
   width: auto !important;
@@ -312,7 +313,7 @@ html[data-rc-ui-active][data-rc-frost-page="friends"] #content .avatar-card-btns
 
 /* Inbox panels use the lighter page tint so the wallpaper remains visible.
    Apply blur once per panel; native summary and reader backings stay clear. */
-html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.messages, .messages-list, .message-list, .message-detail, .message-compose) {
+html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.messages, .messages-list, .message-list, .message-detail, .message-compose):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin-bottom: 16px;
   padding: 12px !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
@@ -324,20 +325,20 @@ html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(
   .container-header, .content-header, .section-header,
   .rbx-tabs-horizontal > .nav-tabs, .horizontal-tabs > .nav-tabs,
   .inbox-buttons, .messages-toolbar, .message-toolbar, .messages-action-bar
-):not(:has(.open, [aria-expanded="true"])) {
+):not(:has(.open, [aria-expanded="true"])):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31))) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(
   .container-header, .inbox-buttons
-):has(.open, [aria-expanded="true"])::before {
+):has(.open, [aria-expanded="true"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-panel-opacity, var(--rc-page-panel-opacity, .31)));
 }
 
 html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(
   #messages-container, #messages-web-app, .messages-container,
   .roblox-messages-container, [ng-controller="messagesController"]
-):not(.messages, .messages-list, .message-list, .message-detail, .message-compose) {
+):not(.messages, .messages-list, .message-list, .message-detail, .message-compose):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -345,10 +346,10 @@ html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(
   box-shadow: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.messages, .messages-list, .message-list) :is(.messages, .messages-list, .message-list, .section-content),
-html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.message-detail, .message-compose) :is(.section-content, .message-body, .message-detail-body, .message-header, .message-content),
-html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trade-list-container, .trade-details-container) :is(.trades-list, .trades-list-detail, .trade-list, .trade-details, .section-content, .trade-list-header, .trade-list-body),
-html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list, .trades-list-detail, .trade-list, .trade-details) :is(.section-content, .trade-list-header) {
+html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.messages, .messages-list, .message-list) :is(.messages, .messages-list, .message-list, .section-content):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.message-detail, .message-compose) :is(.section-content, .message-body, .message-detail-body, .message-header, .message-content):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trade-list-container, .trade-details-container) :is(.trades-list, .trades-list-detail, .trade-list, .trade-details, .section-content, .trade-list-header, .trade-list-body):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list, .trades-list-detail, .trade-list, .trade-details) :is(.section-content, .trade-list-header):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border: 0 !important;
   border-radius: 0 !important;
   background-color: transparent !important;
@@ -357,7 +358,7 @@ html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list, 
   box-shadow: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.messages, .messages-list, .message-list) :is(.messageDivider, .message-row, .message-summary, .message-container, .roblox-message-summary) {
+html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.messages, .messages-list, .message-list) :is(.messageDivider, .message-row, .message-summary, .message-container, .roblox-message-summary):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -371,12 +372,12 @@ html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(
 ) :is(
   .message-summary-body, .message-summary-content, .message-summary-date,
   .message-summary-username, .message-checkbox, .messageCheckbox, .subject
-),
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
 html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.message-detail, .message-compose) :is(
   .section-content, .container-header, .message-header, .message-detail-header,
   .message-body, .message-detail-body, .message-content, .body,
   .roblox-send-message-subject, .message-actions
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -384,23 +385,23 @@ html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.message-det
   box-shadow: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.messages, .messages-list, .message-list) :is(.messages, .messages-list, .message-list) {
+html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.messages, .messages-list, .message-list) :is(.messages, .messages-list, .message-list):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin-bottom: 0;
   padding: 0 !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.inbox-buttons, .messages-toolbar, .message-toolbar, .messages-action-bar) {
+html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.inbox-buttons, .messages-toolbar, .message-toolbar, .messages-action-bar):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex-wrap: wrap;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.inbox-buttons, .messages-toolbar, .message-toolbar, .messages-action-bar) button {
+html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.inbox-buttons, .messages-toolbar, .message-toolbar, .messages-action-bar) button:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-height: 40px;
   white-space: normal;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.inbox-buttons, .message-actions) :is(
   .btn-control-sm, .btn-control-md, .btn-generic-more-sm, .roblox-message-large-btn
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border-color: var(--rc-account-border) !important;
   border-radius: 8px !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.22, var(--rc-surface-opacity-floor, 0))) !important;
@@ -409,13 +410,13 @@ html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.inbox-butto
 
 html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.inbox-buttons, .message-actions) :is(
   .btn-control-sm, .btn-control-md, .btn-generic-more-sm, .roblox-message-large-btn
-):not(:disabled, .disabled, [aria-disabled="true"]):is(:hover, :focus-visible) {
+):not(:disabled, .disabled, [aria-disabled="true"]):is(:hover, :focus-visible):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: var(--rc-account-hover) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.message-compose, .message-detail) :is(
   .input-field, .form-control, textarea
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   max-width: 100%;
   border-color: var(--rc-account-border) !important;
   border-radius: 10px !important;
@@ -424,54 +425,54 @@ html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.message-com
   color: var(--color-content-emphasis, inherit) !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.messageDivider, .message-row, .message-summary) {
+html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.messageDivider, .message-row, .message-summary):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   min-height: 64px;
   padding: 14px 12px !important;
   border-bottom: 1px solid var(--rc-account-border) !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.messageDivider, .message-row, .message-summary):last-child {
+html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.messageDivider, .message-row, .message-summary):last-child:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border-bottom: 0 !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.messageDivider, .message-row, .message-summary):is(:hover, :focus-within),
-html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trade-row, .trade-list-item):is(:hover, :focus-within) {
+html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.messageDivider, .message-row, .message-summary):is(:hover, :focus-within):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trade-row, .trade-list-item):is(:hover, :focus-within):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: var(--rc-account-hover) !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.messageDivider, .message-row, .message-summary):is(.selected, .active, .checked, [aria-selected="true"]),
-html[data-rc-ui-active][data-rc-frost-page="messages"] #content .messageDivider:has(input[type="checkbox"]:checked),
-html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trade-row, .trade-list-item):is(.selected, .active, [aria-selected="true"]) {
+html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.messageDivider, .message-row, .message-summary):is(.selected, .active, .checked, [aria-selected="true"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="messages"] #content .messageDivider:has(input[type="checkbox"]:checked):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trade-row, .trade-list-item):is(.selected, .active, [aria-selected="true"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: var(--rc-account-selected) !important;
   box-shadow: inset 3px 0 0 var(--rc-account-focus) !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.messageDivider, .message-row, .message-summary):is(.unread, .message-unread) :is(.message-subject, .message-sender, .subject, .message-summary-username) {
+html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.messageDivider, .message-row, .message-summary):is(.unread, .message-unread) :is(.message-subject, .message-sender, .subject, .message-summary-username):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   font-weight: 700;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="messages"] #content .messageDivider:not(.read) :is(.subject, .message-summary-username) {
+html[data-rc-ui-active][data-rc-frost-page="messages"] #content .messageDivider:not(.read) :is(.subject, .message-summary-username):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   font-weight: 700;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.message-body, .message-detail-body, .message-content) {
+html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.message-body, .message-detail-body, .message-content):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   line-height: 1.6;
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="messages"] #content .message-detail .body {
+html[data-rc-ui-active][data-rc-frost-page="messages"] #content .message-detail .body:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   line-height: 1.6;
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.message-body, .message-detail-body) :is(img, video) {
+html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.message-body, .message-detail-body) :is(img, video):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   max-width: 100%;
   height: auto;
 }
 
 /* Inventory retains the native desktop category menu and mobile dropdowns. */
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .category-tabs .menu-vertical {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .category-tabs .menu-vertical:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   position: relative;
   z-index: 0;
@@ -484,7 +485,7 @@ html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .category-tabs 
 }
 
 /* A separate sidebar backing lets flyouts blur the wallpaper beyond its edge. */
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .category-tabs .menu-vertical::before {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .category-tabs .menu-vertical:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -497,49 +498,49 @@ html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .category-tabs 
 }
 
 /* Inventory menus honor the chosen opacity instead of forcing nearly solid glass. */
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content :is(.dropdown-menu, .category-tabs .menu-secondary-container) {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content :is(.dropdown-menu, .category-tabs .menu-secondary-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .category-tabs .menu-secondary-container {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .category-tabs .menu-secondary-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-width: 174px;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .category-tabs .menu-secondary {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .category-tabs .menu-secondary:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-shadow: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .category-tabs :is(.menu-option-content, .menu-secondary-option) {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .category-tabs :is(.menu-option-content, .menu-secondary-option):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-height: 40px;
   border-radius: 8px;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .category-tabs .menu-secondary-option {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .category-tabs .menu-secondary-option:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   width: 100%;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .category-tabs :is(.menu-option.active > .menu-option-content, .menu-secondary-option.active) {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .category-tabs :is(.menu-option.active > .menu-option-content, .menu-secondary-option.active):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: var(--rc-account-selected) !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .assets-explorer-title {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .assets-explorer-title:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex: 1;
   min-width: 0;
   max-width: 100%;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .current-items > .container-header:not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]) {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .current-items > .container-header:not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .current-items > .container-header .header-content {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .current-items > .container-header .header-content:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   float: none !important;
   margin-top: 0 !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .breadcrumb-container {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .breadcrumb-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -548,7 +549,7 @@ html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .breadcrumb-con
   padding: 0;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems:not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]) {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems:not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr));
   gap: 16px;
@@ -559,7 +560,7 @@ html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems:no
   list-style: none;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems > .item-card {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems > .item-card:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   float: none !important;
   width: 100% !important;
   min-width: 0;
@@ -568,7 +569,7 @@ html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems > 
   padding: 0 !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems .item-card-container:not(.hidden, [hidden]) {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems .item-card-container:not(.hidden, [hidden]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex-direction: column;
   width: 100% !important;
@@ -577,8 +578,8 @@ html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems .i
   padding: 10px !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems .item-card-thumb-container,
-html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) .item-card-thumb-container {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems .item-card-thumb-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) .item-card-thumb-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   width: 100% !important;
   height: auto !important;
   aspect-ratio: 1;
@@ -586,8 +587,8 @@ html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-d
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.22, var(--rc-surface-opacity-floor, 0)));
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems :is(.item-card-thumb, .thumbnail-2d-container):not(.hidden, [hidden]),
-html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.item-card-thumb, .thumbnail-2d-container):not(.hidden, [hidden]) {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems :is(.item-card-thumb, .thumbnail-2d-container):not(.hidden, [hidden]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.item-card-thumb, .thumbnail-2d-container):not(.hidden, [hidden]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: block;
   width: 100% !important;
   min-width: 0 !important;
@@ -595,15 +596,15 @@ html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-d
   min-height: 0 !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems .thumbnail-2d-container img,
-html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) .thumbnail-2d-container img {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems .thumbnail-2d-container img:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) .thumbnail-2d-container img:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems .item-card-name:not(.hidden, [hidden]),
-html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) .item-card-name:not(.hidden, [hidden]) {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems .item-card-name:not(.hidden, [hidden]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) .item-card-name:not(.hidden, [hidden]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: block !important;
   -webkit-line-clamp: unset !important;
   line-clamp: none !important;
@@ -619,31 +620,31 @@ html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-d
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems .item-card-price {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems .item-card-price:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin-top: auto;
   padding-top: 8px;
 }
 
 /* Native price rows have a fixed 20/21px height. Let the row include its
    padding and full label so Off Sale text and Robux icons cannot be clipped. */
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content :is(#assetsItems, #item-recommendations-container) .item-card-price {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content :is(#assetsItems, #item-recommendations-container) .item-card-price:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex-shrink: 0;
   height: auto !important;
   min-height: 20px;
   max-height: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .pager-holder {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .pager-holder:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   float: none !important;
   width: 100%;
   margin-top: 18px;
 }
 
 /* A compact glass backing keeps the native arrows and page label readable. */
-html[data-rc-ui-active][data-rc-frost-page="friends"] #content .pager,
-html[data-rc-ui-active][data-rc-frost-page="friends"] #content .pager-holder:not(:has(.pager)),
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .pager-holder .pager,
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .pager-holder:not(:has(.pager)) {
+html[data-rc-ui-active][data-rc-frost-page="friends"] #content .pager:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="friends"] #content .pager-holder:not(:has(.pager)):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .pager-holder .pager:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .pager-holder:not(:has(.pager)):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   max-width: 100%;
   min-height: 44px;
@@ -658,7 +659,7 @@ html[data-rc-ui-active][data-rc-frost-page="inventory"] #content .pager-holder:n
 }
 
 /* Recommendations render outside #assetsItems and have their own opaque layer. */
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #item-recommendations-container .recommendations-container {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #item-recommendations-container .recommendations-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   padding: 12px !important;
   border: 1px solid var(--rc-account-border) !important;
@@ -671,7 +672,7 @@ html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #item-recommend
 }
 
 /* Keep one glass backing while preserving the native recommendation carousel. */
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #item-recommendations-container .recommendations-container :is(.container-header, .recommended-items-slider, .item-cards, .item-card-container, .item-card-thumb, .thumbnail-2d-container) {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #item-recommendations-container .recommendations-container :is(.container-header, .recommended-items-slider, .item-cards, .item-card-container, .item-card-thumb, .thumbnail-2d-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
@@ -679,29 +680,29 @@ html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #item-recommend
   box-shadow: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #item-recommendations-container .recommendations-container .container-header {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #item-recommendations-container .recommendations-container .container-header:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   padding: 0 !important;
   margin-bottom: 12px !important;
   border: 0 !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #item-recommendations-container .recommendations-container :is(.item-card, .item-card-container) {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #item-recommendations-container .recommendations-container :is(.item-card, .item-card-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   height: auto !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #item-recommendations-container .item-card-thumb-container {
+html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #item-recommendations-container .item-card-thumb-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   height: auto !important;
   aspect-ratio: 1;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.22, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
 /* Trades remain two native panes; clear only their inner layout surfaces. */
-html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list, .trades-list-detail, .trade-list-container, .trade-details-container, .trade-list, .trade-details) {
+html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list, .trades-list-detail, .trade-list-container, .trade-details-container, .trade-list, .trade-details):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin-bottom: 16px;
   padding: 14px !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list, .trades-list-detail, .trade-list-container, .trade-details-container) :is(.trades-list, .trades-list-detail, .trade-list, .trade-details) {
+html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list, .trades-list-detail, .trade-list-container, .trade-details-container) :is(.trades-list, .trades-list-detail, .trade-list, .trade-details):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border: 0 !important;
   border-radius: 0 !important;
   background-color: transparent !important;
@@ -712,11 +713,11 @@ html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list, 
   padding: 0 !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list, .trade-list-container) .trade-list-header {
+html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list, .trade-list-container) .trade-list-header:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   padding: 0 !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trade-row, .trade-list-item) {
+html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trade-row, .trade-list-item):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   min-height: 64px;
   padding: 12px !important;
@@ -725,12 +726,12 @@ html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trade-row, .t
   background-color: transparent !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.trade-items, .item-cards) {
+html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.trade-items, .item-cards):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-width: 0;
   max-width: 100%;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.trade-items, .item-cards):not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]):has(> .item-card, > [trade-item-card]) {
+html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.trade-items, .item-cards):not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]):has(> .item-card, > [trade-item-card]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 130px), 1fr));
   gap: 12px;
@@ -739,13 +740,13 @@ html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-d
   padding: 0 !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.trade-items, .item-cards)::before,
-html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.trade-items, .item-cards)::after {
+html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.trade-items, .item-cards):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before,
+html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.trade-items, .item-cards):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after {
   content: none !important;
   display: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.item-card, [trade-item-card]) {
+html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.item-card, [trade-item-card]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   float: none !important;
   width: 100% !important;
   min-width: 0;
@@ -754,7 +755,7 @@ html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-d
   padding: 0 !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) .item-card-container:not(.hidden, [hidden]) {
+html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) .item-card-container:not(.hidden, [hidden]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex-direction: column;
   width: 100% !important;
@@ -763,7 +764,7 @@ html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-d
   padding: 0 !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.trade-value, .trade-total, .trade-summary, .robux-line) {
+html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.trade-value, .trade-total, .trade-summary, .robux-line):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   margin-top: 12px;
   padding: 12px;
@@ -774,7 +775,7 @@ html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-d
 }
 
 /* Empty states remain readable against either an image or a video background. */
-html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.section-content-off, .empty-content-message, .no-messages, .no-trades) {
+html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.section-content-off, .empty-content-message, .no-messages, .no-trades):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   padding: 32px 20px !important;
   border: 1px solid var(--rc-account-border);
@@ -787,8 +788,8 @@ html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.messages, .messages-list, .message-list) :is(.section-content-off, .no-messages),
-html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list, .trades-list-detail, .trade-list-container, .trade-details-container) :is(.section-content-off, .no-trades) {
+html[data-rc-ui-active][data-rc-frost-page="messages"] #content :is(.messages, .messages-list, .message-list) :is(.section-content-off, .no-messages):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list, .trades-list-detail, .trade-list-container, .trade-details-container) :is(.section-content-off, .no-trades):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border: 0;
   background-color: transparent !important;
   -webkit-backdrop-filter: none !important;
@@ -796,25 +797,25 @@ html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list, 
 }
 
 @media (max-width: 767px) {
-  html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) .rbx-tab-heading {
+  html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.rbx-tabs-horizontal, .horizontal-tabs) .rbx-tab-heading:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     padding-left: 6px !important;
     padding-right: 6px !important;
   }
 
-  html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.container-header, .content-header, .section-header) {
+  html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="messages"], [data-rc-frost-page="inventory"], [data-rc-frost-page="trades"]) #content :is(.container-header, .content-header, .section-header):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     padding: 12px !important;
   }
 
-  html[data-rc-ui-active][data-rc-frost-page="friends"] #content .friends-filter {
+  html[data-rc-ui-active][data-rc-frost-page="friends"] #content .friends-filter:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     flex-basis: 100%;
   }
 
-  html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems:not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]) {
+  html[data-rc-ui-active][data-rc-frost-page="inventory"] #content #assetsItems:not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 130px), 1fr));
     gap: 12px;
   }
 
-  html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list, .trades-list-detail, .trade-list-container, .trade-details-container) {
+  html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list, .trades-list-detail, .trade-list-container, .trade-details-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     float: none !important;
     width: 100% !important;
     max-width: none !important;
@@ -822,18 +823,18 @@ html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list, 
     margin-right: 0 !important;
   }
 
-  html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.trade-items, .item-cards):not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]):has(> .item-card, > [trade-item-card]) {
+  html[data-rc-ui-active][data-rc-frost-page="trades"] #content :is(.trades-list-detail, .trade-details, .trade-details-container) :is(.trade-items, .item-cards):not(.hidden, [hidden], .ng-hide, .ng-cloak, [ng-cloak]):has(> .item-card, > [trade-item-card]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 /* Four connection tabs get enough room for full labels on phone screens. */
 @media (max-width: 480px) {
-  html[data-rc-ui-active][data-rc-frost-page="friends"] #content :is(.rbx-tabs-horizontal, .horizontal-tabs) > .nav-tabs {
+  html[data-rc-ui-active][data-rc-frost-page="friends"] #content :is(.rbx-tabs-horizontal, .horizontal-tabs) > .nav-tabs:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     flex-wrap: wrap;
   }
 
-  html[data-rc-ui-active][data-rc-frost-page="friends"] #content :is(.rbx-tabs-horizontal, .horizontal-tabs) > .nav-tabs > .rbx-tab {
+  html[data-rc-ui-active][data-rc-frost-page="friends"] #content :is(.rbx-tabs-horizontal, .horizontal-tabs) > .nav-tabs > .rbx-tab:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     flex-basis: calc(50% - 2px);
   }
 }

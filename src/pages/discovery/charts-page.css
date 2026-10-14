@@ -1,5 +1,6 @@
+/* Preserve native styling while features are disabled for the page language. */
 /* Charts keeps Roblox's scrolling handlers, filter state, and game links. */
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   --rc-charts-border: var(--color-stroke-default, rgb(128 128 128 / 30%));
   --rc-charts-hover: var(--color-stroke-emphasis, rgb(128 128 128 / 55%));
   --rc-charts-focus: var(--color-selection-start, var(--rc-focus, #7fa6ff));
@@ -13,14 +14,14 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app :is(
   .game-sort-detail-container, .game-sort-detail-grid-container,
   .horizontal-scroller, .horizontal-scroll-window, .horizontally-scrollable,
   .game-card, .game-tile
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: transparent !important;
   background-image: none !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app :is(
   .games-list-header, .charts-sdui-page h1
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   margin: 0 10px 16px !important;
   padding: 20px !important;
@@ -34,7 +35,7 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app :is(
 
 html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app :is(
   .games-list-header h1, .charts-sdui-page h1
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   font-size: clamp(26px, 3vw, 34px);
   font-weight: 800;
   line-height: 1.2;
@@ -42,12 +43,12 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app :is(
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-list-header h1 {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-list-header h1:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin: 0 !important;
 }
 
 /* Frost a separate backing so a filter menu can blur beyond the toolbar. */
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filters-container {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filters-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: relative;
   isolation: isolate;
   box-sizing: border-box;
@@ -59,7 +60,7 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .fil
   backdrop-filter: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filters-container::before {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filters-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -71,16 +72,16 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .fil
   backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filters-container:has(.filters-modal-container) {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filters-container:has(.filters-modal-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   z-index: 40;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-page-container .filter-items-container {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-page-container .filter-items-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex-wrap: wrap;
   gap: 8px;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filter-select {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filter-select:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-height: 40px;
   height: auto !important;
   max-width: 100%;
@@ -91,21 +92,21 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .fil
   line-height: 1.4;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filter-select:not(.btn-primary-md) {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filter-select:not(.btn-primary-md):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.28, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filter-select.btn-primary-md:not(:disabled, [aria-disabled="true"]) {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filter-select.btn-primary-md:not(:disabled, [aria-disabled="true"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border-color: var(--rc-accent, #5278ff) !important;
   background: var(--rc-accent, linear-gradient(135deg, #4269ef, #3359d6)) !important;
   color: var(--rc-accent-text, #fff) !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filter-select.btn-primary-md .icon-expand-arrow-selected {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filter-select.btn-primary-md .icon-expand-arrow-selected:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   filter: brightness(0) invert(1);
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filters-modal-container {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filters-modal-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   width: min(360px, calc(100vw - 48px));
   min-width: 0 !important;
@@ -121,19 +122,19 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .fil
 
 html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filters-modal-container :is(
   .header-container, .filter-options-container, .action-buttons-container, .filter-option
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filters-modal-container .filter-option:is(:hover, :focus-visible, .selected-option) {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .filters-modal-container .filter-option:is(:hover, :focus-visible, .selected-option):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.18, var(--rc-surface-opacity-floor, 0))) !important;
 }
 
 /* Section titles share one line with their native See All link when space permits. */
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-list-container .container-header {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-list-container .container-header:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex-wrap: wrap;
   align-items: center;
   gap: 8px 16px;
@@ -144,14 +145,14 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .gam
   backdrop-filter: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .sort-header {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .sort-header:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin: 0;
   font-size: clamp(19px, 2vw, 22px);
   line-height: 1.3;
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .see-all-link-icon {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .see-all-link-icon:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   padding: 7px 28px 7px 10px;
   border: 1px solid var(--rc-charts-border);
   border-radius: 9px;
@@ -160,21 +161,21 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .see
 }
 
 /* One backing per game, rather than blur on both the list item and its card. */
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-page-carousel > .game-card {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-page-carousel > .game-card:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex: 0 0 164px;
   width: 164px !important;
   min-width: 164px;
   height: auto !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-page-carousel > .game-card > .game-card-container {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-page-carousel > .game-card > .game-card-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex-direction: column;
   height: auto !important;
   min-height: 240px;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-page-carousel > .game-card > .game-card-container > .game-card-link {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-page-carousel > .game-card > .game-card-container > .game-card-link:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -183,7 +184,7 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .gam
 
 html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app :is(
   .game-card-container:not([data-testid="sentinel-tile"]), [data-testid="sdui-game-tile"]
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   min-width: 0;
   padding: 6px;
@@ -199,17 +200,17 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app :is(
 
 html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app :is(
   .game-card-container:not([data-testid="sentinel-tile"]), [data-testid="sdui-game-tile"]
-):hover {
+):hover:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border-color: var(--rc-charts-hover) !important;
   box-shadow: 0 8px 22px rgb(0 0 0 / 20%);
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .game-card-link {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .game-card-link:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   color: inherit;
   text-decoration: none;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .game-card-thumb-container {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .game-card-thumb-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex-shrink: 0;
   width: 100% !important;
   height: auto !important;
@@ -218,16 +219,16 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .gam
   border-radius: 10px !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .game-card-thumb-container .game-card-thumb {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .game-card-thumb-container .game-card-thumb:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   width: 100% !important;
   height: 100% !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app [data-testid="sdui-tile-image-container"] {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app [data-testid="sdui-tile-image-container"]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border-radius: 10px !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .game-card-name:not(.shimmer) {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .game-card-name:not(.shimmer):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2 !important;
@@ -242,54 +243,54 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .gam
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .game-card-info {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .game-card-info:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: transparent !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .game-card-info .info-label {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .game-card-info .info-label:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   font-size: 12px !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .scroller {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .scroller:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .scroller .spacer {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .scroller .spacer:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: transparent !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app :is(
   a, button, [role="button"], [tabindex="0"]
-):focus-visible {
+):focus-visible:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   outline: 2px solid var(--rc-charts-focus) !important;
   outline-offset: 3px;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app [hidden]:not([hidden="until-found"]) {
+html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app [hidden]:not([hidden="until-found"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: none !important;
 }
 
 @media (max-width: 543px) {
   html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app :is(
     .games-list-header, .charts-sdui-page h1
-  ) {
+  ):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     padding: 16px !important;
     border-radius: 14px !important;
   }
 
-  html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-list-container:not(.wide-game-tile-container) .horizontally-scrollable {
+  html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-list-container:not(.wide-game-tile-container) .horizontally-scrollable:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     min-height: 245px;
   }
 
-  html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-page-carousel > .game-card {
+  html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-page-carousel > .game-card:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     flex-basis: 154px;
     width: 154px !important;
     min-width: 154px;
   }
 
-  html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-page-carousel > .game-card > .game-card-container {
+  html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app .games-page-carousel > .game-card > .game-card-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     min-height: 230px;
   }
 }
@@ -297,7 +298,7 @@ html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app [hid
 @media (prefers-reduced-motion: reduce) {
   html[data-rc-ui-active][data-rc-frost-page="charts"] #game-carousel-web-app :is(
     .game-card-container, [data-testid="sdui-game-tile"]
-  ) {
+  ):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     transition: none;
   }
 }

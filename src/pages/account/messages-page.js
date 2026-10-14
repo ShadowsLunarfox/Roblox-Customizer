@@ -1,4 +1,4 @@
-(() => {
+(globalThis.RobloxCustomizerCompatibility?.runFeature || (initialize => initialize()))(() => {
   'use strict';
 
   if (!/^\/my\/messages(?:\/|$)/i.test(location.pathname)) return;
@@ -42,4 +42,4 @@
   addEventListener('hashchange', scanPage);
   addEventListener('popstate', scanPage);
   scanPage();
-})();
+});

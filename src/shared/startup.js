@@ -108,6 +108,10 @@
   function applyVisuals(visuals) {
     const root = document.documentElement;
     if (!root || !visuals) return;
+    if (globalThis.RobloxCustomizerCompatibility && !globalThis.RobloxCustomizerCompatibility.enabled()) {
+      applyCustomColors(root, visuals);
+      return;
+    }
     const opacity = bounded(visuals.glassOpacity, 25, 90, 62);
     const disableTransparency = visuals.disableTransparency === true;
     const disableBlur = visuals.disableBlur === true;
@@ -183,6 +187,15 @@
   function syncRoute() {
     const root = document.documentElement;
     if (!root) return;
+    if (globalThis.RobloxCustomizerCompatibility && !globalThis.RobloxCustomizerCompatibility.enabled()) {
+      for (const attribute of [...root.attributes]) {
+        if (/^data-rc-(?:ui-active|frost-page|home-friends|hide-|avatar-boot|profile-boot|disable-)/.test(attribute.name)) {
+          root.removeAttribute(attribute.name);
+        }
+      }
+      applyVisuals(cachedVisuals);
+      return;
+    }
     syncGameHeader();
     root.toggleAttribute('data-rc-home-friends',
       !!document.querySelector('#HomeContainer .friend-carousel-container'));
@@ -267,4 +280,5 @@
   globalThis.RobloxCustomizerRuntime?.onResume(syncRoute);
   addEventListener('load', syncRoute, { once: true });
   document.addEventListener('DOMContentLoaded', syncRoute, { once: true });
+  document.addEventListener('rc-compatibility-changed', syncRoute);
 })();

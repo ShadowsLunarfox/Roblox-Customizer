@@ -68,6 +68,7 @@
         "https://create.roblox.com/*"
       ],
       "js": [
+        "src/shared/compatibility.js",
         "src/shared/runtime.js",
         "src/shared/native-labels.js",
         "src/shared/i18n.js",
@@ -87,6 +88,7 @@
         "https://roblox.com/*"
       ],
       "js": [
+        "src/shared/compatibility.js",
         "src/shared/server-card-view.js",
         "src/shared/page-bridge.js"
       ],
@@ -127,6 +129,7 @@
         "src/shared/startup.js",
         "src/home/friends.js",
         "src/settings/backup-core.js",
+        "src/settings/language-warning.js",
         "src/settings/settings.js",
         "src/shared/frosted-ui.js",
         "src/pages/account/account-settings-page.js",

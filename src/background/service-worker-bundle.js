@@ -526,6 +526,7 @@
   const ALARM = 'rc-playtime-poll';
   const POLL_MINUTES = 0.5;
   const SESSION_KEY = 'rcPlaytimeBrowserSession';
+  const LANGUAGE_KEY = 'robloxCustomizerUnsupportedLanguage';
   let queue = Promise.resolve();
   let sessionId;
   let csrfToken = '';
@@ -545,9 +546,9 @@
     return sessionId;
   }
   async function read() {
-    const saved = await chrome.storage.local.get([core.STORAGE_KEY, core.ENABLED_KEY]);
+    const saved = await chrome.storage.local.get([core.STORAGE_KEY, core.ENABLED_KEY, LANGUAGE_KEY]);
     // A missing preference uses the default; an explicit opt-out remains off.
-    return { state: core.normalize(saved[core.STORAGE_KEY]), enabled: saved[core.ENABLED_KEY] !== false };
+    return { state: core.normalize(saved[core.STORAGE_KEY]), enabled: saved[core.ENABLED_KEY] !== false && !saved[LANGUAGE_KEY] };
   }
   async function save(state) { await chrome.storage.local.set({ [core.STORAGE_KEY]: state }); }
   async function ensureAlarm() {
@@ -629,10 +630,11 @@
       next = core.pause(state, error.status === 401 ? 'signed-out' : 'unavailable', Date.now(), recoverable);
     }
     // The user can disable tracking while an HTTP request is in flight.
-    const current = await chrome.storage.local.get(core.ENABLED_KEY);
-    if (current[core.ENABLED_KEY] === false) next = core.pause(state, 'disabled', Date.now());
+    const current = await chrome.storage.local.get([core.ENABLED_KEY, LANGUAGE_KEY]);
+    const active = current[core.ENABLED_KEY] !== false && !current[LANGUAGE_KEY];
+    if (!active) next = core.pause(state, 'disabled', Date.now());
     await save(next);
-    return core.snapshot(next, current[core.ENABLED_KEY] !== false);
+    return core.snapshot(next, active);
   }
   async function handle(message) {
     if (message.action === 'snapshot') { const { state, enabled } = await read(); return core.snapshot(state, enabled); }
@@ -667,7 +669,10 @@
     if (alarm.name === ALARM) serialize(poll).catch(() => {});
   });
   chrome.storage?.onChanged.addListener((changes, area) => {
-    if (area === 'local' && changes[core.ENABLED_KEY]) serialize(configure).catch(() => {});
+    if (area === 'local' && (changes[core.ENABLED_KEY] || changes[LANGUAGE_KEY])) {
+      lastAttempt = 0;
+      serialize(configure).catch(() => {});
+    }
   });
   const start = () => serialize(async () => { await configure(); await poll(); }).catch(() => {});
   chrome.runtime.onStartup?.addListener(start);
@@ -1733,6 +1738,12 @@ async function getXImage(value) {
   }
   return `data:${mime};base64,${btoa(binary)}`;
 }
+
+chrome.action?.onClicked.addListener(tab => {
+  // Messaging our content script needs no access to the tab's URL or new permissions.
+  if (!tab?.id) return;
+  void chrome.tabs.sendMessage(tab.id, { type: 'rc-open-settings' }, { frameId: 0 }).catch(() => {});
+});
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type !== BADGE_QUERY && message?.type !== PRIVATE_SERVER_QUERY

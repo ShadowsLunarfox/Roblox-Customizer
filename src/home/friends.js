@@ -1,5 +1,5 @@
 
-(() => {
+(globalThis.RobloxCustomizerCompatibility?.runFeature || (initialize => initialize()))(() => {
   'use strict';
 
   const ROOT_SELECTOR = '#HomeContainer .friend-carousel-container';
@@ -97,4 +97,4 @@
     setMaxRows(result[STORAGE_KEY]?.friendRows);
   }).catch(() => {});
   queueSync();
-})();
+});

@@ -1,4 +1,5 @@
-:is(#rc-playtime-home, #rc-playtime-game-page, #rc-playtime-dialog, #rc-playtime-settings) {
+/* Preserve native styling while features are disabled for the page language. */
+:is(#rc-playtime-home, #rc-playtime-game-page, #rc-playtime-dialog, #rc-playtime-settings):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   color: var(--rc-text, #f4f6fb);
   color-scheme: var(--rc-color-scheme, dark);
   font-family: inherit;
@@ -6,8 +7,8 @@
   line-height: 1.5;
   box-sizing: border-box;
 }
-:is(#rc-playtime-home, #rc-playtime-game-page, #rc-playtime-dialog, #rc-playtime-settings) * { box-sizing: border-box; }
-.rc-playtime-panel {
+:is(#rc-playtime-home, #rc-playtime-game-page, #rc-playtime-dialog, #rc-playtime-settings) *:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { box-sizing: border-box; }
+.rc-playtime-panel:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, .62));
   -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
   backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
@@ -15,197 +16,197 @@
   border-radius: 16px;
   padding: 20px;
 }
-#rc-playtime-game-page {
+#rc-playtime-game-page:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   container-type: inline-size; width: 100%; min-width: 0; margin: 0; padding: 14px;
 }
 /* Roblox adds 5px vertical padding to headings; match the unpadded stat labels. */
-#rc-playtime-game-page h2 { margin: 0; padding: 0; font: inherit; font-size: 14px; line-height: 20px; font-weight: 700; color: inherit; }
-#rc-playtime-game-page .rc-playtime-playing { margin: 0; }
-.rc-playtime-game-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 12px 0 0; }
-.rc-playtime-game-stats > div { min-width: 0; }
-.rc-playtime-game-stats dt { color: var(--rc-text-secondary); font-size: 12px; font-weight: 400; }
-.rc-playtime-game-stats dd { margin: 4px 0 0; color: var(--rc-text); font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
-#rc-playtime-game-page .rc-playtime-game-stats dt { color: var(--rc-text); font-size: 14px; font-weight: 700; line-height: 20px; }
-#rc-playtime-game-page .rc-playtime-game-stats dd { margin-top: 6px; font-size: 18px; font-weight: 700; line-height: 24px; }
-#rc-playtime-game-page .rc-playtime-hint { margin: 10px 0 0; font-size: 12px; }
-#rc-playtime-game-page .rc-playtime-game-enable { margin-top: 10px; }
+#rc-playtime-game-page h2:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin: 0; padding: 0; font: inherit; font-size: 14px; line-height: 20px; font-weight: 700; color: inherit; }
+#rc-playtime-game-page .rc-playtime-playing:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin: 0; }
+.rc-playtime-game-stats:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 12px 0 0; }
+.rc-playtime-game-stats > div:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { min-width: 0; }
+.rc-playtime-game-stats dt:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { color: var(--rc-text-secondary); font-size: 12px; font-weight: 400; }
+.rc-playtime-game-stats dd:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin: 4px 0 0; color: var(--rc-text); font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+#rc-playtime-game-page .rc-playtime-game-stats dt:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { color: var(--rc-text); font-size: 14px; font-weight: 700; line-height: 20px; }
+#rc-playtime-game-page .rc-playtime-game-stats dd:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin-top: 6px; font-size: 18px; font-weight: 700; line-height: 24px; }
+#rc-playtime-game-page .rc-playtime-hint:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin: 10px 0 0; font-size: 12px; }
+#rc-playtime-game-page .rc-playtime-game-enable:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin-top: 10px; }
 /* The game header footer gives both stats room without extending the action column. */
-.game-main-content > #rc-playtime-game-page {
+.game-main-content > #rc-playtime-game-page:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid; grid-template-columns: minmax(120px, 1fr) minmax(0, 2fr);
   align-items: start; gap: 24px; padding: 16px 20px;
 }
-.game-main-content > #rc-playtime-game-page .rc-playtime-intro {
+.game-main-content > #rc-playtime-game-page .rc-playtime-intro:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid; align-content: start; gap: 6px; min-width: 0;
 }
-.game-main-content > #rc-playtime-game-page .rc-playtime-header { align-items: flex-start; }
-.game-main-content > #rc-playtime-game-page .rc-playtime-playing { line-height: 20px; }
-.game-main-content > #rc-playtime-game-page .rc-playtime-game-stats { grid-column: 2; margin: 0; }
-.game-main-content > #rc-playtime-game-page .rc-playtime-hint { margin: 0; line-height: 18px; }
-.game-main-content > #rc-playtime-game-page .rc-playtime-game-enable { grid-column: 1 / -1; justify-self: start; }
+.game-main-content > #rc-playtime-game-page .rc-playtime-header:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { align-items: flex-start; }
+.game-main-content > #rc-playtime-game-page .rc-playtime-playing:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { line-height: 20px; }
+.game-main-content > #rc-playtime-game-page .rc-playtime-game-stats:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { grid-column: 2; margin: 0; }
+.game-main-content > #rc-playtime-game-page .rc-playtime-hint:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin: 0; line-height: 18px; }
+.game-main-content > #rc-playtime-game-page .rc-playtime-game-enable:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { grid-column: 1 / -1; justify-self: start; }
 @container (max-width: 520px) {
-  .game-main-content > #rc-playtime-game-page { gap: 6px 24px; }
-  .game-main-content > #rc-playtime-game-page .rc-playtime-intro { display: contents; }
-  .game-main-content > #rc-playtime-game-page :is(.rc-playtime-header, .rc-playtime-game-stats, .rc-playtime-hint) {
+  .game-main-content > #rc-playtime-game-page:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { gap: 6px 24px; }
+  .game-main-content > #rc-playtime-game-page .rc-playtime-intro:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: contents; }
+  .game-main-content > #rc-playtime-game-page :is(.rc-playtime-header, .rc-playtime-game-stats, .rc-playtime-hint):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     grid-column: 1 / -1; grid-row: auto;
   }
-  .game-main-content > #rc-playtime-game-page .rc-playtime-game-stats { margin: 6px 0; }
+  .game-main-content > #rc-playtime-game-page .rc-playtime-game-stats:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin: 6px 0; }
 }
-@container (max-width: 260px) { .rc-playtime-game-stats { grid-template-columns: minmax(0, 1fr); gap: 10px; } }
-#rc-home-greeting:has(#rc-playtime-home) { container-type: inline-size; flex-wrap: wrap; row-gap: 16px; }
-#rc-home-greeting:has(#rc-playtime-home) .rc-home-greeting-avatar {
+@container (max-width: 260px) { .rc-playtime-game-stats:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { grid-template-columns: minmax(0, 1fr); gap: 10px; } }
+#rc-home-greeting:has(#rc-playtime-home):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { container-type: inline-size; flex-wrap: wrap; row-gap: 16px; }
+#rc-home-greeting:has(#rc-playtime-home) .rc-home-greeting-avatar:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex-basis: clamp(64px, 5cqi, 96px);
   width: clamp(64px, 5cqi, 96px); height: clamp(64px, 5cqi, 96px);
 }
-#rc-home-greeting:has(#rc-playtime-home) .rc-home-greeting-initial { font-size: clamp(28px, 2.4cqi, 42px); }
-#rc-home-greeting:has(#rc-playtime-home) .rc-home-greeting-copy {
+#rc-home-greeting:has(#rc-playtime-home) .rc-home-greeting-initial:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { font-size: clamp(28px, 2.4cqi, 42px); }
+#rc-home-greeting:has(#rc-playtime-home) .rc-home-greeting-copy:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   container-type: inline-size; flex: 1 1 180px; gap: 8px;
   font-size: clamp(22px, 2.8cqi, 40px);
 }
 /* The title fits both the full banner and the space left beside the clock and carousel. */
-#rc-home-greeting:has(#rc-playtime-home) .rc-home-greeting-title { font-size: clamp(18px, 9cqi, 1em); }
-#rc-home-greeting:has(#rc-playtime-home) :is(.rc-home-greeting-eyebrow, .rc-home-greeting-clock-label) {
+#rc-home-greeting:has(#rc-playtime-home) .rc-home-greeting-title:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { font-size: clamp(18px, 9cqi, 1em); }
+#rc-home-greeting:has(#rc-playtime-home) :is(.rc-home-greeting-eyebrow, .rc-home-greeting-clock-label):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   font-size: clamp(10px, .75cqi, 13px);
 }
-#rc-home-greeting:has(#rc-playtime-home) :is(.rc-home-greeting-username, .rc-home-greeting-date) {
+#rc-home-greeting:has(#rc-playtime-home) :is(.rc-home-greeting-username, .rc-home-greeting-date):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   font-size: clamp(12px, .95cqi, 16px); overflow-wrap: anywhere;
 }
-#rc-home-greeting:has(#rc-playtime-home) .rc-home-greeting-eyebrow { font-size: clamp(10px, .33em, 13px); }
-#rc-home-greeting:has(#rc-playtime-home) .rc-home-greeting-username { font-size: clamp(12px, .4em, 16px); }
-#rc-home-greeting:has(#rc-playtime-home) .rc-home-greeting-time { font-size: clamp(22px, 2.6cqi, 38px); }
-#rc-home-greeting .rc-home-greeting-widgets {
+#rc-home-greeting:has(#rc-playtime-home) .rc-home-greeting-eyebrow:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { font-size: clamp(10px, .33em, 13px); }
+#rc-home-greeting:has(#rc-playtime-home) .rc-home-greeting-username:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { font-size: clamp(12px, .4em, 16px); }
+#rc-home-greeting:has(#rc-playtime-home) .rc-home-greeting-time:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { font-size: clamp(22px, 2.6cqi, 38px); }
+#rc-home-greeting .rc-home-greeting-widgets:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: contents;
 }
-#rc-home-greeting .rc-home-greeting-widgets .rc-home-greeting-clock {
+#rc-home-greeting .rc-home-greeting-widgets .rc-home-greeting-clock:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   max-width: none; gap: 8px; padding-inline-start: clamp(12px, 1.2cqi, 24px);
 }
-#rc-playtime-home {
+#rc-playtime-home:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   container-type: inline-size; flex: 0 1 520px;
   width: min(100%, 520px); max-width: 520px; min-width: 0; margin: 0; padding: 10px;
 }
-#rc-playtime-home h2 { font-size: 14px; }
-#rc-playtime-home .rc-playtime-header { gap: 8px; }
-#rc-playtime-home .rc-playtime-button.rc-playtime-history { min-height: 28px; padding: 4px 8px; font-size: 11px; }
-.rc-playtime-home-summary { flex: 1; min-width: 80px; color: var(--rc-text-secondary); font-size: 11px; }
-.rc-playtime-carousel-shell { display: flex; align-items: center; gap: 8px; margin-top: 8px; min-width: 0; }
-.rc-playtime-carousel {
+#rc-playtime-home h2:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { font-size: 14px; }
+#rc-playtime-home .rc-playtime-header:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { gap: 8px; }
+#rc-playtime-home .rc-playtime-button.rc-playtime-history:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { min-height: 28px; padding: 4px 8px; font-size: 11px; }
+.rc-playtime-home-summary:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { flex: 1; min-width: 80px; color: var(--rc-text-secondary); font-size: 11px; }
+.rc-playtime-carousel-shell:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: flex; align-items: center; gap: 8px; margin-top: 8px; min-width: 0; }
+.rc-playtime-carousel:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   --rc-playtime-slots: 5;
   display: flex; flex: 1; min-width: 0; gap: 8px;
   overflow-x: auto; overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory; scrollbar-width: none;
   padding: 3px; scroll-padding-inline: 3px;
 }
-.rc-playtime-carousel::-webkit-scrollbar { display: none; }
-.rc-playtime-carousel:empty { min-height: 40px; }
-.rc-playtime-carousel.rc-playtime-dragging { scroll-snap-type: none; cursor: grabbing; user-select: none; }
-.rc-playtime-tile {
+.rc-playtime-carousel:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::-webkit-scrollbar { display: none; }
+.rc-playtime-carousel:empty:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { min-height: 40px; }
+.rc-playtime-carousel.rc-playtime-dragging:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { scroll-snap-type: none; cursor: grabbing; user-select: none; }
+.rc-playtime-tile:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex: 0 0 calc((100% - (var(--rc-playtime-slots) - 1) * 8px) / var(--rc-playtime-slots));
   min-width: 0; scroll-snap-align: start;
 }
-.rc-playtime-tile-link { display: flex; flex-direction: column; gap: 4px; color: var(--rc-text); text-decoration: none; }
-.rc-playtime-tile-link:hover { color: var(--rc-text); text-decoration: none; }
-.rc-playtime-tile-link[href]:hover .rc-playtime-tile-name { color: var(--rc-link); }
-.rc-playtime-tile-art {
+.rc-playtime-tile-link:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: flex; flex-direction: column; gap: 4px; color: var(--rc-text); text-decoration: none; }
+.rc-playtime-tile-link:hover:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { color: var(--rc-text); text-decoration: none; }
+.rc-playtime-tile-link[href]:hover .rc-playtime-tile-name:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { color: var(--rc-link); }
+.rc-playtime-tile-art:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: relative; display: grid; place-items: center; width: 100%; max-width: 64px; aspect-ratio: 1;
   overflow: hidden; border-radius: 8px; background: var(--rc-control-bg);
   border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 12%);
 }
-.rc-playtime-tile-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.rc-playtime-tile-initial { color: var(--rc-text-secondary); font-size: 24px; font-weight: 700; }
-.rc-playtime-tile-name {
+.rc-playtime-tile-art img:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.rc-playtime-tile-initial:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { color: var(--rc-text-secondary); font-size: 24px; font-weight: 700; }
+.rc-playtime-tile-name:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
   overflow: hidden; overflow-wrap: anywhere; height: 32px;
   font-size: 12px; font-weight: 600; line-height: 16px;
 }
-.rc-playtime-tile-duration { color: var(--rc-text-secondary); font-size: 12px; line-height: 16px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-#rc-playtime-home .rc-playtime-button:is(.rc-playtime-previous, .rc-playtime-next) {
+.rc-playtime-tile-duration:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { color: var(--rc-text-secondary); font-size: 12px; line-height: 16px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+#rc-playtime-home .rc-playtime-button:is(.rc-playtime-previous, .rc-playtime-next):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex: 0 0 24px; min-width: 0; width: 24px; height: 40px; padding: 0;
   font-size: 22px; line-height: 1; border-color: transparent; background: var(--rc-inset-bg);
 }
-#rc-playtime-home :disabled { opacity: .35; cursor: default; }
-@container (max-width: 420px) { .rc-playtime-carousel { --rc-playtime-slots: 4; } }
-@container (max-width: 340px) { .rc-playtime-carousel { --rc-playtime-slots: 3; } }
-@container (max-width: 260px) { .rc-playtime-carousel { --rc-playtime-slots: 2; } }
-@container (max-width: 180px) { .rc-playtime-carousel { --rc-playtime-slots: 1; } }
-#rc-playtime-dialog {
+#rc-playtime-home :disabled:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { opacity: .35; cursor: default; }
+@container (max-width: 420px) { .rc-playtime-carousel:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { --rc-playtime-slots: 4; } }
+@container (max-width: 340px) { .rc-playtime-carousel:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { --rc-playtime-slots: 3; } }
+@container (max-width: 260px) { .rc-playtime-carousel:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { --rc-playtime-slots: 2; } }
+@container (max-width: 180px) { .rc-playtime-carousel:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { --rc-playtime-slots: 1; } }
+#rc-playtime-dialog:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   width: min(760px, calc(100vw - 32px)); max-width: none;
   max-height: calc(100dvh - 32px); margin: auto; overflow: auto;
   box-shadow: 0 24px 80px rgb(0 0 0 / 30%);
 }
-#rc-playtime-dialog::backdrop { background: rgb(0 0 0 / 45%); }
-.rc-playtime-header, .rc-playtime-tools, .rc-playtime-actions {
+#rc-playtime-dialog:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::backdrop { background: rgb(0 0 0 / 45%); }
+.rc-playtime-header:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)), .rc-playtime-tools:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)), .rc-playtime-actions:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
 }
-:is(#rc-playtime-home, #rc-playtime-dialog) h2 { line-height: 1.3; margin: 0; color: inherit; }
-#rc-playtime-dialog h2 { font-size: 20px; }
-.rc-playtime-summary { margin: 12px 0; font-weight: 600; overflow-wrap: anywhere; }
-.rc-playtime-status, .rc-playtime-hint, .rc-playtime-note, .rc-playtime-empty {
+:is(#rc-playtime-home, #rc-playtime-dialog) h2:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { line-height: 1.3; margin: 0; color: inherit; }
+#rc-playtime-dialog h2:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { font-size: 20px; }
+.rc-playtime-summary:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin: 12px 0; font-weight: 600; overflow-wrap: anywhere; }
+.rc-playtime-status:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)), .rc-playtime-hint:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)), .rc-playtime-note:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)), .rc-playtime-empty:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   color: var(--rc-text-secondary); font-size: 13px; line-height: 1.5; margin: 10px 0; overflow-wrap: anywhere;
 }
-.rc-playtime-empty:empty { display: none; }
-.rc-playtime-game { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 12px 0;
+.rc-playtime-empty:empty:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: none; }
+.rc-playtime-game:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 12px 0;
   border-bottom: 1px solid rgb(var(--rc-foreground-rgb) / 12%); }
-.rc-playtime-art { width: 48px; height: 48px; flex: 0 0 48px; border-radius: 10px; overflow: hidden;
+.rc-playtime-art:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { width: 48px; height: 48px; flex: 0 0 48px; border-radius: 10px; overflow: hidden;
   background: var(--rc-inset-bg); }
-.rc-playtime-art img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.rc-playtime-game-info { flex: 1; min-width: 0; }
-.rc-playtime-game-name { display: block; color: var(--rc-text); font-size: 14px; font-weight: 600;
+.rc-playtime-art img:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: block; width: 100%; height: 100%; object-fit: cover; }
+.rc-playtime-game-info:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { flex: 1; min-width: 0; }
+.rc-playtime-game-name:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: block; color: var(--rc-text); font-size: 14px; font-weight: 600;
   overflow-wrap: anywhere; text-decoration: none; }
-a.rc-playtime-game-name:hover { color: var(--rc-link); text-decoration: underline; }
-.rc-playtime-game-detail { display: block; font-size: 12px; color: var(--rc-text-secondary); }
-.rc-playtime-playing { display: block; font-size: 12px; color: var(--rc-success); }
-.rc-playtime-duration { font-size: 14px; white-space: nowrap; }
-:is(#rc-playtime-home, #rc-playtime-game-page, #rc-playtime-dialog, #rc-playtime-settings) .rc-playtime-button {
+a.rc-playtime-game-name:hover:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { color: var(--rc-link); text-decoration: underline; }
+.rc-playtime-game-detail:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: block; font-size: 12px; color: var(--rc-text-secondary); }
+.rc-playtime-playing:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: block; font-size: 12px; color: var(--rc-success); }
+.rc-playtime-duration:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { font-size: 14px; white-space: nowrap; }
+:is(#rc-playtime-home, #rc-playtime-game-page, #rc-playtime-dialog, #rc-playtime-settings) .rc-playtime-button:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   appearance: none; font: inherit; color: var(--rc-text); background: var(--rc-control-bg);
   border: 1px solid var(--rc-control-border); border-radius: 9px; padding: 8px 12px;
   min-height: 36px; cursor: pointer; white-space: normal;
 }
-:is(#rc-playtime-home, #rc-playtime-game-page, #rc-playtime-dialog, #rc-playtime-settings) .rc-playtime-button:hover:not(:disabled) { background: var(--rc-control-hover); }
-:is(#rc-playtime-dialog, #rc-playtime-home, #rc-playtime-game-page, #rc-playtime-settings) :is(button, a, input, select):focus-visible {
+:is(#rc-playtime-home, #rc-playtime-game-page, #rc-playtime-dialog, #rc-playtime-settings) .rc-playtime-button:hover:not(:disabled):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { background: var(--rc-control-hover); }
+:is(#rc-playtime-dialog, #rc-playtime-home, #rc-playtime-game-page, #rc-playtime-settings) :is(button, a, input, select):focus-visible:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   outline: 2px solid var(--rc-focus); outline-offset: 3px;
 }
-#rc-playtime-dialog :is(input, select) {
+#rc-playtime-dialog :is(input, select):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   font: inherit; color: var(--rc-text); background: var(--rc-control-bg);
   border: 1px solid var(--rc-control-border); border-radius: 9px; min-height: 40px; padding: 8px 12px;
   min-width: 0; width: auto; height: auto;
 }
-#rc-playtime-dialog input[type="search"] { flex: 1 1 200px; }
-#rc-playtime-dialog .rc-playtime-tools { margin: 16px 0; }
-.rc-playtime-actions { justify-content: flex-start; margin-top: 18px; }
-.rc-playtime-confirmation { border: 1px solid var(--rc-error); border-radius: 10px; padding: 12px; margin-top: 12px; }
-.rc-playtime-confirmation p { margin: 0 0 12px; }
-.rc-playtime-confirmation button + button { margin-inline-start: 8px; }
-.rc-playtime-more { margin-top: 12px; }
-:is(#rc-playtime-home, #rc-playtime-game-page, #rc-playtime-dialog, #rc-playtime-settings) [hidden] { display: none !important; }
-:is(#rc-playtime-dialog, #rc-playtime-game-page, #rc-playtime-settings) :disabled { opacity: .55; cursor: default; }
-#rc-playtime-settings { border-top: 1px solid var(--rc-control-border); margin-top: 24px; padding-top: 20px; }
-#rc-playtime-settings h3 { margin: 0 0 16px; }
-#rc-playtime-settings .rc-playtime-toggle { display: flex; align-items: center; gap: 8px; }
-#rc-playtime-settings input[type="checkbox"] {
+#rc-playtime-dialog input[type="search"]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { flex: 1 1 200px; }
+#rc-playtime-dialog .rc-playtime-tools:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin: 16px 0; }
+.rc-playtime-actions:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { justify-content: flex-start; margin-top: 18px; }
+.rc-playtime-confirmation:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { border: 1px solid var(--rc-error); border-radius: 10px; padding: 12px; margin-top: 12px; }
+.rc-playtime-confirmation p:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin: 0 0 12px; }
+.rc-playtime-confirmation button + button:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin-inline-start: 8px; }
+.rc-playtime-more:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin-top: 12px; }
+:is(#rc-playtime-home, #rc-playtime-game-page, #rc-playtime-dialog, #rc-playtime-settings) [hidden]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: none !important; }
+:is(#rc-playtime-dialog, #rc-playtime-game-page, #rc-playtime-settings) :disabled:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { opacity: .55; cursor: default; }
+#rc-playtime-settings:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { border-top: 1px solid var(--rc-control-border); margin-top: 24px; padding-top: 20px; }
+#rc-playtime-settings h3:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin: 0 0 16px; }
+#rc-playtime-settings .rc-playtime-toggle:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: flex; align-items: center; gap: 8px; }
+#rc-playtime-settings input[type="checkbox"]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   appearance: auto; width: 16px; height: 16px; min-height: 0; padding: 0; margin: 0; flex: 0 0 16px;
   accent-color: var(--rc-accent, #335fff);
 }
 /* Use the banner's available space, including Roblox's sidebar, rather than viewport width. */
 @container (max-width: 980px) {
-  #rc-home-greeting:has(#rc-playtime-home) .rc-home-greeting-copy { flex-basis: calc(100% - 260px); }
-  #rc-playtime-home { flex-basis: 100%; margin-inline-start: auto; }
+  #rc-home-greeting:has(#rc-playtime-home) .rc-home-greeting-copy:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { flex-basis: calc(100% - 260px); }
+  #rc-playtime-home:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { flex-basis: 100%; margin-inline-start: auto; }
 }
 @container (max-width: 540px) {
-  #rc-home-greeting:has(#rc-playtime-home) .rc-home-greeting-avatar { flex-basis: 52px; width: 52px; height: 52px; }
-  #rc-home-greeting:has(#rc-playtime-home) .rc-home-greeting-copy { flex-basis: calc(100% - 80px); gap: 5px; }
-  #rc-home-greeting .rc-home-greeting-widgets .rc-home-greeting-clock {
+  #rc-home-greeting:has(#rc-playtime-home) .rc-home-greeting-avatar:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { flex-basis: 52px; width: 52px; height: 52px; }
+  #rc-home-greeting:has(#rc-playtime-home) .rc-home-greeting-copy:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { flex-basis: calc(100% - 80px); gap: 5px; }
+  #rc-home-greeting .rc-home-greeting-widgets .rc-home-greeting-clock:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     flex: 1 1 100%; flex-direction: row; flex-wrap: wrap;
     min-width: 0; align-items: baseline; justify-content: space-between; gap: 4px 12px; text-align: start;
     margin: 0; padding: 12px 0 0; border-left: 0;
     border-top: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 18%);
   }
-  #rc-home-greeting:has(#rc-playtime-home) .rc-home-greeting-clock-label { flex-basis: 100%; }
-  #rc-playtime-home { margin-inline-start: 0; }
+  #rc-home-greeting:has(#rc-playtime-home) .rc-home-greeting-clock-label:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { flex-basis: 100%; }
+  #rc-playtime-home:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin-inline-start: 0; }
 }
 @media (max-width: 480px) {
-  .rc-playtime-panel { padding: 14px; }
-  .rc-playtime-game { gap: 8px; }
-  .rc-playtime-duration { font-size: 12px; }
-  #rc-playtime-dialog select { width: 100%; }
-  #rc-playtime-home .rc-playtime-header { gap: 8px; }
-  .rc-playtime-home-summary { flex-basis: 100%; order: 1; }
+  .rc-playtime-panel:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { padding: 14px; }
+  .rc-playtime-game:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { gap: 8px; }
+  .rc-playtime-duration:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { font-size: 12px; }
+  #rc-playtime-dialog select:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { width: 100%; }
+  #rc-playtime-home .rc-playtime-header:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { gap: 8px; }
+  .rc-playtime-home-summary:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { flex-basis: 100%; order: 1; }
 }

@@ -5,6 +5,7 @@
     || ((...args) => chrome.runtime.sendMessage(...args));
 
   const STORAGE_KEY = 'customBackground';
+  const enhancementsEnabled = () => !globalThis.RobloxCustomizerCompatibility || globalThis.RobloxCustomizerCompatibility.enabled();
   const DB_NAME = 'roblox-customizer-media';
   const STORE_NAME = 'backgrounds';
   const FEED_PAGES = [
@@ -36,6 +37,7 @@
   let backgroundLayer = null;
   let applyGeneration = 0;
   let modal = null;
+  let modalOpeningPending = false;
   let activeSettingsCategory = 'appearance';
   let lastFocus = null;
   let menuQueued = false;
@@ -94,6 +96,7 @@
   }
 
   function syncFrostPage() {
+    if (!enhancementsEnabled()) return;
     if (globalThis.RobloxCustomizerStartup) {
       globalThis.RobloxCustomizerStartup.syncRoute();
       return;
@@ -212,6 +215,7 @@
   }
 
   function applyGlass(blur = settings.glassBlur, opacity = settings.glassOpacity) {
+    if (!enhancementsEnabled()) return;
     const root = document.documentElement;
     if (!root) return;
     const clampedOpacity = Math.max(25, Math.min(90, Number(opacity) || 62));
@@ -246,6 +250,7 @@
   }
 
   function updateHomeGreeting() {
+    if (!enhancementsEnabled()) return;
     const card = document.getElementById('rc-home-greeting');
     if (!card) return;
     const now = new Date();
@@ -399,6 +404,7 @@
   }
 
   function syncHomeContent() {
+    if (!enhancementsEnabled()) return;
     if (!/^\/home\/?$/i.test(location.pathname)) {
       document.getElementById('rc-home-greeting')?.remove();
       clearTimeout(homeGreetingTickTimer);
@@ -497,6 +503,7 @@
   });
   function scheduleHomeGreetingTick() {
     clearTimeout(homeGreetingTickTimer);
+    if (!enhancementsEnabled()) { homeGreetingTickTimer = 0; return; }
     if (!/^\/home\/?$/i.test(location.pathname)) {
       homeGreetingTickTimer = 0;
       return;
@@ -511,6 +518,7 @@
   scheduleHomeGreetingTick();
 
   function applyHomePreferences() {
+    if (!enhancementsEnabled()) return;
     for (const control of HOME_VISIBILITY) {
       const hidden = settings[control.key] === true;
       document.documentElement?.toggleAttribute(control.attribute, hidden);
@@ -554,6 +562,12 @@
     if (generation !== applyGeneration) {
       if (objectUrl) URL.revokeObjectURL(objectUrl);
       return;
+    }
+
+    if (!enhancementsEnabled() && type === 'video') {
+      source = '';
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      objectUrl = null;
     }
 
     layer.replaceChildren();
@@ -638,7 +652,7 @@
 
   function syncMenu() {
     document.getElementById('rc-settings-launcher')?.remove();
-    markHeaderMenus();
+    if (enhancementsEnabled()) markHeaderMenus();
 
     const nativeItem = findNativeSettingsItem();
     if (nativeItem) {
@@ -798,6 +812,14 @@
     globalThis.RobloxCustomizerI18n?.setLanguage(settings.uiLanguage);
     const language = modal?.querySelector('#rc-ui-language');
     if (language) language.value = settings.uiLanguage;
+    if (!enhancementsEnabled()) {
+      applyAppearance();
+      refreshColorControls();
+      if (!previous || ['source', 'url', 'urlType', 'fileKey'].some(key => previous[key] !== settings[key])) {
+        void applyBackground();
+      }
+      return;
+    }
     for (const control of FEED_VISIBILITY) {
       document.documentElement?.toggleAttribute(control.attribute, settings[control.key] !== true);
       const checkbox = modal?.querySelector(`#${control.id}`);
@@ -898,6 +920,10 @@
   async function applyFileSelection(file) {
     const selection = ++mediaSelection;
     if (!file) return;
+    if (!enhancementsEnabled() && mediaTypeForFile(file) !== 'image') {
+      setStatus('Choose an image or GIF file.', true);
+      return;
+    }
     if (!mediaTypeForFile(file)) {
       setStatus('Choose an image, GIF, or MP4 file.', true);
       return;
@@ -1277,6 +1303,12 @@
   }
 
   function openModal() {
+    const compatibility = globalThis.RobloxCustomizerCompatibility;
+    if (!document.body || compatibility && !compatibility.enabled() && !compatibility.fallback()) {
+      modalOpeningPending = true;
+      return;
+    }
+    modalOpeningPending = false;
     if (modal) return;
     lastFocus = document.activeElement;
     modal = document.createElement('div');
@@ -1290,6 +1322,12 @@
           </div>
           <button type="button" id="rc-close" class="rc-icon-button" aria-label="Close">&times;</button>
         </div>
+        <section id="rc-settings-language-notice" role="note" aria-labelledby="rc-settings-language-notice-title" hidden>
+          <strong id="rc-settings-language-notice-title">Your Roblox language is not supported yet</strong>
+          <p>Only image backgrounds and custom colors are available. All other features are disabled.</p>
+          <p>To use all features, switch Roblox's language to English, Simplified Chinese, or Traditional Chinese.</p>
+          <a href="/my/account#!/info">Open Roblox language settings</a>
+        </section>
         <p class="rc-settings-intro">Changes save automatically. Sliders and colors apply when released or after a short pause. GIFs and MP4 videos stay animated.</p>
         <div class="rc-settings-language">
           <label for="rc-ui-language">Extension language</label>
@@ -1429,8 +1467,10 @@
         </footer>
       </div>`;
     document.body.append(modal);
-    globalThis.RobloxCustomizerCurrency?.mountSettings(modal.querySelector('#rc-currency-settings'));
-    globalThis.RobloxCustomizerPlaytimeUI?.mountSettings(modal.querySelector('#rc-playtime-settings'));
+    if (enhancementsEnabled()) {
+      globalThis.RobloxCustomizerCurrency?.mountSettings(modal.querySelector('#rc-currency-settings'));
+      globalThis.RobloxCustomizerPlaytimeUI?.mountSettings(modal.querySelector('#rc-playtime-settings'));
+    }
     organizeSettingsCategories();
     // Previously saved URL backgrounds still render, but have no source control.
     const sourceControl = [...modal.querySelectorAll('input[name="rc-source"]')]
@@ -1577,7 +1617,24 @@
       if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
       else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     });
+    if (!enhancementsEnabled()) {
+      for (const node of modal.querySelectorAll('.rc-settings-glass, #rc-settings-category-home, #rc-settings-category-social, #rc-settings-category-currency, #rc-settings-category-data, #rc-reset-all, .rc-action-spacer')) {
+        node.hidden = true;
+        for (const input of node.querySelectorAll('input, select, button')) input.disabled = true;
+      }
+      for (const button of modal.querySelectorAll('.rc-settings-nav-button')) {
+        button.hidden = button.dataset.rcSettingsCategory !== 'appearance';
+      }
+      modal.querySelector('#rc-reset-all').disabled = true;
+      modal.querySelector('#rc-file').accept = 'image/*';
+      modal.querySelector('.rc-settings-nav-button[data-rc-settings-category="appearance"]').click();
+      modal.querySelector('.rc-settings-intro').hidden = true;
+      const notice = modal.querySelector('#rc-settings-language-notice');
+      notice.hidden = false;
+      globalThis.RobloxCustomizerI18n?.localize(notice);
+    }
     modal.querySelector('#rc-close').focus();
+    globalThis.RobloxCustomizerLanguageWarning?.onOpen();
   }
 
   document.addEventListener('click', event => {
@@ -1686,6 +1743,16 @@
     if (!document.getElementById('rc-background-layer')) void applyBackground();
   });
   globalThis.RobloxCustomizerI18n?.onChange(updateHomeGreeting);
+  globalThis.RobloxCustomizerCompatibility?.onBeforeReload(() => persistTimer ? flushSettingsSave() : saveQueue);
+  chrome.runtime.onMessage?.addListener((message, sender) => {
+    if (message?.type === 'rc-open-settings' && sender.id === chrome.runtime.id) openModal();
+  });
+  document.addEventListener('rc-compatibility-changed', () => {
+    applyCurrentSettings();
+    scheduleHomeGreetingTick();
+    if (modalOpeningPending && !globalThis.RobloxCustomizerCompatibility?.reloading()) setTimeout(openModal, 0);
+  });
+  document.addEventListener('DOMContentLoaded', () => { if (modalOpeningPending) openModal(); }, { once: true });
 
   chrome.storage.local.get(STORAGE_KEY).then(result => {
     if (settingsChanged) return;

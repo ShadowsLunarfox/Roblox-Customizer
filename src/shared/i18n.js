@@ -89,6 +89,17 @@
     ['Delete all saved playtime for this account? This cannot be undone.', '删除此账号的全部本地游戏时长？此操作无法撤销。', '刪除此帳號的全部本機遊戲時長？此操作無法復原。'],
     ['Roblox Customizer', 'Roblox 自定义工具', 'Roblox 自訂工具'],
     ['Extension language', '扩展语言', '擴充功能語言'],
+    ['Unsupported Roblox language', '不支持的 Roblox 语言', '不支援的 Roblox 語言'],
+    ['Your Roblox language ({language}) is not supported by Roblox Customizer. Some features may not work correctly.', 'Roblox 自定义工具不支持您当前的 Roblox 语言（{language}），部分功能可能无法正常使用。', 'Roblox 自訂工具不支援您目前的 Roblox 語言（{language}），部分功能可能無法正常使用。'],
+    ["For the best experience, switch Roblox's language to English, Simplified Chinese, or Traditional Chinese.", '为获得最佳体验，请将 Roblox 语言切换为英语、简体中文或繁体中文。', '為獲得最佳體驗，請將 Roblox 語言切換為英語、簡體中文或繁體中文。'],
+    ['Open Roblox language settings', '打开 Roblox 语言设置', '開啟 Roblox 語言設定'],
+    ['Continue anyway', '仍然继续', '仍然繼續'],
+    ['Continue with fallback', '继续使用兼容模式', '繼續使用相容模式'],
+    ['Your Roblox language ({language}) is not supported. Only image backgrounds and custom colors remain active; all other features are disabled to preserve the Roblox interface.', '不支持您当前的 Roblox 语言（{language}）。仅保留图片背景和自定义颜色，其他功能已停用，以保持 Roblox 原有界面。', '不支援您目前的 Roblox 語言（{language}）。僅保留圖片背景和自訂色彩，其他功能已停用，以維持 Roblox 原有介面。'],
+    ['Your Roblox language is not supported yet', '当前 Roblox 语言暂未支持', '目前的 Roblox 語言暫未支援'],
+    ['Only image backgrounds and custom colors are available. All other features are disabled.', '目前仅可使用图片背景和自定义颜色，其他功能已停用。', '目前僅可使用圖片背景和自訂色彩，其他功能已停用。'],
+    ["To use all features, switch Roblox's language to English, Simplified Chinese, or Traditional Chinese.", '如需使用全部功能，请将 Roblox 语言切换为英语、简体中文或繁体中文。', '如需使用全部功能，請將 Roblox 語言切換為英語、簡體中文或繁體中文。'],
+    ['Choose an image or GIF file.', '请选择图片或 GIF 文件。', '請選擇圖片或 GIF 檔案。'],
     ['Automatic (Roblox / browser)', '自动（Roblox / 浏览器）', '自動（Roblox / 瀏覽器）'],
     ['Changes save automatically. Sliders and colors apply when released or after a short pause. GIFs and MP4 videos stay animated.', '更改会自动保存。滑块和颜色会在松开或短暂停顿后生效。GIF 和 MP4 视频会保持动态播放。', '變更會自動儲存。滑桿和顏色會在放開或短暫停頓後生效。GIF 和 MP4 影片會保持動態播放。'],
     ['Roblox default background', 'Roblox 默认背景', 'Roblox 預設背景'],
@@ -349,13 +360,15 @@
   }).sort((a, b) => b.row[0].length - a.row[0].length);
   let preference = 'auto';
   let current = 'en';
+  let currentRobloxLanguage = '';
   let preferenceVersion = 0;
   const listeners = new Set();
+  const robloxLanguageListeners = new Set();
   const bindings = new Map();
   const pending = new Set();
   let timer = null;
 
-  const ROOTS = '#rc-playtime-home, #rc-playtime-game-page, #rc-playtime-dialog, #rc-playtime-settings, #rc-settings-overlay, .rc-settings-menu-entry, .rc-hide-recommended-game, #rc-home-greeting, '
+  const ROOTS = '#rc-playtime-home, #rc-playtime-game-page, #rc-playtime-dialog, #rc-playtime-settings, #rc-settings-overlay, #rc-language-warning-dialog, .rc-settings-menu-entry, .rc-hide-recommended-game, #rc-home-greeting, '
     + '.rc-game-pin-control, .rc-game-pin-folder, #rc-pinned-games, #rc-pinned-games-notification, #rc-avatar-2d, #rc-catalog-item-2d, '
     + '#rc-catalog-item-3d-refresh, #rc-catalog-item-3d-status, #rc-profile-enhancements, #rc-profile-inline-about, '
     + '#rc-x-feed-panel, #rc-youtube-feed-panel, #rc-rolimons-panel, .rc-public-server-filters, '
@@ -367,15 +380,20 @@
     + '.rc-private-server-owner, .rc-rolimons-data-card';
   const attributes = ['aria-label', 'title', 'placeholder', 'alt'];
 
-  function normalizeLocale(value) {
-    const locale = String(value || '').replaceAll('_', '-').toLowerCase();
+  function supportedLocale(value) {
+    const locale = String(value || '').trim().replaceAll('_', '-').toLowerCase();
+    if (/^en(?:-|$)/.test(locale)) return 'en';
     if (/^zh(?:-|$)/.test(locale)) return /(?:^|-)hant(?:-|$)|(?:^|-)(?:tw|hk|mo)(?:-|$)/.test(locale) ? 'zh-TW' : 'zh-CN';
-    return 'en';
+    return null;
+  }
+  function robloxLanguage() {
+    const meta = document.querySelector('meta[name="locale-data"]');
+    return String(meta?.getAttribute('data-language-code') || '').trim()
+      || String(document.documentElement?.lang || '').trim();
   }
   function detectedLocale() {
-    const meta = document.querySelector('meta[name="locale-data"]');
-    return normalizeLocale(meta?.getAttribute('data-language-code') || document.documentElement?.lang
-      || globalThis.chrome?.i18n?.getUILanguage?.() || globalThis.navigator?.language);
+    return supportedLocale(robloxLanguage()
+      || globalThis.chrome?.i18n?.getUILanguage?.() || globalThis.navigator?.language) || 'en';
   }
   function resolve(source, values) {
     let row = exact.get(source);
@@ -433,11 +451,19 @@
   }
   function syncLocale() {
     const next = preference === 'auto' ? detectedLocale() : preference;
-    if (next === current) return;
-    current = next;
-    translateAll();
-    for (const listener of listeners) {
-      try { listener(current); } catch (error) { console.warn('Roblox Customizer: Could not update an interface language.', error); }
+    if (next !== current) {
+      current = next;
+      translateAll();
+      for (const listener of listeners) {
+        try { listener(current); } catch (error) { console.warn('Roblox Customizer: Could not update an interface language.', error); }
+      }
+    }
+    const language = robloxLanguage();
+    if (language !== currentRobloxLanguage) {
+      currentRobloxLanguage = language;
+      for (const listener of robloxLanguageListeners) {
+        try { listener(language); } catch (error) { console.warn('Roblox Customizer: Could not update Roblox language support.', error); }
+      }
     }
   }
   function setLanguage(value) {
@@ -458,7 +484,10 @@
     if (pending.size && timer === null) timer = setTimeout(flush, 0);
   }
   current = detectedLocale();
+  currentRobloxLanguage = robloxLanguage();
   globalThis.RobloxCustomizerI18n = Object.freeze({ t, localize, setLanguage,
+    robloxLanguage, isSupportedLanguage: value => supportedLocale(value) !== null,
+    onRobloxLanguageChange(listener) { robloxLanguageListeners.add(listener); return () => robloxLanguageListeners.delete(listener); },
     matches: (node, source) => node.textContent === (node.closest(IGNORE) ? source : t(source)),
     attribute(node, attribute, source) {
       if (node.getAttribute(attribute) !== t(source)) node.setAttribute(attribute, source);

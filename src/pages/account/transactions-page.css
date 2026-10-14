@@ -1,20 +1,21 @@
+/* Preserve native styling while features are disabled for the page language. */
 /* Transactions retain Roblox's native data, filters, links and pagination. */
-html[data-rc-frost-page="transactions"] {
+html[data-rc-frost-page="transactions"]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   --rc-transactions-border: var(--color-stroke-default, rgb(var(--rc-foreground-rgb, 255 255 255) / 17%));
   --rc-transactions-hover: rgb(128 128 128 / 12%);
 }
-html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions) {
+html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-width: 0;
   max-width: 1200px;
 }
 
-html[data-rc-frost-page="transactions"] #content {
+html[data-rc-frost-page="transactions"] #content:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   width: 100%;
   padding-inline: clamp(12px, 2vw, 24px);
 }
 
-html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(h1, h2, h3) {
+html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(h1, h2, h3):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   line-height: 1.3;
   overflow-wrap: anywhere;
 }
@@ -22,7 +23,7 @@ html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #tr
 html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(
   .page-content, .tab-content, .transactions-container, .transaction-container,
   .section, .section-content, .summary, .transaction-summary, .transactions-summary
-):not(table) {
+):not(table):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-width: 0;
   background-color: transparent !important;
   background-image: none !important;
@@ -35,7 +36,7 @@ html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transa
   .container-header, .transactions-header, .transaction-header,
   .transactions-filters, .transaction-filters, .transactions-filter, .transaction-filter,
   .transactions-filters-container, .transaction-filters-container
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: relative;
   box-sizing: border-box;
   isolation: isolate;
@@ -56,7 +57,7 @@ html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transa
   .container-header, .transactions-header, .transaction-header,
   .transactions-filters, .transaction-filters, .transactions-filter, .transaction-filter,
   .transactions-filters-container, .transaction-filters-container
-)::before {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before {
   content: "";
   display: block !important;
   position: absolute;
@@ -74,12 +75,12 @@ html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #tr
   .container-header, .transactions-header, .transaction-header,
   .transactions-filters, .transaction-filters, .transactions-filter, .transaction-filter,
   .transactions-filters-container, .transaction-filters-container
-)::after {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after {
   content: none !important;
   display: none !important;
 }
 
-html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.container-header, .transactions-header, .transaction-header) {
+html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.container-header, .transactions-header, .transaction-header):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -87,11 +88,11 @@ html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #tr
   gap: 14px 20px;
 }
 
-html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.container-header, .transactions-header, .transaction-header) :is(h1, h2) {
+html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.container-header, .transactions-header, .transaction-header) :is(h1, h2):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin: 0 !important;
 }
 
-html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) .balance-label.icon-robux-container {
+html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) .balance-label.icon-robux-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: inline-flex;
   align-items: center;
   flex-wrap: wrap;
@@ -104,7 +105,7 @@ html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #tr
 html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(
   .transactions-filters, .transaction-filters, .transactions-filter, .transaction-filter,
   .transactions-filters-container, .transaction-filters-container
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
@@ -114,7 +115,7 @@ html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #tr
 html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(
   .transactions-filters, .transaction-filters, .transactions-filter, .transaction-filter,
   .transactions-filters-container, .transaction-filters-container
-) > :is(.input-group, .input-dropdown, .filter-option, .filter-container) {
+) > :is(.input-group, .input-dropdown, .filter-option, .filter-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex: 1 1 200px;
   float: none !important;
   min-width: 0;
@@ -122,7 +123,7 @@ html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #tr
   margin: 0 !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.input-dropdown-btn, select, input:not([type="checkbox"], [type="radio"])) {
+html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.input-dropdown-btn, select, input:not([type="checkbox"], [type="radio"])):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   min-width: 0;
   min-height: 42px;
@@ -140,10 +141,10 @@ html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #tr
   .container-header, .transactions-header, .transaction-header,
   .transactions-filters, .transaction-filters, .transactions-filter, .transaction-filter,
   .transactions-filters-container, .transaction-filters-container, .input-group, .input-dropdown
-):has(.open, [aria-expanded="true"], [data-state="open"]) { position: relative; z-index: 20; }
+):has(.open, [aria-expanded="true"], [data-state="open"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { position: relative; z-index: 20; }
 
-html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.dropdown-menu, [role="listbox"]),
-html[data-rc-ui-active][data-rc-frost-page="transactions"] body > [data-radix-popper-content-wrapper] :is([role="listbox"], [role="menu"]) {
+html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.dropdown-menu, [role="listbox"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="transactions"] body > [data-radix-popper-content-wrapper] :is([role="listbox"], [role="menu"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   z-index: 30;
   min-width: 180px;
@@ -160,7 +161,7 @@ html[data-rc-ui-active][data-rc-frost-page="transactions"] body > [data-radix-po
   overscroll-behavior: contain;
 }
 
-html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.dropdown-menu > li > a, .dropdown-menu > li > button, [role="option"]) {
+html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.dropdown-menu > li > a, .dropdown-menu > li > button, [role="option"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-height: 40px;
   padding: 10px 12px !important;
   border-radius: 8px;
@@ -168,12 +169,12 @@ html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #tr
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.dropdown-menu > li > a, .dropdown-menu > li > button, [role="option"]):is(:hover, :focus-visible, [aria-selected="true"]) {
+html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.dropdown-menu > li > a, .dropdown-menu > li > button, [role="option"]):is(:hover, :focus-visible, [aria-selected="true"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: var(--rc-transactions-hover) !important;
 }
 
 /* One glass layer per table keeps long histories inexpensive to paint. */
-html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) table {
+html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) table:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   width: 100% !important;
   max-width: 100%;
@@ -191,7 +192,7 @@ html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transa
 /* Summary wrappers include their title; their tables share one glass surface. */
 html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(
   .summary, .transaction-summary, .transactions-summary
-):not(table):has(table) {
+):not(table):has(table):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   border: 1px solid var(--rc-transactions-border) !important;
   border-radius: 14px;
@@ -203,7 +204,7 @@ html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transa
 
 html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(
   .summary, .transaction-summary, .transactions-summary
-):not(table):has(table) table {
+):not(table):has(table) table:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border: 0 !important;
   border-radius: 0;
   background-color: transparent !important;
@@ -211,37 +212,37 @@ html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transa
   backdrop-filter: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(thead, tbody, tfoot, tr, th, td) {
+html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(thead, tbody, tfoot, tr, th, td):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: transparent !important;
   background-image: none !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
 
-html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(th, td) {
+html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(th, td):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   padding: 14px 16px !important;
   vertical-align: middle;
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(th, td) {
+html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(th, td):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border-color: var(--rc-transactions-border) !important;
 }
 
-html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions) th {
+html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions) th:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   font-weight: 600;
   text-align: start;
 }
 
-html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(th, td):last-child {
+html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(th, td):last-child:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   text-align: end;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions) tbody tr:hover {
+html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions) tbody tr:hover:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: var(--rc-transactions-hover) !important;
 }
 
-html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) td:last-child .rc-robux-equivalent {
+html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) td:last-child .rc-robux-equivalent:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: block;
   clear: both;
   margin: 4px 0 0;
@@ -249,7 +250,7 @@ html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #tr
   line-height: 1.35;
 }
 
-html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.pager, .pagination) {
+html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.pager, .pagination):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -258,7 +259,7 @@ html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #tr
   margin-block: 18px 24px;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.pager button, .pager a, .pagination button, .pagination a) {
+html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(.pager button, .pager a, .pagination button, .pagination a):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-width: 40px;
   min-height: 40px;
   border-radius: 10px !important;
@@ -266,13 +267,13 @@ html[data-rc-ui-active][data-rc-frost-page="transactions"] :is(#content, #transa
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.28, var(--rc-surface-opacity-floor, 0)));
 }
 
-html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(a, button, input, select, [tabindex="0"]):focus-visible {
+html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(a, button, input, select, [tabindex="0"]):focus-visible:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   outline: 2px solid var(--color-selection-start, var(--rc-focus, #7fa6ff)) !important;
   outline-offset: 3px;
 }
 
 /* Native loading, empty and error states must keep their visibility semantics. */
-html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions) [hidden]:not([hidden="until-found"]) {
+html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions) [hidden]:not([hidden="until-found"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: none !important;
 }
 
@@ -281,24 +282,24 @@ html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #tr
     .container-header, .transactions-header, .transaction-header,
     .transactions-filters, .transaction-filters, .transactions-filter, .transaction-filter,
     .transactions-filters-container, .transaction-filters-container
-  ) { padding: 14px !important; }
+  ):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { padding: 14px !important; }
 
-  html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) table {
+  html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) table:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     table-layout: fixed;
   }
-  html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(th, td) {
+  html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(th, td):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     padding: 12px 8px !important;
     font-size: 12px;
   }
-  html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) th { font-size: 11px; }
-  html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(th, td):last-child { width: 28%; }
-  html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) td:last-child :is(.text-robux, .text-robux-lg, .text-robux-tile) {
+  html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) th:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { font-size: 11px; }
+  html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) :is(th, td):last-child:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { width: 28%; }
+  html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) td:last-child :is(.text-robux, .text-robux-lg, .text-robux-tile):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     display: inline-block;
     max-width: 100%;
     white-space: normal;
     overflow-wrap: anywhere;
   }
-  html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) td a { white-space: normal; overflow-wrap: anywhere; }
-  html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) .row > [class*="col-"]:has(table) { float: none; width: 100%; }
-  html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) td:last-child .rc-robux-equivalent { font-size: 10px; }
+  html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) td a:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { white-space: normal; overflow-wrap: anywhere; }
+  html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) .row > [class*="col-"]:has(table):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { float: none; width: 100%; }
+  html[data-rc-frost-page="transactions"] :is(#content, #transactions-web-app, #transactions-container, #my-transactions, main.container-main) td:last-child .rc-robux-equivalent:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { font-size: 10px; }
 }

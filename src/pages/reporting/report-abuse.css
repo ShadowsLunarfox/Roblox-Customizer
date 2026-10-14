@@ -1,5 +1,6 @@
+/* Preserve native styling while features are disabled for the page language. */
 /* Keep the native reporting form and its states inside one wallpaper-aware panel. */
-html[data-rc-ui-active][data-rc-frost-page="report-abuse"] body #content {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] body #content:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   --rc-report-border: var(--color-stroke-default, rgb(128 128 128 / 32%));
   --rc-report-focus: var(--color-selection-start, var(--rc-focus, #7fa6ff));
   box-sizing: border-box !important;
@@ -19,13 +20,13 @@ html[data-rc-ui-active][data-rc-frost-page="report-abuse"] body #content {
 }
 
 /* Native templates may add their own root and section backings. */
-html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content > div,
-html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content > div > div,
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content > div:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content > div > div:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
 html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(
   #report-abuse-container, #report-abuse-web-app, .report-abuse-container,
   .report-abuse, .report-abuse-page, .section-content, .container-header,
   form
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-width: 0;
   max-width: 100%;
   background-color: transparent !important;
@@ -34,47 +35,47 @@ html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(
   backdrop-filter: none !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content .container-header {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content .container-header:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin: 0 0 20px !important;
   padding: 0 !important;
   border: 0 !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(h1, h2) {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(h1, h2):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin: 0 0 16px;
   line-height: 1.25;
   letter-spacing: -.025em;
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content h1 {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content h1:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   font-size: clamp(26px, 4vw, 34px);
 }
 
-html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(p, label, .text-label, .text-description) {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(p, label, .text-label, .text-description):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   line-height: 1.55;
   overflow-wrap: anywhere;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(form, .form-group, .form-field) {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(form, .form-group, .form-field):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   width: 100% !important;
   max-width: 100% !important;
   min-width: 0;
   box-sizing: border-box;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(.form-group, .form-field) {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(.form-group, .form-field):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin-bottom: 20px;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(label, .text-label) {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(label, .text-label):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   font-weight: 600;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(
   textarea, select, .input-dropdown-btn,
   input:not(:where([type="checkbox"], [type="radio"], [type="hidden"], [type="button"], [type="submit"], [type="reset"], [type="file"]))
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box !important;
   width: 100% !important;
   max-width: 100% !important;
@@ -89,27 +90,27 @@ html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(
   line-height: 1.5;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content textarea {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content textarea:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   height: auto;
   min-height: 160px !important;
   resize: vertical;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content select option {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content select option:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: rgb(var(--rc-glass-color, 20 22 28));
   color: inherit;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(
   input, select, textarea, .input-dropdown-btn
-):is([aria-invalid="true"], .input-validation-error),
+):is([aria-invalid="true"], .input-validation-error):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
 html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content .has-error :is(
   input, select, textarea, .input-dropdown-btn
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border-color: var(--color-system-alert, #ef7676) !important;
 }
 
-html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content .input-dropdown > .dropdown-menu {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content .input-dropdown > .dropdown-menu:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   max-width: 100%;
   max-height: min(320px, 50dvh);
@@ -124,7 +125,7 @@ html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content .input-dropd
 html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(
   .btn-primary-md, .btn-primary-lg, .btn-control-md, .btn-control-lg,
   .btn-secondary-md, .btn-secondary-lg, button[type="submit"], input[type="submit"]
-) {
+):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   min-height: 44px;
   max-width: 100%;
@@ -136,7 +137,7 @@ html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(
 
 html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(
   .btn-primary-md, .btn-primary-lg, button[type="submit"], input[type="submit"]
-):not(:disabled, .disabled, [aria-disabled="true"]) {
+):not(:disabled, .disabled, [aria-disabled="true"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border: 1px solid var(--rc-accent, #5278ff) !important;
   background: var(--rc-accent, linear-gradient(135deg, #4269ef, #3359d6)) !important;
   color: var(--rc-accent-text, #fff) !important;
@@ -145,24 +146,24 @@ html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(
 
 html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(
   .btn-primary-md, .btn-primary-lg, button[type="submit"], input[type="submit"]
-):not(:disabled, .disabled, [aria-disabled="true"]):hover {
+):not(:disabled, .disabled, [aria-disabled="true"]):hover:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background: var(--rc-accent-hover, linear-gradient(135deg, #5077fa, #4268e5)) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content :is(
   button, input, select, textarea, a, [tabindex="0"]
-):focus-visible {
+):focus-visible:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   outline: 2px solid var(--rc-report-focus) !important;
   outline-offset: 3px;
 }
 
 /* Preserve native visibility, validation colors, disabled controls, and dialogs. */
-html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content [hidden]:not([hidden="until-found"]) {
+html[data-rc-ui-active][data-rc-frost-page="report-abuse"] #content [hidden]:not([hidden="until-found"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: none !important;
 }
 
 @media (max-width: 600px) {
-  html[data-rc-ui-active][data-rc-frost-page="report-abuse"] body #content {
+  html[data-rc-ui-active][data-rc-frost-page="report-abuse"] body #content:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     margin: 16px auto !important;
     border-radius: 16px !important;
   }

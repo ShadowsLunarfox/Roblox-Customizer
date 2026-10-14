@@ -134,6 +134,29 @@ function harness(options = {}) {
     fail(value) { fail = value; }, csrf(value) { csrf = value; }, hold(value) { hold = value; },
     async alarm() { for (const listener of events.alarm) listener({ name: 'rc-playtime-poll' }); return message('snapshot'); } };
 }
+
+test('Unsupported language pauses background tracking without erasing history or the saved opt-in', async () => {
+  const h = harness();
+  await h.message('refresh');
+  h.advance(30000);
+  const before = await h.alarm();
+  assert.equal(before.totalMs, 30000);
+  await h.chrome.storage.local.set({ robloxCustomizerUnsupportedLanguage: 'fr' });
+  const paused = await h.message('snapshot');
+  assert.equal(paused.enabled, false);
+  assert.equal(paused.totalMs, before.totalMs);
+  assert.equal(h.local[core.ENABLED_KEY], true);
+  assert.equal(h.alarms.size, 0);
+  const requests = h.requests.length;
+  h.advance(120000);
+  await h.message('refresh');
+  assert.equal(h.requests.length, requests);
+  await h.chrome.storage.local.set({ robloxCustomizerUnsupportedLanguage: undefined });
+  await h.message('refresh');
+  assert.equal((await h.message('snapshot')).totalMs, before.totalMs, 'Fallback time is not added on resume');
+  h.advance(30000);
+  assert.equal((await h.alarm()).totalMs, before.totalMs + 30000);
+});
 test('background enables tracking by default, uses one 30-second alarm and honors saved opt-outs', async () => {
   const fresh = harness({ local: {} });
   assert.equal((await fresh.message('snapshot')).enabled, true);
