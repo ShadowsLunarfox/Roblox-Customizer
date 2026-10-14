@@ -74,6 +74,8 @@
   let markedCategoryBranches = [];
   let markedSubcategoryBranches = [];
   let markedEditorFlow = null;
+  let markedBodyControls = [];
+  const movedBodyControls = new Map();
   let compareHost = null;
   let studio = null;
   let viewColumn = null;
@@ -189,7 +191,7 @@
       && (MAIN_CATEGORY_LABELS.has(categoryLabel(node)) || SUBCATEGORY_LABELS.has(categoryLabel(node)))
       && !interactive.some(control => control.contains(node)));
     const allControls = [...interactive, ...textControls]
-      .filter(node => !node.closest('#rc-avatar-2d') && !node.closest(CARD_SELECTORS))
+      .filter(node => !node.closest('#rc-avatar-2d, [data-rc-avatar-body-controls]') && !node.closest(CARD_SELECTORS))
       .sort((a, b) => a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
     const mainControls = markedCategories
       ? allControls.filter(node => markedCategories.contains(node)
@@ -339,6 +341,92 @@
     let child = node;
     while (child?.parentElement && child.parentElement !== parent) child = child.parentElement;
     return child?.parentElement === parent ? child : null;
+  }
+
+  function arrangeBodyControls(root) {
+    for (const [node, placeholder] of movedBodyControls) {
+      if (!node.isConnected) {
+        placeholder.remove();
+        movedBodyControls.delete(node);
+      } else if (!placeholder.isConnected) {
+        // Roblox replaced the original component while its old controls were relocated.
+        node.remove();
+        movedBodyControls.delete(node);
+      }
+    }
+    const filters = markedCategories || markedMainRow;
+    if (!filters || !root.contains(filters)) return;
+    const target = itemColumn?.contains(filters) ? itemColumn : filters.parentElement;
+    const before = childUnder(target, filters);
+    if (!before) return;
+    const isolated = node => node && node !== root && root.contains(node)
+      && ![markedPreview, markedCategories, markedMainRow, markedItems]
+        .some(boundary => boundary && node.contains(boundary))
+      && !node.querySelector(CARD_SELECTORS);
+    const groups = new Set();
+    const addGroup = node => {
+      if (!isolated(node)) return;
+      while (isolated(node.parentElement)) node = node.parentElement;
+      groups.add(node);
+    };
+    // R6/R15 labels remain the same in all supported locales. Keep their native toggle intact.
+    const labels = [...root.querySelectorAll('span, label, button, a, div, p')]
+      .filter(node => /^(?:R6|R15)$/i.test(node.textContent.trim()) && !node.closest(CARD_SELECTORS));
+    for (const label of labels) {
+      for (let node = label.parentElement; isolated(node); node = node.parentElement) {
+        if (labels.some(other => /^R6$/i.test(other.textContent.trim()) && node.contains(other))
+          && labels.some(other => /^R15$/i.test(other.textContent.trim()) && node.contains(other))) {
+          addGroup(node);
+          break;
+        }
+      }
+    }
+    // Scaling may be in a separate native panel. Require multiple scale labels so other sliders stay put.
+    const scaleLabels = [/height|身高|高度/i, /width|宽度|寬度/i, /\bhead|头部|頭部/i,
+      /proportions|比例/i];
+    const scaleSources = [...root.querySelectorAll('input[type="range"], [role="slider"], .noUi-target, .rzslider'),
+      ...[...root.querySelectorAll('label, span, div, p')].filter(node => node.children.length === 0
+        && /^(?:height|width|proportions|身高|高度|宽度|寬度|比例)(?:\s|[:：]|\d|$)/i.test(node.textContent.trim()))];
+    for (const slider of scaleSources) {
+      if (slider.closest('#rc-avatar-2d') || slider.closest(CARD_SELECTORS)) continue;
+      for (let node = slider.parentElement; isolated(node); node = node.parentElement) {
+        if (scaleLabels.filter(pattern => pattern.test(node.textContent)).length >= 2) {
+          addGroup(node);
+          break;
+        }
+      }
+    }
+    const panels = [...groups].filter(node => ![...groups].some(other => other !== node && other.contains(node)))
+      .sort((a, b) => a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
+    markedBodyControls = updateMarkedList(markedBodyControls, panels, 'data-rc-avatar-body-controls');
+    // Keep the body menu in the editor section, with the complete native filter menu above it.
+    let insertionPoint = before.nextElementSibling;
+    while (panels.includes(insertionPoint)) insertionPoint = insertionPoint.nextElementSibling;
+    for (const node of panels.reverse()) {
+      if (node.parentElement !== target || node.nextElementSibling !== insertionPoint) {
+        if (!movedBodyControls.has(node)) {
+          const placeholder = document.createComment('Roblox Customizer: original avatar body controls');
+          node.before(placeholder);
+          movedBodyControls.set(node, placeholder);
+        }
+        target.insertBefore(node, insertionPoint);
+      }
+      insertionPoint = node;
+    }
+  }
+
+  function restoreBodyControls() {
+    for (const node of markedBodyControls) node.removeAttribute('data-rc-avatar-body-controls');
+    markedBodyControls = [];
+    for (const [node, placeholder] of movedBodyControls) {
+      node.removeAttribute('data-rc-avatar-body-controls');
+      if (placeholder.isConnected && node.isConnected) placeholder.replaceWith(node);
+      else {
+        placeholder.remove();
+        node.remove();
+      }
+    }
+    movedBodyControls.clear();
   }
 
   function arrangeStudio(root, items) {
@@ -593,6 +681,7 @@
     ++requestSequence;
     waitingForUpdatedImage = false;
     imageBeforeChange = '';
+    restoreBodyControls();
     panel?.remove();
     compareHost?.removeAttribute('data-rc-avatar-compare');
     markedPreview?.removeAttribute('data-rc-avatar-3d');
@@ -676,6 +765,7 @@
     markedItems = mark(markedItems, items, 'data-rc-avatar-items');
     arrangeStudio(root, items);
     hideNative2DToggle(viewColumn || preview);
+    arrangeBodyControls(root);
     markCategoryNavigation(root);
     markPreviewPath(preview);
     if (!panel) panel = makePanel();

@@ -19,8 +19,10 @@
     if (!dialog) return;
     const locale = i18n?.locale() || 'en';
     const language = ['en', 'zh-CN', 'zh-TW'].includes(locale) ? locale : 'en';
+    const suffix = language === 'en' ? '' : `.${language}`;
     for (const link of dialog.querySelectorAll('[data-rc-legal-document]')) {
-      link.href = `${chrome.runtime.getURL('src/legal/index.html')}?document=${link.dataset.rcLegalDocument}&lang=${language}`;
+      const file = link.dataset.rcLegalDocument === 'terms' ? 'TERMS' : 'PRIVACY';
+      link.href = `https://github.com/ShadowsLunarfox/Roblox-Customizer/blob/main/${file}${suffix}.md`;
     }
     dialog.querySelector('#rc-terms-accept').textContent = saving ? 'Saving acceptance…' : 'Accept and continue';
     dialog.querySelector('#rc-terms-status').textContent = saveFailed

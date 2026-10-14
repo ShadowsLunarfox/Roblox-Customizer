@@ -264,6 +264,18 @@ html[data-rc-ui-active] #rc-avatar-2d:where(:not([data-rc-features-disabled], [d
 }
 
 /* Keep navigation, its expanded options, and inventory in document flow. */
+html[data-rc-frost-page="avatar"] [data-rc-avatar-body-controls]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  box-sizing: border-box;
+  position: relative !important;
+  inset: auto !important;
+  float: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0;
+  order: 0;
+  margin: 0 0 16px !important;
+}
+
 html[data-rc-frost-page="avatar"] [data-rc-avatar-item-column]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   overflow: visible !important;
 }

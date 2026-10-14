@@ -5,25 +5,18 @@ const http = require('node:http');
 const { test } = require('node:test');
 const { isolatedChrome, waitForDocument, pause } = require('./helpers/chrome.cjs');
 const workspace = path.resolve(__dirname, '..');
-const manifest = JSON.parse(fs.readFileSync(path.join(workspace, 'manifest.json'), 'utf8'));
-const policies = JSON.parse(fs.readFileSync(path.join(workspace, 'src/legal/content.json'), 'utf8'));
+const titles = {
+  en: { terms: 'Terms of Service', privacy: 'Privacy Policy' },
+  'zh-CN': { terms: '服务条款', privacy: '隐私政策' },
+  'zh-TW': { terms: '服務條款', privacy: '隱私權政策' }
+};
+const policyURL = (type, language) => `https://github.com/ShadowsLunarfox/Roblox-Customizer/blob/main/${type === 'terms' ? 'TERMS' : 'PRIVACY'}${language === 'en' ? '' : '.' + language}.md`;
 const scripts = ['src/shared/compatibility.js', 'src/shared/runtime.js', 'src/shared/native-labels.js',
   'src/shared/i18n.js', 'src/shared/startup.js', 'src/settings/terms-acceptance.js', 'src/settings/language-warning.js', 'src/settings/settings.js'];
 const styles = ['src/shared/theme.css', 'src/settings/settings.css'];
-const legalFiles = ['src/legal/index.html', 'src/legal/legal.js', 'src/legal/legal.css', 'src/legal/content.json'];
-
-test('Published policies match the packaged documents and packaged page dependencies exist', () => {
-  for (const [file, source] of Object.entries(require('../scripts/build-legal-docs.cjs').build())) {
-    assert.equal(fs.readFileSync(path.join(workspace, file), 'utf8'), source, `${file} is current`);
-  }
-  assert.ok(manifest.web_accessible_resources.some(entry => entry.resources.includes('src/legal/index.html')
-    && entry.matches.includes('https://www.roblox.com/*')), 'Roblox can open the packaged legal page');
-  for (const file of legalFiles) assert.ok(fs.statSync(path.join(workspace, file)).isFile(), file);
-});
-
-test('Settings legal buttons and first-opening acceptance work in all languages and fallback mode; policies load locally',
+test('Settings and first-visit acceptance link to GitHub policies in all languages and fallback mode',
   { skip: !process.env.CHROME_BIN, timeout: 90000 }, async t => {
-    const files = new Set([...scripts, ...styles, ...legalFiles, 'icons/icon-48.png', 'icons/icon-128.png']);
+    const files = new Set([...scripts, ...styles, 'icons/icon-48.png', 'icons/icon-128.png']);
     const server = http.createServer((request, response) => {
       const url = new URL(request.url, 'http://localhost');
       const file = url.pathname.slice(1);
@@ -61,7 +54,7 @@ test('Settings legal buttons and first-opening acceptance work in all languages 
     const browser = await isolatedChrome(t, 'legal');
     await browser.send('Emulation.setFocusEmulationEnabled', { enabled: true });
     const origin = `http://127.0.0.1:${server.address().port}`;
-    // A local fixture supplies only packaged assets. Any external request fails the check below.
+    // UI loads entirely from the fixture; external policy links are checked without downloading documents.
     await browser.send('Network.setBlockedURLs', { urls: ['https://*', 'http://www.*'] });
 
     const buttonState = `(()=>[...document.querySelectorAll('[data-rc-legal-document]')].map(link=>{
@@ -77,13 +70,13 @@ test('Settings legal buttons and first-opening acceptance work in all languages 
       assert.equal(await browser.evaluate('RobloxCustomizerCompatibility.fallback()'), robloxLanguage === 'fr-FR');
       for (const language of ['en', 'zh-CN', 'zh-TW']) {
         await browser.evaluate(`RobloxCustomizerI18n.setLanguage(${JSON.stringify(language)})`);
-        await browser.waitFor(`document.querySelector('[data-rc-legal-document="privacy"]').textContent===${JSON.stringify(policies.locales[language].privacy.title)}`);
+        await browser.waitFor(`document.querySelector('[data-rc-legal-document="privacy"]').textContent===${JSON.stringify(titles[language].privacy)}`);
         for (const width of [1280, 320]) {
           await browser.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
           for (const [index, button] of (await browser.evaluate(buttonState)).entries()) {
             const type = index === 0 ? 'terms' : 'privacy';
-            assert.equal(button.text, policies.locales[language][type].title);
-            assert.equal(button.href, `${origin}/src/legal/index.html?document=${type}&lang=${language}`);
+            assert.equal(button.text, titles[language][type]);
+            assert.equal(button.href, policyURL(type, language));
             assert.ok(button.visible && button.withinViewport, `${robloxLanguage}/${language}/${width}: legal button is available`);
             assert.equal(button.target, '_blank');
             assert.match(button.rel, /noopener/); assert.match(button.rel, /noreferrer/);
@@ -101,43 +94,13 @@ test('Settings legal buttons and first-opening acceptance work in all languages 
       await browser.click('[data-rc-legal-document="privacy"]');
       let target;
       for (let attempt = 0; attempt < 50 && !target; attempt++) {
-        target = (await browser.send('Target.getTargets')).targetInfos.find(info => info.url === `${origin}/src/legal/index.html?document=privacy&lang=zh-TW`);
+        target = (await browser.send('Target.getTargets')).targetInfos.find(info => info.url === policyURL('privacy', 'zh-TW'));
         if (!target) await pause(30);
       }
-      assert.ok(target, 'Click opens the privacy policy in a new tab');
+      assert.ok(target, 'Click opens the published GitHub privacy policy in a new tab');
       await browser.send('Target.closeTarget', { targetId: target.targetId });
       assert.equal(await browser.evaluate("document.querySelector('#rc-settings-overlay').checkVisibility()"), true, 'Settings remain open');
     }
-
-    for (const type of ['terms', 'privacy']) {
-      for (const language of ['en', 'zh-CN', 'zh-TW']) {
-        const url = `${origin}/src/legal/index.html?document=${type}&lang=${language}`;
-        await browser.send('Page.navigate', { url });
-        await waitForDocument(browser, '#legal-content .contact', url);
-        assert.equal(await browser.evaluate('document.documentElement.lang'), language);
-        assert.equal(await browser.evaluate("document.querySelector('h1').textContent"), policies.locales[language][type].title);
-        assert.match(await browser.evaluate("document.querySelector('.metadata').textContent"), /Lunarfox 月狐/);
-        assert.equal(await browser.evaluate("document.querySelector('.contact a').href"), 'mailto:lunar@lunarfox.my');
-        assert.equal(await browser.evaluate(`document.querySelector('nav [aria-current="page"]').id`), `${type}-link`);
-        const requests = await browser.evaluate('performance.getEntriesByType("resource").map(entry=>entry.name)');
-        assert.ok(requests.length >= 3 && requests.every(url => url.startsWith(origin + '/')), 'Policy loading contacts only the local package');
-        assert.equal(await browser.evaluate("document.documentElement.scrollWidth<=innerWidth"), true, 'No horizontal overflow at 320px');
-        await browser.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'dark' }] });
-        assert.equal(await browser.evaluate('getComputedStyle(document.documentElement).backgroundColor'), 'rgb(18, 21, 28)');
-        await browser.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'light' }] });
-        assert.equal(await browser.evaluate('getComputedStyle(document.documentElement).backgroundColor'), 'rgb(244, 246, 250)');
-      }
-    }
-    // Changing the legal page's language updates both its document and navigation without storage access.
-    await browser.evaluate("document.querySelector('#language').value='en';document.querySelector('#language').dispatchEvent(new Event('change'))");
-    assert.equal(await browser.evaluate("document.querySelector('h1').textContent"), 'Privacy Policy');
-    assert.equal(await browser.evaluate("document.querySelector('#terms-link').search"), '?document=terms&lang=en');
-    assert.equal(await browser.evaluate('location.search'), '?document=privacy&lang=en');
-    const invalid = `${origin}/src/legal/index.html?document=unknown&lang=fr&extra=1`;
-    await browser.send('Page.navigate', { url: invalid });
-    await waitForDocument(browser, '#legal-content .contact', invalid);
-    assert.equal(await browser.evaluate("document.querySelector('h1').textContent"), 'Privacy Policy');
-    assert.equal(await browser.evaluate('document.documentElement.lang'), 'en');
 
     // A fresh visit starts onboarding automatically, after checking storage and without opening settings.
     await browser.evaluate("localStorage.removeItem('terms-fixture')");
@@ -160,7 +123,12 @@ test('Settings legal buttons and first-opening acceptance work in all languages 
           return {centerX:r.x+r.width/2,centerY:r.y+r.height/2,viewport:[innerWidth,innerHeight],fits:r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight}})()`);
         assert.ok(geometry.fits && Math.abs(geometry.centerX-geometry.viewport[0]/2)<1 && Math.abs(geometry.centerY-geometry.viewport[1]/2)<1, 'Prompt is centered and fits the screen');
       }
-      assert.equal(await browser.evaluate("document.querySelector('#rc-terms-dialog [data-rc-legal-document=terms]').search"), `?document=terms&lang=${language}`);
+      const links = await browser.evaluate("[...document.querySelectorAll('#rc-terms-dialog [data-rc-legal-document]')].map(link=>({type:link.dataset.rcLegalDocument,href:link.href,target:link.target,rel:link.rel}))");
+      for (const link of links) {
+        assert.equal(link.href, policyURL(link.type, language));
+        assert.equal(link.target, '_blank');
+        assert.match(link.rel, /noopener/); assert.match(link.rel, /noreferrer/);
+      }
     }
     await browser.evaluate("document.querySelector('#rc-terms-dialog a').focus()");
     await browser.send('Input.dispatchKeyEvent', { type:'keyDown',key:'Tab',code:'Tab',windowsVirtualKeyCode:9,modifiers:8 });
@@ -172,10 +140,10 @@ test('Settings legal buttons and first-opening acceptance work in all languages 
     await browser.click('#rc-terms-dialog [data-rc-legal-document=terms]');
     let termsTarget;
     for (let attempt=0;attempt<50&&!termsTarget;attempt++) {
-      termsTarget=(await browser.send('Target.getTargets')).targetInfos.find(info=>info.url===`${origin}/src/legal/index.html?document=terms&lang=zh-TW`);
+      termsTarget=(await browser.send('Target.getTargets')).targetInfos.find(info=>info.url===policyURL('terms','zh-TW'));
       if(!termsTarget)await pause(30);
     }
-    assert.ok(termsTarget, 'User can read the terms in a separate tab before accepting');
+    assert.ok(termsTarget, 'User can read the GitHub terms in a separate tab before accepting');
     await browser.send('Target.closeTarget', { targetId:termsTarget.targetId });
     await browser.click('#rc-terms-later');
     await browser.waitFor("!document.querySelector('#rc-terms-dialog')");

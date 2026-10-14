@@ -52,8 +52,7 @@
     {
       "resources": [
         "icons/icon-48.png",
-        "icons/icon-128.png",
-        "src/legal/index.html"
+        "icons/icon-128.png"
       ],
       "matches": [
         "https://www.roblox.com/*",

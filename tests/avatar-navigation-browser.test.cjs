@@ -16,7 +16,8 @@ const locales = {
       ['Bottoms', 'Dresses & Skirts', 'Pants', 'Shorts'], ['Shoes', 'Left Shoe', 'Right Shoe'],
       ['Classic', 'Classic Shirts', 'Classic T-Shirts', 'Classic Pants']],
     animations: ['Actions', 'Walking', 'Falling', 'Run', 'Jump', 'Swim', 'Climb', 'Idle'],
-    recent: ['Currently Wearing', 'Recently Added', 'Characters']
+    recent: ['Currently Wearing', 'Recently Added', 'Characters'],
+    body: ['Body Type', 'Height', 'Width', 'Head', 'Proportions']
   },
   'zh-cn': {
     main: ['最近穿戴', '饰品', '服装', '身体部位', '动画', '已过期', '最近新增', '角色'],
@@ -24,7 +25,8 @@ const locales = {
     clothing: [['上衣', 'T 恤', '织衫', '外套'], ['外衣', '夹克'],
       ['裤裙', '裙子', '裤子', '短裤'], ['鞋子', '左鞋', '右鞋'], ['经典', '经典上衣', '经典 T 恤', '经典裤子']],
     animations: ['动作', '步行', '跌落', '奔跑', '跳跃', '游泳', '攀爬', '闲置'],
-    recent: ['目前穿戴', '最近新增', '角色']
+    recent: ['目前穿戴', '最近新增', '角色'],
+    body: ['体型', '身高', '宽度', '头部', '比例']
   },
   'zh-tw': {
     main: ['最近穿戴', '飾品', '服裝', '身體部位', '動畫', '已過期', '最近新增', '角色'],
@@ -32,7 +34,8 @@ const locales = {
     clothing: [['上衣', 'T 恤', '織衫', '外套'], ['外衣', '夾克'],
       ['褲裙', '裙子', '褲子', '短褲'], ['鞋子', '左鞋', '右鞋'], ['經典', '經典上衣', '經典 T 恤', '經典褲子']],
     animations: ['動作', '步行', '跌落', '奔跑', '跳躍', '游泳', '攀爬', '閒置'],
-    recent: ['目前穿戴', '最近新增', '角色']
+    recent: ['目前穿戴', '最近新增', '角色'],
+    body: ['體型', '身高', '寬度', '頭部', '比例']
   }
 };
 const escape = text => text.replaceAll('&', '&amp;');
@@ -43,6 +46,8 @@ const action = (name, key, plain = false) => `<li data-native-key="${key}" ${pla
 function fixture(locale) {
   const l = locales[locale];
   const previewHeight = locale === 'en' ? 220 : 300;
+  const bodyControls = `<section id="body-controls"><h3>${l.body[0]}</h3><label class="native-body-toggle"><span>R6</span><input id="native-body-type" type="checkbox" checked><span>R15</span></label>
+    <div id="native-body-scales">${l.body.slice(1).map((name,i)=>`<label>${name}<input id="native-scale-${i}" type="range" min="0" max="150" value="${i===3?0:100}"></label>`).join('')}</div></section>`;
   return `<!doctype html><html lang="${locale}" data-rc-ui-active data-rc-background-active data-rc-frost-page="avatar"><head><meta charset="utf-8">
     <style>
       *{box-sizing:border-box}body{margin:0;font:16px/1.4 Arial;background:linear-gradient(120deg,#4a2233,#487681);color:#eee}
@@ -61,20 +66,26 @@ function fixture(locale) {
       .native-heading{width:33%;padding:10px}.native-options{width:67%}.native-options a{display:block;width:180px}
       .ng-hide,.hidden,[hidden]{display:none!important}.avatar-items-container{padding:16px}
       .avatar-item-card{display:block;width:150px;height:170px;background:#555}
+      #body-controls{padding:14px;background:#8885;border:1px solid #888;border-radius:12px}#body-controls h3{margin:0 0 8px}
+      .native-body-toggle{display:flex;align-items:center;gap:8px}#native-body-scales label{display:block}#native-body-scales input{display:block;width:100%}
     </style>${styles.map(file => `<link rel="stylesheet" href="/${file}">`).join('')}
     </head><body class="dark-theme"><main id="content"><div class="avatar-editor">
-    <div class="preview-column"><div class="native-preview-host"><div class="native-backdrop" aria-hidden="true"></div><div id="late-inline" class="native-late-backdrop" aria-hidden="true"></div><div id="avatar-preview"><div class="native-scene"><div class="native-backdrop" aria-hidden="true"></div><div class="native-late-backdrop" aria-hidden="true"></div>${[0,1,2,3].map(i=>`<div class="native-tile" aria-hidden="true" style="left:${i%2*50}%;top:${Math.floor(i/2)*50}%"></div>`).join('')}<canvas id="native-model" width="300" height="${previewHeight}"></canvas></div><button id="native-background" type="button"><span class="native-control-icon"></span>Background</button></div></div></div>
+    <div class="preview-column"><div class="native-preview-host"><div class="native-backdrop" aria-hidden="true"></div><div id="late-inline" class="native-late-backdrop" aria-hidden="true"></div><div id="avatar-preview"><div class="native-scene"><div class="native-backdrop" aria-hidden="true"></div><div class="native-late-backdrop" aria-hidden="true"></div>${[0,1,2,3].map(i=>`<div class="native-tile" aria-hidden="true" style="left:${i%2*50}%;top:${Math.floor(i/2)*50}%"></div>`).join('')}<canvas id="native-model" width="300" height="${previewHeight}"></canvas></div><button id="native-background" type="button"><span class="native-control-icon"></span>Background</button></div></div>${locale==='zh-tw'?bodyControls:''}</div>
     <div class="inventory-column"><nav id="avatar-categories"><ul id="main-row">
       ${l.main.map((name, i) => action(name, `main-${i}`, i === 0)).join('')}
     </ul><ul id="accessories" class="avatar-subcategories">${l.accessories.map((name, i) => action(name, `accessory-${i}`, i === 0)).join('')}</ul>
     <div id="clothing" class="avatar-subcategories" hidden>${l.clothing.map((row, i) => `<div id="clothing-row-${i}" class="clothing-row"><div class="native-heading" data-native-key="heading-${i}"><span id="heading-${i}">${escape(row[0])}</span></div><ul class="native-options">${row.slice(1).map((name, j) => action(name, `clothing-${i}-${j}`)).join('')}</ul></div>`).join('')}</div>
     <ul id="animations" class="avatar-subcategories" hidden>${l.animations.map((name, i) => action(name, `animation-${i}`, i < 3)).join('')}</ul>
     <ul id="recent" class="avatar-subcategories" hidden>${l.recent.map((name, i) => action(name, `recent-${i}`)).join('')}</ul></nav>
-    <div class="avatar-items-container"><a id="inventory-card" class="avatar-item-card" href="/catalog/1/Head"><img src="/image.svg"><span>Head</span></a><p id="native-result">All items</p></div></div></div></main>
+    <div class="avatar-items-container"><a id="inventory-card" class="avatar-item-card" href="/catalog/1/Head"><img src="/image.svg"><span>Head</span></a><p id="native-result">All items</p></div>${locale==='zh-cn'?bodyControls:''}</div></div>${locale==='en'?`<div id="native-body-footer">${bodyControls}</div>`:''}</main>
     <script>
       window.chrome={runtime:{lastError:null,sendMessage(message,callback){setTimeout(()=>callback({state:'Completed',imageUrl:location.origin+'/image.svg'}),0)}}};
       window.nativeCalls=[];window.originalActions=[...document.querySelectorAll('[data-native-key]')];
       window.originalCanvas=document.getElementById('native-model');
+      window.originalBodyControls=document.getElementById('body-controls');window.originalBodyInputs=[...originalBodyControls.querySelectorAll('input')];
+      window.originalBodyParents=[];for(let node=originalBodyControls;node.id!=='content';node=node.parentElement)originalBodyParents.push([node,node.parentElement]);
+      window.bodyChanges=[];originalBodyControls.addEventListener('change',event=>bodyChanges.push([event.target.id,event.target.value]));
+      document.getElementById('native-body-type').addEventListener('change',event=>document.getElementById('native-body-scales').hidden=!event.target.checked);
       window.modelInputs=0;originalCanvas.addEventListener('pointerdown',()=>modelInputs++);
       document.getElementById('native-background').addEventListener('click',()=>{
         document.querySelector('.native-scene').style.backgroundImage='url("/image.svg?scene=two")';
@@ -102,7 +113,9 @@ const layout = `(() => {
     nested:controls.some(node=>node.querySelector('[data-rc-avatar-main-control], [data-rc-avatar-sub-control]')),
     unchanged:originalActions.every(node=>node.isConnected),
     controls:controls.map(node=>({id:node.id,...bounds(node),border:getComputedStyle(node).borderTopWidth,background:getComputedStyle(node).backgroundColor})),
-    row:bounds(row),inventory:bounds(document.querySelector('.avatar-items-container')),
+    row:bounds(row),inventory:bounds(document.querySelector('.avatar-items-container')),body:bounds(originalBodyControls),
+    bodyUnchanged:originalBodyControls===document.getElementById('body-controls')&&originalBodyInputs.every(node=>node.isConnected),
+    bodyMarkedAsFilter:!!originalBodyControls.querySelector('[data-rc-avatar-main-control], [data-rc-avatar-sub-control]'),
     menu:bounds([...document.querySelectorAll('.avatar-subcategories')].find(node=>node.checkVisibility())),
     headings:[...document.querySelectorAll('[data-rc-avatar-clothing-heading]')].map(node=>node.id),
     sections:[...document.querySelectorAll('[data-rc-avatar-clothing-section]')].map(bounds),
@@ -129,6 +142,15 @@ test('avatar filters stay aligned, localized, and native across menu changes and
       const url = `http://127.0.0.1:${server.address().port}/my/avatar?locale=${locale}`;
       await browser.send('Page.navigate', { url });await waitForDocument(browser, '#main-row', url);
       await browser.waitFor("document.querySelectorAll('[data-rc-avatar-main-control]').length===8");
+      await browser.waitFor("!!document.querySelector('[data-rc-avatar-body-controls]')");
+      await browser.click('#native-body-type');
+      assert.equal(await browser.evaluate("document.getElementById('native-body-scales').checkVisibility()"),false,'R6 still hides native scaling controls');
+      await browser.click('#native-body-type');
+      assert.equal(await browser.evaluate("document.getElementById('native-body-scales').checkVisibility()"),true,'R15 still restores native scaling controls');
+      await browser.evaluate("document.getElementById('native-scale-0').focus()");
+      await browser.send('Input.dispatchKeyEvent',{type:'keyDown',key:'ArrowLeft',code:'ArrowLeft',windowsVirtualKeyCode:37});
+      await browser.send('Input.dispatchKeyEvent',{type:'keyUp',key:'ArrowLeft',code:'ArrowLeft',windowsVirtualKeyCode:37});
+      assert.deepEqual(await browser.evaluate('bodyChanges.at(-1)'),['native-scale-0','99'],'Native scaling still receives keyboard changes');
       // Frost replaces the native CSS backdrop while the original canvas and
       // its input handlers remain intact, including already-square previews.
       await browser.click('#native-background');
@@ -178,6 +200,10 @@ test('avatar filters stay aligned, localized, and native across menu changes and
           assert.equal(state.controls.length, 8 + count, `${label}: every filter has a styled control`);
           assert.equal(state.overflow, false, `${label}: no page overflow ${JSON.stringify(state.overflowNodes)}`);
           assert.equal(state.inventoryMarked, false, `${label}: inventory titles are not filters`);
+          assert.equal(state.bodyUnchanged,true,`${label}: native body controls remain mounted`);
+          assert.equal(state.bodyMarkedAsFilter,false,`${label}: scale labels remain native labels`);
+          assert.ok(state.body.top>=state.menu.bottom,`${label}: the full filter menu is above the body controls`);
+          assert.ok(state.inventory.top>=state.body.bottom,`${label}: body controls stay in the editor section above inventory`);
           assert.ok(state.inventory.top >= state.menu.bottom - 1, `${label}: inventory follows the filters`);
           for (const control of state.controls) {
             assert.ok(control.width > 20 && control.height >= 42, `${label}: usable control ${control.id}`);
@@ -208,6 +234,15 @@ test('avatar filters stay aligned, localized, and native across menu changes and
       assert.equal(await browser.evaluate('nativeCalls.at(-1)'), 'accessory-2');
       await browser.evaluate("document.querySelector('#accessories').classList.add('ng-hide')");
       assert.equal(await browser.evaluate("document.querySelector('#accessories').checkVisibility()"), false, 'native hidden state wins');
+      await browser.evaluate(`(()=>{const controls=document.createElement('section');controls.id='legacy-body-scales';
+        controls.innerHTML='<span>Height</span><div class="legacy-slider" tabindex="0"></div><span>Width</span><div class="legacy-slider" tabindex="0"></div>';
+        document.getElementById('content').append(controls)})()`);
+      await browser.waitFor("document.querySelector('#legacy-body-scales').hasAttribute('data-rc-avatar-body-controls')");
+      assert.equal(await browser.evaluate("document.querySelector('#legacy-body-scales').getBoundingClientRect().top>=document.querySelector('#main-row').getBoundingClientRect().bottom"),true,'Filters also stay above separate legacy scale panels');
+      await browser.evaluate("history.pushState({},'', '/home');dispatchEvent(new PopStateEvent('popstate'))");
+      await browser.waitFor("!document.querySelector('[data-rc-avatar-body-controls]')");
+      assert.equal(await browser.evaluate('originalBodyParents.every(([node,parent])=>node.parentElement===parent)'),true,'Leaving avatar restores native control placement');
+      assert.equal(await browser.evaluate("document.getElementById('legacy-body-scales').parentElement.id"),'content','Legacy panels return to their native parent');
     }
     assert.deepEqual(browser.errors, []);
   });

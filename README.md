@@ -60,7 +60,7 @@ Preferences, backgrounds, pinned games, and playtime history are stored locally 
 
 Server data, feeds, and currency rates depend on Roblox and external services. Retry unavailable data later. Export a backup and use **Reset All** before uninstalling to remove saved backgrounds and site caches as well.
 
-Read the [Privacy Policy](PRIVACY.md) and [Terms of Service](TERMS.md), also available from the settings menu. Contact [lunar@lunarfox.my](mailto:lunar@lunarfox.my) for support or privacy questions.
+Read the published [Privacy Policy](https://github.com/ShadowsLunarfox/Roblox-Customizer/blob/main/PRIVACY.md) and [Terms of Service](https://github.com/ShadowsLunarfox/Roblox-Customizer/blob/main/TERMS.md) on GitHub. Settings and the first-visit prompt open the version matching the extension's language. Contact [lunar@lunarfox.my](mailto:lunar@lunarfox.my) for support or privacy questions.
 
 ## Updates and feedback
 
@@ -68,6 +68,6 @@ Replace the extension files, reload the extension, and refresh Roblox. For probl
 
 After editing background worker sources, rebuild the checked-in bundle with `node scripts/build-service-worker.cjs`.
 
-Policy text is maintained in `src/legal/content.json`; run `node scripts/build-legal-docs.cjs` after editing it to update the public documents.
+The extension links to the policy Markdown files on GitHub's `main` branch. Published policy updates appear there without requiring an extension update.
 
 Licensed under [GNU GPL v3](LICENSE).

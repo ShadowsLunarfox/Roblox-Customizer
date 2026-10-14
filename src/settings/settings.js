@@ -1306,8 +1306,10 @@
     if (!modal) return;
     const locale = globalThis.RobloxCustomizerI18n?.locale() || 'en';
     const language = ['en', 'zh-CN', 'zh-TW'].includes(locale) ? locale : 'en';
+    const suffix = language === 'en' ? '' : `.${language}`;
     for (const link of modal.querySelectorAll('[data-rc-legal-document]')) {
-      link.href = `${chrome.runtime.getURL('src/legal/index.html')}?document=${link.dataset.rcLegalDocument}&lang=${language}`;
+      const file = link.dataset.rcLegalDocument === 'terms' ? 'TERMS' : 'PRIVACY';
+      link.href = `https://github.com/ShadowsLunarfox/Roblox-Customizer/blob/main/${file}${suffix}.md`;
     }
   }
 

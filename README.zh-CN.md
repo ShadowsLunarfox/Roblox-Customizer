@@ -60,7 +60,7 @@
 
 服务器数据、社交动态和汇率依赖 Roblox 及外部服务，暂时不可用时可稍后重试。卸载前请导出备份，并使用 **重置全部** 一并删除已保存的背景和网站缓存。
 
-请阅读[隐私政策](PRIVACY.zh-CN.md)和[服务条款](TERMS.zh-CN.md)，也可从设置菜单打开。如需支持或咨询隐私问题，请联系 [lunar@lunarfox.my](mailto:lunar@lunarfox.my)。
+请阅读 GitHub 上已发布的[隐私政策](https://github.com/ShadowsLunarfox/Roblox-Customizer/blob/main/PRIVACY.zh-CN.md)和[服务条款](https://github.com/ShadowsLunarfox/Roblox-Customizer/blob/main/TERMS.zh-CN.md)。设置菜单及首次访问提示会打开与扩展语言对应的版本。如需支持或咨询隐私问题，请联系 [lunar@lunarfox.my](mailto:lunar@lunarfox.my)。
 
 ## 更新与反馈
 
@@ -68,6 +68,6 @@
 
 修改后台脚本后，请运行 `node scripts/build-service-worker.cjs` 更新仓库中的后台脚本包。
 
-政策文本维护在 `src/legal/content.json`；修改后请运行 `node scripts/build-legal-docs.cjs` 更新公开文件。
+扩展链接到 GitHub `main` 分支上的政策 Markdown 文件。已发布的政策更新可直接在 GitHub 阅读，无需更新扩展。
 
 本项目采用 [GNU GPL v3](LICENSE) 许可证。
