@@ -13,12 +13,12 @@ const locales = {
     settings: '设置', public: '其他服务器', sort: '排序方式', exclude: '排除已满的服务器', more: '加载更多',
     configure: '配置', join: '加入', passes: '通行证', products: '开发者商品', subscriptions: '订阅', active: '活跃玩家',
     avatar: ['最近', '虚拟形象', '身体', '服装', '配饰', '动画'], hair: '头发', preview: '切换至 2D 视图', tryOn: '试戴',
-    profile: ['当前穿戴', '体验', '好友', '社区', '徽章'], about: '关于', creations: '创作' },
+    profile: ['当前穿戴', '作品', '好友', '社区', '徽章', '收藏', '收藏夹'], about: '关于', creations: '创作' },
   'zh-tw': { favorites: '最愛', standout: '精選遊戲', recommended: '推薦給您', lower: '推薦遊戲',
     settings: '設定', public: '其他伺服器', sort: '排序依據', exclude: '排除已滿的伺服器', more: '載入更多',
     configure: '設定', join: '加入', passes: '通行證', products: '開發者商品', subscriptions: '訂閱', active: '活躍玩家',
     avatar: ['最近', '虛擬形象', '身體', '服裝', '配飾', '動畫'], hair: '頭髮', preview: '切換至 2D 視圖', tryOn: '試戴',
-    profile: ['目前穿戴', '體驗', '好友', '社區', '徽章'], about: '介紹', creations: '作品' }
+    profile: ['目前穿戴', '作品', '好友', '社區', '徽章', '收藏', '最愛'], about: '介紹', creations: '作品' }
 };
 const setup = `
   const listeners=[];window.privateRequests=[];window.nativeJoins=0;window.nativeClicks=0;
@@ -37,6 +37,9 @@ const setup = `
   }}};
 `;
 const card = (id, name) => `<li class="game-card-container"><a class="game-card-link" href="https://www.roblox.com/games/${id}/Game"><img src="/image.svg"><div class="game-card-name">${name}</div></a></li>`;
+const collectionCard = `<li class="item-card"><div class="item-card-container" style="background:#6171a4">
+  <a href="/catalog/987/Item"><div class="item-card-thumb-container"><div class="thumbnail-2d-container" style="background:#6171a4"><img src="/image.svg"></div></div></a>
+  <div class="item-card-caption" style="background:#6171a4"><h3 class="item-card-name"><a href="/catalog/987/Item">作品</a></h3></div></div></li>`;
 function html(route, locale) {
   const l = locales[locale];
   let content;
@@ -44,7 +47,7 @@ function html(route, locale) {
   else if (route.startsWith('/games/')) content = `<main id="game-detail-page" data-place-id="4623386862"><section id="about"><ul class="game-stat-container"><li class="game-stat"><span class="text-label">${l.active}</span><span>1.2万</span></li></ul></section><section id="game-instances"><section id="private-server-container"><h2>Private Servers</h2><div id="private-list"><div id="private-row"><div><div class="text-title-medium">私人伺服器</div><img src="/image.svg"><div class="text-body-medium">1/6人</div></div><div><button id="private-join" onclick="nativeJoins++">${l.join}</button><a aria-label="${l.configure}" href="/private-server/configure/${locale === 'zh-cn' ? '111' : '111?source=servers'}">${l.configure}</a></div></div></div><button id="private-more">${l.more}</button></section><section id="running-game-instances-container"><h2>${l.public}</h2><div id="native-controls"><label>${l.sort}<select id="native-sort"><option value="Desc">由多到少</option><option value="Asc">由少到多</option></select></label><label>${l.exclude}<input type="checkbox"></label></div><div class="card-list">${[0, 8, 12].map((count, i) => `<div class="card-item" id="server-${i}"><div class="game-server-status">${count}人（最多20人）</div><button onclick="nativeJoins++">${l.join}</button></div>`).join('')}</div><button id="public-more">${l.more}</button></section></section><section id="store">${['subscriptions', 'passes', 'products'].map(key => `<section id="store-${key}"><h2>${l[key]}</h2><div class="store-cards"><a class="store-card" href="/game-pass/1/Item">商品</a></div></section>`).join('')}</section></main>`;
   else if (route === '/my/avatar') content = `<main id="content"><div class="avatar-editor"><div id="avatar-preview" style="width:300px;height:300px"><canvas width="300" height="300"></canvas><button id="preview-mode" aria-label="${l.preview}"></button></div><div><nav id="avatar-categories"><div id="main-categories">${l.avatar.map((name, i) => `<button id="category-${i}">${name}</button>`).join('')}</div><div class="avatar-subcategories"><button id="hair">${l.hair}</button></div></nav><div class="avatar-items-container"><a class="avatar-item-card" href="/catalog/1/Item"><img src="/image.svg">物品</a></div></div></div></main>`;
   else if (route.startsWith('/catalog/')) content = `<main id="content"><div><div id="item-thumbnail-container-frontend" data-target-id="123" data-show-3d-mode-button="true"><div class="item-details-thumbnail-container"><div class="thumbnail-holder"><img src="/image.svg"></div><div class="thumbnail-ui-container"><button id="catalog-mode" aria-label="${l.preview.replace('2D', '3D')}" data-mode2="${l.preview}" data-mode3="${l.preview.replace('2D', '3D')}" onclick="nativeCatalogToggle(this)"></button><button id="catalog-try-on">${l.tryOn}</button></div></div></div><div id="item-info-container-frontend" data-target-id="123"><h1>物品</h1><button id="catalog-buy" onclick="nativeJoins++">购买</button></div></div></main>`;
-  else if (route.startsWith('/users/')) content = `<main id="content"><div id="profile-container"><h1>Player</h1><nav id="profile-tabs"><button>${l.about}</button><button>${l.creations}</button></nav>${l.profile.map((name, i) => `<section id="profile-${i}"><h2>${name}</h2><ul><li>${card(100 + i, '样例体验')}</li></ul></section>`).join('')}</div></main>`;
+  else if (route.startsWith('/users/')) content = `<main id="content"><div id="profile-container"><h1>Player</h1><nav id="profile-tabs"><button>${l.about}</button><button>${l.creations}</button></nav>${l.profile.map((name, i) => `<section id="profile-${i}"><h2>${name}</h2><ul>${i === 5 ? collectionCard : card(100 + i, '样例体验')}</ul></section>`).join('')}</div></main>`;
   else content = `<main id="content"><div id="settings-container"><header><h1>${l.settings}</h1></header><aside><nav><a href="#!/info">账号信息</a><a href="#!/security">安全</a><a href="#!/privacy">隐私</a></nav></aside><div id="plain-settings"><div id="short-copy">管理你的账号。</div><div class="form-group"><label for="native-field">社交网络</label><div><input id="native-field" value="保留我的编辑"></div></div><label><input id="native-radio" type="radio" name="visibility" checked>好友</label><button id="native-save" onclick="nativeClicks++">保存</button></div></div></main>`;
   return `<!doctype html><html lang="${locale}" class="dark-theme"><head><meta charset="utf-8"><meta name="locale-data" data-language-code="${locale.replace('-', '_')}"><style>body{font:16px/1.5 Arial;margin:20px;background:#24252c;color:white}main{max-width:1000px;margin:auto}img{width:100px;height:100px}button{padding:8px}a{color:inherit}h2{font-size:22px}#settings-popover-menu{position:fixed;right:0;top:0}#settings-popover-menu a{display:block;padding:12px}#chat-root{position:fixed;right:0;bottom:0;width:270px}.react-chat-root section{height:180px;border-radius:12px;background:#30343b}#settings-container>aside{width:220px}#plain-settings{margin-left:240px}.ng-hide{display:none!important}</style>${styles.map(file => `<link rel="stylesheet" href="/${file}">`).join('')}</head><body><header><span id="nav-robux-amount">1.25${locale === 'zh-cn' ? '万' : '萬'}</span></header><ul role="menu" id="settings-popover-menu"><li><a href="/my/account">${l.settings}</a></li></ul>${content}<div id="chat-root" class="react-chat-root"><section id="native-chat" aria-label="聊天"><button>聊天</button><input data-testid="chat-search-input" placeholder="${locale === 'zh-cn' ? '搜索好友' : '搜尋好友'}"></section></div><div hidden id="native-hidden">隐藏内容</div></body></html>`;
 }
@@ -110,9 +113,16 @@ test('Chinese native sections, controls and live locale updates work with all co
         await browser.waitFor("nativeClicks===3 && !!document.querySelector('.thumbnail-holder canvas') && !document.querySelector('#rc-catalog-item-3d-refresh').disabled");
         await browser.click('#catalog-buy'); assert.equal(await browser.evaluate('nativeJoins'), 1);
       } else if (route.startsWith('/users/')) {
-        await browser.waitFor("document.querySelectorAll('[data-rc-profile-section]').length===5");
+        await browser.waitFor("document.querySelectorAll('[data-rc-profile-section]').length===7");
         assert.equal(await browser.evaluate("document.querySelector('#profile-tabs').hasAttribute('data-rc-profile-native-tabs')"), true);
-        assert.deepEqual(await browser.evaluate("[0,1,2,3,4].map(i=>document.querySelector('#profile-'+i).dataset.rcProfileSection)"), ['wearing', 'experiences', 'friends', 'communities', 'badges']);
+        assert.deepEqual(await browser.evaluate("[0,1,2,3,4,5,6].map(i=>document.querySelector('#profile-'+i).dataset.rcProfileSection)"), ['wearing', 'experiences', 'friends', 'communities', 'badges', 'collections', 'favorites']);
+        assert.deepEqual(await browser.evaluate("['#profile-1 .game-card-container','#profile-5 .item-card','#profile-6 .game-card-container'].map(selector=>document.querySelector(selector).dataset.rcProfileCard)"), ['game', 'asset', 'game']);
+        for (const selector of ['#profile-5 .item-card-container', '#profile-5 .thumbnail-2d-container', '#profile-5 .item-card-caption']) {
+          assert.equal(await browser.evaluate(`getComputedStyle(document.querySelector(${JSON.stringify(selector)})).backgroundColor`), 'rgba(0, 0, 0, 0)', 'Collection cards clear the opaque native thumbnail and caption backgrounds');
+        }
+        await browser.evaluate("document.querySelector('#profile-6 h2').textContent='收藏';document.querySelector('#profile-1 h2').textContent='創作'");
+        await browser.waitFor("document.querySelector('#profile-6').dataset.rcProfileSection==='favorites' && document.querySelector('#profile-1').dataset.rcProfileSection==='experiences'");
+        assert.equal(await browser.evaluate("document.querySelector('#profile-5').dataset.rcProfileSection"), 'collections', 'Legacy game favorites and asset collections can share the same Chinese label');
         await browser.evaluate("document.querySelector('#profile-2 h2').firstChild.data='好友（200）'");
         await pause(200); assert.equal(await browser.evaluate("document.querySelector('#profile-2').dataset.rcProfileSection"), 'friends');
       } else {

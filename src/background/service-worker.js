@@ -741,10 +741,12 @@ function youtubeChannelIdFromUrl(value) {
   return direct?.[1] || null;
 }
 
-async function resolveYouTubeChannelId(channelUrl) {
-  const directId = youtubeChannelIdFromUrl(channelUrl);
-  if (directId) return directId;
-  const html = await readResponse(channelUrl, {
+async function readYouTubeChannelPage(channelUrl) {
+  youtubeChannelIdFromUrl(channelUrl);
+  const url = new URL(channelUrl);
+  // All accepted channel links use the host granted in the manifest.
+  url.hostname = 'www.youtube.com';
+  const html = await readResponse(url.href, {
     credentials: 'omit',
     headers: { Accept: 'text/html' }
   }, response => {
@@ -757,6 +759,13 @@ async function resolveYouTubeChannelId(channelUrl) {
     return response.text();
   });
   if (html.length > 8_000_000) throw new Error('YouTube channel page too large');
+  return html;
+}
+
+async function resolveYouTubeChannelId(channelUrl) {
+  const directId = youtubeChannelIdFromUrl(channelUrl);
+  if (directId) return directId;
+  const html = await readYouTubeChannelPage(channelUrl);
   const candidates = [
     html.match(/<meta[^>]+itemprop=["']channelId["'][^>]+content=["'](UC[A-Za-z0-9_-]{22})["']/i)?.[1],
     html.match(/"externalId"\s*:\s*"(UC[A-Za-z0-9_-]{22})"/i)?.[1],
@@ -767,10 +776,7 @@ async function resolveYouTubeChannelId(channelUrl) {
   return channelId;
 }
 
-async function getYouTubeVideos(channelUrl, force = false) {
-  const channelId = await resolveYouTubeChannelId(channelUrl);
-  const cached = youtubeFeedCache.get(channelId);
-  if (!force && cached && Date.now() - cached.fetchedAt < 10 * 60_000) return cached;
+async function readYouTubeFeed(channelId) {
   const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${encodeURIComponent(channelId)}`;
   const xml = await readResponse(feedUrl, {
     credentials: 'omit',
@@ -781,6 +787,7 @@ async function getYouTubeVideos(channelUrl, force = false) {
   });
   if (xml.length > 512_000 || !/<feed(?:\s|>)/i.test(xml)) throw new Error('YouTube feed unavailable');
   const readTag = (source, tag) => decodeXml(source.match(new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`, 'i'))?.[1]);
+  if (readTag(xml, 'yt:channelId') !== channelId) throw new Error('YouTube feed channel unavailable');
   const entries = [...xml.matchAll(/<entry(?:\s[^>]*)?>([\s\S]*?)<\/entry>/gi)].slice(0, 10);
   const videos = entries.map(([, entry]) => {
     const id = readTag(entry, 'yt:videoId');
@@ -794,7 +801,85 @@ async function getYouTubeVideos(channelUrl, force = false) {
   }).filter(Boolean);
   const channelTitle = decodeXml(xml.match(/<author(?:\s[^>]*)?>\s*<name(?:\s[^>]*)?>([\s\S]*?)<\/name>/i)?.[1])
     || channelId;
-  const result = { channelId, channelTitle, videos, fetchedAt: Date.now() };
+  return { channelTitle, videos };
+}
+
+function youtubeInitialData(html) {
+  for (const [, script] of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi)) {
+    const assignment = /(?:\b(?:var\s+)?ytInitialData|window\s*\[\s*["']ytInitialData["']\s*\])\s*=\s*(?=\{)/.exec(script);
+    if (!assignment) continue;
+    const start = assignment.index + assignment[0].length;
+    let depth = 0;
+    let quoted = false;
+    let escaped = false;
+    for (let index = start; index < script.length; index++) {
+      const character = script[index];
+      if (quoted) {
+        if (escaped) escaped = false;
+        else if (character === '\\') escaped = true;
+        else if (character === '"') quoted = false;
+      } else if (character === '"') quoted = true;
+      else if (character === '{') depth++;
+      else if (character === '}' && --depth === 0) {
+        // Parse the page's data without executing any remote JavaScript.
+        return JSON.parse(script.slice(start, index + 1));
+      }
+    }
+  }
+  throw new Error('YouTube channel data unavailable');
+}
+
+function youtubeVideosFromPage(html, channelId) {
+  const data = youtubeInitialData(html);
+  const metadata = data?.metadata?.channelMetadataRenderer;
+  if (metadata?.externalId !== channelId) throw new Error('YouTube channel mismatch');
+  const tabs = data.contents?.twoColumnBrowseResultsRenderer?.tabs
+    || data.contents?.singleColumnBrowseResultsRenderer?.tabs;
+  const selected = tabs?.find(tab => tab.tabRenderer?.selected)?.tabRenderer;
+  const tabUrl = selected?.endpoint?.commandMetadata?.webCommandMetadata?.url;
+  if (!selected?.content || typeof tabUrl !== 'string' || !/\/videos(?:[?#]|$)/.test(tabUrl)) {
+    throw new Error('YouTube videos tab unavailable');
+  }
+  const videos = [];
+  const ids = new Set();
+  const pending = [selected.content];
+  let visited = 0;
+  while (pending.length && videos.length < 10) {
+    if (++visited > 50_000) throw new Error('YouTube channel data too large');
+    const node = pending.pop();
+    if (!node || typeof node !== 'object') continue;
+    const legacy = node.videoRenderer || node.gridVideoRenderer;
+    const lockup = node.lockupViewModel;
+    if (legacy || lockup) {
+      if (lockup && lockup.contentType !== 'LOCKUP_CONTENT_TYPE_VIDEO') continue;
+      const id = legacy?.videoId || lockup?.contentId;
+      if (typeof id !== 'string' || !/^[A-Za-z0-9_-]{11}$/.test(id) || ids.has(id)) continue;
+      const title = legacy
+        ? legacy.title?.simpleText || legacy.title?.runs?.map(run => typeof run.text === 'string' ? run.text : '').join('')
+        : lockup.metadata?.lockupMetadataViewModel?.title?.content;
+      ids.add(id);
+      videos.push({ id, title: typeof title === 'string' ? title.slice(0, 300) : '',
+        // The Videos page supplies relative ages, not exact publication dates.
+        published: '', thumbnailUrl: `https://i.ytimg.com/vi/${id}/hqdefault.jpg` });
+      continue;
+    }
+    pending.push(...Object.values(node).reverse());
+  }
+  return { channelTitle: typeof metadata.title === 'string' ? metadata.title.slice(0, 300) : channelId, videos };
+}
+
+async function getYouTubeVideos(channelUrl, force = false) {
+  const channelId = await resolveYouTubeChannelId(channelUrl);
+  const cached = youtubeFeedCache.get(channelId);
+  if (!force && cached && Date.now() - cached.fetchedAt < 10 * 60_000) return cached;
+  let feed;
+  try { feed = await readYouTubeFeed(channelId); }
+  catch {
+    // YouTube can return 404 for Atom feeds while public channel pages still work.
+    const html = await readYouTubeChannelPage(`https://www.youtube.com/channel/${channelId}/videos`);
+    feed = youtubeVideosFromPage(html, channelId);
+  }
+  const result = { channelId, ...feed, fetchedAt: Date.now() };
   youtubeFeedCache.set(channelId, result);
   return result;
 }

@@ -12,9 +12,9 @@
     },
     profile: {
       wearing: ['currently wearing', '当前穿戴', '目前穿戴', '正在穿戴', '当前穿着', '目前穿著', '目前造型'],
-      store: ['store', '商店'], experiences: ['experiences', '体验', '體驗', '游戏', '遊戲'],
-      favorites: ['favorites', '收藏', '收藏夹', '收藏夾', '最爱', '最愛'],
-      collections: ['collections', '收藏品', '收藏集'], friends: ['friends', '好友', '朋友'],
+      store: ['store', '商店'], experiences: ['experiences', 'creations', '体验', '體驗', '游戏', '遊戲', '作品', '创作', '創作'],
+      favorites: ['favorites', '收藏夹', '收藏夾', '最爱', '最愛'],
+      collections: ['collections', '收藏', '收藏品', '收藏集'], friends: ['friends', '好友', '朋友'],
       communities: ['communities', 'groups', '社区', '社區', '群组', '群組', '社群'],
       badges: ['badge', 'badges', '徽章']
     },

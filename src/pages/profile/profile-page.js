@@ -112,7 +112,7 @@
       .replace(/(?:\s*(?:See All|View All|[\u203a>\u2192]))+\s*$/i, '');
     if (/^Currently Wearing$/i.test(label)) return 'wearing';
     if (/^Store$/i.test(label)) return 'store';
-    if (/^Experiences$/i.test(label)) return 'experiences';
+    if (/^(?:Experiences|Creations)$/i.test(label)) return 'experiences';
     if (/^Favorites$/i.test(label)) return 'favorites';
     if (/^Collections$/i.test(label)) return 'collections';
     if (/^Friends(?:\s*\([\d,]+\))?$/i.test(label)) return 'friends';
@@ -144,16 +144,24 @@
   function markSections(root) {
     const sections = new Map();
     const candidates = [...root.querySelectorAll(HEADINGS)].filter(heading =>
-      !heading.closest(OWNED) && heading.textContent.length <= 90 && sectionName(heading.textContent));
+      !heading.closest(`${OWNED}, [data-rc-profile-native-tabs], .item-card, .game-container, .game-card, .item-card-container, .game-card-container`)
+      && heading.textContent.length <= 90 && sectionName(heading.textContent));
     // A .container-header and the h2 inside it describe the same section.
     const headings = candidates.filter(heading => !candidates.some(other =>
       other !== heading && heading.contains(other)));
     for (const heading of headings) {
-      const name = sectionName(heading.textContent);
-      if (sections.has(name)) continue;
+      let name = sectionName(heading.textContent);
       const section = findSection(heading, root, headings);
       if (!section || section === root || section.contains(root)
         || [...sections.values()].includes(section)) continue;
+      // Chinese "收藏" can name the asset collection or a legacy game-favorites
+      // shelf. Use the native destinations rather than treating assets as games.
+      if (name === 'collections') {
+        const links = [...section.querySelectorAll('a[href]')].map(link => link.getAttribute('href') || '');
+        if (links.some(href => /\/games\/\d+(?:\/|$)/i.test(href))
+          && !links.some(href => /\/(?:catalog|bundles)\/\d+(?:\/|$)/i.test(href))) name = 'favorites';
+      }
+      if (sections.has(name)) continue;
       if (section.dataset.rcProfileSection !== name) section.dataset.rcProfileSection = name;
       sections.set(name, section);
     }
