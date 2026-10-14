@@ -4,6 +4,15 @@
   const messages = [
     ['Author:', '作者：', '作者：'],
     ['GitHub repository', 'GitHub 仓库', 'GitHub 儲存庫'],
+    ['Terms of Service', '服务条款', '服務條款'],
+    ['Privacy Policy', '隐私政策', '隱私權政策'],
+    ['Welcome to Roblox Customizer', '欢迎使用 Roblox Customizer', '歡迎使用 Roblox Customizer'],
+    ['Please read and accept the Terms of Service for Roblox Customizer.', '请阅读并接受 Roblox Customizer 的服务条款。', '請閱讀並接受 Roblox Customizer 的服務條款。'],
+    ['The Privacy Policy explains how the extension handles your data.', '隐私政策说明扩展如何处理你的数据。', '隱私權政策說明擴充功能如何處理你的資料。'],
+    ['Accept and continue', '接受并继续', '接受並繼續'],
+    ['Not now', '暂不接受', '暫不接受'],
+    ['Saving acceptance…', '正在保存接受状态…', '正在儲存接受狀態…'],
+    ['Could not save your acceptance. Please try again.', '无法保存你的接受状态，请重试。', '無法儲存你的接受狀態，請重試。'],
     ['Settings categories', '设置分类', '設定分類'],
     ['Settings content', '设置内容', '設定內容'],
     ['Appearance', '外观', '外觀'],
@@ -368,7 +377,7 @@
   const pending = new Set();
   let timer = null;
 
-  const ROOTS = '#rc-playtime-home, #rc-playtime-game-page, #rc-playtime-dialog, #rc-playtime-settings, #rc-settings-overlay, #rc-language-warning-dialog, .rc-settings-menu-entry, .rc-hide-recommended-game, #rc-home-greeting, '
+  const ROOTS = '#rc-playtime-home, #rc-playtime-game-page, #rc-playtime-dialog, #rc-playtime-settings, #rc-settings-overlay, #rc-terms-dialog, #rc-language-warning-dialog, .rc-settings-menu-entry, .rc-hide-recommended-game, #rc-home-greeting, '
     + '.rc-game-pin-control, .rc-game-pin-folder, #rc-pinned-games, #rc-pinned-games-notification, #rc-avatar-2d, #rc-catalog-item-2d, '
     + '#rc-catalog-item-3d-refresh, #rc-catalog-item-3d-status, #rc-profile-enhancements, #rc-profile-inline-about, '
     + '#rc-x-feed-panel, #rc-youtube-feed-panel, #rc-rolimons-panel, .rc-public-server-filters, '

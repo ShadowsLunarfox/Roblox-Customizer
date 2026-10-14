@@ -10,7 +10,7 @@ const scripts = manifest.content_scripts.flatMap(entry => entry.js || []);
 const styles = [...new Set(manifest.content_scripts.flatMap(entry => entry.css || []))];
 const setup = `
   window.privateRequests=[];
-  window.chrome={storage:{local:{async get(){return {customBackground:{source:'none',hideXFeed:true,hideYouTubeFeed:true}}},async set(){}},onChanged:{addListener(){}}},
+  window.chrome={storage:{local:{async get(){return {robloxCustomizerTermsAccepted:true,customBackground:{source:'none',hideXFeed:true,hideYouTubeFeed:true}}},async set(){}},onChanged:{addListener(){}}},
     runtime:{lastError:null,getURL:file=>'/'+file,sendMessage(message,callback){
       if(message.type==='rc-private-server-details'){privateRequests.push({message,callback});return}
       setTimeout(()=>callback(message.type==='rc-pinned-games'?{ok:true,games:[],folders:[]}

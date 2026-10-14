@@ -1,0 +1,371 @@
+{
+  "updated": "2026-10-14",
+  "publisher": "Lunarfox 月狐",
+  "email": "lunar@lunarfox.my",
+  "contacts": [
+    { "label": "Telegram", "url": "https://t.me/Shadows_Lunarfox" },
+    { "label": "X", "url": "https://x.com/ShadowsLunarfox" }
+  ],
+  "locales": {
+    "en": {
+      "name": "English",
+      "languageLabel": "Language",
+      "navigationLabel": "Legal documents",
+      "updatedLabel": "Last updated",
+      "publisherLabel": "Publisher",
+      "contactHeading": "Contact",
+      "contactText": "For questions about these documents, privacy requests, or support, contact the publisher by email. Telegram and X are also available. Please do not send passwords, session cookies, or unredacted backups.",
+      "privacy": {
+        "title": "Privacy Policy",
+        "intro": "This policy explains how Roblox Customizer handles information. It covers this browser extension, not Roblox, the browser, or third-party services, which have their own policies.",
+        "sections": [
+          {
+            "heading": "Information used by the extension",
+            "paragraphs": ["Information is used to provide the features you see in the extension:"],
+            "items": [
+              "Preferences: language, colors, appearance, Home and social-feed settings, currency selection, language-warning state, and whether you have accepted the Terms of Service.",
+              "Backgrounds: files you select, their names, and saved background URLs. Selecting a local file stores a browser-local copy; it does not upload the file to the publisher.",
+              "Organization: pinned game IDs, game names and thumbnails, folder names, and hidden recommendations.",
+              "Playtime: Roblox user IDs and usernames, game/universe/place IDs, game names and icons, estimated durations, session counts, and first/last played and sampling timestamps for each recorded account.",
+              "Roblox content: page URLs and content, profile, avatar, friends, inventory, badge, game, server, and social-link information needed for page styling and tools. Existing account, message, and transaction pages may be restyled locally; their contents are not uploaded to the publisher. The extension does not read your browsing history on unrelated websites.",
+              "Temporary or cached information: public social posts and thumbnails, exchange rates, API responses, and server-country estimates."
+            ]
+          },
+          {
+            "heading": "Local storage and playtime",
+            "paragraphs": [
+              "Preferences, pins, history, and some caches use the browser's extension-local storage. Background files use IndexedDB on the Roblox site origin where they were selected. Small appearance and friend-row caches use Roblox-site localStorage. The extension does not use Chrome storage sync or a publisher-operated cloud account.",
+              "Playtime tracking is enabled by default and checks the signed-in account's Roblox presence approximately every 30 seconds while the browser runs, including when Roblox tabs are closed. It estimates activity from those samples, not from recordings of gameplay. You can disable tracking in settings. Disabling stops new samples but preserves existing history; unsupported-language fallback also pauses tracking.",
+              "The extension does not ask for your Roblox password. Authenticated Roblox API calls use your browser's existing Roblox session, so Roblox receives the authentication associated with those requests. Backups do not include Roblox passwords or session cookies."
+            ]
+          },
+          {
+            "heading": "Network requests and third parties",
+            "paragraphs": ["Requests are made when the relevant feature runs. The services below receive the requested identifiers or resources and ordinary connection information, such as your network IP address and request headers. They may keep their own logs under their policies. Roblox account credentials are not sent to the non-Roblox APIs listed here."],
+            "items": [
+              "Roblox APIs and image services: account and user IDs, game/place/universe IDs, badge/item IDs, server IDs, and related queries to load information, thumbnails, presence, and server details. Roblox handles its own website and account activity separately.",
+              "ipwho.is: a Roblox game server's public IP address for an estimated server country. This is a lookup of the game server, not a request to locate your device; the service still sees the connection IP used to make the request.",
+              "Rolimons (www.rolimons.com): the requested game/place ID for public game statistics. Opening a player or server analytics link sends that destination's identifiers to Rolimons.",
+              "FxEmbed (api.fxtwitter.com) and X image hosts (pbs.twimg.com and mosaic.fxtwitter.com): the public X handle linked on a Roblox page, plus post/image references, to display public posts and media.",
+              "YouTube (www.youtube.com) and its image host (i.ytimg.com): public channel handles or IDs and video/image IDs to show recent videos and thumbnails. Feed requests do not send YouTube login credentials.",
+              "jsDelivr (cdn.jsdelivr.net) and the currency API mirror (latest.currency-api.pages.dev): requests for public USD exchange-rate data. Your Roblox balance and playtime history are not sent to these rate services.",
+              "A saved remote background URL: the background host receives a request for that file when it loads. Local background files require no such request. Links to support or other sites contact those sites only when you open them."
+            ]
+          },
+          {
+            "heading": "Publisher access and use",
+            "paragraphs": [
+              "The extension has no publisher-operated data collection endpoint, advertising tracker, or usage-analytics service. It does not send your local preferences, backgrounds, or playtime history to the publisher, and the publisher does not sell that data or use it for targeted advertising. Data is used for the extension's stated features.",
+              "If you voluntarily contact support or submit an issue, the publisher receives the information you send, such as your contact name, email, report, or screenshots. It is used to respond and troubleshoot, and retained only as needed for that purpose or legal obligations. You may request deletion by email, subject to those obligations and the support platform's rules. GitHub issues and public social posts can be visible to others; use email for private requests.",
+              "Browser stores may separately provide the publisher with aggregate installation statistics, reviews, and information you submit through their services. Those activities are governed by the store's policies."
+            ]
+          },
+          {
+            "heading": "Your controls, retention, and deletion",
+            "paragraphs": [
+              "You can change preferences, remove backgrounds and pins, disable social feeds and playtime tracking, clear the current account's playtime, and export your data. Settings backups include all recorded accounts' histories and a saved background when present. Backups are unencrypted JSON files; keep them private. Import replaces the corresponding saved data rather than merging it.",
+              "Saved preferences, files, and histories remain until you remove, reset, or overwrite them or the browser clears storage. Cached responses may remain stored after they expire for use. Reset All deletes extension-local settings, caches, pins, and all accounts' history, and removes background files and page caches on the current Roblox site origin. It keeps the local Terms of Service acceptance flag so the first-opening prompt is not repeated. Default features may resume after reset; disable tracking again if you want it off.",
+              "Uninstalling normally removes extension-local storage but may leave Roblox-site IndexedDB and localStorage. Use Reset All before uninstalling, or clear Roblox site data in your browser to remove those remaining files and caches. Site-data deletion may sign you out. If fallback mode hides data controls, first switch Roblox to English, Simplified Chinese, or Traditional Chinese. Exported files and data stored by third parties must be deleted separately.",
+              "The publisher cannot inspect or remotely erase data stored only in your browser. Contact the publisher for questions or requests about information you sent to support."
+            ]
+          },
+          {
+            "heading": "Security, younger users, and updates",
+            "paragraphs": [
+              "Built-in API requests use HTTPS. Local browser storage and exports have no additional encryption supplied by this extension; protect your device, browser profile, and backup files. No security method can guarantee complete protection.",
+              "The extension does not request an age, create a separate user account, or collect children's information for advertising. The same local processing described above applies to all users. Parents or guardians can help younger users manage settings and delete local data.",
+              "This policy will be updated when the extension's data practices change. The date above identifies the version. Material changes will be described in the release information and, where required, in an in-extension notice before the new processing begins."
+            ]
+          }
+        ]
+      },
+      "terms": {
+        "title": "Terms of Service",
+        "intro": "These terms describe use of Roblox Customizer, provided by the publisher named above. Read them together with the Privacy Policy. Use the extension only if you can agree to these terms under applicable law; obtain a parent or guardian's permission where required.",
+        "sections": [
+          {
+            "heading": "What the extension provides",
+            "paragraphs": [
+              "Roblox Customizer is an independent browser extension for appearance customization and convenience tools on Roblox. It is not affiliated with, sponsored by, or endorsed by Roblox Corporation. Roblox and other third-party names and marks belong to their owners.",
+              "Full functionality currently supports English, Simplified Chinese, and Traditional Chinese Roblox settings. Other languages use a limited mode with image/GIF backgrounds and custom colors. Availability also depends on your browser, Roblox, and external services, which may change or become unavailable. No promise is made that every feature will always work."
+            ]
+          },
+          {
+            "heading": "Responsible use and your content",
+            "paragraphs": [
+              "Use the extension lawfully and follow the terms of Roblox and any services you access. It does not authorize bypassing account permissions, platform restrictions, or security measures, and does not provide free Robux or ownership of items.",
+              "You are responsible for the backgrounds, URLs, and other content you choose. Use content you own or have permission to use, respect others' rights and privacy, and avoid malicious files or links. Choosing a file for a local background does not transfer its ownership to the publisher.",
+              "Keep your browser and extension up to date and protect your device and account. Do not give the publisher or others your Roblox password or session cookies."
+            ]
+          },
+          {
+            "heading": "Estimates, third parties, and saved data",
+            "paragraphs": [
+              "Playtime, server country, ping, game statistics, and currency values are estimates or third-party information. They may be incomplete, delayed, or inaccurate. Currency equivalents are informational, not an exchange service or guaranteed checkout price. Verify important details with the original service.",
+              "External websites, feeds, media, and APIs are operated by their respective providers under their own terms and policies. The publisher does not control their availability, accuracy, or content.",
+              "Saved extension data belongs to your browser profile and is not a cloud backup. Export a backup before reset, import, uninstall, or changing devices. Import can replace existing data, and resets or browser cleanup can delete it. The publisher cannot recover data stored only on your device. The extension does not back up Roblox purchases, balances, or game progress."
+            ]
+          },
+          {
+            "heading": "Open-source license",
+            "paragraphs": ["The extension's software is licensed under GNU General Public License version 3, as provided in the repository's LICENSE file. Your rights to run, copy, modify, and redistribute the software are governed by that license. These terms do not restrict or replace those rights. Third-party content remains subject to its own rights and licenses."]
+          },
+          {
+            "heading": "Warranty and liability",
+            "paragraphs": [
+              "To the extent permitted by applicable law, the extension is provided as is and as available, without warranties of merchantability, fitness for a particular purpose, non-infringement, uninterrupted operation, or accuracy. The GPL's warranty and liability provisions also apply to the software.",
+              "To the extent permitted by applicable law, the publisher is not liable for indirect or consequential loss, lost profits, or loss of data arising from use of the extension. Nothing here excludes liability that cannot lawfully be excluded or limits mandatory consumer rights."
+            ]
+          },
+          {
+            "heading": "Changes and ending use",
+            "paragraphs": [
+              "Features and these terms may change. Updated terms will be available here with a revised date; material changes will be described in release information and, where required, an in-extension notice. Any legally required agreement will be requested before it is needed.",
+              "You may stop using the extension by disabling or uninstalling it at any time. Follow the Privacy Policy's deletion instructions if you also want to remove saved data. Ending use does not remove your rights under the GPL."
+            ]
+          }
+        ]
+      }
+    },
+    "zh-CN": {
+      "name": "简体中文",
+      "languageLabel": "语言",
+      "navigationLabel": "法律文件",
+      "updatedLabel": "最后更新",
+      "publisherLabel": "发布者",
+      "contactHeading": "联系方式",
+      "contactText": "如需咨询这些文件、提出隐私请求或获取支持，请通过电子邮件联系发布者，也可使用 Telegram 或 X。请勿发送密码、会话 Cookie 或未经脱敏的备份。",
+      "privacy": {
+        "title": "隐私政策",
+        "intro": "本政策说明 Roblox Customizer 如何处理信息，适用于本浏览器扩展。Roblox、浏览器及第三方服务适用各自的政策。",
+        "sections": [
+          {
+            "heading": "扩展使用的信息",
+            "paragraphs": ["以下信息用于提供扩展中可见的功能："],
+            "items": [
+              "偏好设置：语言、颜色、外观、主页和社交动态设置、货币选择、语言警告状态，以及你是否已接受服务条款。",
+              "背景：你选择的文件、文件名和已保存的背景网址。选择本地文件会在浏览器中保存一份副本，不会上传给发布者。",
+              "整理数据：置顶游戏的 ID、名称和缩略图、文件夹名称及隐藏的推荐内容。",
+              "游戏时长：各已记录账号的 Roblox 用户 ID 和用户名，游戏／宇宙／地点 ID、游戏名称和图标、估算时长、会话次数、首次和最近游玩时间及采样时间。",
+              "Roblox 内容：页面网址及内容，以及页面样式和工具所需的个人资料、头像、好友、物品栏、徽章、游戏、服务器及社交链接信息。现有账号、消息和交易页面可能在本地调整样式，其内容不会上传给发布者。扩展不会读取你在其他无关网站的浏览历史。",
+              "临时或缓存信息：公开社交帖子和缩略图、汇率、API 响应及服务器国家估算。"
+            ]
+          },
+          {
+            "heading": "本地存储与游戏时长",
+            "paragraphs": [
+              "偏好、置顶游戏、历史及部分缓存保存在浏览器的扩展本地存储中。背景文件保存在选择文件时所在 Roblox 网站来源的 IndexedDB 中。少量外观和好友行数缓存使用 Roblox 网站的 localStorage。扩展不使用 Chrome 存储同步，也没有由发布者运营的云端账号。",
+              "游戏时长记录默认开启，在浏览器运行期间约每 30 秒检查已登录账号的 Roblox 状态，包括 Roblox 标签页已关闭时。时长根据这些状态采样估算，不会录制游戏过程。可在设置中关闭记录；关闭后停止新采样并保留已有历史。不支持语言的回退模式也会暂停记录。",
+              "扩展不会要求你提供 Roblox 密码。需要身份验证的 Roblox API 请求使用浏览器现有的 Roblox 会话，因此 Roblox 会收到相应的身份验证信息。备份不包含 Roblox 密码或会话 Cookie。"
+            ]
+          },
+          {
+            "heading": "网络请求与第三方",
+            "paragraphs": ["相关功能运行时会发起请求。以下服务会收到请求中的标识符或资源，以及网络 IP 地址、请求标头等常规连接信息，并可能根据各自政策保留日志。Roblox 账号凭据不会发送给下列非 Roblox API。"],
+            "items": [
+              "Roblox API 和图片服务：账号和用户 ID、游戏／地点／宇宙 ID、徽章／物品 ID、服务器 ID 及相关查询，用于获取信息、缩略图、在线状态及服务器详情。Roblox 网站和账号活动由 Roblox 自行处理。",
+              "ipwho.is：接收 Roblox 游戏服务器的公网 IP 地址，以估算服务器所在国家。这是查询游戏服务器，不是定位你的设备；服务仍可看到发起连接所使用的 IP 地址。",
+              "Rolimons（www.rolimons.com）：接收查询的游戏／地点 ID，以获取公开游戏统计。打开玩家或服务器分析链接时，对应的标识符会发送给 Rolimons。",
+              "FxEmbed（api.fxtwitter.com）及 X 图片服务（pbs.twimg.com 和 mosaic.fxtwitter.com）：接收 Roblox 页面链接的公开 X 用户名及帖子／图片引用，以显示公开动态和媒体。",
+              "YouTube（www.youtube.com）及其图片服务（i.ytimg.com）：接收公开频道用户名或 ID，以及视频／图片 ID，以显示近期视频和缩略图。动态请求不会发送 YouTube 登录凭据。",
+              "jsDelivr（cdn.jsdelivr.net）及汇率 API 镜像（latest.currency-api.pages.dev）：接收公开美元汇率数据的请求，不会收到你的 Roblox 余额或游戏时长历史。",
+              "已保存的远程背景网址：加载背景时，文件所在网站会收到请求。本地背景文件无需此类请求。只有在你打开支持或其他网站的链接时，才会联系相应网站。"
+            ]
+          },
+          {
+            "heading": "发布者访问与使用",
+            "paragraphs": [
+              "扩展没有由发布者运营的数据收集接口、广告追踪器或使用情况分析服务。它不会向发布者发送本地偏好、背景或游戏时长历史；发布者不会出售这些数据或将其用于定向广告。数据仅用于扩展说明的功能。",
+              "如果你主动联系支持或提交问题，发布者会收到你发送的联系人姓名、电子邮件、报告或截图等信息。这些信息用于回复及排查问题，仅在该目的或法律义务所需的期限内保留。可通过电子邮件申请删除，但须遵守相关义务及支持平台的规则。GitHub 问题和公开社交帖子可能对其他人可见，私密请求请使用电子邮件。",
+              "浏览器商店可能另外向发布者提供汇总安装统计、评价及你通过商店服务提交的信息，这些活动适用商店的政策。"
+            ]
+          },
+          {
+            "heading": "你的控制权、保留与删除",
+            "paragraphs": [
+              "你可以修改偏好、删除背景和置顶游戏、关闭社交动态及游戏时长记录、清除当前账号的时长并导出数据。设置备份包含所有已记录账号的历史，以及存在时的已保存背景。备份是未加密的 JSON 文件，请妥善保管。导入会替换对应的已有数据，而非合并。",
+              "已保存的偏好、文件和历史会保留至你删除、重置或覆盖，或浏览器清除存储。缓存响应在不再可用于显示后仍可能留在存储中。“重置全部”会删除扩展本地设置、缓存、置顶游戏和所有账号的历史，并删除当前 Roblox 网站来源上的背景文件及页面缓存。它会保留本地的服务条款接受标记，避免重复显示首次打开的提示。重置后默认功能可能恢复运行；如希望停止记录，请再次关闭游戏时长记录。",
+              "卸载通常会移除扩展本地存储，但可能保留 Roblox 网站的 IndexedDB 和 localStorage。卸载前请使用“重置全部”，或通过浏览器清除 Roblox 网站数据以删除剩余文件和缓存；清除网站数据可能使你退出登录。如回退模式隐藏了数据控件，请先将 Roblox 切换为英语、简体中文或繁体中文。导出文件及第三方保存的数据需另行删除。",
+              "发布者无法查看或远程删除仅保存在你浏览器中的数据。如需咨询或处理你发送给支持的信息，请联系发布者。"
+            ]
+          },
+          {
+            "heading": "安全、未成年用户与更新",
+            "paragraphs": [
+              "内置 API 请求使用 HTTPS。本扩展不对本地浏览器存储或导出文件提供额外加密；请保护设备、浏览器配置文件及备份。任何安全措施都无法保证完全安全。",
+              "扩展不会询问年龄、创建独立用户账号，或收集儿童信息用于广告。上述本地处理方式适用于所有用户。家长或监护人可协助未成年用户管理设置及删除本地数据。",
+              "扩展的数据处理方式变化时将更新本政策，以上日期表示版本。重大变更会在版本发布信息中说明，并在有要求时，于开始新的处理方式前通过扩展内通知说明。"
+            ]
+          }
+        ]
+      },
+      "terms": {
+        "title": "服务条款",
+        "intro": "这些条款说明如何使用由上述发布者提供的 Roblox Customizer，请结合隐私政策阅读。仅在适用法律允许你同意这些条款时使用扩展；如有要求，请取得家长或监护人的许可。",
+        "sections": [
+          {
+            "heading": "扩展提供的服务",
+            "paragraphs": [
+              "Roblox Customizer 是用于 Roblox 外观自定义及便利工具的独立浏览器扩展，与 Roblox Corporation 无关联，亦未获其赞助或认可。Roblox 及其他第三方名称和商标属于各自权利人。",
+              "完整功能目前支持 Roblox 的英语、简体中文和繁体中文设置。其他语言进入仅支持图片／GIF 背景和自定义颜色的受限模式。功能可用性还取决于浏览器、Roblox 和外部服务，它们可能变化或不可用。我们不保证所有功能始终正常运行。"
+            ]
+          },
+          {
+            "heading": "合理使用与你的内容",
+            "paragraphs": [
+              "请合法使用扩展，并遵守 Roblox 及所访问服务的条款。扩展不授权绕过账号权限、平台限制或安全措施，也不提供免费 Robux 或物品所有权。",
+              "你对所选择的背景、网址及其他内容负责。请使用自己拥有或获准使用的内容，尊重他人的权利和隐私，避免恶意文件或链接。选择文件作为本地背景不会将所有权转让给发布者。",
+              "请保持浏览器和扩展为最新版本，并保护设备及账号。不要向发布者或他人提供 Roblox 密码或会话 Cookie。"
+            ]
+          },
+          {
+            "heading": "估算、第三方与已保存数据",
+            "paragraphs": [
+              "游戏时长、服务器国家、Ping、游戏统计和货币价值属于估算或第三方信息，可能不完整、延迟或不准确。货币价值仅供参考，不是兑换服务或保证的结算价格。重要信息请向原始服务核实。",
+              "外部网站、动态、媒体及 API 由各提供者运营，适用各自条款和政策。发布者不控制其可用性、准确性或内容。",
+              "扩展数据保存在你的浏览器配置文件中，不是云端备份。重置、导入、卸载或更换设备前，请导出备份。导入可能替换已有数据，重置或浏览器清理可能删除数据。发布者无法恢复仅存在你设备上的数据。扩展不备份 Roblox 购买记录、余额或游戏进度。"
+            ]
+          },
+          {
+            "heading": "开源许可证",
+            "paragraphs": ["扩展软件采用仓库 LICENSE 文件所载的 GNU 通用公共许可证第 3 版。运行、复制、修改及再分发软件的权利由该许可证规定；这些条款不限制或取代这些权利。第三方内容仍适用各自权利和许可证。"]
+          },
+          {
+            "heading": "保证与责任",
+            "paragraphs": [
+              "在适用法律允许的范围内，扩展按现状及可用状态提供，不保证适销性、特定用途适用性、不侵权、持续运行或准确性。GPL 关于保证和责任的条款亦适用于软件。",
+              "在适用法律允许的范围内，发布者不对使用扩展产生的间接或后果性损失、利润损失或数据丢失承担责任。这些条款不排除法律禁止排除的责任，也不限制法定消费者权利。"
+            ]
+          },
+          {
+            "heading": "变更与停止使用",
+            "paragraphs": [
+              "功能和条款可能变化。更新后的条款将附上修订日期并在此提供；重大变更会在版本发布信息中说明，并在有要求时通过扩展内通知说明。依法需要的同意会在需要之前征求。",
+              "你可以随时停用或卸载扩展。如还希望删除已保存数据，请按照隐私政策中的删除说明操作。停止使用不会取消 GPL 授予你的权利。"
+            ]
+          }
+        ]
+      }
+    },
+    "zh-TW": {
+      "name": "繁體中文",
+      "languageLabel": "語言",
+      "navigationLabel": "法律文件",
+      "updatedLabel": "最後更新",
+      "publisherLabel": "發布者",
+      "contactHeading": "聯絡方式",
+      "contactText": "如需詢問這些文件、提出隱私權請求或取得支援，請透過電子郵件聯絡發布者，也可使用 Telegram 或 X。請勿傳送密碼、工作階段 Cookie 或未經去識別處理的備份。",
+      "privacy": {
+        "title": "隱私權政策",
+        "intro": "本政策說明 Roblox Customizer 如何處理資訊，適用於本瀏覽器擴充功能。Roblox、瀏覽器及第三方服務適用各自的政策。",
+        "sections": [
+          {
+            "heading": "擴充功能使用的資訊",
+            "paragraphs": ["以下資訊用於提供擴充功能中可見的功能："],
+            "items": [
+              "偏好設定：語言、顏色、外觀、首頁和社群動態設定、貨幣選擇、語言警告狀態，以及你是否已接受服務條款。",
+              "背景：你選擇的檔案、檔名和已儲存的背景網址。選擇本機檔案會在瀏覽器中儲存一份副本，不會上傳給發布者。",
+              "整理資料：釘選遊戲的 ID、名稱和縮圖、資料夾名稱及隱藏的推薦內容。",
+              "遊戲時間：各已記錄帳號的 Roblox 使用者 ID 和使用者名稱，遊戲／宇宙／地點 ID、遊戲名稱和圖示、估算時間、工作階段次數、首次和最近遊玩時間及取樣時間。",
+              "Roblox 內容：頁面網址及內容，以及頁面樣式和工具所需的個人資料、頭像、好友、物品欄、徽章、遊戲、伺服器及社群連結資訊。現有帳號、訊息和交易頁面可能在本機調整樣式，其內容不會上傳給發布者。擴充功能不會讀取你在其他無關網站的瀏覽歷史。",
+              "暫存或快取資訊：公開社群貼文和縮圖、匯率、API 回應及伺服器國家估算。"
+            ]
+          },
+          {
+            "heading": "本機儲存與遊戲時間",
+            "paragraphs": [
+              "偏好、釘選遊戲、歷史及部分快取儲存在瀏覽器的擴充功能本機儲存空間。背景檔案儲存在選擇檔案時所在 Roblox 網站來源的 IndexedDB。少量外觀和好友列數快取使用 Roblox 網站的 localStorage。擴充功能不使用 Chrome 儲存同步，也沒有由發布者營運的雲端帳號。",
+              "遊戲時間記錄預設開啟，在瀏覽器執行期間約每 30 秒檢查已登入帳號的 Roblox 狀態，包括 Roblox 分頁已關閉時。時間根據這些狀態取樣估算，不會錄製遊戲過程。可在設定中關閉記錄；關閉後停止新取樣並保留已有歷史。不支援語言的備援模式也會暫停記錄。",
+              "擴充功能不會要求你提供 Roblox 密碼。需要身分驗證的 Roblox API 請求使用瀏覽器現有的 Roblox 工作階段，因此 Roblox 會收到相應的身分驗證資訊。備份不包含 Roblox 密碼或工作階段 Cookie。"
+            ]
+          },
+          {
+            "heading": "網路請求與第三方",
+            "paragraphs": ["相關功能執行時會發出請求。以下服務會收到請求中的識別碼或資源，以及網路 IP 位址、請求標頭等一般連線資訊，並可能依各自政策保留紀錄。Roblox 帳號憑證不會傳送給下列非 Roblox API。"],
+            "items": [
+              "Roblox API 和圖片服務：帳號和使用者 ID、遊戲／地點／宇宙 ID、徽章／物品 ID、伺服器 ID 及相關查詢，用於取得資訊、縮圖、線上狀態及伺服器詳細資料。Roblox 網站和帳號活動由 Roblox 自行處理。",
+              "ipwho.is：接收 Roblox 遊戲伺服器的公用 IP 位址，以估算伺服器所在國家。這是查詢遊戲伺服器，不是定位你的裝置；服務仍可看到發起連線所使用的 IP 位址。",
+              "Rolimons（www.rolimons.com）：接收查詢的遊戲／地點 ID，以取得公開遊戲統計。開啟玩家或伺服器分析連結時，對應的識別碼會傳送給 Rolimons。",
+              "FxEmbed（api.fxtwitter.com）及 X 圖片服務（pbs.twimg.com 和 mosaic.fxtwitter.com）：接收 Roblox 頁面連結的公開 X 使用者名稱及貼文／圖片參照，以顯示公開動態和媒體。",
+              "YouTube（www.youtube.com）及其圖片服務（i.ytimg.com）：接收公開頻道使用者名稱或 ID，以及影片／圖片 ID，以顯示近期影片和縮圖。動態請求不會傳送 YouTube 登入憑證。",
+              "jsDelivr（cdn.jsdelivr.net）及匯率 API 鏡像（latest.currency-api.pages.dev）：接收公開美元匯率資料的請求，不會收到你的 Roblox 餘額或遊戲時間歷史。",
+              "已儲存的遠端背景網址：載入背景時，檔案所在網站會收到請求。本機背景檔案無需此類請求。只有在你開啟支援或其他網站的連結時，才會聯絡相應網站。"
+            ]
+          },
+          {
+            "heading": "發布者存取與使用",
+            "paragraphs": [
+              "擴充功能沒有由發布者營運的資料收集介面、廣告追蹤器或使用情況分析服務。它不會向發布者傳送本機偏好、背景或遊戲時間歷史；發布者不會出售這些資料或將其用於定向廣告。資料僅用於擴充功能說明的功能。",
+              "如果你主動聯絡支援或提交問題，發布者會收到你傳送的聯絡人姓名、電子郵件、報告或螢幕截圖等資訊。這些資訊用於回覆及排查問題，僅在該目的或法律義務所需的期間內保留。可透過電子郵件申請刪除，但須遵守相關義務及支援平台的規則。GitHub 問題和公開社群貼文可能對其他人可見，私密請求請使用電子郵件。",
+              "瀏覽器商店可能另外向發布者提供彙總安裝統計、評論及你透過商店服務提交的資訊，這些活動適用商店的政策。"
+            ]
+          },
+          {
+            "heading": "你的控制權、保留與刪除",
+            "paragraphs": [
+              "你可以修改偏好、刪除背景和釘選遊戲、關閉社群動態及遊戲時間記錄、清除目前帳號的時間並匯出資料。設定備份包含所有已記錄帳號的歷史，以及存在時的已儲存背景。備份是未加密的 JSON 檔案，請妥善保管。匯入會取代對應的已有資料，而非合併。",
+              "已儲存的偏好、檔案和歷史會保留至你刪除、重設或覆寫，或瀏覽器清除儲存空間。快取回應在不再可用於顯示後仍可能留在儲存空間。“重設全部”會刪除擴充功能本機設定、快取、釘選遊戲和所有帳號的歷史，並刪除目前 Roblox 網站來源上的背景檔案及頁面快取。它會保留本機的服務條款接受標記，避免重複顯示首次開啟的提示。重設後預設功能可能恢復執行；如希望停止記錄，請再次關閉遊戲時間記錄。",
+              "解除安裝通常會移除擴充功能本機儲存空間，但可能保留 Roblox 網站的 IndexedDB 和 localStorage。解除安裝前請使用“重設全部”，或透過瀏覽器清除 Roblox 網站資料以刪除剩餘檔案和快取；清除網站資料可能使你登出。如備援模式隱藏了資料控制項，請先將 Roblox 切換為英語、簡體中文或繁體中文。匯出檔案及第三方儲存的資料需另行刪除。",
+              "發布者無法查看或遠端刪除僅儲存在你瀏覽器中的資料。如需詢問或處理你傳送給支援的資訊，請聯絡發布者。"
+            ]
+          },
+          {
+            "heading": "安全、未成年使用者與更新",
+            "paragraphs": [
+              "內建 API 請求使用 HTTPS。本擴充功能不對本機瀏覽器儲存空間或匯出檔案提供額外加密；請保護裝置、瀏覽器設定檔及備份。任何安全措施都無法保證完全安全。",
+              "擴充功能不會詢問年齡、建立獨立使用者帳號，或收集兒童資訊用於廣告。上述本機處理方式適用於所有使用者。家長或監護人可協助未成年使用者管理設定及刪除本機資料。",
+              "擴充功能的資料處理方式變更時將更新本政策，以上日期表示版本。重大變更會在版本發布資訊中說明，並在有要求時，於開始新的處理方式前透過擴充功能內通知說明。"
+            ]
+          }
+        ]
+      },
+      "terms": {
+        "title": "服務條款",
+        "intro": "這些條款說明如何使用由上述發布者提供的 Roblox Customizer，請結合隱私權政策閱讀。僅在適用法律允許你同意這些條款時使用擴充功能；如有要求，請取得家長或監護人的許可。",
+        "sections": [
+          {
+            "heading": "擴充功能提供的服務",
+            "paragraphs": [
+              "Roblox Customizer 是用於 Roblox 外觀自訂及便利工具的獨立瀏覽器擴充功能，與 Roblox Corporation 無關聯，亦未獲其贊助或認可。Roblox 及其他第三方名稱和商標屬於各自權利人。",
+              "完整功能目前支援 Roblox 的英語、簡體中文和繁體中文設定。其他語言進入僅支援圖片／GIF 背景和自訂顏色的受限模式。功能可用性還取決於瀏覽器、Roblox 和外部服務，它們可能變更或無法使用。我們不保證所有功能始終正常執行。"
+            ]
+          },
+          {
+            "heading": "合理使用與你的內容",
+            "paragraphs": [
+              "請合法使用擴充功能，並遵守 Roblox 及所存取服務的條款。擴充功能不授權繞過帳號權限、平台限制或安全措施，也不提供免費 Robux 或物品所有權。",
+              "你對所選擇的背景、網址及其他內容負責。請使用自己擁有或獲准使用的內容，尊重他人的權利和隱私，避免惡意檔案或連結。選擇檔案作為本機背景不會將所有權轉讓給發布者。",
+              "請保持瀏覽器和擴充功能為最新版本，並保護裝置及帳號。不要向發布者或他人提供 Roblox 密碼或工作階段 Cookie。"
+            ]
+          },
+          {
+            "heading": "估算、第三方與已儲存資料",
+            "paragraphs": [
+              "遊戲時間、伺服器國家、Ping、遊戲統計和貨幣價值屬於估算或第三方資訊，可能不完整、延遲或不準確。貨幣價值僅供參考，不是兌換服務或保證的結帳價格。重要資訊請向原始服務確認。",
+              "外部網站、動態、媒體及 API 由各提供者營運，適用各自條款和政策。發布者不控制其可用性、準確性或內容。",
+              "擴充功能資料儲存在你的瀏覽器設定檔中，不是雲端備份。重設、匯入、解除安裝或更換裝置前，請匯出備份。匯入可能取代已有資料，重設或瀏覽器清理可能刪除資料。發布者無法恢復僅存在你裝置上的資料。擴充功能不備份 Roblox 購買紀錄、餘額或遊戲進度。"
+            ]
+          },
+          {
+            "heading": "開源授權條款",
+            "paragraphs": ["擴充功能軟體採用儲存庫 LICENSE 檔案所載的 GNU 通用公共授權條款第 3 版。執行、複製、修改及再散布軟體的權利由該授權條款規定；這些條款不限制或取代這些權利。第三方內容仍適用各自權利和授權條款。"]
+          },
+          {
+            "heading": "保證與責任",
+            "paragraphs": [
+              "在適用法律允許的範圍內，擴充功能依現狀及可用狀態提供，不保證適銷性、特定用途適用性、不侵權、持續執行或準確性。GPL 關於保證和責任的條款亦適用於軟體。",
+              "在適用法律允許的範圍內，發布者不對使用擴充功能產生的間接或衍生損失、利潤損失或資料遺失承擔責任。這些條款不排除法律禁止排除的責任，也不限制法定消費者權利。"
+            ]
+          },
+          {
+            "heading": "變更與停止使用",
+            "paragraphs": [
+              "功能和條款可能變更。更新後的條款將附上修訂日期並在此提供；重大變更會在版本發布資訊中說明，並在有要求時透過擴充功能內通知說明。依法需要的同意會在需要之前徵求。",
+              "你可以隨時停用或解除安裝擴充功能。如還希望刪除已儲存資料，請依照隱私權政策中的刪除說明操作。停止使用不會取消 GPL 授予你的權利。"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

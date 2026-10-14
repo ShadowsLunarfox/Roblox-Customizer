@@ -74,7 +74,7 @@ test('Unsupported languages preserve native UI, allow only image backgrounds and
         const listeners=[],messages=[];window.featureRequests=[];
         const defaults={source:'none',uiLanguage:'en',hideFavorites:true,hideStandoutGames:true,hideRecommendedUpper:true,hideRecommendedLower:true,
           friendRows:1,glassBlur:40,glassOpacity:25,showGameXFeed:false,showGameYouTubeFeed:false};
-        const read=()=>({customBackground:defaults,...JSON.parse(localStorage.getItem('preferences')||'{}')});
+        const read=()=>({robloxCustomizerTermsAccepted:true,customBackground:defaults,...JSON.parse(localStorage.getItem('preferences')||'{}')});
         window.chrome={i18n:{getUILanguage:()=> 'en-US'},storage:{
           local:{async get(){return read()},async set(patch){const old=read();localStorage.setItem('preferences',JSON.stringify({...old,...patch}));listeners.forEach(fn=>fn(Object.fromEntries(Object.entries(patch).map(([key,newValue])=>[key,{oldValue:old[key],newValue}])),'local'))},
             async remove(key){const old=read(),next={...old};delete next[key];localStorage.setItem('preferences',JSON.stringify(next));listeners.forEach(fn=>fn({[key]:{oldValue:old[key]}},'local'))}},

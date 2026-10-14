@@ -65,8 +65,9 @@ function worker() {
   const listeners = [], changes = [];
   let writes = 0, fail = false, sessionClears = 0;
   const chrome = {runtime:{id:'extension',onMessage:{addListener:fn=>listeners.push(fn)},getManifest:()=>({version:'1.0'})},
-    storage:{local:{async get(keys){return copy(Object.fromEntries(keys.filter(key=>key in state).map(key=>[key,state[key]])));},
+    storage:{local:{async get(keys){return copy(keys===null?state:Object.fromEntries(keys.filter(key=>key in state).map(key=>[key,state[key]])));},
       async set(data){if(fail)throw new Error('Storage full');writes++;Object.assign(state,copy(data));},
+      async remove(keys){if(fail)throw new Error('Storage full');writes++;for(const key of keys)delete state[key];},
       async clear(){if(fail)throw new Error('Storage full');writes++;for(const key of Object.keys(state))delete state[key];}},
       session:{async clear(){sessionClears++;}},onChanged:{addListener:fn=>changes.push(fn)}}};
   const context = vm.createContext({chrome,URL,crypto,Date,setTimeout,clearTimeout});
@@ -145,4 +146,15 @@ test('reset clears all extension storage after pending game and playtime writes'
     assert.equal(await w.message('reset', undefined, sender), undefined);
   }
   assert.equal(w.writes, 1);
+});
+
+test('reset preserves a genuine terms acceptance without exporting or importing it', async () => {
+  const w = worker();
+  w.state.robloxCustomizerTermsAccepted = true;
+  const exported = await w.message('export');
+  assert.equal(Object.hasOwn(exported.data, 'robloxCustomizerTermsAccepted'), false);
+  assert.equal((await w.message('import', exported.data)).ok, true);
+  assert.equal(w.state.robloxCustomizerTermsAccepted, true);
+  assert.equal((await w.message('reset')).ok, true);
+  assert.deepEqual(w.state, { robloxCustomizerTermsAccepted: true });
 });

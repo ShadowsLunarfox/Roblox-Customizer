@@ -28,7 +28,7 @@ const setup = `
     holder.innerHTML=canvas?'<img src="/image.svg">':'<canvas width="300" height="300"></canvas>';
     button.setAttribute('aria-label',canvas?button.dataset.mode3:button.dataset.mode2);
   };
-  window.chrome={storage:{local:{async get(){return {customBackground:{source:'none',hideFavorites:true,hideRecommendedUpper:true,hideRecommendedLower:false,hideXFeed:true,hideYouTubeFeed:true}}},async set(){}},onChanged:{addListener:fn=>listeners.push(fn)}},runtime:{lastError:null,getURL:file=>'/'+file,sendMessage(message,callback){
+  window.chrome={storage:{local:{async get(){return {robloxCustomizerTermsAccepted:true,customBackground:{source:'none',hideFavorites:true,hideRecommendedUpper:true,hideRecommendedLower:false,hideXFeed:true,hideYouTubeFeed:true}}},async set(){}},onChanged:{addListener:fn=>listeners.push(fn)}},runtime:{lastError:null,getURL:file=>'/'+file,sendMessage(message,callback){
     if(message.type==='rc-private-server-details'){privateRequests.push(callback);return}
     const response=message.type==='rc-home-user'?{id:1,name:'Player',displayName:'Player',imageUrl:location.origin+'/image.svg'}
       :message.type==='rc-currency-rates'?{ok:true,date:'2026-10-10',rates:{USD:1,MYR:4.1}}

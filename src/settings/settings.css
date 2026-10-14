@@ -873,6 +873,51 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
   outline-offset: 3px;
 }
 
+#rc-terms-dialog {
+  box-sizing: border-box;
+  position: fixed;
+  inset: 0;
+  width: min(480px, calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 28px;
+  overflow: auto;
+  border: 1px solid var(--rc-control-border, #42444d);
+  border-radius: 16px;
+  background: var(--rc-surface, #1c1d24);
+  color: var(--rc-text, #f7f7f8);
+  box-shadow: 0 24px 80px rgb(0 0 0 / 50%);
+  font: 14px/1.5 Arial, sans-serif;
+  overflow-wrap: anywhere;
+}
+
+#rc-terms-dialog::backdrop { background: rgb(0 0 0 / 72%); }
+#rc-terms-dialog .rc-terms-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; font-weight: 700; }
+#rc-terms-dialog .rc-terms-brand img { flex: 0 0 40px; }
+#rc-terms-dialog h2 { margin: 0 0 12px; color: inherit; font-size: 22px; line-height: 1.3; }
+#rc-terms-dialog p { margin: 0 0 14px; color: var(--rc-text-secondary, #b8bac5); }
+#rc-terms-dialog .rc-terms-links { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 18px 0; }
+#rc-terms-dialog a { color: var(--rc-link, #b7caff); text-decoration: underline; }
+#rc-terms-dialog .rc-terms-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+#rc-terms-dialog button {
+  flex: 1 1 160px;
+  min-height: 42px;
+  padding: 10px 14px;
+  border: 1px solid var(--rc-control-border, #42444d);
+  border-radius: 8px;
+  background: var(--rc-control-bg, #292c35);
+  color: var(--rc-text, #f7f7f8);
+  cursor: pointer;
+  font: 700 14px/1.4 Arial, sans-serif;
+}
+#rc-terms-dialog #rc-terms-accept { border-color: transparent; background: var(--rc-accent, #335fff); color: var(--rc-accent-text, #fff); }
+#rc-terms-dialog button:hover:not(:disabled) { background: var(--rc-control-hover, #383b46); }
+#rc-terms-dialog #rc-terms-accept:hover:not(:disabled) { background: var(--rc-accent-hover, #244de0); }
+#rc-terms-dialog button:disabled { opacity: .6; cursor: wait; }
+#rc-terms-dialog :is(a, button):focus-visible { outline: 2px solid var(--rc-focus, #335fff); outline-offset: 3px; }
+#rc-terms-dialog #rc-terms-status { color: var(--rc-error, #ff9f9f); }
+#rc-terms-dialog #rc-terms-status:empty { display: none; }
+
 #rc-language-warning-dialog {
   box-sizing: border-box;
   position: fixed;
@@ -1559,6 +1604,23 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 #rc-settings-overlay .rc-settings-footer a {
   color: var(--rc-link);
   overflow-wrap: anywhere;
+}
+
+#rc-settings-overlay .rc-settings-legal-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#rc-settings-overlay .rc-settings-footer .rc-legal-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 6px 10px;
+  color: var(--rc-text);
+  text-decoration: none;
 }
 
 #rc-settings-overlay .rc-settings-repository {

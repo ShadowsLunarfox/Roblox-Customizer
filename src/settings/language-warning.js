@@ -95,6 +95,12 @@
     const changed = !!state.language && state.language !== language;
     const unsupported = !i18n.isSupportedLanguage(language);
     const shouldWarn = unsupported && (firstOpening || changed);
+    const terms = globalThis.RobloxCustomizerTerms;
+    if (shouldWarn && terms && !terms.accepted()) {
+      // Do not consume or display a language warning above the first-visit terms prompt.
+      void terms.request().then(accepted => { if (accepted) checkLanguage(true); });
+      return;
+    }
     // A language-change warning also satisfies the first-opening warning.
     const opened = state.opened || openingPending || shouldWarn;
     openingPending = false;

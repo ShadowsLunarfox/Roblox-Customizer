@@ -52,7 +52,8 @@
     {
       "resources": [
         "icons/icon-48.png",
-        "icons/icon-128.png"
+        "icons/icon-128.png",
+        "src/legal/index.html"
       ],
       "matches": [
         "https://www.roblox.com/*",
@@ -129,6 +130,7 @@
         "src/shared/startup.js",
         "src/home/friends.js",
         "src/settings/backup-core.js",
+        "src/settings/terms-acceptance.js",
         "src/settings/language-warning.js",
         "src/settings/settings.js",
         "src/shared/frosted-ui.js",

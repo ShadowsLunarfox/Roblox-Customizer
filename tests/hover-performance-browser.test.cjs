@@ -21,7 +21,7 @@ function fixture() {
       ${Array.from({length:500}, (_,i) => `<div class="game-card-container"><a href="https://www.roblox.com/games/${1000+i}/Test"><span class="game-card-name">Game ${i}</span></a><div class="item-card-price"><span class="icon-robux-16x16"></span><span class="text-robux">${100+i}</span></div><div><span>Stats</span><button>Details</button><div><span>About this game</span><p>Description</p></div></div></div>`).join('')}
     </div></section></main>
     <script>
-      const listeners=[];window.saved={customBackground:{source:'none',clockShowSeconds:false}};
+      const listeners=[];window.saved={robloxCustomizerTermsAccepted:true,customBackground:{source:'none',clockShowSeconds:false}};
       window.chrome={i18n:{getUILanguage:()=> 'en-US'},storage:{local:{async get(keys){return Object.fromEntries((Array.isArray(keys)?keys:[keys]).map(key=>[key,saved[key]]))},async set(values){Object.assign(saved,values)}},onChanged:{addListener(fn){listeners.push(fn)}}},runtime:{lastError:null,getURL:file=>'/'+file,sendMessage(message,callback){queueMicrotask(()=>callback(message.type==='rc-home-user'?{id:123,name:'Player',displayName:'Player'}:message.type==='rc-playtime'?{ok:true,enabled:false,account:null,games:[],status:{kind:'disabled',checkedAt:0}}:{ok:true,games:[],folders:[]}))}}};
       window.resetWork=()=>window.work={currencyScans:0,homeScans:0,formats:0,friendWrites:0,chatScans:0,accountScans:0,gameScans:0};resetWork();
       const query=Element.prototype.querySelectorAll;

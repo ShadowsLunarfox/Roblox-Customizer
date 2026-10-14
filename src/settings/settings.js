@@ -1302,6 +1302,15 @@
     globalThis.RobloxCustomizerI18n?.localize(layout);
   }
 
+  function updateLegalLinks() {
+    if (!modal) return;
+    const locale = globalThis.RobloxCustomizerI18n?.locale() || 'en';
+    const language = ['en', 'zh-CN', 'zh-TW'].includes(locale) ? locale : 'en';
+    for (const link of modal.querySelectorAll('[data-rc-legal-document]')) {
+      link.href = `${chrome.runtime.getURL('src/legal/index.html')}?document=${link.dataset.rcLegalDocument}&lang=${language}`;
+    }
+  }
+
   function openModal() {
     const compatibility = globalThis.RobloxCustomizerCompatibility;
     if (!document.body || compatibility && !compatibility.enabled() && !compatibility.fallback()) {
@@ -1310,6 +1319,11 @@
     }
     modalOpeningPending = false;
     if (modal) return;
+    const terms = globalThis.RobloxCustomizerTerms;
+    if (terms && !terms.accepted()) {
+      void terms.request().then(accepted => { if (accepted) openModal(); });
+      return;
+    }
     lastFocus = document.activeElement;
     modal = document.createElement('div');
     modal.id = 'rc-settings-overlay';
@@ -1459,6 +1473,10 @@
           <button type="button" id="rc-done" class="rc-button rc-button-primary">Close</button>
         </div>
         <footer class="rc-settings-footer">
+          <div class="rc-settings-legal-links">
+            <a class="rc-button rc-button-secondary rc-legal-link" data-rc-legal-document="terms" target="_blank" rel="noopener noreferrer">Terms of Service</a>
+            <a class="rc-button rc-button-secondary rc-legal-link" data-rc-legal-document="privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+          </div>
           <span><span>Author:</span> <span translate="no">Shadows_Lunarfox 月狐</span></span>
           <a href="https://github.com/ShadowsLunarfox/Roblox-Customizer" target="_blank" rel="noopener noreferrer">
             <span>GitHub repository</span>
@@ -1467,6 +1485,7 @@
         </footer>
       </div>`;
     document.body.append(modal);
+    updateLegalLinks();
     if (enhancementsEnabled()) {
       globalThis.RobloxCustomizerCurrency?.mountSettings(modal.querySelector('#rc-currency-settings'));
       globalThis.RobloxCustomizerPlaytimeUI?.mountSettings(modal.querySelector('#rc-playtime-settings'));
@@ -1611,7 +1630,8 @@
     modal.addEventListener('keydown', event => {
       if (event.key === 'Escape') { event.preventDefault(); closeModal(); }
       if (event.key !== 'Tab') return;
-      const controls = Array.from(modal.querySelectorAll('button, input:not(:disabled), select:not(:disabled)'));
+      const controls = Array.from(modal.querySelectorAll('a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled)'))
+        .filter(node => node.getClientRects().length && !node.closest('[hidden]'));
       const first = controls[0];
       const last = controls[controls.length - 1];
       if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
@@ -1743,6 +1763,7 @@
     if (!document.getElementById('rc-background-layer')) void applyBackground();
   });
   globalThis.RobloxCustomizerI18n?.onChange(updateHomeGreeting);
+  globalThis.RobloxCustomizerI18n?.onChange(updateLegalLinks);
   globalThis.RobloxCustomizerCompatibility?.onBeforeReload(() => persistTimer ? flushSettingsSave() : saveQueue);
   chrome.runtime.onMessage?.addListener((message, sender) => {
     if (message?.type === 'rc-open-settings' && sender.id === chrome.runtime.id) openModal();

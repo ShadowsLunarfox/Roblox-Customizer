@@ -19,7 +19,7 @@ const setup = `
   // native events, IntersectionObserver, and all manifest content scripts.
   const nativeTimeout=window.setTimeout;
   window.setTimeout=(callback,delay,...args)=>nativeTimeout(callback,delay===15000?250:delay,...args);
-  window.chrome={storage:{local:{async get(){return {customBackground:{source:'none',hideXFeed:true,hideYouTubeFeed:true}}},async set(){}},onChanged:{addListener(){}}},
+  window.chrome={storage:{local:{async get(){return {robloxCustomizerTermsAccepted:true,customBackground:{source:'none',hideXFeed:true,hideYouTubeFeed:true}}},async set(){}},onChanged:{addListener(){}}},
     runtime:{lastError:null,getURL:file=>'/'+file,sendMessage(message,callback){
       const response=message.type==='rc-pinned-games'?{ok:true,games:[],folders:[]}
         :message.type==='rc-currency-rates'?{ok:true,date:'2026-10-11',rates:{USD:1,MYR:4.1}}

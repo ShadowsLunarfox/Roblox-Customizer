@@ -11,7 +11,7 @@ const styles = [...new Set(manifest.content_scripts.flatMap(entry => entry.css |
 const setup = `
   const listeners=[];window.privateRequests=[];
   const games=[{placeId:4623386862,universeId:123,name:'Search',iconUrl:''}];
-  const read=()=>({customBackground:{source:'none',glassBlur:22,glassOpacity:62},pinnedGames:games,...JSON.parse(localStorage.getItem('preferences')||'{}')});
+  const read=()=>({robloxCustomizerTermsAccepted:true,customBackground:{source:'none',glassBlur:22,glassOpacity:62},pinnedGames:games,...JSON.parse(localStorage.getItem('preferences')||'{}')});
   window.chrome={i18n:{getUILanguage:()=> 'en-US'},storage:{local:{
     async get(){return read()},async set(value){const previous=read();localStorage.setItem('preferences',JSON.stringify({...previous,...value}));listeners.forEach(fn=>fn(Object.fromEntries(Object.entries(value).map(([key,newValue])=>[key,{oldValue:previous[key],newValue}])),'local'))}
   },onChanged:{addListener:fn=>listeners.push(fn)}},runtime:{lastError:null,getURL:file=>'/'+file,sendMessage(message,callback){

@@ -12,7 +12,7 @@ const scripts = [...new Set(entries.flatMap(entry => entry.js || [])),
 const styles = [...new Set(entries.flatMap(entry => entry.css || []))];
 const game = {universeId:456,placeId:789,name:'Private game',iconUrl:'',totalMs:123456,sessions:2,
   firstPlayedAt:1800000000000,lastPlayedAt:1800000123456,metadataCheckedAt:1800000000000};
-const initial = {customBackground:{source:'none',uiLanguage:'en',clockShowSeconds:false,glassBlur:23,glassOpacity:67,
+const initial = {robloxCustomizerTermsAccepted:true,customBackground:{source:'none',uiLanguage:'en',clockShowSeconds:false,glassBlur:23,glassOpacity:67,
   experimentalCustomColors:true,customTextColor:'#ddeeff',customBackgroundColor:'#203040',customAccentColor:'#aa3399',
   hideFavorites:true,showGameXFeed:false,hiddenRecommendedGames:[{placeId:'100',name:'Hidden game'}],greetingMorning:'Hello player'},
   robuxCurrency:{enabled:false,currency:'CNY'},pinnedGames:[{universeId:456,placeId:789,name:'Private game',iconUrl:'',updatedAt:123,folderId:'favorites'}],
@@ -32,7 +32,8 @@ function fixture() {
         async set(values){if(failBackupSet&&'pinnedGames'in values&&'rcPlaytimeHistory'in values)throw new Error('Could not import backup. Your existing data was kept.');
           const changes={};for(const [key,value]of Object.entries(values)){if(JSON.stringify(saved[key])!==JSON.stringify(value))changes[key]={oldValue:saved[key],newValue:structuredClone(value)}};
           Object.assign(saved,structuredClone(values));localStorage.setItem('fixture-saved',JSON.stringify(saved));changeListeners.forEach(fn=>fn(changes,'local'))},
-        async clear(){const changes=Object.fromEntries(Object.entries(saved).map(([key,value])=>[key,{oldValue:value,newValue:undefined}]));saved={};localStorage.setItem('fixture-saved','{}');changeListeners.forEach(fn=>fn(changes,'local'))}},
+        async clear(){const changes=Object.fromEntries(Object.entries(saved).map(([key,value])=>[key,{oldValue:value,newValue:undefined}]));saved={};localStorage.setItem('fixture-saved','{}');changeListeners.forEach(fn=>fn(changes,'local'))},
+        async remove(keys){const changes={};for(const key of keys){changes[key]={oldValue:saved[key],newValue:undefined};delete saved[key]}localStorage.setItem('fixture-saved',JSON.stringify(saved));changeListeners.forEach(fn=>fn(changes,'local'))}},
         session:{async get(key){return {[key]:session[key]}},async set(values){Object.assign(session,values)},async clear(){for(const key of Object.keys(session))delete session[key]}},onChanged:{addListener:fn=>changeListeners.push(fn)}},
         alarms:{async get(key){return alarms.get(key)},async create(key,value){alarms.set(key,value)},async clear(key){return alarms.delete(key)},onAlarm:{addListener(){}}},
         runtime:{id:'test-extension',lastError:null,getManifest:()=>({version:'1.0'}),getURL:file=>'/'+file,onMessage:{addListener:fn=>messageListeners.push(fn)},onStartup:{addListener(){}},onInstalled:{addListener(){}},
@@ -166,12 +167,12 @@ test('Settings backup previews account ownership before restoring data and media
     await browser.click('#rc-reset-confirm');
     let resetReady=false;
     for(let i=0;i<100;i++){
-      try {resetReady=await browser.evaluate("Object.keys(saved).length===0&&!!document.querySelector('.rc-settings-menu-entry')&&!document.querySelector('#rc-settings-overlay')");}
+      try {resetReady=await browser.evaluate("Object.keys(saved).length===1&&saved.robloxCustomizerTermsAccepted===true&&!!document.querySelector('.rc-settings-menu-entry')&&!document.querySelector('#rc-settings-overlay')");}
       catch { /* Navigation briefly replaces the execution context. */ }
       if(resetReady)break;
       await pause(50);
     }
-    assert.equal(resetReady,true,'Confirmed reset reloads with no saved extension data');
+    assert.equal(resetReady,true,'Confirmed reset clears user data and keeps only terms acceptance');
     assert.deepEqual(await mediaKeys(),[],'Uploaded background files are erased');
     assert.equal(await browser.evaluate("document.documentElement.hasAttribute('data-rc-background-active')"),false);
     assert.deepEqual(browser.errors,[]);

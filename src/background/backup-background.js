@@ -23,7 +23,15 @@
         }
         if (message.action === 'reset') {
           await chrome.storage.session?.clear();
-          await chrome.storage.local.clear();
+          const termsKey = 'robloxCustomizerTermsAccepted';
+          const terms = await chrome.storage.local.get([termsKey]);
+          if (terms[termsKey] === true) {
+            // Reset preferences and user data without asking an accepted user to agree again.
+            const saved = await chrome.storage.local.get(null);
+            await chrome.storage.local.remove(Object.keys(saved).filter(key => key !== termsKey));
+          } else {
+            await chrome.storage.local.clear();
+          }
           return { ok: true };
         }
         return { ok: false, error: 'Invalid backup action.' };
