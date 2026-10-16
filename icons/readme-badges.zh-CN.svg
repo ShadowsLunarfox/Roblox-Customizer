@@ -1,0 +1,14 @@
+<svg lang="zh-CN" xmlns="http://www.w3.org/2000/svg" width="470" height="32" viewBox="0 0 470 32" role="img" aria-labelledby="title">
+  <title id="title">Chrome 和 Edge · 浅色与深色主题 · 无需构建</title>
+  <g font-family="'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle">
+    <rect x=".5" y=".5" width="145" height="31" rx="15.5" fill="#0c2232" stroke="#295364"/>
+    <circle cx="19" cy="16" r="3" fill="#78e6f4"/>
+    <text x="85" y="20" fill="#b3f2fa">Chrome + Edge</text>
+    <rect x="154.5" y=".5" width="160" height="31" rx="15.5" fill="#201c38" stroke="#514273"/>
+    <circle cx="173" cy="16" r="3" fill="#baa3ff"/>
+    <text x="244" y="20" fill="#dfd3ff">浅色 + 深色主题</text>
+    <rect x="323.5" y=".5" width="146" height="31" rx="15.5" fill="#301a30" stroke="#694063"/>
+    <circle cx="342" cy="16" r="3" fill="#ff9ae3"/>
+    <text x="406" y="20" fill="#ffd0f2">无需构建</text>
+  </g>
+</svg>

@@ -1,36 +1,86 @@
 <p align="center">
-  <img src="icons/icon-source.png" alt="Roblox Customizer logo" width="160" height="160">
+  <img src="icons/icon-source.png" alt="Roblox Customizer logo" width="112" height="112">
 </p>
 
 <h1 align="center">Roblox Customizer</h1>
 
-<h2 align="center">Your Roblox, your style.</h2>
+<p align="center">
+  <img src="icons/readme-banner.svg" alt="Your Roblox, your style. Backgrounds, glass, and colors." width="100%">
+</p>
 
-A Chrome and Edge extension for custom backgrounds, frosted panels, and useful tools across Roblox. Supports light and dark themes.
+<p align="center">
+  Custom backgrounds, frosted panels, and useful tools across Roblox.<br>
+  Make your Home feel like home, in light or dark mode.
+</p>
 
-English · [简体中文](README.zh-CN.md)
+<p align="center">
+  <img src="icons/readme-badges.svg" alt="Chrome and Edge · Light and dark themes · No build step" width="470">
+</p>
 
-## Preview
+<p align="center">
+  <a href="https://chromewebstore.google.com/detail/roblox-customizer/docflecekjjcekdcapolmneiomimiboi">
+    <img src="icons/chrome-web-store-button.svg" alt="Install from the Chrome Web Store" width="252" height="60">
+  </a>
+</p>
+
+<p align="center">
+  <a href="#-features">Features</a> ·
+  <a href="#-installation">Installation</a> ·
+  <a href="#-quick-start">Quick start</a> ·
+  English / <a href="README.zh-CN.md">简体中文</a>
+</p>
+
+## 🖼️ Preview
 
 <p align="center">
   <img src="icons/marquee-promo-1400x560.jpg" alt="Roblox Customizer promotional banner" width="100%">
 </p>
 
-<p align="center">
-  <img src="icons/small-promo-440x280.jpg" alt="Roblox Customizer promotional tile" width="440">
-</p>
+## ✨ Features
 
-## Features
+<table>
+  <tr>
+    <td width="50%">
+      <h3>🖼️ Backgrounds</h3>
+      Local images, GIFs, and MP4 videos, with image fit and dimming controls.
+    </td>
+    <td width="50%">
+      <h3>🎨 Appearance</h3>
+      Adjustable glass blur and opacity, plus experimental text, background, and accent colors.
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <h3>🏠 Personalized Home</h3>
+      Greetings, a clock, up to three friend rows, pinned games and folders, and recommendation controls.
+    </td>
+    <td>
+      <h3>⏱️ Local playtime</h3>
+      Account-specific estimates, Home summaries, searchable history, and JSON export. Pause tracking in settings.
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <h3>🎮 Game tools</h3>
+      Badge and gamepass details, private-server cards, and public-server filters for country, latency, ping, and player count.
+    </td>
+    <td>
+      <h3>💬 Social feeds</h3>
+      Enable X and YouTube separately on Game, Community, and Profile pages.
+    </td>
+  </tr>
+</table>
 
-- **Backgrounds:** Local images, GIFs, and MP4 videos, with image fit and dimming controls.
-- **Appearance:** Adjustable glass blur and opacity, plus experimental text, background, and accent colors.
-- **Personalized Home:** Greetings, a clock, up to three friend rows, pinned games and folders, and recommendation controls.
-- **Local playtime:** Account-specific estimates, Home summaries, searchable history, and JSON export. Tracking can be paused in settings.
-- **Game tools:** Badge and gamepass details, private-server cards, and public-server filters for country, latency, ping, and player count.
-- **Social feeds:** Enable X and YouTube separately on Game, Community, and Profile pages.
-- **Robux estimates:** Approximate currency equivalents on Roblox and Creator Hub; checkout prices may differ.
+**💱 Robux estimates:** Approximate currency equivalents on Roblox and Creator Hub; checkout prices may differ.
 
-## Installation
+## 📦 Installation
+
+[![Install from the Chrome Web Store](icons/chrome-web-store-button.svg)](https://chromewebstore.google.com/detail/roblox-customizer/docflecekjjcekdcapolmneiomimiboi)
+
+<details>
+<summary><strong>🛠️ Install manually in Chrome or Edge</strong></summary>
+
+To load the extension from this repository:
 
 1. Download or clone this repository and extract it if needed.
 2. Open `chrome://extensions` or `edge://extensions` and enable **Developer mode**.
@@ -39,22 +89,25 @@ English · [简体中文](README.zh-CN.md)
 
 No build step is needed to install. Keep the extension folder in a permanent location.
 
-The first time you visit Roblox after installing, a Terms of Service prompt appears automatically. Acceptance is remembered in this browser, including after **Reset All**.
+</details>
 
-## Quick start
+> [!NOTE]
+> The first time you visit Roblox after installing, a Terms of Service prompt appears automatically. Acceptance is remembered in this browser, including after **Reset All**.
+
+## 🚀 Quick start
 
 - Choose a background and adjust its fit, dimming, blur, and opacity in **Appearance**. Changes save automatically.
 - Click **Pin Game** on a game page, choose a folder, and confirm. Manage folders from **Pinned Games** on Home.
 - Open a game's **Servers** tab, set your filters, and click **Search**.
 - Use **Backup and restore** to export your settings, backgrounds, pins, and playtime. Import replaces existing extension data.
 
-## Language support
+## 🌐 Language support
 
 Full features require Roblox's language to be **English, Simplified Chinese, or Traditional Chinese**. Other languages use fallback mode: only image/GIF backgrounds and custom colors remain available, while Roblox's native layout is preserved.
 
 Switch Roblox's language to restore all features. Changing only the extension's interface language does not leave fallback mode.
 
-## Data and limitations
+## 💾 Data and limitations
 
 Preferences, backgrounds, pinned games, and playtime history are stored locally in your browser. Playtime is estimated from Roblox presence while the browser runs; past sessions and time while the browser is closed cannot be recovered.
 
@@ -62,12 +115,21 @@ Server data, feeds, and currency rates depend on Roblox and external services. R
 
 Read the published [Privacy Policy](https://github.com/ShadowsLunarfox/Roblox-Customizer/blob/main/PRIVACY.md) and [Terms of Service](https://github.com/ShadowsLunarfox/Roblox-Customizer/blob/main/TERMS.md) on GitHub. Settings and the first-visit prompt open the version matching the extension's language. Contact [lunar@lunarfox.my](mailto:lunar@lunarfox.my) for support or privacy questions.
 
-## Updates and feedback
+## 💬 Updates and feedback
 
 Replace the extension files, reload the extension, and refresh Roblox. For problems, include the page URL, browser version, reproduction steps, and a screenshot.
 
+<details>
+<summary><strong>🔧 Working on the extension?</strong></summary>
+
 After editing background worker sources, rebuild the checked-in bundle with `node scripts/build-service-worker.cjs`.
+
+</details>
 
 The extension links to the policy Markdown files on GitHub's `main` branch. Published policy updates appear there without requiring an extension update.
 
 Licensed under [GNU GPL v3](LICENSE).
+
+<p align="center">
+  <a href="#roblox-customizer">↑ Back to top</a>
+</p>

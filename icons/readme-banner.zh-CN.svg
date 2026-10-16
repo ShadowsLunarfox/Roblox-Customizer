@@ -1,0 +1,71 @@
+<svg lang="zh-CN" xmlns="http://www.w3.org/2000/svg" width="1200" height="240" viewBox="0 0 1200 240" role="img" aria-labelledby="title desc">
+  <title id="title">打造属于你的 Roblox。</title>
+  <desc id="desc">青色、紫色与粉色光晕围绕标语，搭配轻柔闪烁的星光和流动高光。背景、毛玻璃与配色。</desc>
+  <defs>
+    <linearGradient id="base" x2="1" y2="1">
+      <stop stop-color="#071729"/>
+      <stop offset=".5" stop-color="#10132d"/>
+      <stop offset="1" stop-color="#261234"/>
+    </linearGradient>
+    <linearGradient id="accent">
+      <stop stop-color="#6eeaf5"/>
+      <stop offset=".5" stop-color="#b8a0ff"/>
+      <stop offset="1" stop-color="#ff72db"/>
+    </linearGradient>
+    <radialGradient id="cyan">
+      <stop stop-color="#39d9eb" stop-opacity=".32"/>
+      <stop offset="1" stop-color="#39d9eb" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="pink">
+      <stop stop-color="#e64bda" stop-opacity=".3"/>
+      <stop offset="1" stop-color="#e64bda" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glint">
+      <stop stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#fff" stop-opacity=".8"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="14" cy="14" r=".7" fill="#e0dfff" opacity=".12"/>
+    </pattern>
+    <clipPath id="frame"><rect width="1200" height="240" rx="24"/></clipPath>
+    <path id="star" d="M0-8 2-2 8 0 2 2 0 8-2 2-8 0-2-2Z"/>
+  </defs>
+  <style>
+    .glow { animation: breathe 10s ease-in-out infinite; }
+    .pink { animation-delay: -5s; }
+    .sparkle { animation: twinkle 6s ease-in-out infinite; }
+    .late { animation-delay: -3s; }
+    .shimmer { animation: sweep 12s ease-in-out infinite; }
+    @keyframes breathe { 0%, 100% { opacity: .6; } 50% { opacity: 1; } }
+    @keyframes twinkle { 0%, 100% { opacity: .3; } 50% { opacity: .9; } }
+    @keyframes sweep { 0%, 20% { transform: translateX(0); } 80%, 100% { transform: translateX(1500px); } }
+    @media (prefers-reduced-motion: reduce) {
+      .glow, .sparkle, .shimmer { animation: none; }
+    }
+  </style>
+  <g clip-path="url(#frame)">
+    <rect width="1200" height="240" fill="url(#base)"/>
+    <ellipse class="glow" cx="110" cy="210" rx="440" ry="270" fill="url(#cyan)"/>
+    <ellipse class="glow pink" cx="1100" cy="20" rx="440" ry="270" fill="url(#pink)"/>
+    <rect width="1200" height="240" fill="url(#dots)"/>
+    <g fill="#fff" fill-opacity=".025" stroke="url(#accent)" stroke-opacity=".2">
+      <rect x="-46" y="56" width="210" height="210" rx="36" transform="rotate(-20 59 161)"/>
+      <rect x="1042" y="-80" width="230" height="230" rx="40" transform="rotate(22 1157 35)"/>
+    </g>
+    <g fill="url(#accent)">
+      <use class="sparkle" href="#star" transform="translate(200 52)"/>
+      <use class="sparkle late" href="#star" transform="translate(1000 182)"/>
+      <use class="sparkle late" href="#star" transform="translate(124 172) scale(.55)"/>
+      <use class="sparkle" href="#star" transform="translate(1090 72) scale(.55)"/>
+    </g>
+    <g text-anchor="middle" font-family="'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', Arial, sans-serif">
+      <text x="600" y="58" fill="#b4c0dc" font-size="12" letter-spacing="4">让主页更有你的风格</text>
+      <text x="600" y="126" fill="url(#accent)" font-size="58" font-weight="700" letter-spacing="-1.5">打造属于你的 Roblox。</text>
+      <text x="600" y="170" fill="#d7def0" font-size="19" letter-spacing="2">背景 · 毛玻璃 · 配色</text>
+    </g>
+    <rect x="180" y="213" width="840" height="1" fill="url(#accent)" opacity=".4"/>
+    <rect class="shimmer" x="-300" y="213" width="300" height="1" fill="url(#glint)"/>
+  </g>
+  <rect x=".5" y=".5" width="1199" height="239" rx="23.5" fill="none" stroke="url(#accent)" stroke-opacity=".2"/>
+</svg>
