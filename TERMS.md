@@ -3,7 +3,7 @@
 
 English · [简体中文](TERMS.zh-CN.md) · [繁體中文](TERMS.zh-TW.md)
 
-Last updated: 2026-10-14  
+Last updated: 2026-10-18<br>
 Publisher: Lunarfox 月狐
 
 These terms describe use of Roblox Customizer, provided by the publisher named above. Read them together with the Privacy Policy. Use the extension only if you can agree to these terms under applicable law; obtain a parent or guardian's permission where required.

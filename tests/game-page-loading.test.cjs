@@ -6,7 +6,7 @@ const { test } = require('node:test');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'src/pages/games/game-page.js'), 'utf8');
 const labels = fs.readFileSync(path.join(__dirname, '..', 'src/shared/native-labels.js'), 'utf8');
-const exposed = source.replace(/  syncPrivateServers\(\);\s*  schedule\(\);\s*\}\);\s*$/, `
+const exposed = source.replace(/  syncPrivateServers\(\);\s*  void initialize\(\);\s*  schedule\(\);\s*\}\);\s*$/, `
   globalThis.gameLoading = { initialize, waitForServerContent, syncServerPaneLoading,
     bind(state) {
       currentPage = () => state;
@@ -90,7 +90,7 @@ function environment(readyState = 'interactive') {
 test('game panes initialize before slow image loads finish', async () => {
   const env = environment();
   await env.api.initialize();
-  assert.deepEqual(env.clicks.map(({ name }) => name), ['store', 'servers', 'about']);
+  assert.deepEqual(env.clicks.map(({ name }) => name), ['servers', 'store', 'about']);
   assert.equal(env.document.readyState, 'interactive');
   assert.equal(env.restored[0][2], env.location.href);
   await env.api.initialize();
@@ -105,27 +105,41 @@ test('initialization waits for About content before opening the other native tab
   env.advance(100);
   env.update(env.about, { loaded: true });
   await loading;
-  assert.deepEqual(env.clicks.map(({ name }) => name), ['store', 'servers', 'about']);
+  assert.deepEqual(env.clicks.map(({ name }) => name), ['servers', 'store', 'about']);
   assert.equal(env.clicks[0].time, 100);
 });
 
-test('a rendered Store advances to Servers immediately instead of waiting 1500 ms', async () => {
+test('Servers starts immediately while Store content is still pending', async () => {
   const env = environment();
   env.store.loaded = false;
   const loading = env.api.initialize();
   await Promise.resolve();
-  assert.deepEqual(env.clicks.map(({ name }) => name), ['store']);
+  await Promise.resolve();
+  assert.deepEqual(env.clicks.map(({ name }) => name), ['servers', 'store']);
+  assert.equal(env.clicks[0].time, 0, 'Servers has no dependency on the Store response');
   env.advance(100);
   env.update(env.store, { loaded: true });
   await loading;
-  assert.deepEqual(env.clicks.map(({ name }) => name), ['store', 'servers', 'about']);
-  assert.equal(env.clicks[1].time, 100);
+  assert.deepEqual(env.clicks.map(({ name }) => name), ['servers', 'store', 'about']);
+  assert.equal(env.clicks[2].time, 100);
 });
 
 test('public cards complete server loading when private servers are unavailable', async () => {
   const env = environment();
   assert.equal(await env.api.waitForServerContent(env.page), true);
   assert.equal(env.timers.size, 0);
+});
+
+test('a slow public list cannot hold Store behind the full server-request timeout', async () => {
+  const env = environment();
+  env.servers.loaded = false;
+  const loading = env.api.initialize();
+  for (let i = 0; i < 4; i++) await Promise.resolve();
+  assert.deepEqual(env.clicks.map(({ name }) => name), ['servers']);
+  env.advance(1500);
+  await loading;
+  assert.deepEqual(env.clicks.map(({ name }) => name), ['servers', 'store', 'about']);
+  assert.equal(env.clicks[1].time, 1500);
 });
 
 test('native server arrivals do not wait for unrelated DOM activity to settle', async () => {
@@ -199,7 +213,7 @@ test('a timed-out offscreen server list recovers on approach and stays active un
   env.servers.loaded = false;
   const loading = env.api.initialize();
   for (let i = 0; i < 4; i++) await Promise.resolve();
-  assert.deepEqual(env.clicks.map(({ name }) => name), ['store', 'servers']);
+  assert.deepEqual(env.clicks.map(({ name }) => name), ['servers']);
   env.advance(15_000);
   await loading;
   assert.equal(env.about.active, true);
@@ -208,7 +222,7 @@ test('a timed-out offscreen server list recovers on approach and stays active un
 
   env.servers.rect = { top: 900, bottom: 1100, height: 200 };
   env.api.syncServerPaneLoading();
-  assert.deepEqual(env.clicks.map(({ name }) => name), ['store', 'servers', 'about', 'servers']);
+  assert.deepEqual(env.clicks.map(({ name }) => name), ['servers', 'store', 'about', 'servers']);
   assert.equal(env.restored.at(-1)[2], env.location.href);
   env.advance(60_000);
   env.api.syncServerPaneLoading();
@@ -232,7 +246,7 @@ test('native content discarded after initialization recovers without replaying S
   env.servers.loaded = false;
   env.servers.rect = { top: 400, bottom: 600, height: 200 };
   env.api.syncServerPaneLoading();
-  assert.deepEqual(env.clicks.map(({ name }) => name), ['store', 'servers', 'about', 'servers']);
+  assert.deepEqual(env.clicks.map(({ name }) => name), ['servers', 'store', 'about', 'servers']);
   env.servers.loaded = true;
   env.api.syncServerPaneLoading();
   env.document.hidden = true;

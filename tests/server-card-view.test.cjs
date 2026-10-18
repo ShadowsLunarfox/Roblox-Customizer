@@ -39,6 +39,7 @@ test('private-server rendering retains native callbacks, warnings, refs and subs
   const {h,render}=environment();
   const native=nativeCard(h,'private');const result=render(native.card,propsFor('private'));const tree=nodes(result);
   assert.equal(result.props['data-rc-server-view'],'private');
+  assert.equal(result.props['data-rc-private-server-ready'],'', 'Native React cards are ready for their first paint without enrichment');
   assert.strictEqual(result.props.ref,native.card.props.ref);
   for(const node of [native.join,native.menu,native.renew,native.warning])assert.ok(tree.includes(node));
   assert.equal(native.join.props.onClick(),'private');

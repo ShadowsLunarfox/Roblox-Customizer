@@ -19,7 +19,12 @@ function fixture(url) {
       <div><button onclick="window.privateJoins++">Join</button><a aria-label="Configure" href="https://www.roblox.com/private-server/configure?privateServerId=111">Configure</a></div>
     </div></div></section>`;
   const publicRow = '<div class="card-list"><div class="card-item" data-playing="3"><div class="game-server-status">3 of 6 people max</div><button onclick="window.publicJoins++">Join</button></div></div>';
-  const servers = (mode === 'private' ? privateRow : '') + '<section id="running-game-instances-container"><h2>Other Servers</h2>'
+  const privateIntro = `<section id="private-server-intro"><h2>Your private servers</h2>
+    <p>Play in your own space, solo or with people you invite</p>
+    <div id="plus-banner">Get free servers with Plus <button onclick="window.subscriptions++">Subscribe</button></div>
+    <div id="create-row"><strong>Create a private server</strong><span>Free private server limit reached</span>
+      <button onclick="window.creates++">Create</button></div></section>`;
+  const servers = privateIntro + (mode === 'private' ? privateRow : '') + '<section id="running-game-instances-container"><h2>Other Servers</h2>'
     + (mode === 'empty' ? '<p>No public servers available.</p>' : publicRow) + '</section>';
   return `<!doctype html><html lang="en" data-rc-hide-x-feed data-rc-hide-youtube-feed><head><meta charset="utf-8">
     <style>body{background:#24252c;color:white;font:14px Arial}#game-detail-page{width:900px;margin:20px auto}.tab-pane{display:none}.tab-pane.active{display:block}button{padding:8px}</style>
@@ -31,8 +36,8 @@ function fixture(url) {
       <div class="tab-content"><section id="about" class="tab-pane active">${about}</section>
         <section id="store" class="tab-pane"></section><section id="game-instances" class="tab-pane"></section></div>
     </main><script>
-      window.fixtureStarted=performance.now();window.tabEvents=[];window.privateRequests=[];
-      window.privateJoins=0;window.publicJoins=0;window.purchases=0;
+      window.fixtureStarted=performance.now();window.tabEvents=[];window.privateRequests=[];window.renderedAt={};
+      window.privateJoins=0;window.publicJoins=0;window.purchases=0;window.subscriptions=0;window.creates=0;
       window.chrome={runtime:{lastError:null,sendMessage(message,callback){
         if(message.type==='rc-private-server-details')privateRequests.push(callback);
         else callback({error:'Unused fixture request'});
@@ -48,7 +53,7 @@ function fixture(url) {
           const pane=document.getElementById(name);
           if(!pane.childElementCount){
             pane.innerHTML='<div class="spinner">Loading...</div>';
-            setTimeout(()=>pane.innerHTML=content[name],name==='about'?50:name==='store'?100:200);
+            setTimeout(()=>{pane.innerHTML=content[name];renderedAt[name]=performance.now()-fixtureStarted},name==='about'?50:name==='store'?${mode === 'slow-store' ? 4000 : 100}:200);
           }
         };
       }
@@ -141,27 +146,35 @@ test('lower game panes load before images finish and slow private details do not
     await browser.send('Emulation.setFocusEmulationEnabled', { enabled: true });
     await browser.send('Fetch.enable', { patterns: [{ urlPattern: 'https://*' }] });
     await browser.send('Page.addScriptToEvaluateOnNewDocument', { source });
-    for (const mode of ['public', 'empty', 'private']) {
+    for (const mode of ['public', 'empty', 'private', 'slow-store']) {
       const url = `http://127.0.0.1:${server.address().port}/games/4623386862/Piggy?mode=${mode}`;
       await browser.send('Page.navigate', { url });
       await browser.waitFor("window.fixtureReady && document.readyState==='interactive'");
+      await browser.waitFor("!!document.querySelector('#private-server-intro h2')");
+      assert.equal(await browser.evaluate("document.querySelector('#private-server-intro h2').checkVisibility()&&document.querySelector('#private-server-intro p').checkVisibility()&&document.querySelector('#plus-banner button').checkVisibility()&&document.querySelector('#create-row button').checkVisibility()"), true, 'The screenshot heading, description, Plus banner and Create controls render together');
+      assert.equal(await browser.evaluate('tabEvents[0].tab'), 'game-instances');
+      assert.ok(await browser.evaluate("renderedAt['game-instances']<700"), 'Servers starts at document readiness without the old 500 ms scheduling delay');
+      if (mode === 'slow-store') assert.equal(await browser.evaluate("!!document.querySelector('#store .card-item')"), false, 'The screenshot controls appear before the four-second Store response');
+      await browser.evaluate("document.querySelector('#plus-banner button').click();document.querySelector('#create-row button').click()");
+      assert.deepEqual(await browser.evaluate('({subscriptions,creates})'), { subscriptions: 1, creates: 1 }, 'Original Subscribe and Create handlers work immediately');
       await browser.waitFor("tabEvents.some(event=>event.tab==='about') && !!document.querySelector('#about .game-description') && !location.hash");
       assert.equal(await browser.evaluate('document.readyState'), 'interactive', 'A pending image must not hold up the lower interface');
-      assert.deepEqual(await browser.evaluate('tabEvents.map(event=>event.tab)'), ['store', 'game-instances', 'about'], mode);
+      assert.deepEqual(await browser.evaluate('tabEvents.map(event=>event.tab)'), ['game-instances', 'store', 'about'], mode);
       assert.ok(await browser.evaluate('tabEvents.at(-1).elapsed<2000'), 'Native content must not incur the old minimum three-second wait');
+      if (mode === 'slow-store') await browser.waitFor("!!document.querySelector('#store .card-item')");
       assert.equal(await browser.evaluate("document.querySelector('#store .card-item').checkVisibility()"), true);
       assert.equal(await browser.evaluate("document.querySelector('#about .game-description').checkVisibility()"), true);
       await browser.evaluate("document.querySelector('#store button').click()");
       assert.equal(await browser.evaluate('purchases'), 1, 'Native Store actions still work');
       if (mode !== 'empty') {
         assert.equal(await browser.evaluate("document.querySelector('#running-game-instances-container .card-item').checkVisibility()"), true);
-        await browser.evaluate("document.querySelector('#running-game-instances-container button').click()");
+        await browser.evaluate("document.querySelector('#running-game-instances-container .card-item button').click()");
         assert.equal(await browser.evaluate('publicJoins'), 1);
       }
       if (mode === 'private') {
         await browser.waitFor('privateRequests.length===1');
-        assert.equal(await browser.evaluate("document.getElementById('private-row').checkVisibility()"), false);
-        assert.equal(await browser.evaluate("document.querySelector('.rc-private-server-loading').checkVisibility()"), true);
+        assert.equal(await browser.evaluate("document.getElementById('private-row').checkVisibility()"), true);
+        assert.equal(await browser.evaluate("!!document.querySelector('.rc-private-server-loading')"), false);
         await browser.evaluate('finishPrivate()');
         await browser.waitFor("document.getElementById('private-row').hasAttribute('data-rc-private-server-ready')");
         assert.equal(await browser.evaluate("document.getElementById('private-row').checkVisibility()"), true);

@@ -3,7 +3,7 @@
 
 English · [简体中文](PRIVACY.zh-CN.md) · [繁體中文](PRIVACY.zh-TW.md)
 
-Last updated: 2026-10-14  
+Last updated: 2026-10-18<br>
 Publisher: Lunarfox 月狐
 
 This policy explains how Roblox Customizer handles information. It covers this browser extension, not Roblox, the browser, or third-party services, which have their own policies.
@@ -18,6 +18,7 @@ Information is used to provide the features you see in the extension:
 - Backgrounds: files you select, their names, and saved background URLs. Selecting a local file stores a browser-local copy; it does not upload the file to the publisher.
 - Organization: pinned game IDs, game names and thumbnails, folder names, and hidden recommendations.
 - Playtime: Roblox user IDs and usernames, game/universe/place IDs, game names and icons, estimated durations, session counts, and first/last played and sampling timestamps for each recorded account.
+- Recent servers: Roblox user IDs, game/universe/place IDs, server instance IDs, game names, and last-observed timestamps for recent-server history.
 - Roblox content: page URLs and content, profile, avatar, friends, inventory, badge, game, server, and social-link information needed for page styling and tools. Existing account, message, and transaction pages may be restyled locally; their contents are not uploaded to the publisher. The extension does not read your browsing history on unrelated websites.
 - Temporary or cached information: public social posts and thumbnails, exchange rates, API responses, and server-country estimates.
 
@@ -25,7 +26,9 @@ Information is used to provide the features you see in the extension:
 
 Preferences, pins, history, and some caches use the browser's extension-local storage. Background files use IndexedDB on the Roblox site origin where they were selected. Small appearance and friend-row caches use Roblox-site localStorage. The extension does not use Chrome storage sync or a publisher-operated cloud account.
 
-Playtime tracking is enabled by default and checks the signed-in account's Roblox presence approximately every 30 seconds while the browser runs, including when Roblox tabs are closed. It estimates activity from those samples, not from recordings of gameplay. You can disable tracking in settings. Disabling stops new samples but preserves existing history; unsupported-language fallback also pauses tracking.
+Playtime tracking is enabled by default and checks the signed-in account's Roblox presence approximately every 30 seconds while the browser runs, including when Roblox tabs are closed. It estimates activity from those samples, not recordings of gameplay. Disabling playtime stops new playtime records and preserves existing history. Presence checks continue if recent-server tracking remains enabled; unsupported-language fallback pauses both features.
+
+Recent-server tracking is enabled by default and shares the approximately 30-second presence checks with playtime. Its independent setting stops new server records while keeping saved history. Each of the 10 most recently used accounts retains a separate list of up to 6 servers per game, including that game's subplaces; a new server replaces only that game's oldest entry.
 
 The extension does not ask for your Roblox password. Authenticated Roblox API calls use your browser's existing Roblox session, so Roblox receives the authentication associated with those requests. Backups do not include Roblox passwords or session cookies.
 
@@ -52,6 +55,8 @@ Browser stores may separately provide the publisher with aggregate installation 
 ## Your controls, retention, and deletion
 
 You can change preferences, remove backgrounds and pins, disable social feeds and playtime tracking, clear the current account's playtime, and export your data. Settings backups include all recorded accounts' histories and a saved background when present. Backups are unencrypted JSON files; keep them private. Import replaces the corresponding saved data rather than merging it.
+
+Recent-server history is excluded from full settings backups. You can delete individual servers, clear one game's list, or clear the current account's recent servers. Reset All also removes all accounts' recent-server history. Turning off only playtime does not stop server-history presence checks; disable both settings to stop those checks.
 
 Saved preferences, files, and histories remain until you remove, reset, or overwrite them or the browser clears storage. Cached responses may remain stored after they expire for use. Reset All deletes extension-local settings, caches, pins, and all accounts' history, and removes background files and page caches on the current Roblox site origin. It keeps the local Terms of Service acceptance flag so the first-opening prompt is not repeated. Default features may resume after reset; disable tracking again if you want it off.
 

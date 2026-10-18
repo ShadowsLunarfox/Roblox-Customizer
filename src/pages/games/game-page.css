@@ -563,6 +563,7 @@ html[data-rc-ui-active] .rc-server-view:where(:not([data-rc-features-disabled], 
   margin: 7px auto 5px;
   border-radius: 50%;
   object-fit: cover;
+  background: rgb(var(--rc-foreground-rgb, 255 255 255) / 8%);
 }
 
 .rc-private-server-owner:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {

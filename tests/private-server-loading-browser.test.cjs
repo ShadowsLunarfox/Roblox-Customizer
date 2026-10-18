@@ -78,7 +78,7 @@ class Browser {
   }
 }
 
-test('private cards stay hidden before startup and reveal complete data together', { skip: !process.env.CHROME_BIN, timeout: 30000 }, async t => {
+test('private cards render native data immediately while metadata and owner avatars arrive independently', { skip: !process.env.CHROME_BIN, timeout: 30000 }, async t => {
   const profile = fs.mkdtempSync(path.join(workspace, '.tmp-private-server-loading-'));
   const server = http.createServer((request, response) => {
     response.setHeader('Cache-Control','no-store');
@@ -117,23 +117,37 @@ test('private cards stay hidden before startup and reveal complete data together
   await browser.send('Network.setCacheDisabled', { cacheDisabled: true });
   await browser.send('Emulation.setFocusEmulationEnabled', { enabled: true });
   await browser.send('Fetch.enable', { patterns: [{ urlPattern: 'https://*' }] });
-  for (const query of ['', '?shared=1', '?late-image=1']) {
+  for (const query of ['', '?shared=1', '?late-image=1', '?failed-details=1']) {
     await browser.send('Page.navigate', { url: `http://127.0.0.1:${server.address().port}/games/4623386862/Piggy${query}` });
     await browser.waitFor("document.readyState==='complete' && !!document.getElementById('native-server')");
     assert.equal(await browser.evaluate("getComputedStyle(document.getElementById('native-server')).display"), 'none', 'Native UI cannot flash before the content script runs');
     await browser.evaluate(source);
     await browser.waitFor('privateRequests.length===1');
-    assert.equal(await browser.evaluate("!!document.querySelector('.rc-private-server-summary')"), false);
-    assert.equal(await browser.evaluate("getComputedStyle(document.getElementById('native-server')).display"), 'none');
+    assert.equal(await browser.evaluate("!!document.querySelector('.rc-private-server-summary')"), true, 'The summary appears without a metadata response');
+    assert.equal(await browser.evaluate("getComputedStyle(document.getElementById('native-server')).display"), 'grid');
+    assert.equal(await browser.evaluate("document.querySelector('.rc-private-server-count').textContent"), '1 of 6 people max');
+    await browser.evaluate("document.getElementById('native-join').click()");
+    assert.equal(await browser.evaluate('nativeJoins'), 1, 'Join works while metadata is still pending');
+    if (query.includes('failed-details')) {
+      await browser.evaluate("privateRequests[0].callback({error:'Roblox is temporarily unavailable'})");
+      await pause(100);
+      assert.equal(await browser.evaluate("document.getElementById('native-server').checkVisibility()"), true, 'Failed metadata never hides a usable server');
+      assert.equal(await browser.evaluate("!!document.querySelector('.rc-private-server-loading')"), false);
+      continue;
+    }
+    if (!query) {
+      await pause(4100);
+      assert.equal(await browser.evaluate("document.getElementById('native-server').checkVisibility()"), true, 'The card remains usable throughout a four-second metadata delay');
+    }
     await browser.evaluate('completePrivate(0)');
     if (query.includes('late-image')) {
-      assert.equal(await browser.evaluate("document.getElementById('native-server').hasAttribute('data-rc-private-server-ready')"), false);
-      assert.equal(await browser.evaluate("!!document.querySelector('.rc-private-server-summary')"), false);
+      assert.equal(await browser.evaluate("document.getElementById('native-server').hasAttribute('data-rc-private-server-ready')"), true);
+      assert.equal(await browser.evaluate("document.querySelector('.rc-private-server-avatar').hasAttribute('src')"), false, 'A pending owner avatar uses an empty slot, not a player photo');
       await browser.evaluate("document.getElementById('native-avatar').src='/avatar.svg'");
       await browser.waitFor('privateRequests.length===2');
       await browser.evaluate('completePrivate(1)');
     }
-    await browser.waitFor("document.getElementById('native-server').hasAttribute('data-rc-private-server-ready')");
+    await browser.waitFor("document.querySelector('.rc-private-server-owner').textContent==='Server owner'");
     assert.equal(await browser.evaluate("getComputedStyle(document.getElementById('native-server')).display"), 'grid');
     assert.deepEqual(await browser.evaluate(`({
       title:document.querySelector('.rc-private-server-title').textContent,
@@ -144,7 +158,7 @@ test('private cards stay hidden before startup and reveal complete data together
       loading:!!document.querySelector('.rc-private-server-loading')
     })`), { title: 'Private server', owner: 'Server owner', count: '1 of 6 people max', avatar: '/avatar.svg', players: 1, loading: false });
     await browser.evaluate("document.getElementById('native-join').click()");
-    assert.equal(await browser.evaluate('nativeJoins'), 1, 'Native Join still works after the reveal');
+    assert.equal(await browser.evaluate('nativeJoins'), 2, 'Native Join still works after enrichment');
   }
   assert.deepEqual(browser.errors, []);
 });

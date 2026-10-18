@@ -82,6 +82,9 @@
     const attributes = {
       className: 'rc-server-view rc-private-server-card',
       'data-rc-server-view': 'private',
+      // The React presentation already contains the native summary and actions.
+      // Do not wait for isolated-script enrichment before its first paint.
+      'data-rc-private-server-ready': '',
       'data-rc-server-source': JSON.stringify([name, status, playing, props.maxPlayers,
         props.thumbnailTargetId ?? props.owner?.id, owner,
         playerSignature(props.players)]),

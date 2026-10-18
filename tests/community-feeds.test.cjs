@@ -5,7 +5,7 @@ const vm = require('node:vm');
 const { test } = require('node:test');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'src/pages/games/game-page.js'), 'utf8');
-const exposed = source.replace(/  syncPrivateServers\(\);\s*  schedule\(\);\s*\}\);\s*$/, `
+const exposed = source.replace(/  syncPrivateServers\(\);\s*  void initialize\(\);\s*  schedule\(\);\s*\}\);\s*$/, `
   globalThis.feeds = { socialFeedContext, syncXFeed, syncYouTubeFeed,
     positionXFeed, positionYouTubeFeed, setXFeedExpanded };
 });`);

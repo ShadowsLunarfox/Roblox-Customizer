@@ -122,16 +122,17 @@ test('Flee native private cards receive the previous layout with IDs, native men
       await browser.waitFor('privateRequests.length===1');
       assert.deepEqual(await browser.evaluate('privateRequests[0].message.serverIds'), [111,112,113,114,115,116,117]);
       assert.deepEqual(await browser.evaluate('privateRequests[0].message.serverNames'), []);
-      assert.equal(await browser.evaluate("document.querySelector('.rc-private-server-summary')===null"), true);
+      assert.equal(await browser.evaluate("document.querySelectorAll('.rc-private-server-summary').length"), 7, 'Native summaries render before supplemental metadata');
+      assert.equal(await browser.evaluate("nativeNodes[111].row.checkVisibility()"), true);
       await browser.evaluate('completeDetails(0)');
       if(locale==='en'&&theme==='dark') {
-        await browser.waitFor("document.querySelectorAll('.rc-private-server-modern-card[data-rc-private-server-ready]').length===6");
-        assert.equal(await browser.evaluate("document.querySelector('[data-private-server-id=\"111\"] .rc-private-server-avatar')===null"), true, 'A loading owner avatar cannot be replaced with a player photo');
+        await browser.waitFor("document.querySelectorAll('.rc-private-server-modern-card[data-rc-private-server-ready]').length===7");
+        assert.equal(await browser.evaluate("document.querySelector('[data-private-server-id=\"111\"] .rc-private-server-avatar').hasAttribute('src')"), false, 'A loading owner avatar cannot be replaced with a player photo');
         await browser.evaluate("ownerAvatarReady=true;nativeNodes[111].row.querySelector('.owner-avatar img').src='/owner-500.svg'");
         await browser.waitFor('privateRequests.length===2');
         await browser.evaluate('completeDetails(1)');
       }
-      await browser.waitFor("document.querySelectorAll('.rc-private-server-modern-card[data-rc-private-server-ready]').length===7");
+      await browser.waitFor("document.querySelector('.rc-private-server-summary .rc-server-latency')?.textContent.includes('80')");
       await browser.waitFor("[...document.querySelectorAll('.rc-private-server-card')].filter(node=>node.checkVisibility()).length===5");
       assert.deepEqual(await browser.evaluate("[...document.querySelectorAll('.rc-private-server-owner')].slice(0,2).map(node=>node.textContent)"), ['Owner 111','Owner 112']);
       assert.equal(await browser.evaluate("new URL(document.querySelector('.rc-private-server-avatar').src).pathname"), '/owner-500.svg', 'Owner avatar comes from owner, not first player thumbnail');

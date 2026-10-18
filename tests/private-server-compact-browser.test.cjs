@@ -97,13 +97,14 @@ test('compact private rows restore cards while keeping Create, Plus, pagination 
       await browser.waitFor('privateRequests.length===1');
       assert.deepEqual(await browser.evaluate('privateRequests[0].message.serverIds'),[111,112,113,114,115,116,117]);
       assert.deepEqual(await browser.evaluate('privateRequests[0].message.serverNames'),[],'Duplicate names resolve by VIP ID');
-      assert.equal(await browser.evaluate("document.querySelectorAll('.rc-private-server-summary').length"),0);
+      assert.equal(await browser.evaluate("document.querySelectorAll('.rc-private-server-summary').length"),7,'Native summaries appear before the supplemental response');
       await browser.evaluate('completeDetails(0)');
-      await browser.waitFor("document.querySelectorAll('[data-rc-private-server-ready]').length===6");
-      assert.equal(await browser.evaluate("nativeNodes[111].row.checkVisibility()"),false,'Wait for the owner image');
+      await browser.waitFor("document.querySelectorAll('[data-rc-private-server-ready]').length===7");
+      assert.equal(await browser.evaluate("nativeNodes[111].row.checkVisibility()"),true,'A pending owner image does not hide the card');
       assert.equal(await browser.evaluate("document.querySelector('#create-row').checkVisibility()&&document.querySelector('#plus-banner').checkVisibility()"),true);
       await browser.evaluate("nativeNodes[111].row.querySelector('img').src='/owner-500.svg'");
       await browser.waitFor('privateRequests.length===2');await browser.evaluate('completeDetails(1)');
+      await browser.waitFor("document.querySelector('.rc-private-server-summary .rc-server-latency')?.textContent.includes('80')");
       await browser.waitFor("document.querySelectorAll('.rc-private-server-card').length===7&&[...document.querySelectorAll('.rc-private-server-card')].filter(node=>node.checkVisibility()).length===5");
       assert.deepEqual(await browser.evaluate("[...document.querySelectorAll('.rc-private-server-owner')].slice(0,2).map(node=>node.textContent)"),['Owner 111','Owner 112']);
       assert.equal(await browser.evaluate("document.querySelector('#create-row').hasAttribute('data-rc-private-server-pending')"),false);

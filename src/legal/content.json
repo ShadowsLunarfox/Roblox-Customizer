@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-14",
+  "updated": "2026-10-18",
   "publisher": "Lunarfox 月狐",
   "email": "lunar@lunarfox.my",
   "contacts": [
@@ -27,6 +27,7 @@
               "Backgrounds: files you select, their names, and saved background URLs. Selecting a local file stores a browser-local copy; it does not upload the file to the publisher.",
               "Organization: pinned game IDs, game names and thumbnails, folder names, and hidden recommendations.",
               "Playtime: Roblox user IDs and usernames, game/universe/place IDs, game names and icons, estimated durations, session counts, and first/last played and sampling timestamps for each recorded account.",
+              "Recent servers: Roblox user IDs, game/universe/place IDs, server instance IDs, game names, and last-observed timestamps for recent-server history.",
               "Roblox content: page URLs and content, profile, avatar, friends, inventory, badge, game, server, and social-link information needed for page styling and tools. Existing account, message, and transaction pages may be restyled locally; their contents are not uploaded to the publisher. The extension does not read your browsing history on unrelated websites.",
               "Temporary or cached information: public social posts and thumbnails, exchange rates, API responses, and server-country estimates."
             ]
@@ -35,7 +36,8 @@
             "heading": "Local storage and playtime",
             "paragraphs": [
               "Preferences, pins, history, and some caches use the browser's extension-local storage. Background files use IndexedDB on the Roblox site origin where they were selected. Small appearance and friend-row caches use Roblox-site localStorage. The extension does not use Chrome storage sync or a publisher-operated cloud account.",
-              "Playtime tracking is enabled by default and checks the signed-in account's Roblox presence approximately every 30 seconds while the browser runs, including when Roblox tabs are closed. It estimates activity from those samples, not from recordings of gameplay. You can disable tracking in settings. Disabling stops new samples but preserves existing history; unsupported-language fallback also pauses tracking.",
+              "Playtime tracking is enabled by default and checks the signed-in account's Roblox presence approximately every 30 seconds while the browser runs, including when Roblox tabs are closed. It estimates activity from those samples, not recordings of gameplay. Disabling playtime stops new playtime records and preserves existing history. Presence checks continue if recent-server tracking remains enabled; unsupported-language fallback pauses both features.",
+              "Recent-server tracking is enabled by default and shares the approximately 30-second presence checks with playtime. Its independent setting stops new server records while keeping saved history. Each of the 10 most recently used accounts retains a separate list of up to 6 servers per game, including that game's subplaces; a new server replaces only that game's oldest entry.",
               "The extension does not ask for your Roblox password. Authenticated Roblox API calls use your browser's existing Roblox session, so Roblox receives the authentication associated with those requests. Backups do not include Roblox passwords or session cookies."
             ]
           },
@@ -64,6 +66,7 @@
             "heading": "Your controls, retention, and deletion",
             "paragraphs": [
               "You can change preferences, remove backgrounds and pins, disable social feeds and playtime tracking, clear the current account's playtime, and export your data. Settings backups include all recorded accounts' histories and a saved background when present. Backups are unencrypted JSON files; keep them private. Import replaces the corresponding saved data rather than merging it.",
+              "Recent-server history is excluded from full settings backups. You can delete individual servers, clear one game's list, or clear the current account's recent servers. Reset All also removes all accounts' recent-server history. Turning off only playtime does not stop server-history presence checks; disable both settings to stop those checks.",
               "Saved preferences, files, and histories remain until you remove, reset, or overwrite them or the browser clears storage. Cached responses may remain stored after they expire for use. Reset All deletes extension-local settings, caches, pins, and all accounts' history, and removes background files and page caches on the current Roblox site origin. It keeps the local Terms of Service acceptance flag so the first-opening prompt is not repeated. Default features may resume after reset; disable tracking again if you want it off.",
               "Uninstalling normally removes extension-local storage but may leave Roblox-site IndexedDB and localStorage. Use Reset All before uninstalling, or clear Roblox site data in your browser to remove those remaining files and caches. Site-data deletion may sign you out. If fallback mode hides data controls, first switch Roblox to English, Simplified Chinese, or Traditional Chinese. Exported files and data stored by third parties must be deleted separately.",
               "The publisher cannot inspect or remotely erase data stored only in your browser. Contact the publisher for questions or requests about information you sent to support."
@@ -147,6 +150,7 @@
               "背景：你选择的文件、文件名和已保存的背景网址。选择本地文件会在浏览器中保存一份副本，不会上传给发布者。",
               "整理数据：置顶游戏的 ID、名称和缩略图、文件夹名称及隐藏的推荐内容。",
               "游戏时长：各已记录账号的 Roblox 用户 ID 和用户名，游戏／宇宙／地点 ID、游戏名称和图标、估算时长、会话次数、首次和最近游玩时间及采样时间。",
+              "最近服务器：记录使用的 Roblox 用户 ID、游戏／宇宙／地点 ID、服务器实例 ID、游戏名称和最近确认时间。",
               "Roblox 内容：页面网址及内容，以及页面样式和工具所需的个人资料、头像、好友、物品栏、徽章、游戏、服务器及社交链接信息。现有账号、消息和交易页面可能在本地调整样式，其内容不会上传给发布者。扩展不会读取你在其他无关网站的浏览历史。",
               "临时或缓存信息：公开社交帖子和缩略图、汇率、API 响应及服务器国家估算。"
             ]
@@ -155,7 +159,8 @@
             "heading": "本地存储与游戏时长",
             "paragraphs": [
               "偏好、置顶游戏、历史及部分缓存保存在浏览器的扩展本地存储中。背景文件保存在选择文件时所在 Roblox 网站来源的 IndexedDB 中。少量外观和好友行数缓存使用 Roblox 网站的 localStorage。扩展不使用 Chrome 存储同步，也没有由发布者运营的云端账号。",
-              "游戏时长记录默认开启，在浏览器运行期间约每 30 秒检查已登录账号的 Roblox 状态，包括 Roblox 标签页已关闭时。时长根据这些状态采样估算，不会录制游戏过程。可在设置中关闭记录；关闭后停止新采样并保留已有历史。不支持语言的回退模式也会暂停记录。",
+              "游戏时长记录默认开启，在浏览器运行期间约每 30 秒检查已登录账号的 Roblox 状态，包括 Roblox 标签页已关闭时。时长根据状态采样估算，不会录制游戏过程。关闭游戏时长记录会停止新增时长记录并保留历史；如果最近服务器记录仍开启，状态检查会继续。不支持语言的回退模式会暂停这两项功能。",
+              "最近服务器记录默认开启，与游戏时长共享约每 30 秒一次的状态检查。可通过独立开关停止新增服务器记录并保留历史。为最近使用的 10 个账号分别按游戏保存独立列表，每个游戏最多保留 6 个服务器，包括该游戏的子场景；新增服务器时只移除该游戏最旧的记录。",
               "扩展不会要求你提供 Roblox 密码。需要身份验证的 Roblox API 请求使用浏览器现有的 Roblox 会话，因此 Roblox 会收到相应的身份验证信息。备份不包含 Roblox 密码或会话 Cookie。"
             ]
           },
@@ -184,6 +189,7 @@
             "heading": "你的控制权、保留与删除",
             "paragraphs": [
               "你可以修改偏好、删除背景和置顶游戏、关闭社交动态及游戏时长记录、清除当前账号的时长并导出数据。设置备份包含所有已记录账号的历史，以及存在时的已保存背景。备份是未加密的 JSON 文件，请妥善保管。导入会替换对应的已有数据，而非合并。",
+              "完整设置备份不包含最近服务器记录。可以删除单个服务器、清空某个游戏的列表，或清空当前账号的最近服务器。重置全部也会删除所有账号的最近服务器记录。仅关闭游戏时长不会停止服务器记录使用的状态检查；关闭两项记录后才会停止这些检查。",
               "已保存的偏好、文件和历史会保留至你删除、重置或覆盖，或浏览器清除存储。缓存响应在不再可用于显示后仍可能留在存储中。“重置全部”会删除扩展本地设置、缓存、置顶游戏和所有账号的历史，并删除当前 Roblox 网站来源上的背景文件及页面缓存。它会保留本地的服务条款接受标记，避免重复显示首次打开的提示。重置后默认功能可能恢复运行；如希望停止记录，请再次关闭游戏时长记录。",
               "卸载通常会移除扩展本地存储，但可能保留 Roblox 网站的 IndexedDB 和 localStorage。卸载前请使用“重置全部”，或通过浏览器清除 Roblox 网站数据以删除剩余文件和缓存；清除网站数据可能使你退出登录。如回退模式隐藏了数据控件，请先将 Roblox 切换为英语、简体中文或繁体中文。导出文件及第三方保存的数据需另行删除。",
               "发布者无法查看或远程删除仅保存在你浏览器中的数据。如需咨询或处理你发送给支持的信息，请联系发布者。"
@@ -267,6 +273,7 @@
               "背景：你選擇的檔案、檔名和已儲存的背景網址。選擇本機檔案會在瀏覽器中儲存一份副本，不會上傳給發布者。",
               "整理資料：釘選遊戲的 ID、名稱和縮圖、資料夾名稱及隱藏的推薦內容。",
               "遊戲時間：各已記錄帳號的 Roblox 使用者 ID 和使用者名稱，遊戲／宇宙／地點 ID、遊戲名稱和圖示、估算時間、工作階段次數、首次和最近遊玩時間及取樣時間。",
+              "最近伺服器：記錄使用的 Roblox 使用者 ID、遊戲／宇宙／地點 ID、伺服器執行個體 ID、遊戲名稱和最近確認時間。",
               "Roblox 內容：頁面網址及內容，以及頁面樣式和工具所需的個人資料、頭像、好友、物品欄、徽章、遊戲、伺服器及社群連結資訊。現有帳號、訊息和交易頁面可能在本機調整樣式，其內容不會上傳給發布者。擴充功能不會讀取你在其他無關網站的瀏覽歷史。",
               "暫存或快取資訊：公開社群貼文和縮圖、匯率、API 回應及伺服器國家估算。"
             ]
@@ -275,7 +282,8 @@
             "heading": "本機儲存與遊戲時間",
             "paragraphs": [
               "偏好、釘選遊戲、歷史及部分快取儲存在瀏覽器的擴充功能本機儲存空間。背景檔案儲存在選擇檔案時所在 Roblox 網站來源的 IndexedDB。少量外觀和好友列數快取使用 Roblox 網站的 localStorage。擴充功能不使用 Chrome 儲存同步，也沒有由發布者營運的雲端帳號。",
-              "遊戲時間記錄預設開啟，在瀏覽器執行期間約每 30 秒檢查已登入帳號的 Roblox 狀態，包括 Roblox 分頁已關閉時。時間根據這些狀態取樣估算，不會錄製遊戲過程。可在設定中關閉記錄；關閉後停止新取樣並保留已有歷史。不支援語言的備援模式也會暫停記錄。",
+              "遊戲時間記錄預設開啟，在瀏覽器執行期間約每 30 秒檢查已登入帳號的 Roblox 狀態，包括 Roblox 分頁已關閉時。時間根據狀態取樣估算，不會錄製遊戲過程。關閉遊戲時間記錄會停止新增時間記錄並保留歷史；如果最近伺服器記錄仍開啟，狀態檢查會繼續。不支援語言的備援模式會暫停這兩項功能。",
+              "最近伺服器記錄預設開啟，與遊戲時間共用約每 30 秒一次的狀態檢查。可透過獨立開關停止新增伺服器記錄並保留歷史。為最近使用的 10 個帳號分別依遊戲儲存獨立清單，每個遊戲最多保留 6 個伺服器，包括該遊戲的子場景；新增伺服器時只移除該遊戲最舊的記錄。",
               "擴充功能不會要求你提供 Roblox 密碼。需要身分驗證的 Roblox API 請求使用瀏覽器現有的 Roblox 工作階段，因此 Roblox 會收到相應的身分驗證資訊。備份不包含 Roblox 密碼或工作階段 Cookie。"
             ]
           },
@@ -304,6 +312,7 @@
             "heading": "你的控制權、保留與刪除",
             "paragraphs": [
               "你可以修改偏好、刪除背景和釘選遊戲、關閉社群動態及遊戲時間記錄、清除目前帳號的時間並匯出資料。設定備份包含所有已記錄帳號的歷史，以及存在時的已儲存背景。備份是未加密的 JSON 檔案，請妥善保管。匯入會取代對應的已有資料，而非合併。",
+              "完整設定備份不包含最近伺服器記錄。可以刪除個別伺服器、清空某個遊戲的清單，或清空目前帳號的最近伺服器。重設全部也會刪除所有帳號的最近伺服器記錄。僅關閉遊戲時間不會停止伺服器記錄使用的狀態檢查；關閉兩項記錄後才會停止這些檢查。",
               "已儲存的偏好、檔案和歷史會保留至你刪除、重設或覆寫，或瀏覽器清除儲存空間。快取回應在不再可用於顯示後仍可能留在儲存空間。“重設全部”會刪除擴充功能本機設定、快取、釘選遊戲和所有帳號的歷史，並刪除目前 Roblox 網站來源上的背景檔案及頁面快取。它會保留本機的服務條款接受標記，避免重複顯示首次開啟的提示。重設後預設功能可能恢復執行；如希望停止記錄，請再次關閉遊戲時間記錄。",
               "解除安裝通常會移除擴充功能本機儲存空間，但可能保留 Roblox 網站的 IndexedDB 和 localStorage。解除安裝前請使用“重設全部”，或透過瀏覽器清除 Roblox 網站資料以刪除剩餘檔案和快取；清除網站資料可能使你登出。如備援模式隱藏了資料控制項，請先將 Roblox 切換為英語、簡體中文或繁體中文。匯出檔案及第三方儲存的資料需另行刪除。",
               "發布者無法查看或遠端刪除僅儲存在你瀏覽器中的資料。如需詢問或處理你傳送給支援的資訊，請聯絡發布者。"

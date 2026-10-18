@@ -1201,6 +1201,7 @@
         aria-labelledby="rc-reset-title" aria-describedby="rc-reset-warning">
         <h3 id="rc-reset-title">Reset all extension data?</h3>
         <p id="rc-reset-warning">This permanently deletes all settings, uploaded backgrounds, pinned games and folders, and playtime history for every account in this browser. This cannot be undone.</p>
+        <p>Recent servers for all accounts are also deleted.</p>
         <div class="rc-reset-confirmation-actions">
           <button type="button" id="rc-reset-cancel" class="rc-button rc-button-secondary">Cancel</button>
           <button type="button" id="rc-reset-confirm" class="rc-button rc-button-danger">Reset All</button>
@@ -1239,7 +1240,7 @@
     const categories = [
       { id: 'appearance', title: 'Appearance', nodes: ['.rc-default-source', '.rc-settings-field',
         '.rc-settings-options', '.rc-settings-glass', '.rc-settings-colors'] },
-      { id: 'home', title: 'Home page', nodes: ['.rc-settings-home', '#rc-playtime-settings'] },
+      { id: 'home', title: 'Home page', nodes: ['.rc-settings-home', '#rc-playtime-settings', '#rc-server-history-settings'] },
       { id: 'social', title: 'Social', nodes: ['.rc-settings-social'] },
       { id: 'currency', title: 'Currency', nodes: ['#rc-currency-settings'] },
       { id: 'data', title: 'Language & data', nodes: ['.rc-settings-language', '.rc-settings-backup'] }
@@ -1446,6 +1447,7 @@
           </div>
         </div>
         <div id="rc-playtime-settings"></div>
+        <div id="rc-server-history-settings"></div>
         <div class="rc-settings-social">
           <h3>Social feed panels</h3>
           <p class="rc-settings-hint">Choose feeds separately for each page type.</p>
@@ -1459,6 +1461,7 @@
         </div>
         <section class="rc-settings-backup" aria-labelledby="rc-backup-title">
           <h3 id="rc-backup-title">Backup and restore</h3>
+          <p class="rc-settings-hint">Recent servers are not included in full backups.</p>
           <p class="rc-settings-hint">Backups include extension appearance, language, Home and social settings, currency preference, pinned games and folders, hidden recommendations, and playtime for every recorded Roblox account. A saved background file or URL is included when present.</p>
           <p class="rc-settings-hint">Import replaces the backed-up settings, pinned games, folders, and playtime histories in this browser; it does not merge them. Playtime remains linked to its original Roblox account and does not become the current account's playtime. Roblox account data, Robux, purchases, and game progress are not included.</p>
           <p class="rc-settings-hint">Only Roblox Customizer JSON backups up to 256 MB can be imported. Live playtime samples and exchange-rate or social-feed caches are not included.</p>
@@ -1491,6 +1494,7 @@
     if (enhancementsEnabled()) {
       globalThis.RobloxCustomizerCurrency?.mountSettings(modal.querySelector('#rc-currency-settings'));
       globalThis.RobloxCustomizerPlaytimeUI?.mountSettings(modal.querySelector('#rc-playtime-settings'));
+      globalThis.RobloxCustomizerServerHistoryUI?.mountSettings(modal.querySelector('#rc-server-history-settings'));
     }
     organizeSettingsCategories();
     // Previously saved URL backgrounds still render, but have no source control.

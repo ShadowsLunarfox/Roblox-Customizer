@@ -407,6 +407,70 @@
 })();
 ;
 
+// src/servers/server-history-core.js
+(function (root) {
+  'use strict';
+  const STORAGE_KEY = 'rcServerHistory', ENABLED_KEY = 'serverHistoryEnabled';
+  const MAX_SERVERS = 6, MAX_ACCOUNTS = 10;
+  const validId = value => Number.isSafeInteger(value) && value > 0;
+  const serverId = value => typeof value === 'string' && /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(value) ? value.toLowerCase() : '';
+  function retainByGame(servers) {
+    const counts = new Map();
+    return [...servers].sort((a, b) => b.visitedAt - a.visitedAt).filter(entry => {
+      const count = counts.get(entry.universeId) || 0;
+      counts.set(entry.universeId, count + 1);
+      return count < MAX_SERVERS;
+    });
+  }
+  function normalize(value) {
+    const accounts = [], seen = new Set();
+    for (const account of Array.isArray(value?.accounts) ? value.accounts : []) {
+      if (!validId(account?.userId) || seen.has(account.userId)) continue;
+      seen.add(account.userId);
+      const servers = [], ids = new Set();
+      for (const entry of Array.isArray(account.servers) ? account.servers : []) {
+        const id = serverId(entry?.serverId), key = `${entry?.placeId}:${id}`;
+        if (!id || !validId(entry.placeId) || !validId(entry.universeId) || ids.has(key)
+          || !Number.isSafeInteger(entry.visitedAt) || entry.visitedAt <= 0 || entry.visitedAt > 8640000000000000) continue;
+        ids.add(key);
+        servers.push({ serverId: id, placeId: entry.placeId, universeId: entry.universeId,
+          name: typeof entry.name === 'string' ? entry.name.slice(0, 200) : '', visitedAt: entry.visitedAt, public: entry.public === true });
+      }
+      accounts.push({ userId: account.userId, servers: retainByGame(servers) });
+      if (accounts.length === MAX_ACCOUNTS) break;
+    }
+    return { version: 1, currentUserId: validId(value?.currentUserId) ? value.currentUserId : 0, accounts };
+  }
+  function observe(value, user, presence, now) {
+    const state = normalize(value);
+    state.currentUserId = validId(user?.id) ? user.id : 0;
+    if (!validId(user?.id) || presence?.userId !== user.id || presence.userPresenceType !== 2
+      || !validId(presence.placeId) || !validId(presence.universeId) || !serverId(presence.gameId)
+      || !Number.isSafeInteger(now) || now <= 0) return state;
+    let account = state.accounts.find(item => item.userId === user.id);
+    if (!account) { account = { userId: user.id, servers: [] }; state.accounts.unshift(account); }
+    const id = serverId(presence.gameId);
+    const previous = account.servers.find(item => item.placeId === presence.placeId && item.serverId === id);
+    account.servers = account.servers.filter(item => item !== previous);
+    account.servers.unshift({ serverId: id, placeId: presence.placeId, universeId: presence.universeId,
+      name: typeof presence.lastLocation === 'string' ? presence.lastLocation.slice(0, 200) : previous?.name || '',
+      visitedAt: now, public: previous?.public === true });
+    // Recently used accounts retain their own bounded history.
+    state.accounts = [account, ...state.accounts.filter(item => item !== account)].slice(0, MAX_ACCOUNTS);
+    // Each experience has its own six-entry list, including its subplaces.
+    account.servers = retainByGame(account.servers);
+    return state;
+  }
+  function joinUrl(entry) {
+    if (!validId(entry?.placeId) || !serverId(entry?.serverId)) return '';
+    return `roblox://experiences/start?placeId=${entry.placeId}&gameInstanceId=${serverId(entry.serverId)}`;
+  }
+  const api = Object.freeze({ STORAGE_KEY, ENABLED_KEY, MAX_SERVERS, MAX_ACCOUNTS, validId, serverId, normalize, observe, joinUrl });
+  root.RobloxCustomizerServerHistory = api;
+  if (typeof module === 'object' && module.exports) module.exports = api;
+})(globalThis);
+;
+
 // src/playtime/playtime-core.js
 (function (root) {
   'use strict';
@@ -546,9 +610,11 @@
     return sessionId;
   }
   async function read() {
-    const saved = await chrome.storage.local.get([core.STORAGE_KEY, core.ENABLED_KEY, LANGUAGE_KEY]);
+    const history = globalThis.RobloxCustomizerServerHistory;
+    const saved = await chrome.storage.local.get([core.STORAGE_KEY, core.ENABLED_KEY, LANGUAGE_KEY, history?.ENABLED_KEY || 'serverHistoryEnabled']);
     // A missing preference uses the default; an explicit opt-out remains off.
-    return { state: core.normalize(saved[core.STORAGE_KEY]), enabled: saved[core.ENABLED_KEY] !== false && !saved[LANGUAGE_KEY] };
+    return { state: core.normalize(saved[core.STORAGE_KEY]), enabled: saved[core.ENABLED_KEY] !== false && !saved[LANGUAGE_KEY],
+      historyEnabled: !!history && saved[history.ENABLED_KEY] !== false && !saved[LANGUAGE_KEY] };
   }
   async function save(state) { await chrome.storage.local.set({ [core.STORAGE_KEY]: state }); }
   async function ensureAlarm() {
@@ -595,24 +661,25 @@
   }
   async function configure() {
     if (!chrome.storage?.local || !chrome.alarms) return;
-    const { enabled, state } = await read();
-    if (enabled) {
+    const { enabled, state, historyEnabled } = await read();
+    if (enabled || historyEnabled) {
       if (state.active && state.active.browserSessionId !== await browserSession()) {
         await save(core.pause(state, 'idle', Date.now()));
       }
       await ensureAlarm();
+      if (!enabled && (state.active || state.status.kind !== 'disabled')) await save(core.pause(state, 'disabled', Date.now()));
     } else {
       await chrome.alarms.clear(ALARM);
       if (state.active || state.status.kind !== 'disabled') await save(core.pause(state, 'disabled', Date.now()));
     }
   }
   async function poll() {
-    const { enabled, state } = await read();
-    if (!enabled) return core.snapshot(state, false);
+    const { enabled, state, historyEnabled } = await read();
+    if (!enabled && !historyEnabled) return core.snapshot(state, false);
     await ensureAlarm();
     const now = Date.now();
     // Alarms and visible Roblox tabs share this throttle, so multiple tabs do not multiply requests.
-    if (now >= lastAttempt && now - lastAttempt < 25000) return core.snapshot(state, true);
+    if (now >= lastAttempt && now - lastAttempt < 25000) return core.snapshot(state, enabled);
     lastAttempt = now;
     let next;
     try {
@@ -623,9 +690,11 @@
           ...(csrfToken ? { 'x-csrf-token': csrfToken } : {}) }, body: JSON.stringify({ userIds: [user.id] })
       });
       const presence = Array.isArray(response?.userPresences) ? response.userPresences.find(p => p?.userId === user.id) : null;
-      next = core.observe(state, user, presence, Date.now(), await browserSession());
-      await enrich(next, Date.now());
+      if (historyEnabled) await globalThis.RobloxCustomizerServerHistoryBackground?.observe(user, presence, Date.now()).catch(() => {});
+      next = enabled ? core.observe(state, user, presence, Date.now(), await browserSession()) : core.pause(state, 'disabled', Date.now());
+      if (enabled) await enrich(next, Date.now());
     } catch (error) {
+      if (error.status === 401 && historyEnabled) await globalThis.RobloxCustomizerServerHistoryBackground?.observe(null, null, Date.now()).catch(() => {});
       const recoverable = ['AbortError', 'TypeError'].includes(error.name) || error.status === 429 || error.status >= 500;
       next = core.pause(state, error.status === 401 ? 'signed-out' : 'unavailable', Date.now(), recoverable);
     }
@@ -669,7 +738,7 @@
     if (alarm.name === ALARM) serialize(poll).catch(() => {});
   });
   chrome.storage?.onChanged.addListener((changes, area) => {
-    if (area === 'local' && (changes[core.ENABLED_KEY] || changes[LANGUAGE_KEY])) {
+    if (area === 'local' && (changes[core.ENABLED_KEY] || changes.serverHistoryEnabled || changes[LANGUAGE_KEY])) {
       lastAttempt = 0;
       serialize(configure).catch(() => {});
     }
@@ -679,6 +748,106 @@
   chrome.runtime.onInstalled?.addListener(start);
   // Register listeners synchronously. Recreate missing alarms without fetching on worker startup.
   serialize(configure).catch(() => {});
+})();
+;
+
+// src/background/server-history-background.js
+(() => {
+  'use strict';
+  const core = globalThis.RobloxCustomizerServerHistory;
+  const LANGUAGE_KEY = 'robloxCustomizerUnsupportedLanguage';
+  async function json(url, credentials = 'omit') {
+    const controller = new AbortController(), timeout = setTimeout(() => controller.abort(), 7000);
+    try {
+      const response = await fetch(url, { credentials, signal: controller.signal });
+      if (!response.ok) throw new Error(response.status === 401 ? 'Sign in to Roblox to view recent servers.' : 'Could not load recent servers. Please try again.');
+      return await response.json();
+    } finally { clearTimeout(timeout); }
+  }
+  // Called under the shared presence/storage lock, after confirmed own-account presence.
+  async function observe(user, presence, now) {
+    const saved = await chrome.storage.local.get([core.STORAGE_KEY, core.ENABLED_KEY, LANGUAGE_KEY]);
+    if (saved[core.ENABLED_KEY] === false || saved[LANGUAGE_KEY]) return;
+    const state = core.observe(saved[core.STORAGE_KEY], user, presence, now);
+    if (JSON.stringify(state) !== JSON.stringify(saved[core.STORAGE_KEY])) await chrome.storage.local.set({ [core.STORAGE_KEY]: state });
+  }
+  globalThis.RobloxCustomizerServerHistoryBackground = Object.freeze({ observe });
+  async function compactSavedHistory() {
+    const saved = await chrome.storage.local.get(core.STORAGE_KEY);
+    if (!saved[core.STORAGE_KEY]) return;
+    const state = core.normalize(saved[core.STORAGE_KEY]);
+    if (JSON.stringify(state) !== JSON.stringify(saved[core.STORAGE_KEY])) {
+      await chrome.storage.local.set({ [core.STORAGE_KEY]: state });
+    }
+  }
+  async function handle(message) {
+    const user = await json('https://users.roblox.com/v1/users/authenticated', 'include');
+    if (!core.validId(user?.id)) throw new Error('Sign in to Roblox to view recent servers.');
+    const saved = await chrome.storage.local.get([core.STORAGE_KEY, core.ENABLED_KEY, LANGUAGE_KEY]);
+    const state = core.normalize(saved[core.STORAGE_KEY]);
+    const account = state.accounts.find(item => item.userId === user.id);
+    const result = () => ({ ok: true, userId: user.id, enabled: saved[core.ENABLED_KEY] !== false,
+      servers: account?.servers || [] });
+    if (message.action === 'snapshot') return result();
+    if (message.action === 'resolve-game' && core.validId(message.placeId)) {
+      const game = await json(`https://apis.roblox.com/universes/v1/places/${message.placeId}/universe`);
+      if (!core.validId(game?.universeId)) throw new Error('Could not load recent servers. Please try again.');
+      return { ok: true, universeId: game.universeId };
+    }
+    if (message.userId !== user.id) throw new Error('Your Roblox account changed. Refresh recent servers.');
+    if (message.action === 'set-enabled' && typeof message.enabled === 'boolean') {
+      await chrome.storage.local.set({ [core.ENABLED_KEY]: message.enabled });
+      saved[core.ENABLED_KEY] = message.enabled; return result();
+    }
+    if (message.action === 'clear') {
+      if (Object.hasOwn(message, 'universeId') && !core.validId(message.universeId)) return { ok: false, error: 'invalid-action' };
+      if (account) account.servers = core.validId(message.universeId)
+        ? account.servers.filter(entry => entry.universeId !== message.universeId) : [];
+      await chrome.storage.local.set({ [core.STORAGE_KEY]: state }); return result();
+    }
+    const entry = account?.servers.find(item => item.placeId === message.placeId && item.serverId === core.serverId(message.serverId));
+    if (!entry) throw new Error('This server is no longer in your history.');
+    if (message.action === 'remove') {
+      account.servers = account.servers.filter(item => item !== entry);
+      await chrome.storage.local.set({ [core.STORAGE_KEY]: state }); return result();
+    }
+    if (message.action !== 'check') return { ok: false, error: 'invalid-action' };
+    // A bounded scan must never label a server closed just because it was not on the first pages.
+    let cursor = '';
+    for (let page = 0; page < 5; page++) {
+      const url = new URL(`https://games.roblox.com/v1/games/${entry.placeId}/servers/Public`);
+      url.searchParams.set('limit', '100'); url.searchParams.set('sortOrder', 'Desc');
+      if (cursor) url.searchParams.set('cursor', cursor);
+      let response;
+      try { response = await json(url.href); } catch { return { ok: true, status: 'unknown' }; }
+      if (!Array.isArray(response?.data)) return { ok: true, status: 'unknown' };
+      const server = response.data.find(item => core.serverId(item?.id) === entry.serverId);
+      if (server) {
+        entry.public = true; await chrome.storage.local.set({ [core.STORAGE_KEY]: state });
+        return { ok: true, status: Number.isFinite(server.playing) && Number.isFinite(server.maxPlayers)
+          && server.maxPlayers > 0 && server.playing >= server.maxPlayers ? 'full' : 'available' };
+      }
+      cursor = typeof response.nextPageCursor === 'string' ? response.nextPageCursor : '';
+      if (!cursor) return { ok: true, status: entry.public ? 'closed' : 'unlisted' };
+    }
+    return { ok: true, status: 'unknown' };
+  }
+  chrome.runtime.onMessage.addListener((message, sender, respond) => {
+    if (message?.type !== 'rc-server-history') return;
+    let url; try { url = new URL(sender.url); } catch { return; }
+    if (sender.id !== chrome.runtime.id || url.protocol !== 'https:'
+      || !['www.roblox.com', 'roblox.com'].includes(url.hostname) || (sender.frameId ?? 0) !== 0) return;
+    if (message.action === 'resolve-game'
+      && Number(url.pathname.match(/^\/games\/(\d+)(?:\/|$)/)?.[1]) !== message.placeId) return;
+    globalThis.RobloxCustomizerPlaytimeBackground.withStorageLock(() => handle(message))
+      .then(respond, error => respond({ ok: false, error: error.message || 'Could not load recent servers. Please try again.' }));
+    return true;
+  });
+  // Apply the current retention limit to existing accounts even when both
+  // trackers are paused. Share the write lock with presence samples and resets.
+  if (chrome.storage?.local) {
+    globalThis.RobloxCustomizerPlaytimeBackground.withStorageLock(compactSavedHistory).catch(() => {});
+  }
 })();
 ;
 

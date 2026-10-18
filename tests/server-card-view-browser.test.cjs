@@ -86,9 +86,10 @@ test('private rendering covers games and layouts while public and friends cards 
       const theme=locale==='zh-cn'?'light':'dark';const placeId=layout==='compact'?893973440:4623386862;
       const url='http://127.0.0.1:'+server.address().port+'/games/'+placeId+'/Game?layout='+layout+'&locale='+locale+'&theme='+theme+(real?'&react=1':'');
       await browser.send('Page.navigate',{url});await waitForDocument(browser,'#rbx-public-running-games',url);
-      await browser.waitFor('privateRequests.length===1');await browser.evaluate('completeDetails(0)');
-      await browser.waitFor("document.querySelectorAll('[data-rc-server-view=private][data-rc-private-server-ready]').length===1");
-      assert.equal(await browser.evaluate("document.querySelector('[data-private-server-id=\"111\"]').checkVisibility()"),false);
+      await browser.waitFor('privateRequests.length===1');
+      assert.equal(await browser.evaluate("document.querySelectorAll('[data-rc-server-view=private][data-rc-private-server-ready]').length"),2,'Both React cards are ready before the supplemental response');
+      assert.equal(await browser.evaluate("document.querySelector('[data-private-server-id=\"111\"]').checkVisibility()"),true,'A lazy avatar does not delay the first paint');
+      await browser.evaluate('completeDetails(0)');
       await browser.evaluate('lateAvatar=true;renderServers()');
       await browser.waitFor("document.querySelectorAll('[data-rc-server-view=private][data-rc-private-server-ready]').length===2");
       assert.equal(await browser.evaluate("document.querySelectorAll('[data-rc-server-view]').length"),2,'Only private servers use the custom renderer');

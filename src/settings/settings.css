@@ -754,6 +754,7 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 }
 
 #rc-settings-overlay {
+  --rc-settings-divider: rgb(var(--rc-foreground-rgb, 255 255 255) / 14%);
   position: fixed;
   inset: 0;
   z-index: 2147483647;
@@ -762,23 +763,23 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
   justify-content: center;
   padding: 20px;
   overflow: auto;
-  background: rgb(0 0 0 / 72%);
+  background: rgb(0 0 0 / 54%);
   color: var(--rc-text, #f7f7f8);
-  font: 14px/1.45 Arial, sans-serif;
+  font: 16px/1.6 Arial, sans-serif;
 }
 
 #rc-settings-overlay .rc-settings-dialog {
   display: flex;
   flex-direction: column;
-  width: min(100%, 960px);
-  height: min(780px, calc(100vh - 40px));
-  max-height: calc(100vh - 40px);
+  width: min(100%, 1180px);
+  height: min(960px, calc(100dvh - 40px));
+  max-height: calc(100dvh - 40px);
   overflow: hidden;
-  padding: 24px;
-  border: 1px solid var(--rc-control-border, #42444d);
-  border-radius: 12px;
-  background: var(--rc-surface, #1c1d24);
-  box-shadow: 0 22px 70px rgb(0 0 0 / 50%);
+  padding: 28px;
+  border: 1px solid var(--rc-settings-divider);
+  border-radius: 18px;
+  background: linear-gradient(rgb(var(--rc-foreground-rgb, 255 255 255) / 3%), rgb(var(--rc-foreground-rgb, 255 255 255) / 3%)), var(--rc-surface, #1c1d24);
+  box-shadow: 0 22px 70px rgb(0 0 0 / 32%);
 }
 
 #rc-settings-overlay .rc-settings-heading,
@@ -810,13 +811,14 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 #rc-settings-overlay h2 {
   margin: 0;
   color: var(--rc-text);
-  font-size: 21px;
+  font-size: 24px;
   line-height: 1.3;
 }
 
 #rc-settings-overlay .rc-icon-button {
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
   padding: 0;
   border: 0;
   border-radius: 6px;
@@ -838,7 +840,7 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 }
 
 #rc-settings-overlay .rc-settings-intro {
-  margin: 8px 0 14px;
+  margin: 8px 0 20px;
 }
 
 #rc-settings-overlay #rc-settings-language-notice {
@@ -1009,22 +1011,22 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 
 #rc-settings-overlay .rc-settings-layout {
   display: grid;
-  grid-template-columns: 180px minmax(0, 1fr);
-  gap: 22px;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 28px;
   flex: 1 1 auto;
   min-height: 0;
-  padding-top: 14px;
-  border-top: 1px solid var(--rc-control-border, #42444d);
+  padding-top: 22px;
+  border-top: 1px solid var(--rc-settings-divider);
 }
 
 #rc-settings-overlay .rc-settings-nav {
   display: grid;
   align-content: start;
-  gap: 6px;
+  gap: 10px;
   min-width: 0;
-  padding-right: 16px;
+  padding-right: 20px;
   overflow-y: auto;
-  border-right: 1px solid var(--rc-control-border, #42444d);
+  border-right: 1px solid var(--rc-settings-divider);
 }
 
 #rc-settings-overlay .rc-settings-nav-button {
@@ -1032,14 +1034,14 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
   align-items: center;
   gap: 11px;
   width: 100%;
-  min-height: 44px;
-  padding: 9px 10px;
+  min-height: 50px;
+  padding: 12px;
   border: 1px solid transparent;
   border-radius: 8px;
   background: transparent;
   color: var(--rc-text-secondary, #b8bac5);
   cursor: pointer;
-  font: 700 14px/1.25 Arial, sans-serif;
+  font: 700 16px/1.4 Arial, sans-serif;
   text-align: left;
 }
 
@@ -1055,21 +1057,21 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 }
 
 #rc-settings-overlay .rc-settings-nav-button[aria-current="true"] {
-  border-color: var(--rc-control-border, #42444d);
+  border-color: var(--rc-settings-divider);
   background: var(--rc-control-bg, #292b35);
   color: var(--rc-text, #f7f7f8);
 }
 
 #rc-settings-overlay .rc-settings-nav-number {
   color: var(--rc-accent, #7fa0ff);
-  font-size: 11px;
+  font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
 
 #rc-settings-overlay .rc-settings-content {
   min-width: 0;
   min-height: 0;
-  padding: 2px 8px 14px 0;
+  padding: 2px 16px 20px 0;
   overflow: auto;
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
@@ -1077,9 +1079,9 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 
 #rc-settings-overlay .rc-settings-category {
   min-width: 0;
-  margin: 0 0 26px;
-  padding: 0 0 25px;
-  border-bottom: 1px solid var(--rc-control-border, #42444d);
+  margin: 0 0 36px;
+  padding: 0 0 35px;
+  border-bottom: 1px solid var(--rc-settings-divider);
 }
 
 #rc-settings-overlay .rc-settings-category:last-child {
@@ -1089,9 +1091,9 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 }
 
 #rc-settings-overlay .rc-settings-category-heading {
-  margin: 0 0 18px;
+  margin: 0 0 24px;
   color: var(--rc-text, #f7f7f8);
-  font-size: 19px;
+  font-size: 22px;
   line-height: 1.3;
 }
 
@@ -1102,9 +1104,9 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 }
 
 #rc-settings-overlay #rc-settings-category-data .rc-settings-backup {
-  margin-top: 26px;
-  padding-top: 22px;
-  border-top: 1px solid var(--rc-control-border, #42444d);
+  margin-top: 32px;
+  padding-top: 28px;
+  border-top: 1px solid var(--rc-settings-divider);
 }
 
 #rc-settings-overlay #rc-settings-category-data .rc-settings-language {
@@ -1113,11 +1115,11 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 
 #rc-settings-overlay .rc-settings-field {
   display: grid;
-  gap: 8px;
-  margin: 12px 0;
-  padding: 13px;
-  border: 1px solid var(--rc-control-hover, #383b46);
-  border-radius: 8px;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 18px;
+  border: 1px solid var(--rc-settings-divider);
+  border-radius: 12px;
 }
 
 #rc-settings-overlay .rc-default-source {
@@ -1137,25 +1139,25 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
   align-items: center;
-  gap: 12px;
-  margin: 20px 0 12px;
+  gap: 18px 24px;
+  margin: 24px 0 18px;
 }
 
 #rc-settings-overlay .rc-settings-glass {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
   align-items: center;
-  gap: 12px;
-  margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid var(--rc-control-hover, #383b46);
+  gap: 18px 24px;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rc-settings-divider);
 }
 
 #rc-settings-overlay .rc-settings-glass h3 {
   grid-column: 1 / -1;
   margin: 0 0 2px;
   color: var(--rc-text);
-  font-size: 16px;
+  font-size: 18px;
 }
 
 #rc-settings-overlay .rc-settings-glass > .rc-settings-hint {
@@ -1175,7 +1177,7 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
   grid-column: 1 / -1;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px;
 }
 
 #rc-settings-overlay .rc-effect-toggles button[aria-pressed="true"] {
@@ -1195,10 +1197,10 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 
 #rc-settings-overlay .rc-settings-colors {
   display: grid;
-  gap: 12px;
-  margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid var(--rc-control-hover, #383b46);
+  gap: 18px;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rc-settings-divider);
 }
 
 #rc-settings-overlay .rc-settings-colors h3 {
@@ -1208,16 +1210,16 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
   gap: 8px;
   margin: 0;
   color: var(--rc-text);
-  font-size: 16px;
+  font-size: 18px;
 }
 
 #rc-settings-overlay .rc-experimental-badge {
   padding: 3px 7px;
-  border: 1px solid var(--rc-control-border);
+  border: 1px solid var(--rc-settings-divider);
   border-radius: 999px;
   background: var(--rc-control-bg);
   color: var(--rc-text-secondary);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -1229,18 +1231,18 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 10px;
+  gap: 18px;
   min-width: 0;
   margin: 0;
-  padding: 12px;
-  border: 1px solid var(--rc-control-border);
-  border-radius: 8px;
+  padding: 18px;
+  border: 1px solid var(--rc-settings-divider);
+  border-radius: 12px;
 }
 
 #rc-settings-overlay #rc-custom-color-fields legend {
   padding: 0 6px;
   color: var(--rc-text-secondary);
-  font-size: 12px;
+  font-size: 14px;
 }
 
 #rc-settings-overlay #rc-custom-color-fields:disabled > label,
@@ -1257,7 +1259,7 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 #rc-settings-overlay .rc-color-value input[type="color"] {
   width: 44px;
   min-width: 44px;
-  height: 36px;
+  height: 44px;
   padding: 3px;
   border: 1px solid var(--rc-control-border);
   border-radius: 6px;
@@ -1272,7 +1274,7 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 
 #rc-settings-overlay .rc-color-value output {
   color: var(--rc-text-secondary);
-  font: 12px/1.2 monospace;
+  font: 14px/1.4 monospace;
 }
 
 #rc-settings-overlay #rc-reset-colors {
@@ -1282,49 +1284,51 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 }
 
 #rc-settings-overlay .rc-settings-home {
-  margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid var(--rc-control-hover, #383b46);
+  display: grid;
+  gap: 16px;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rc-settings-divider);
 }
 
 #rc-settings-overlay .rc-settings-home h3 {
-  margin: 0 0 12px;
+  margin: 0;
   color: var(--rc-text);
-  font-size: 16px;
+  font-size: 18px;
 }
 
 #rc-settings-overlay .rc-settings-social {
   display: grid;
-  gap: 10px;
-  margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid var(--rc-control-hover, #383b46);
+  gap: 20px;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rc-settings-divider);
 }
 
 #rc-settings-overlay .rc-settings-social h3 {
   margin: 0 0 2px;
   color: var(--rc-text);
-  font-size: 16px;
+  font-size: 18px;
 }
 
 #rc-settings-overlay .rc-settings-social > .rc-settings-hint { margin: 0; }
 
 #rc-settings-overlay .rc-settings-backup {
-  margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid var(--rc-control-hover, #383b46);
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rc-settings-divider);
 }
 
 #rc-settings-overlay .rc-settings-backup h3 {
   margin: 0 0 10px;
   color: var(--rc-text);
-  font-size: 16px;
+  font-size: 18px;
 }
 
 #rc-settings-overlay .rc-backup-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 14px;
 }
 
 #rc-settings-overlay .rc-backup-actions button {
@@ -1335,18 +1339,18 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 #rc-settings-overlay .rc-settings-feed-group {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 20px;
   min-width: 0;
   margin: 0;
-  padding: 12px;
-  border: 1px solid var(--rc-control-border);
-  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid var(--rc-settings-divider);
+  border-radius: 12px;
 }
 
 #rc-settings-overlay .rc-settings-feed-group legend {
   padding-inline: 6px;
   color: var(--rc-text);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
 }
 
@@ -1357,35 +1361,41 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 #rc-settings-overlay .rc-settings-toggle {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  min-height: 32px;
   cursor: pointer;
 }
 
-#rc-settings-overlay .rc-settings-toggle input {
+#rc-settings-overlay input:is([type="checkbox"], [type="radio"]) {
+  width: 20px;
+  height: 20px;
+  min-height: 0;
+  flex: 0 0 20px;
+  margin: 0;
   accent-color: var(--rc-accent, #4479f2);
 }
 
 #rc-settings-overlay .rc-settings-hidden-recommendations {
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid var(--rc-control-hover, #383b46);
+  margin-top: 12px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rc-settings-divider);
 }
 
 #rc-settings-overlay .rc-settings-hidden-recommendations h4 {
   margin: 0 0 3px;
   color: var(--rc-text);
-  font-size: 14px;
+  font-size: 16px;
 }
 
 #rc-settings-overlay .rc-settings-hidden-recommendations .rc-settings-hint {
-  margin: 0 0 9px;
-  font-size: 12px;
+  margin: 8px 0 14px;
+  font-size: 14px;
 }
 
 #rc-settings-overlay #rc-hidden-recommended-games {
   display: grid;
-  gap: 6px;
-  max-height: 180px;
+  gap: 12px;
+  max-height: 240px;
   overflow: auto;
 }
 
@@ -1399,9 +1409,9 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
   justify-content: space-between;
   gap: 10px;
   min-width: 0;
-  padding: 7px 9px;
-  border: 1px solid var(--rc-control-border, #414550);
-  border-radius: 7px;
+  padding: 12px;
+  border: 1px solid var(--rc-settings-divider);
+  border-radius: 10px;
   background: var(--rc-control-bg, #292c36);
 }
 
@@ -1414,12 +1424,13 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 
 #rc-settings-overlay .rc-hidden-recommended-game button {
   flex: none;
-  padding: 5px 9px;
+  min-height: 40px;
+  padding: 8px 12px;
   border: 1px solid #718ff0;
   border-radius: 5px;
   background: var(--rc-accent, #334b91);
   color: var(--rc-accent-text, #fff);
-  font: 700 12px/1.2 Arial, sans-serif;
+  font: 700 14px/1.4 Arial, sans-serif;
   cursor: pointer;
 }
 
@@ -1432,8 +1443,8 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
   align-items: center;
-  gap: 12px;
-  margin-top: 15px;
+  gap: 18px 24px;
+  margin-top: 12px;
 }
 
 #rc-settings-overlay .rc-settings-friends label {
@@ -1445,10 +1456,10 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
   align-items: center;
-  gap: 10px 12px;
-  margin-top: 17px;
-  padding-top: 15px;
-  border-top: 1px solid var(--rc-control-hover, #383b46);
+  gap: 18px 24px;
+  margin-top: 12px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rc-settings-divider);
 }
 
 #rc-settings-overlay .rc-settings-greetings h4,
@@ -1463,7 +1474,7 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 #rc-settings-overlay .rc-settings-greetings h4,
 #rc-settings-overlay .rc-settings-clock h4 {
   color: var(--rc-text);
-  font-size: 14px;
+  font-size: 16px;
 }
 
 #rc-settings-overlay .rc-settings-greetings label,
@@ -1474,13 +1485,14 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 #rc-settings-overlay .rc-settings-clock-toggles {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 17px;
+  gap: 16px 24px;
 }
 
 #rc-settings-overlay .rc-settings-greetings input[type="text"] {
   width: 100%;
   min-width: 0;
-  padding: 8px 10px;
+  min-height: 46px;
+  padding: 10px 12px;
   border: 1px solid var(--rc-control-border, #515561);
   border-radius: 6px;
   background: var(--rc-control-bg, #292b35);
@@ -1498,7 +1510,7 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
   display: block;
   width: 100%;
   min-width: 0;
-  height: 28px;
+  height: 36px;
   margin: 0;
   padding: 0;
   border: 0;
@@ -1541,10 +1553,12 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 
 #rc-settings-overlay input[type="url"],
 #rc-settings-overlay input[type="file"],
+#rc-settings-overlay input[type="search"],
 #rc-settings-overlay select {
   width: 100%;
   min-width: 0;
-  padding: 8px 10px;
+  min-height: 46px;
+  padding: 10px 12px;
   border: 1px solid var(--rc-control-border, #515561);
   border-radius: 6px;
   background: var(--rc-control-bg, #292b35);
@@ -1577,8 +1591,9 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 }
 
 #rc-settings-overlay #rc-settings-status {
-  min-height: 20px;
-  margin: 12px 0;
+  flex: 0 0 auto;
+  min-height: 24px;
+  margin: 8px 0;
   color: var(--rc-success, #b8e6c2);
 }
 
@@ -1591,14 +1606,17 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 }
 
 #rc-settings-overlay .rc-settings-footer {
-  display: grid;
-  gap: 5px;
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid var(--rc-control-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  flex: 0 0 auto;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rc-settings-divider);
   color: var(--rc-text-secondary);
-  font-size: 12px;
-  text-align: center;
+  font-size: 14px;
 }
 
 #rc-settings-overlay .rc-settings-footer a {
@@ -1610,21 +1628,25 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 16px;
 }
 
 #rc-settings-overlay .rc-settings-footer .rc-legal-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 32px;
-  padding: 6px 10px;
-  color: var(--rc-text);
+  min-height: 40px;
+  padding: 8px 0;
+  background: transparent;
+  color: var(--rc-text-secondary);
+  font-size: 14px;
+  font-weight: 400;
   text-decoration: none;
 }
 
 #rc-settings-overlay .rc-settings-repository {
   display: block;
+  font-size: 12px;
 }
 
 #rc-settings-overlay .rc-settings-footer a:focus-visible {
@@ -1633,14 +1655,58 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 }
 
 #rc-settings-overlay .rc-button {
-  min-height: 36px;
-  padding: 8px 12px;
+  min-height: 44px;
+  padding: 11px 16px;
   border: 0;
-  border-radius: 6px;
+  border-radius: 8px;
   color: var(--rc-text);
   cursor: pointer;
-  font: 700 13px/1.2 Arial, sans-serif;
-  white-space: nowrap;
+  font: 700 15px/1.4 Arial, sans-serif;
+  white-space: normal;
+}
+
+/* Settings modules share the menu's type scale and spacing. */
+#rc-settings-overlay #rc-playtime-settings,
+#rc-settings-overlay .rc-server-history-settings,
+#rc-settings-overlay .rc-settings-currency {
+  margin-top: 32px;
+  padding-top: 28px;
+  border-color: var(--rc-settings-divider);
+  gap: 18px;
+}
+
+#rc-settings-overlay :is(#rc-playtime-settings, .rc-server-history-settings, .rc-settings-currency) h3 {
+  font-size: 18px;
+}
+
+#rc-settings-overlay :is(.rc-playtime-hint, .rc-playtime-note, .rc-playtime-status, .rc-server-history-note, .rc-settings-currency p) {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+#rc-settings-overlay :is(.rc-playtime-toggle, .rc-server-history-toggle) {
+  min-height: 32px;
+  gap: 12px;
+}
+
+#rc-settings-overlay :is(.rc-playtime-button, .rc-server-button) {
+  min-height: 44px;
+  padding: 10px 14px;
+}
+
+#rc-settings-overlay .rc-settings-currency {
+  margin-top: 0;
+  padding-top: 0;
+  border: 0;
+}
+
+#rc-settings-overlay :is(button, a, input, select):focus-visible {
+  outline: 2px solid var(--rc-focus, #aacaff);
+  outline-offset: 3px;
+}
+
+#rc-settings-overlay :is(.rc-settings-heading, .rc-settings-intro, .rc-settings-actions) {
+  flex-shrink: 0;
 }
 
 #rc-settings-overlay .rc-button-secondary {
@@ -1727,15 +1793,15 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
 @media (max-width: 700px) {
   #rc-settings-overlay { padding: 10px; }
   #rc-settings-overlay .rc-settings-dialog {
-    height: calc(100vh - 20px);
-    max-height: calc(100vh - 20px);
+    height: calc(100dvh - 20px);
+    max-height: calc(100dvh - 20px);
     padding: 16px;
   }
   #rc-settings-overlay .rc-settings-layout {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    padding-top: 10px;
+    gap: 16px;
+    padding-top: 14px;
   }
   #rc-settings-overlay .rc-settings-nav {
     display: flex;
@@ -1744,18 +1810,35 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
     padding: 0 0 9px;
     overflow: auto hidden;
     border-right: 0;
-    border-bottom: 1px solid var(--rc-control-border, #42444d);
+    border-bottom: 1px solid var(--rc-settings-divider);
   }
   #rc-settings-overlay .rc-settings-nav-button {
     width: auto;
-    min-height: 38px;
+    min-height: 44px;
     flex: 0 0 auto;
-    padding: 7px 9px;
+    padding: 10px 12px;
     white-space: nowrap;
   }
+  #rc-settings-overlay .rc-settings-content { padding-right: 4px; }
+  #rc-settings-overlay .rc-settings-footer { justify-content: center; gap: 4px 16px; text-align: center; }
+  #rc-settings-overlay .rc-settings-repository { display: none; }
 }
 
 @media (max-width: 540px) {
-  #rc-settings-overlay .rc-settings-actions { flex-wrap: wrap; }
-  #rc-settings-overlay .rc-action-spacer { flex-basis: 100%; }
+  #rc-settings-overlay .rc-settings-actions { flex-wrap: wrap; justify-content: space-between; }
+  #rc-settings-overlay .rc-action-spacer { display: none; }
+  #rc-settings-overlay .rc-settings-intro { margin-bottom: 14px; }
+  #rc-settings-overlay .rc-settings-field { padding: 14px; }
+  #rc-settings-overlay :is(.rc-settings-language, .rc-settings-friends, .rc-settings-greetings, .rc-settings-clock) { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  #rc-settings-overlay #rc-custom-color-fields { padding: 14px; gap: 16px 10px; }
+  #rc-settings-overlay .rc-color-value { flex-wrap: wrap; gap: 4px 8px; }
+}
+
+@media (max-height: 640px) {
+  #rc-settings-overlay { padding: 8px; }
+  #rc-settings-overlay .rc-settings-dialog { height: calc(100dvh - 16px); max-height: calc(100dvh - 16px); padding: 16px; overflow: auto; }
+  #rc-settings-overlay .rc-settings-intro { margin: 4px 0 10px; }
+  /* Scroll the dialog on short screens instead of squeezing the controls. */
+  #rc-settings-overlay .rc-settings-layout { flex: 1 0 320px; padding-top: 10px; gap: 12px; }
+  #rc-settings-overlay .rc-settings-footer { margin-top: 8px; padding-top: 6px; }
 }

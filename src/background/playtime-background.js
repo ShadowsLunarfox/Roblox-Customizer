@@ -24,9 +24,11 @@
     return sessionId;
   }
   async function read() {
-    const saved = await chrome.storage.local.get([core.STORAGE_KEY, core.ENABLED_KEY, LANGUAGE_KEY]);
+    const history = globalThis.RobloxCustomizerServerHistory;
+    const saved = await chrome.storage.local.get([core.STORAGE_KEY, core.ENABLED_KEY, LANGUAGE_KEY, history?.ENABLED_KEY || 'serverHistoryEnabled']);
     // A missing preference uses the default; an explicit opt-out remains off.
-    return { state: core.normalize(saved[core.STORAGE_KEY]), enabled: saved[core.ENABLED_KEY] !== false && !saved[LANGUAGE_KEY] };
+    return { state: core.normalize(saved[core.STORAGE_KEY]), enabled: saved[core.ENABLED_KEY] !== false && !saved[LANGUAGE_KEY],
+      historyEnabled: !!history && saved[history.ENABLED_KEY] !== false && !saved[LANGUAGE_KEY] };
   }
   async function save(state) { await chrome.storage.local.set({ [core.STORAGE_KEY]: state }); }
   async function ensureAlarm() {
@@ -73,24 +75,25 @@
   }
   async function configure() {
     if (!chrome.storage?.local || !chrome.alarms) return;
-    const { enabled, state } = await read();
-    if (enabled) {
+    const { enabled, state, historyEnabled } = await read();
+    if (enabled || historyEnabled) {
       if (state.active && state.active.browserSessionId !== await browserSession()) {
         await save(core.pause(state, 'idle', Date.now()));
       }
       await ensureAlarm();
+      if (!enabled && (state.active || state.status.kind !== 'disabled')) await save(core.pause(state, 'disabled', Date.now()));
     } else {
       await chrome.alarms.clear(ALARM);
       if (state.active || state.status.kind !== 'disabled') await save(core.pause(state, 'disabled', Date.now()));
     }
   }
   async function poll() {
-    const { enabled, state } = await read();
-    if (!enabled) return core.snapshot(state, false);
+    const { enabled, state, historyEnabled } = await read();
+    if (!enabled && !historyEnabled) return core.snapshot(state, false);
     await ensureAlarm();
     const now = Date.now();
     // Alarms and visible Roblox tabs share this throttle, so multiple tabs do not multiply requests.
-    if (now >= lastAttempt && now - lastAttempt < 25000) return core.snapshot(state, true);
+    if (now >= lastAttempt && now - lastAttempt < 25000) return core.snapshot(state, enabled);
     lastAttempt = now;
     let next;
     try {
@@ -101,9 +104,11 @@
           ...(csrfToken ? { 'x-csrf-token': csrfToken } : {}) }, body: JSON.stringify({ userIds: [user.id] })
       });
       const presence = Array.isArray(response?.userPresences) ? response.userPresences.find(p => p?.userId === user.id) : null;
-      next = core.observe(state, user, presence, Date.now(), await browserSession());
-      await enrich(next, Date.now());
+      if (historyEnabled) await globalThis.RobloxCustomizerServerHistoryBackground?.observe(user, presence, Date.now()).catch(() => {});
+      next = enabled ? core.observe(state, user, presence, Date.now(), await browserSession()) : core.pause(state, 'disabled', Date.now());
+      if (enabled) await enrich(next, Date.now());
     } catch (error) {
+      if (error.status === 401 && historyEnabled) await globalThis.RobloxCustomizerServerHistoryBackground?.observe(null, null, Date.now()).catch(() => {});
       const recoverable = ['AbortError', 'TypeError'].includes(error.name) || error.status === 429 || error.status >= 500;
       next = core.pause(state, error.status === 401 ? 'signed-out' : 'unavailable', Date.now(), recoverable);
     }
@@ -147,7 +152,7 @@
     if (alarm.name === ALARM) serialize(poll).catch(() => {});
   });
   chrome.storage?.onChanged.addListener((changes, area) => {
-    if (area === 'local' && (changes[core.ENABLED_KEY] || changes[LANGUAGE_KEY])) {
+    if (area === 'local' && (changes[core.ENABLED_KEY] || changes.serverHistoryEnabled || changes[LANGUAGE_KEY])) {
       lastAttempt = 0;
       serialize(configure).catch(() => {});
     }

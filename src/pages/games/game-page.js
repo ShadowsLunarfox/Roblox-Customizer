@@ -2544,7 +2544,7 @@
   }
 
   function hydratePrivateServerView(row, details) {
-    setText(row.querySelector('.rc-private-server-owner'), details.ownerName);
+    if (typeof details.ownerName === 'string') setText(row.querySelector('.rc-private-server-owner'), details.ownerName);
     const playing = Number.isSafeInteger(details.playing) && details.playing >= 0 ? details.playing : null;
     const maximum = Number.isSafeInteger(details.maxPlayers) && details.maxPlayers >= 0 ? details.maxPlayers : null;
     const count = row.querySelector('.rc-private-server-count');
@@ -2554,7 +2554,7 @@
       globalThis.RobloxCustomizerNativeLabels?.playerCount(nativeStatus) ? '' : nativeStatus);
     renderServerMetrics(row.querySelector('.rc-server-view-metrics'), combinedServerMetrics(row, details));
     const roster = row.querySelector('.rc-private-server-roster');
-    const pictures = details.playerImages.filter(url => typeof url === 'string'
+    const pictures = (Array.isArray(details.playerImages) ? details.playerImages : []).filter(url => typeof url === 'string'
       && /^https:\/\/(?:[a-z0-9-]+\.)*rbxcdn\.com\//i.test(url));
     const nativePlayers = row.querySelector('.rc-server-view-native-players');
     const useNative = !pictures.length && !!nativePlayers?.querySelector('img');
@@ -2691,18 +2691,16 @@
         }
         const details = rowServerId ? privateDetails.get(rowServerId)
           : privateNameCounts.get(nameKey) === 1 ? privateDetailsByName.get(nameKey) : null;
-        const ready = main && name && (nativeAvatar?.getAttribute('src')?.trim()
-          || rendered && row.hasAttribute('data-rc-server-avatar-placeholder'))
-          && Number.isSafeInteger(details?.id) && details.id > 0
-          && typeof details.name === 'string' && details.name.trim()
-          && typeof details.ownerName === 'string' && Array.isArray(details.playerImages);
+        // Roblox already supplied the card and its actions. Supplemental API
+        // details and lazy avatar images must not hold the entire row hidden.
+        const ready = main && (name || rendered);
         row.toggleAttribute('data-rc-private-server-pending', !ready);
         if (!ready) {
           row.removeAttribute('data-rc-private-server-ready');
           continue;
         }
         if (rendered) {
-          hydratePrivateServerView(row, details);
+          if (details) hydratePrivateServerView(row, details);
           row.setAttribute('data-rc-private-server-ready', '');
           processedRows.add(row);
           serverLists.get(list).push(row);
@@ -2792,13 +2790,16 @@
 
         setText(summary.querySelector('.rc-private-server-title'), nativeName.textContent.trim());
         const avatar = summary.querySelector('.rc-private-server-avatar');
-        if (avatar.src !== nativeAvatar.src) avatar.src = nativeAvatar.src;
-        if (avatar.srcset !== nativeAvatar.srcset) avatar.srcset = nativeAvatar.srcset;
-        if (avatar.sizes !== nativeAvatar.sizes) avatar.sizes = nativeAvatar.sizes;
+        for (const attribute of ['src', 'srcset', 'sizes']) {
+          const value = nativeAvatar?.getAttribute(attribute);
+          if (value && avatar.getAttribute(attribute) !== value) avatar.setAttribute(attribute, value);
+          else if (!value && avatar.hasAttribute(attribute)) avatar.removeAttribute(attribute);
+        }
         renderServerMetrics(summary, combinedServerMetrics(row, details));
         setText(summary.querySelector('.rc-private-server-status'), details ? ''
           : nativeStatus === nativeCount ? '' : nativeStatus);
-        setText(summary.querySelector('.rc-private-server-owner'), details?.ownerName || '');
+        const nativeOwner = row.querySelector('.rbx-private-owner .text-name')?.textContent.trim() || '';
+        setText(summary.querySelector('.rc-private-server-owner'), details?.ownerName || nativeOwner);
         const count = details && Number.isInteger(details.playing) && Number.isInteger(details.maxPlayers)
           ? `${details.playing} of ${details.maxPlayers} people max` : nativeCount;
         setText(summary.querySelector('.rc-private-server-count'), count);
@@ -2827,7 +2828,7 @@
             roster.append(label);
           }
         }
-        // Reveal the card only after its summary, avatar, controls and roster are populated.
+        // Show native data now; later metadata responses enrich this same card.
         row.setAttribute('data-rc-private-server-ready', '');
       }
     }
@@ -2904,13 +2905,16 @@
         return;
       }
 
-      // Keep the native Store and Servers components and their own actions.
-      for (const [index, link] of state.links.slice(1).entries()) {
+      // Start Servers first: its heading, Plus banner and Create controls are
+      // native lazy content too, and must not wait behind a slow Store request.
+      for (const index of [2, 1]) {
         if (!state.page.isConnected || !pageMatchesPath(state.page)
           || placeIdFromPath() !== state.placeId) return;
-        link.click();
-        if (index === 1) {
-          await waitForServerContent(state.page);
+        state.links[index].click();
+        if (index === 2) {
+          // Prime the native section early without holding up Store for a slow
+          // public list. Visibility recovery keeps Servers active on approach.
+          await waitForServerContent(state.page, 1500);
           if (!state.page.isConnected || !pageMatchesPath(state.page)
             || placeIdFromPath() !== state.placeId) return;
           syncPrivateServers();
@@ -2988,6 +2992,8 @@
       : PROFILE_PATH.test(location.pathname) ? '#profile-container, .profile-container, [data-testid="profile-page"], #content, #container-main, main, [role="main"]' : '';
     if (!routeChanged && (!scope || !records.some(record => featureMutation(record, scope)))) return;
     const gamePage = document.querySelector('#game-detail-page');
+    if (!running && GAME_PATH.test(location.pathname) && pageMatchesPath(gamePage)
+      && initialized.get(gamePage) !== placeIdFromPath()) void initialize();
     if (GAME_PATH.test(location.pathname) && pageMatchesPath(gamePage)
       && (routeChanged || records.some(record => featureMutation(record, '#game-instances')))) {
       hidePrivateServerLoadMore(gamePage);
@@ -3023,7 +3029,11 @@
     }
     schedule();
   });
-  document.addEventListener('DOMContentLoaded', schedule, { once: true });
+  document.addEventListener('DOMContentLoaded', () => {
+    void initialize();
+    schedule();
+  }, { once: true });
   syncPrivateServers();
+  void initialize();
   schedule();
 });

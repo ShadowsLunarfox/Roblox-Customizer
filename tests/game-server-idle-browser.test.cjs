@@ -98,7 +98,7 @@ test('server lists recover after idle at the top, timeout, native eviction and t
       await browser.send('Page.navigate', { url });
       await waitForDocument(browser, '#game-detail-page', url);
       await browser.waitFor("tabEvents.at(-1)==='about' && document.querySelector('#about').classList.contains('active')");
-      assert.deepEqual(await browser.evaluate('tabEvents'), ['store', 'game-instances', 'about']);
+      assert.deepEqual(await browser.evaluate('tabEvents'), ['game-instances', 'store', 'about']);
       if (mode === 'discarded') await browser.evaluate('discardServers()');
       await browser.evaluate('allowPublic=true');
       // Wait without scrolling, then freeze and resume the native browser tab.

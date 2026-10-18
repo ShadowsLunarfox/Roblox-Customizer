@@ -73,6 +73,8 @@
 
 **💱 Robux estimates:** Approximate currency equivalents on Roblox and Creator Hub; checkout prices may differ.
 
+**↩️ Recent servers:** Each game's Servers tab shows its own recent-server list, including visits to that game's subplaces. Rejoin, check availability, or clear just that game's list. Each of the 10 most recently used accounts retains up to 6 servers per game; a new entry replaces that game's oldest. Settings show all lists grouped by game under **Home page → Recent servers**, with recording controlled separately from playtime.
+
 ## 📦 Installation
 
 [![Install from the Chrome Web Store](icons/chrome-web-store-button.svg)](https://chromewebstore.google.com/detail/roblox-customizer/docflecekjjcekdcapolmneiomimiboi)
@@ -110,6 +112,8 @@ Switch Roblox's language to restore all features. Changing only the extension's 
 ## 💾 Data and limitations
 
 Preferences, backgrounds, pinned games, and playtime history are stored locally in your browser. Playtime is estimated from Roblox presence while the browser runs; past sessions and time while the browser is closed cannot be recovered.
+
+Recent servers are recorded from confirmed Roblox presence while the browser runs; hidden server IDs cannot be recovered. Rejoining opens the Roblox app, and full, closed, or restricted servers may reject the join. Availability checks scan up to 500 public servers; an incomplete scan remains unknown. Recent-server history is excluded from full backups. Reset All removes saved server history.
 
 Server data, feeds, and currency rates depend on Roblox and external services. Retry unavailable data later. Export a backup and use **Reset All** before uninstalling to remove saved backgrounds and site caches as well.
 

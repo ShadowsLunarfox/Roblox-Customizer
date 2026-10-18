@@ -8,8 +8,10 @@ const sources = [
   'src/background/robux-currency-background.js',
   'src/home/pinned-games-core.js',
   'src/background/pinned-games-background.js',
+  'src/servers/server-history-core.js',
   'src/playtime/playtime-core.js',
   'src/background/playtime-background.js',
+  'src/background/server-history-background.js',
   'src/settings/backup-core.js',
   'src/background/backup-background.js',
   'src/background/service-worker.js'
