@@ -2,6 +2,7 @@
  * ownership of its lists, thumbnails, menus, subscriptions and launch actions. */
 (() => {
   'use strict';
+  const routePath = value => globalThis.RobloxCustomizerRoutes?.pathname(value) ?? value ?? location.pathname;
   const classes = node => typeof node?.props?.className === 'string' ? node.props.className.split(/\s+/) : [];
   const has = (node, name) => classes(node).includes(name);
   const children = node => Array.isArray(node?.props?.children) ? node.props.children : [node?.props?.children];
@@ -22,7 +23,7 @@
   }
 
   function isPrivateServer(props) {
-    const placeId = Number(location.pathname.match(/^\/games\/(\d+)(?:\/|$)/)?.[1]);
+    const placeId = Number(routePath().match(/^\/games\/(\d+)(?:\/|$)/)?.[1]);
     if (!placeId || props?.placeId != null && props.placeId !== placeId) return false;
     if (!Number.isSafeInteger(props?.vipServerId) || props.vipServerId <= 0) return false;
     if (props.serverListType != null && props.serverListType !== 'private') return false;

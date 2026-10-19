@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  const routePath = globalThis.RobloxCustomizerRoutes?.pathname || (value => value);
   const core = globalThis.RobloxCustomizerPinnedGames;
   const DAY = 86400000;
   let queue = Promise.resolve();
@@ -172,8 +173,8 @@
     try { source = new URL(sender.url); } catch { return; }
     if (source.protocol !== 'https:' || !['www.roblox.com', 'roblox.com'].includes(source.hostname)
       || sender.id && sender.id !== chrome.runtime.id) return;
-    const home = /^\/home\/?$/i.test(source.pathname);
-    const placeId = Number(source.pathname.match(/^\/games\/(\d+)(?:\/|$)/i)?.[1]);
+    const home = /^\/home\/?$/i.test(routePath(source.pathname));
+    const placeId = Number(routePath(source.pathname).match(/^\/games\/(\d+)(?:\/|$)/i)?.[1]);
     let task;
     if (message.action === 'list' && (home || core.validId(placeId))) task = list;
     else if (message.action === 'pin' && core.validId(message.placeId) && message.placeId === placeId

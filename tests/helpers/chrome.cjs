@@ -40,10 +40,10 @@ async function waitForDocument(browser, selector, expectedUrl) {
   assert.fail(`Fixture document and assets did not finish loading: ${selector}`);
 }
 
-async function isolatedChrome(t, name) {
+async function isolatedChrome(t, name, options = {}) {
   assert.match(name,/^[a-z-]+$/);
   const profile=fs.mkdtempSync(path.join(workspace,`.tmp-${name}-browser-`));
-  const child=spawn(process.env.CHROME_BIN,['--headless=new','--disable-gpu','--no-first-run','--no-default-browser-check','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{windowsHide:true,stdio:'ignore'});
+  const child=spawn(process.env.CHROME_BIN,['--headless=new','--disable-gpu','--no-first-run','--no-default-browser-check','--remote-debugging-port=0',`--user-data-dir=${profile}`,...(options.args||[]),'about:blank'],{windowsHide:true,stdio:'ignore'});
   let browser;
   t.after(async()=>{
     if(browser){await Promise.race([browser.send('Browser.close').catch(()=>{}),pause(1000)]);browser.socket.close()}
@@ -65,4 +65,4 @@ async function isolatedChrome(t, name) {
   return browser;
 }
 
-module.exports={isolatedChrome,pause,waitForDocument};
+module.exports={Browser,isolatedChrome,pause,waitForDocument};

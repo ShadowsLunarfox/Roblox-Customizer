@@ -38,6 +38,6 @@ function build() {
 
 if (require.main === module) {
   for (const [file, content] of Object.entries(build())) fs.writeFileSync(path.join(workspace, file), content, 'utf8');
-  process.stdout.write('Updated Terms of Service and Privacy Policy in all three languages.\n');
+  process.stdout.write('Updated Terms of Service and Privacy Policy in all supported languages.\n');
 }
 module.exports = { build };

@@ -105,7 +105,7 @@ No build step is needed to install. Keep the extension folder in a permanent loc
 
 ## 🌐 Language support
 
-Full features require Roblox's language to be **English, Simplified Chinese, or Traditional Chinese**. Other languages use fallback mode: only image/GIF backgrounds and custom colors remain available, while Roblox's native layout is preserved.
+Full features require Roblox's language to be **English, Simplified Chinese, Traditional Chinese, or Indonesian**. Other languages use fallback mode: only image/GIF backgrounds and custom colors remain available, while Roblox's native layout is preserved.
 
 Switch Roblox's language to restore all features. Changing only the extension's interface language does not leave fallback mode.
 
@@ -127,6 +127,9 @@ Replace the extension files, reload the extension, and refresh Roblox. For probl
 <summary><strong>🔧 Working on the extension?</strong></summary>
 
 After editing background worker sources, rebuild the checked-in bundle with `node scripts/build-service-worker.cjs`.
+After editing the page bridge, route helpers, compatibility guard or server-card view, run `node scripts/build-page-bridge.cjs`. The MAIN-world entry includes its own dependencies because Chrome de-duplicates content-script files shared across execution worlds.
+
+The real extension injection regression is `node --test tests/extension-server-metadata-browser.test.cjs`. Set `CHROME_EXTENSION_TESTS=1`, `CHROME_BIN` to Chrome for Testing or Chromium, and `SERVER_VIEW_REACT_BUNDLE` to a local copy of Roblox's React bundle. The test uses a fresh profile, the actual manifest and local network fixtures.
 
 </details>
 

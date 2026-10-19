@@ -1,5 +1,6 @@
 (globalThis.RobloxCustomizerCompatibility?.runFeature || (initialize => initialize()))(() => {
   'use strict';
+  const routePath = value => globalThis.RobloxCustomizerRoutes?.pathname(value) ?? value ?? location.pathname;
   const sendMessage = globalThis.RobloxCustomizerRuntime?.sendMessage
     || ((...args) => chrome.runtime.sendMessage(...args));
   const core = globalThis.RobloxCustomizerPinnedGames;
@@ -63,7 +64,7 @@
   }
 
   function gameContext() {
-    const placeId = Number(location.pathname.match(GAME_PATH)?.[1]);
+    const placeId = Number(routePath().match(GAME_PATH)?.[1]);
     if (!core.validId(placeId)) return null;
     const page = document.getElementById('game-detail-page');
     const meta = page?.querySelector('#game-detail-meta-data');
@@ -413,7 +414,7 @@
   }
 
   function syncHome() {
-    const home = HOME_PATH.test(location.pathname)
+    const home = HOME_PATH.test(routePath())
       ? document.querySelector('#HomeContainer, .home-container, [data-testid="home-page"]') : null;
     const friends = home?.querySelector('.friend-carousel-container');
     if (!friends?.parentElement || !ready) {
@@ -471,7 +472,7 @@
   function sync() {
     syncPin();
     syncHome();
-    const route = HOME_PATH.test(location.pathname) || GAME_PATH.test(location.pathname) ? location.pathname : '';
+    const route = HOME_PATH.test(routePath()) || GAME_PATH.test(routePath()) ? routePath() : '';
     if (route !== loadedRoute) {
       loadedRoute = route;
       if (route) {
@@ -494,13 +495,13 @@
     });
   }
 
-  let observedPath = location.pathname;
+  let observedPath = routePath();
   const observer = new MutationObserver(records => {
-    const routeChanged = observedPath !== location.pathname;
-    observedPath = location.pathname;
-    const page = HOME_PATH.test(location.pathname)
+    const routeChanged = observedPath !== routePath();
+    observedPath = routePath();
+    const page = HOME_PATH.test(routePath())
       ? '#HomeContainer, .home-container, [data-testid="home-page"]'
-      : GAME_PATH.test(location.pathname) ? '#game-detail-page' : '';
+      : GAME_PATH.test(routePath()) ? '#game-detail-page' : '';
     if (routeChanged || page && records.some(record => {
       const target = record.target instanceof Element ? record.target : record.target.parentElement;
       if (target?.closest('#rc-pinned-games, .rc-game-pin-control, .rc-game-pin-folder, '

@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  const routePath = value => globalThis.RobloxCustomizerRoutes?.pathname(value) ?? value ?? location.pathname;
 
   const CACHE_KEY = 'roblox-customizer-visuals-v1';
   const FROST_ROUTES = [
@@ -205,7 +206,7 @@
       applyVisuals(cachedVisuals);
       visualRoot = root;
     }
-    const next = FROST_ROUTES.find(([pattern]) => pattern.test(location.pathname))?.[1] || '';
+    const next = FROST_ROUTES.find(([pattern]) => pattern.test(routePath()))?.[1] || '';
     if (next) {
       if (root.dataset.rcFrostPage !== next) root.dataset.rcFrostPage = next;
     } else if (root.hasAttribute('data-rc-frost-page')) root.removeAttribute('data-rc-frost-page');

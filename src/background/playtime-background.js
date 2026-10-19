@@ -14,7 +14,8 @@
     queue = result.catch(() => {});
     return result;
   };
-  globalThis.RobloxCustomizerPlaytimeBackground = Object.freeze({ withStorageLock: serialize });
+  globalThis.RobloxCustomizerPlaytimeBackground = Object.freeze({ withStorageLock: serialize,
+    refresh: () => serialize(poll) });
   async function browserSession() {
     if (sessionId) return sessionId;
     const session = chrome.storage.session;

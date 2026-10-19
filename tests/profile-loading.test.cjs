@@ -153,7 +153,7 @@ test('the current native information panel is styled without an h1 or English fo
 
     assert.equal(summary.dataset.rcProfileSummary, '', label);
     assert.match(summary.properties.get('background-color'), /--rc-page-panel-opacity/);
-    assert.match(summary.properties.get('backdrop-filter'), /^blur\(/);
+    assert.match(summary.properties.get('backdrop-filter'), /^(?:var\(--rc-backdrop-filter,\s*)?blur\(/);
     assert.equal(name.parentElement, info, 'Native content retains its parent');
     assert.equal(info.parentElement, summary);
     assert.equal(info.dataset.rcProfileSummary, undefined, 'Use one glass surface');
@@ -176,7 +176,7 @@ test('legacy profile information accepts a singular follower count', () => {
   profile.markProfileHeader(root);
 
   assert.equal(summary.dataset.rcProfileSummary, '');
-  assert.match(summary.properties.get('backdrop-filter'), /^blur\(/);
+  assert.match(summary.properties.get('backdrop-filter'), /^(?:var\(--rc-backdrop-filter,\s*)?blur\(/);
 });
 
 test('profile sections stay fixed while empty carousels load and replace images', () => {

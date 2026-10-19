@@ -31,7 +31,7 @@
     // Roblox can emit html lang="en" before its actual locale metadata arrives.
     const language = metadata || (document.body || document.readyState !== 'loading' ? root.lang?.trim() : '');
     const next = !language && document.readyState === 'loading' ? 'pending'
-      : language && !/^(?:en|zh)(?:-|$)/i.test(language.replaceAll('_', '-')) ? 'fallback' : 'full';
+      : language && !/^(?:en|zh|id)(?:-|$)/i.test(language.replaceAll('_', '-')) ? 'fallback' : 'full';
     const previous = state;
     const changed = root.getAttribute('data-rc-compatibility') !== next;
     state = next;

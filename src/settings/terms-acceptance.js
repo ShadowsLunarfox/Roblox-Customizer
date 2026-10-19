@@ -18,7 +18,7 @@
   function updateDialog() {
     if (!dialog) return;
     const locale = i18n?.locale() || 'en';
-    const language = ['en', 'zh-CN', 'zh-TW'].includes(locale) ? locale : 'en';
+    const language = ['en', 'zh-CN', 'zh-TW', 'id'].includes(locale) ? locale : 'en';
     const suffix = language === 'en' ? '' : `.${language}`;
     for (const link of dialog.querySelectorAll('[data-rc-legal-document]')) {
       const file = link.dataset.rcLegalDocument === 'terms' ? 'TERMS' : 'PRIVACY';

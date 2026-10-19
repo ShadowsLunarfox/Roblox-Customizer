@@ -73,7 +73,7 @@ test('Centered language warning persists across reopening and reloads, and retur
     await browser.waitFor(visible);
     assert.equal(await browser.evaluate(`document.querySelector('${warning}').getAttribute('role')`), 'alertdialog');
     let text = await browser.evaluate(`document.querySelector('${warning}').textContent`);
-    for (const expected of ['fr-FR', 'Some features may not work correctly', 'English, Simplified Chinese, or Traditional Chinese']) {
+    for (const expected of ['fr-FR', 'Some features may not work correctly', 'English, Simplified Chinese, Traditional Chinese, or Indonesian']) {
       assert.ok(text.includes(expected), expected);
     }
     assert.equal(await browser.evaluate(`document.querySelector('${warning} a').getAttribute('href')`), '/my/account#!/info');

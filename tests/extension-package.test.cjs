@@ -56,3 +56,18 @@ test('Service worker is bundled from current sources without startup script impo
     assert.ok(handlers.length >= 3, 'Currency, pinned games, and Roblox data handlers initialize');
   }
 });
+
+test('MAIN bridge packages its own route and compatibility dependencies', () => {
+  const entry = manifest.content_scripts.find(entry => entry.world === 'MAIN');
+  assert.deepEqual(entry.js, ['src/shared/page-bridge-bundle.js']);
+  const source = fs.readFileSync(assetFile(new URL(entry.js[0], extensionURL)), 'utf8');
+  assert.equal(source, require('../scripts/build-page-bridge.cjs').build());
+  const isolated = new Set(manifest.content_scripts.filter(entry => entry.world !== 'MAIN').flatMap(entry => entry.js || []));
+  assert.ok(entry.js.every(file => !isolated.has(file)), 'Chrome de-duplicates shared files across worlds');
+  const context = vm.createContext({ window: {}, location: { pathname: '/id/games/4623386862/Piggy' },
+    document: { documentElement: null, querySelector() { return null; }, addEventListener() {} },
+    MutationObserver: class { observe() {} }, addEventListener() {}, URL, setTimeout, clearTimeout });
+  vm.runInContext(source, context);
+  assert.equal(context.RobloxCustomizerRoutes.pathname(), '/games/4623386862/Piggy');
+  assert.equal(typeof context.RobloxCustomizerCompatibility.runFeature, 'function');
+});

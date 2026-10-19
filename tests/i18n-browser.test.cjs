@@ -42,7 +42,7 @@ function fixture(route, lang) {
   return `<!doctype html><html lang="${lang}" class="dark-theme"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="locale-data" data-language-code="${lang}"><style>body{margin:20px;font:16px/1.5 Arial;background:#24252c;color:white}main{max-width:1000px;margin:auto}a{color:inherit}button{padding:8px}img{width:100px;height:100px}#settings-popover-menu{position:fixed;right:0;top:0;z-index:1000}#settings-popover-menu a{display:block;padding:12px}.ng-hide{display:none!important}</style>${styles.map(file => `<link rel="stylesheet" href="/${file}">`).join('')}</head><body><header><span id="nav-robux-amount">12500</span></header><ul id="settings-popover-menu" role="menu"><li><a href="/my/account">Settings</a></li></ul><p id="native-copy">Refresh</p>${content}</body></html>`;
 }
 
-test('Extension UI switches between English and both Chinese variants without losing controls or translating user content',
+test('Extension UI switches between English, Chinese and Indonesian without losing controls or translating user content',
   { skip: !process.env.CHROME_BIN, timeout: 60000 }, async t => {
     const files = new Set([...scripts, ...styles, 'icons/icon-48.png', 'icons/icon-128.png']);
     const server = http.createServer((request, response) => {
@@ -83,11 +83,12 @@ test('Extension UI switches between English and both Chinese variants without lo
     await change('#rc-currency-search', 'CNY', 'input');
     await change('#rc-glass-blur', '32', 'input');
     const labels = {
-      'zh-CN': ['Roblox 自定义工具', '扩展语言', '关闭', '隐藏上方推荐游戏', '货币名称或代码', '置顶游戏', '隐藏', '外观', '语言与数据'],
-      'zh-TW': ['Roblox 自訂工具', '擴充功能語言', '關閉', '隱藏上方推薦遊戲', '貨幣名稱或代碼', '釘選遊戲', '隱藏', '外觀', '語言與資料'],
-      en: ['Roblox Customizer', 'Extension language', 'Close', 'Hide upper Recommended Games', 'Currency name or code', 'Pinned Games', 'Hide', 'Appearance', 'Language & data']
+      'zh-CN': ['Roblox 自定义工具', '扩展语言', '关闭', '隐藏上方推荐', '货币名称或代码', '置顶游戏', '隐藏', '外观', '语言与数据'],
+      'zh-TW': ['Roblox 自訂工具', '擴充功能語言', '關閉', '隱藏上方推薦', '貨幣名稱或代碼', '釘選遊戲', '隱藏', '外觀', '語言與資料'],
+      en: ['Roblox Customizer', 'Extension language', 'Close', 'Hide upper recommendations', 'Currency name or code', 'Pinned Games', 'Hide', 'Appearance', 'Language & data'],
+      id: ['Roblox Customizer', 'Bahasa ekstensi', 'Tutup', 'Sembunyikan rekomendasi di atas', 'Nama atau kode mata uang', 'Game yang Disematkan', 'Sembunyikan', 'Tampilan', 'Bahasa & data']
     };
-    for (const language of ['zh-CN', 'zh-TW', 'en', 'zh-TW']) {
+    for (const language of ['zh-CN', 'id', 'zh-TW', 'en', 'zh-TW']) {
       await locale(language);
       await browser.waitFor(`document.querySelector('#rc-settings-title').textContent===${JSON.stringify(labels[language][0])}`);
       assert.deepEqual(await browser.evaluate(`[
@@ -115,6 +116,10 @@ test('Extension UI switches between English and both Chinese variants without lo
           return {overflow:dialog.scrollWidth>dialog.clientWidth+1||language.scrollWidth>language.clientWidth+1,rows};
         })()`);
         assert.equal(layout.overflow, false, `${language}/${theme}/${width}: labels and fields fit`);
+        if (process.env.I18N_SCREENSHOTS && language === 'id') {
+          const shot = await browser.send('Page.captureScreenshot');
+          fs.writeFileSync(path.join(process.env.I18N_SCREENSHOTS, `id-${theme}-${width}.png`), Buffer.from(shot.data, 'base64'));
+        }
         assert.deepEqual(layout.rows, [[true, true], [true, true]], 'Translated slider labels stay beside their sliders');
       }
       // Native updates (including the Home clock) must not rewrite settled
@@ -127,14 +132,15 @@ test('Extension UI switches between English and both Chinese variants without lo
       await pause(1300);
       const currencyWrites = await browser.evaluate('currencyObserver.disconnect();currencyWrites');
       assert.equal(currencyWrites.length, 0, `${language}: currency displays stay stable while the page updates: ${JSON.stringify(currencyWrites.slice(0, 5))}`);
+      const amounts = language === 'id' ? ['880,24 CNY', '1.005,98 CNY', '873,25 CNY'] : ['880.24 CNY', '1,005.98 CNY', '873.25 CNY'];
       await browser.evaluate("document.querySelector('#nav-robux-amount').textContent='12600'");
-      await browser.waitFor("document.querySelector('header .rc-robux-equivalent').textContent.endsWith('880.24 CNY') && document.querySelector('[data-currency-preview]').textContent.endsWith('880.24 CNY')");
+      await browser.waitFor(`document.querySelector('header .rc-robux-equivalent').textContent.endsWith('${amounts[0]}') && document.querySelector('[data-currency-preview]').textContent.endsWith('${amounts[0]}')`);
       await browser.evaluate("chrome.storage.local.set({robuxCurrencyRates:{date:'2026-10-11',rates:{USD:1,CNY:8,MYR:4.1}}})");
-      await browser.waitFor("document.querySelector('header .rc-robux-equivalent').textContent.endsWith('1,005.98 CNY') && document.querySelector('[data-currency-preview]').textContent.endsWith('1,005.98 CNY')");
+      await browser.waitFor(`document.querySelector('header .rc-robux-equivalent').textContent.endsWith('${amounts[1]}') && document.querySelector('[data-currency-preview]').textContent.endsWith('${amounts[1]}')`);
       assert.equal(await text('[data-currency-status]'), await browser.evaluate("RobloxCustomizerI18n.t('Exchange rates: 2026-10-11')"));
       assert.equal(await browser.evaluate("document.querySelectorAll('header .rc-robux-equivalent').length"), 1, 'A real rate update keeps the existing currency label');
       await browser.evaluate("document.querySelector('#nav-robux-amount').textContent='12500';chrome.storage.local.set({robuxCurrencyRates:{date:'2026-10-10',rates:{USD:1,CNY:7,MYR:4.1}}})");
-      await browser.waitFor("document.querySelector('[data-currency-preview]').textContent.endsWith('873.25 CNY')");
+      await browser.waitFor(`document.querySelector('[data-currency-preview]').textContent.endsWith('${amounts[2]}')`);
     }
     await browser.send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
     await browser.send('Page.reload'); await waitForDocument(browser, '#HomeContainer');
@@ -147,6 +153,13 @@ test('Extension UI switches between English and both Chinese variants without lo
     assert.equal(await text('#rc-settings-title'), 'Roblox 自訂工具', 'A manual choice takes precedence over Roblox');
     await locale('auto');
     await browser.waitFor("document.querySelector('#rc-settings-title').textContent==='Roblox 自定义工具'");
+    await locale('id');
+    await browser.send('Page.reload'); await waitForDocument(browser, '#HomeContainer');
+    await browser.waitFor("RobloxCustomizerI18n.locale()==='id' && !!document.querySelector('.rc-settings-menu-entry')");
+    await browser.click('.rc-settings-menu-entry');
+    assert.equal(await browser.evaluate("document.querySelector('#rc-ui-language').value"), 'id', 'Indonesian selection survives settings normalization and reload');
+    assert.equal(await text('#rc-done'), 'Tutup');
+    await locale('auto');
     await browser.evaluate("document.querySelector('meta[name=locale-data]').remove();document.documentElement.lang='zh-TW'");
     await browser.waitFor("document.querySelector('#rc-settings-title').textContent==='Roblox 自訂工具'");
     await browser.evaluate("const meta=document.createElement('meta');meta.name='locale-data';meta.setAttribute('data-language-code','zh-cn');document.head.append(meta)");
@@ -159,7 +172,7 @@ test('Extension UI switches between English and both Chinese variants without lo
     assert.equal(await text('.rc-game-pin-control'), '取消釘選');
     await browser.evaluate("document.querySelector('#about').insertAdjacentHTML('afterbegin','<div class=\"game-description-container\"><p class=\"game-description\">Search</p></div>')");
     await browser.waitFor("document.querySelector('.rc-rolimons-heading h3')?.textContent==='遊戲資料'");
-    assert.equal(await text('.rc-private-server-loading'), '正在載入私人伺服器詳細資料…');
+    assert.equal(await browser.evaluate("document.querySelector('#private-row').checkVisibility()"), true, 'Native private server controls do not wait for translated supplemental details');
     await browser.evaluate("privateRequests[0]({servers:[{id:111,name:'Search',ownerName:'Hide',playing:1,maxPlayers:6,playerImages:[]}],uniqueNames:['Search']})");
     await browser.waitFor("document.querySelector('#private-row').hasAttribute('data-rc-private-server-ready')");
     assert.equal(await text('.rc-private-server-title'), 'Search');

@@ -1,5 +1,6 @@
 (globalThis.RobloxCustomizerCompatibility?.runFeature || (initialize => initialize()))(() => {
   'use strict';
+  const routePath = value => globalThis.RobloxCustomizerRoutes?.pathname(value) ?? value ?? location.pathname;
 
   const sendMessage = globalThis.RobloxCustomizerRuntime?.sendMessage
     || ((...args) => chrome.runtime.sendMessage(...args));
@@ -95,7 +96,7 @@
   }
 
   function currentUserId() {
-    const id = Number(location.pathname.match(/^\/users\/(\d+)\/profile(?:\/|$)/i)?.[1]);
+    const id = Number(routePath().match(/^\/users\/(\d+)\/profile(?:\/|$)/i)?.[1]);
     return Number.isSafeInteger(id) && id > 0 ? id : 0;
   }
 

@@ -28,21 +28,22 @@ test('UI language follows Roblox metadata, Chinese script/region tags, and brows
   for (const [options, expected] of [
     [{ lang: 'en', metadata: 'zh_tw' }, 'zh-TW'], [{ lang: 'zh-Hant-HK' }, 'zh-TW'],
     [{ lang: 'zh-Hans-SG' }, 'zh-CN'], [{ lang: 'zh-CN' }, 'zh-CN'],
-    [{ lang: 'zh-MO' }, 'zh-TW'], [{ browser: 'zh-TW' }, 'zh-TW'], [{ lang: 'fr', browser: 'zh-CN' }, 'en']
+    [{ lang: 'zh-MO' }, 'zh-TW'], [{ browser: 'zh-TW' }, 'zh-TW'], [{ lang: 'fr', browser: 'zh-CN' }, 'en'],
+    [{ lang: 'en', metadata: 'id_id' }, 'id'], [{ lang: 'id-ID' }, 'id'], [{ browser: 'id' }, 'id']
   ]) assert.equal(environment(options).api.locale(), expected);
 });
 
-test('Chinese UI catalogs cover the same messages and preserve every placeholder', () => {
+test('Chinese and Indonesian UI catalogs cover every message and preserve placeholders', () => {
   const { api, messages } = environment();
   const keys = new Set();
   for (const row of messages) {
-    assert.equal(row.length, 3); assert.equal(keys.has(row[0]), false, `Duplicate key: ${row[0]}`); keys.add(row[0]);
+    assert.equal(row.length, 4); assert.equal(keys.has(row[0]), false, `Duplicate key: ${row[0]}`); keys.add(row[0]);
     const placeholders = value => [...value.matchAll(/\{(\w+)\}/g)].map(match => match[1]).sort();
     for (const text of row.slice(1)) {
       assert.ok(text.trim()); assert.deepEqual(placeholders(text), placeholders(row[0]), row[0]);
     }
   }
-  for (const locale of ['en', 'zh-CN', 'zh-TW']) {
+  for (const locale of ['en', 'zh-CN', 'zh-TW', 'id']) {
     api.setLanguage(locale);
     assert.equal(api.t('An unknown error.'), 'An unknown error.');
     const name = '<img src=x onerror=alert(1)> $1';
@@ -61,12 +62,12 @@ test('Manual language selection survives late storage reads and can return to au
   api.setLanguage('invalid'); assert.equal(api.preference(), 'auto');
 });
 
-test('Manifest translations provide complete English and both Chinese Chrome locales', () => {
+test('Manifest translations provide English, Chinese and Indonesian Chrome locales', () => {
   const root = path.join(__dirname, '..');
   const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));
   assert.equal(manifest.default_locale, 'en');
   const references = [...JSON.stringify(manifest).matchAll(/__MSG_(\w+)__/g)].map(match => match[1]);
-  for (const locale of ['en', 'zh_CN', 'zh_TW']) {
+  for (const locale of ['en', 'zh_CN', 'zh_TW', 'id']) {
     const messages = JSON.parse(fs.readFileSync(path.join(root, '_locales', locale, 'messages.json'), 'utf8'));
     for (const key of references) assert.ok(messages[key]?.message?.trim(), `${locale}/${key}`);
   }

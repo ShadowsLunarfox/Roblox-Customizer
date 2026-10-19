@@ -7,6 +7,7 @@ const { isolatedChrome, waitForDocument, pause } = require('./helpers/chrome.cjs
 const workspace = path.resolve(__dirname, '..');
 const titles = {
   en: { terms: 'Terms of Service', privacy: 'Privacy Policy' },
+  id: { terms: 'Ketentuan Layanan', privacy: 'Kebijakan Privasi' },
   'zh-CN': { terms: '服务条款', privacy: '隐私政策' },
   'zh-TW': { terms: '服務條款', privacy: '隱私權政策' }
 };
@@ -68,7 +69,7 @@ test('Settings and first-visit acceptance link to GitHub policies in all languag
       await browser.evaluate('openCustomizer()');
       await browser.waitFor("!!document.querySelector('#rc-settings-overlay')");
       assert.equal(await browser.evaluate('RobloxCustomizerCompatibility.fallback()'), robloxLanguage === 'fr-FR');
-      for (const language of ['en', 'zh-CN', 'zh-TW']) {
+      for (const language of ['en', 'id', 'zh-CN', 'zh-TW']) {
         await browser.evaluate(`RobloxCustomizerI18n.setLanguage(${JSON.stringify(language)})`);
         await browser.waitFor(`document.querySelector('[data-rc-legal-document="privacy"]').textContent===${JSON.stringify(titles[language].privacy)}`);
         for (const width of [1280, 320]) {
@@ -114,7 +115,7 @@ test('Settings and first-visit acceptance link to GitHub policies in all languag
     await browser.evaluate('openCustomizer();openCustomizer();openCustomizer()');
     assert.equal(await browser.evaluate("document.querySelectorAll('#rc-terms-dialog').length"), 1, 'Repeated opening requests share one prompt');
     assert.equal(await browser.evaluate("!!document.querySelector('#rc-settings-overlay')"), false, 'Settings wait for acceptance');
-    for (const [language, title] of [['en','Welcome to Roblox Customizer'], ['zh-CN','欢迎使用 Roblox Customizer'], ['zh-TW','歡迎使用 Roblox Customizer']]) {
+    for (const [language, title] of [['en','Welcome to Roblox Customizer'], ['id','Selamat datang di Roblox Customizer'], ['zh-CN','欢迎使用 Roblox Customizer'], ['zh-TW','歡迎使用 Roblox Customizer']]) {
       await browser.evaluate(`RobloxCustomizerI18n.setLanguage(${JSON.stringify(language)})`);
       await browser.waitFor(`document.querySelector('#rc-terms-title').textContent===${JSON.stringify(title)}`);
       for (const width of [1280, 320]) {

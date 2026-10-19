@@ -4,6 +4,7 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const output = path.join(root, 'src/background/service-worker-bundle.js');
 const sources = [
+  'src/shared/routes.js',
   'src/currency/robux-currency-core.js',
   'src/background/robux-currency-background.js',
   'src/home/pinned-games-core.js',

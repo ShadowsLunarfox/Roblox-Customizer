@@ -108,6 +108,32 @@ test('bridge renders private cards and updates their presentation from current n
   assert.equal(result.props['data-rc-server-name'],'Updated server');
   assert.equal(result.props['data-rc-playing'],'1');
 });
+
+test('public metrics stay on the native card when its Join component drops extra props',()=>{
+  const {h}=environment();const native=nativeCard(h,'public');
+  function Card(){return native.card}
+  const props=propsFor('public');const element=h(Card,props);const result=element.type(element.props);
+  const host=nodes(result).find(node=>node.type==='div'&&node.props.className==='card-item');
+  assert.equal(host.props['data-rc-instance-id'],props.id);
+  assert.equal(host.props['data-rc-ping'],80);
+  assert.equal(host.props['data-rc-playing'],3);
+  assert.strictEqual(nodes(result).find(node=>node.props?.className==='game-server-join-btn').props.onClick,native.join.props.onClick);
+});
+
+test('v2 native latency categories and explicit countries survive list rendering without a numeric ping',()=>{
+  const {h}=environment();const native=nativeCard(h,'public');const props=propsFor('public');
+  function Card(){return native.card}
+  function List(){return h(Card,{...props,ping:undefined})}
+  const list=h(List,{headerTitle:'Servers',loadMoreGameInstances(){},gameInstances:[{
+    id:props.id,playing:2,pingSignalLevel:'High',serverLocation:{countryCode:'SG'}
+  }]});
+  const element=list.type(list.props);const result=element.type(element.props);
+  const host=nodes(result).find(node=>node.type==='div'&&node.props.className==='card-item');
+  assert.equal(host.props['data-rc-ping'],undefined);
+  assert.equal(host.props['data-rc-ping-level'],'high');
+  assert.equal(host.props['data-country-code'],'SG');
+  assert.equal(host.props['data-rc-playing'],2);
+});
 test('direct rendering leaves unsupported routes, games, structures and server identities native',()=>{
   for(const pathname of ['/home','/games/893973440/Flee-the-Facility']){
     const {h,render}=environment(pathname);const {card}=nativeCard(h,'private');
@@ -117,4 +143,35 @@ test('direct rendering leaves unsupported routes, games, structures and server i
     assert.strictEqual(render(publicCard,propsFor('private')),publicCard);
     const unknown=h('section',{},'Unknown deployment');assert.strictEqual(render(unknown,propsFor('private')),unknown);
   }
+});
+
+test('mounted public cards recover metadata after hooks attach and follow the committed React branch',()=>{
+  const listeners={};const attributes=new Map();
+  const id='12345678-1234-1234-1234-123456789012';
+  const raw={id,playing:2,ping:54,pingSignalLevel:'Medium',serverLocation:{countryCode:'SG'}};
+  const root={stateNode:{}};root.stateNode.current=root;
+  const list={memoizedProps:{gameInstances:[raw]},return:root};
+  const cardFiber={memoizedProps:{...raw,gameServerStatus:'2 of 6',serverListType:'public'},return:list};
+  const host={memoizedProps:{},return:cardFiber};
+  const card={__reactFiber$test:host,getAttribute:name=>attributes.get(name)??null,
+    setAttribute:(name,value)=>attributes.set(name,value),removeAttribute:name=>attributes.delete(name)};
+  const page={getAttribute:()=> '4623386862',querySelectorAll:()=>[card]};
+  const context=vm.createContext({window:{},location:{pathname:'/id/games/4623386862/Piggy'},
+    document:{querySelector:()=>page,addEventListener:(name,handler)=>listeners[name]=handler},URL,setTimeout,clearTimeout,console});
+  vm.runInContext(fs.readFileSync(path.join(workspace,'src/shared/routes.js'),'utf8'),context);
+  vm.runInContext(fs.readFileSync(path.join(workspace,'src/shared/page-bridge.js'),'utf8'),context);
+  assert.equal(attributes.get('data-rc-instance-id'),id);
+  assert.equal(attributes.get('data-rc-ping'),'54');
+  assert.equal(attributes.get('data-country-code'),'SG');
+  const nextId='12345678-1234-1234-1234-123456789013';
+  const nextRaw={id:nextId,playing:5,pingSignalLevel:'Low'};
+  const nextRoot={stateNode:root.stateNode};root.stateNode.current=nextRoot;
+  host.alternate={memoizedProps:{},return:{memoizedProps:{...nextRaw,gameServerStatus:'5 of 6',serverListType:'public'},
+    return:{memoizedProps:{gameInstances:[nextRaw]},return:nextRoot}}};
+  listeners['rc-server-metrics-request']();
+  assert.equal(attributes.get('data-rc-instance-id'),nextId);
+  assert.equal(attributes.get('data-rc-playing'),'5');
+  assert.equal(attributes.get('data-rc-ping-level'),'low');
+  assert.equal(attributes.has('data-rc-ping'),false,'Previous server ping cannot survive a native update');
+  assert.equal(attributes.has('data-country-code'),false,'Previous country cannot survive a native update');
 });

@@ -8,7 +8,7 @@
     home: {
       favorites: ['favorites', '收藏', '收藏夹', '收藏夾', '最爱', '最愛', '我的最爱', '我的最愛'],
       standout: ['standout games', '精选游戏', '精選遊戲', '精选体验', '精選體驗', '特色游戏', '特色遊戲', '特色体验', '特色體驗'],
-      recommended: ['recommended for you', 'recommended games', '为你推荐', '為你推薦', '为您推荐', '為您推薦', '推荐给您', '推薦給您', '推荐给你', '推薦給你', '推荐游戏', '推薦遊戲', '推荐体验', '推薦體驗', '推荐', '推薦']
+      recommended: ['recommended for you', 'recommended games', 'recommended', '为你推荐', '為你推薦', '为您推荐', '為您推薦', '推荐给您', '推薦給您', '推荐给你', '推薦給你', '推荐游戏', '推薦遊戲', '推荐体验', '推薦體驗', '推荐', '推薦']
     },
     profile: {
       wearing: ['currently wearing', '当前穿戴', '目前穿戴', '正在穿戴', '当前穿着', '目前穿著', '目前造型'],
@@ -19,7 +19,7 @@
       badges: ['badge', 'badges', '徽章']
     },
     store: {
-      subscriptions: ['subscriptions', '订阅', '訂閱'],
+      subscriptions: ['subscription', 'subscriptions', '订阅', '訂閱'],
       passes: ['passes', 'game passes', 'gamepasses', '通行证', '通行證', '游戏通行证', '遊戲通行證'],
       products: ['products', 'developer products', '商品', '产品', '產品', '开发者商品', '開發者商品', '开发者产品', '開發者產品']
     },
@@ -56,6 +56,40 @@
       bundles: ['bundles', '套装', '套裝'], characters: ['characters', '角色'], costumes: ['costumes', '装扮', '裝扮']
     }
   };
+  const indonesian = {
+    home: {
+      favorites: ['favorit'], standout: ['game unggulan', 'pengalaman virtual unggulan', 'pilihan unggulan'],
+      recommended: ['direkomendasikan untukmu', 'direkomendasikan', 'direkomendasikan untuk anda', 'rekomendasi untuk anda', 'disarankan untuk anda', 'rekomendasi game', 'game yang direkomendasikan']
+    },
+    profile: {
+      wearing: ['sedang dipakai', 'saat ini dipakai', 'saat ini dikenakan', 'sedang dikenakan', 'saat ini memakai'],
+      store: ['toko'], experiences: ['pengalaman virtual', 'pengalaman', 'kreasi'], favorites: ['favorit'],
+      collections: ['koleksi'], friends: ['teman', 'koneksi'], communities: ['komunitas', 'grup'], badges: ['lencana']
+    },
+    store: { subscriptions: ['langganan'], passes: ['pas', 'pass', 'pas game', 'pass game', 'tiket game'], products: ['produk', 'produk developer', 'produk pengembang'] },
+    avatar: {
+      recent: ['terbaru', 'baru dipakai', 'baru dikenakan', 'terakhir dipakai'], avatars: ['avatar'],
+      body: ['tubuh', 'bagian tubuh'], makeup: ['riasan'], clothing: ['pakaian'], accessories: ['aksesori', 'aksesoris'],
+      backgrounds: ['latar belakang'], animations: ['animasi'], expired: ['kedaluwarsa'],
+      'recently added': ['baru ditambahkan'], 'currently wearing': ['sedang dipakai', 'saat ini dipakai', 'sedang dikenakan'],
+      purchased: ['dibeli', 'telah dibeli'], creations: ['kreasi'], heads: ['kepala'], 'skin tone': ['warna kulit'], hair: ['rambut'],
+      torso: ['batang tubuh', 'badan'], 'left arms': ['lengan kiri'], 'right arms': ['lengan kanan'],
+      'left legs': ['kaki kiri'], 'right legs': ['kaki kanan'], scale: ['skala'], hats: ['topi'], face: ['wajah'], neck: ['leher'],
+      shoulders: ['bahu'], front: ['depan'], back: ['belakang', 'punggung'], waist: ['pinggang'], gear: ['perlengkapan'],
+      tops: ['atasan'], outerwear: ['pakaian luar'], bottoms: ['bawahan'], shirts: ['kemeja', 'baju'],
+      't-shirts': ['kaus', 'kaos'], pants: ['celana'], jackets: ['jaket'], sweaters: ['sweter'], shorts: ['celana pendek'],
+      'dresses & skirts': ['gaun & rok', 'gaun dan rok'], shoes: ['sepatu'], classic: ['klasik'],
+      'left shoe': ['sepatu kiri'], 'right shoe': ['sepatu kanan'], 'classic shirts': ['kemeja klasik', 'baju klasik'],
+      'classic t-shirts': ['kaus klasik', 'kaos klasik'], 'classic pants': ['celana klasik'], looks: ['penampilan', 'tampilan'],
+      eyes: ['mata'], lips: ['bibir'], eyelashes: ['bulu mata'], eyebrows: ['alis'], faces: ['wajah'],
+      emotes: ['emote', 'aksi'], idle: ['diam', 'siaga'], walk: ['berjalan', 'jalan'], run: ['berlari', 'lari'],
+      jump: ['melompat', 'lompat'], fall: ['jatuh'], climb: ['memanjat', 'panjat'], swim: ['berenang', 'renang'],
+      bundles: ['bundel'], characters: ['karakter'], costumes: ['kostum']
+    }
+  };
+  for (const [group, entries] of Object.entries(indonesian)) {
+    for (const [key, aliases] of Object.entries(entries)) groups[group][key].push(...aliases);
+  }
   const indexes = Object.fromEntries(Object.entries(groups).map(([group, entries]) =>
     [group, new Map(Object.entries(entries).flatMap(([key, aliases]) => aliases.map(alias => [normalize(alias), key])))]));
   const patterns = {
@@ -78,14 +112,34 @@
     createPrivate: /create\s+(?:a\s+)?private server|创建私人服务器|建立私人伺服器|創建私人伺服器/,
     emptyStore: /no (?:passes|game passes|products|subscriptions)|does not (?:have|sell)|没有(?:任何|可用的?)?(?:通行证|商品|产品|订阅)|沒有(?:任何|可用的?)?(?:通行證|商品|產品|訂閱)|不(?:出售|销售|販售)/
   };
+  const indonesianPatterns = {
+    settings: /^(?:pengaturan|pengaturan saya|setelan)$/,
+    chat: /^(?:obrolan|chat)$/,
+    seeAll: /^(?:lihat semua|tampilkan semua)$/,
+    about: /^tentang$/,
+    creations: /^kreasi$/,
+    more: /^(?:lainnya|selengkapnya|lihat selengkapnya|tampilkan lainnya|lihat lainnya)$/,
+    noBio: /^(?:belum ada bio|belum ada biografi)[.!]?$/,
+    followers: /\bpengikut\b/,
+    tryOn: /^(?:coba|coba pakai|lepas|lepaskan)$/,
+    join: /^(?:gabung|bergabung)(?:\s+(?:ke|dengan|game|server|pengalaman virtual)\b.*)?$/,
+    livePlayers: /^(?:aktif|sedang bermain|pemain aktif|pemain saat ini|pemain online)$/,
+    loadMore: /^(?:load|muat|tampilkan) (?:lebih banyak(?: server(?: privat)?)?|lainnya|server lainnya|server privat lainnya)$/,
+    sortBy: /^(?:urutkan berdasarkan|urutkan menurut|urutkan)[:]?$/,
+    excludeFull: /^(?:mengecualikan|kecualikan|sembunyikan) server (?:yang )?(?:sudah )?penuh$/,
+    emptyServers: /tidak (?:ada|ditemukan|menemukan) server(?: publik| privat)?|anda (?:belum|tidak) memiliki server privat|tidak ada pengalaman virtual yang berjalan/,
+    publicEmptyServers: /tidak (?:ada|ditemukan|menemukan) server(?: publik)?(?: yang)? (?:tersedia|ditemukan|berjalan)\b|tidak (?:ada|ditemukan|menemukan) server(?: publik)?[.!]?\s*$|tidak ada pengalaman virtual yang berjalan/,
+    createPrivate: /buat(?: sebuah)? server privat/,
+    emptyStore: /tidak (?:ada|memiliki|menjual) (?:pass|produk|langganan)|belum (?:ada|menjual) (?:pass|produk|langganan)/
+  };
 
   function classify(group, text) {
     let label = normalize(text);
     if (label.length > 200) return '';
     if (group === 'home' || group === 'profile') label = label
       .replace(/\s*[→›»>]\s*$/, '')
-      .replace(/\s*(?:see all|view all|查看全部|查看所有|檢視全部|显示全部|顯示全部|查看更多|显示更多|顯示更多)\s*$/, '')
-      .replace(/\s*\([\d,]+\)\s*$/, '').trim();
+      .replace(/\s*(?:see all|view all|lihat semua|tampilkan semua|lihat selengkapnya|查看全部|查看所有|檢視全部|显示全部|顯示全部|查看更多|显示更多|顯示更多)\s*$/, '')
+      .replace(/\s*\([\d,.]+\)\s*$/, '').trim();
     if (group === 'avatar') label = label.replace(/[⌄⌃▾▴▼▲]+$/, '').trim()
       .replace(/\s*(?: menu| tab|菜单|選單|选项卡|索引標籤)$/, '').trim();
     const exact = indexes[group]?.get(label);
@@ -98,16 +152,19 @@
     return '';
   }
 
-  function matches(kind, text) { return patterns[kind]?.test(normalize(text).replace(/[→›»>]\s*$/, '').trim()) || false; }
+  function matches(kind, text) {
+    const label = normalize(text).replace(/[→›»>]\s*$/, '').trim();
+    return patterns[kind]?.test(label) || indonesianPatterns[kind]?.test(label) || false;
+  }
   function previewMode(text) {
     const label = normalize(text);
-    return label.match(/^(?:(?:switch to|view in)\s*|(?:切换至|切換至|切换到|切換到|切换为|切換為|以)\s*)?([23])\s*d(?:\s*(?:view|视图|視圖|模式|查看|检视|檢視))?$/)?.[1] || '';
+    return label.match(/^(?:(?:switch to|view in|beralih ke|alih ke|lihat dalam|tampilkan dalam)\s*|(?:切换至|切換至|切换到|切換到|切换为|切換為|以)\s*)?([23])\s*d(?:\s*(?:view|tampilan|视图|視圖|模式|查看|检视|檢視))?$/)?.[1] || '';
   }
   function playerCount(text) {
-    const label = normalize(text);
-    const pair = label.match(/(\d[\d,]*)\s*(?:of|\/)\s*(\d[\d,]*)(?:\s*(?:people max|人|位玩家|名玩家))?/i)
+    const label = normalize(text).replace(/\b\d{1,3}(?:\.\d{3})+\b/g, value => value.replaceAll('.', ''));
+    const pair = label.match(/(\d[\d,]*)\s*(?:of|dari|\/)\s*(?:(?:maksimal|maksimum)\s*)?(\d[\d,]*)(?:\s*(?:people max|orang|pemain|人|位玩家|名玩家))?/i)
       || label.match(/(\d[\d,]*)\s*(?:人|位玩家|名玩家)?\s*[,，(]?\s*(?:最多|上限|最大)\s*(\d[\d,]*)\s*(?:人|位玩家|名玩家)/);
-    const count = pair || label.match(/(\d[\d,]*)\s*(?:players?\b|people\b|位玩家|名玩家|人)/);
+    const count = pair || label.match(/(\d[\d,]*)\s*(?:players?\b|people\b|pemain\b|orang\b|位玩家|名玩家|人)/);
     if (!count) return null;
     const playing = Number(count[1].replaceAll(',', ''));
     const maxPlayers = pair ? Number(pair[2].replaceAll(',', '')) : null;

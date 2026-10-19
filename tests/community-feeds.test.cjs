@@ -271,6 +271,7 @@ function background(links = []) {
   let listener;
   const requests = [];
   const context = vm.createContext({ URL, AbortController, setTimeout, clearTimeout,
+    RobloxCustomizerRoutes: require('../src/shared/routes.js'),
     chrome: { runtime: { onMessage: { addListener(callback) { listener = callback; } } } },
     fetch: async (url, options) => { requests.push({ url, options }); return { ok: true, json: async () => ({ data: links }) }; }
   });
@@ -293,7 +294,7 @@ test('community link lookup checks the source group and discards unrelated or ma
     { url: 'https://www.youtube.com/@Badimo' }, { url: 'https://x.com/badimo' }]);
   assert.equal((await env.send({ type: 'rc-community-social-links', groupId: 999 }, '/communities/3059674/Badimo')).accepted, false);
   assert.equal((await env.send({ type: 'rc-community-social-links', groupId: 3059674 }, '/games/3059674/Test')).accepted, false);
-  const result = await env.send({ type: 'rc-community-social-links', groupId: 3059674 }, '/communities/3059674/Badimo');
+  const result = await env.send({ type: 'rc-community-social-links', groupId: 3059674 }, '/id/communities/3059674/Badimo');
   assert.equal(result.response.xUrl, 'https://x.com/badimo');
   assert.equal(result.response.youtubeUrl, 'https://www.youtube.com/@Badimo');
   assert.equal(env.requests.length, 1);

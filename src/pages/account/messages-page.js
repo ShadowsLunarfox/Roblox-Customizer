@@ -1,13 +1,14 @@
 (globalThis.RobloxCustomizerCompatibility?.runFeature || (initialize => initialize()))(() => {
   'use strict';
+  const routePath = value => globalThis.RobloxCustomizerRoutes?.pathname(value) ?? value ?? location.pathname;
 
-  if (!/^\/my\/messages(?:\/|$)/i.test(location.pathname)) return;
+  if (!/^\/my\/messages(?:\/|$)/i.test(routePath())) return;
 
   const ACTION = 'button, a, [role="button"], [role="menuitem"], input[type="button"]';
   const HIDDEN = 'data-rc-hide-unread-action';
   const UNREAD = /^(?:mark(?:\s+as)?\s+unread|make(?:\s+as)?\s+unread|标(?:记)?(?:为)?未读|標(?:記)?(?:為)?未讀|设为未读|設為未讀)$/i;
   const normalize = value => String(value || '').replace(/\s+/g, ' ').trim().replace(/[.!。…:：]+$/, '').toLowerCase();
-  const inInbox = () => /^\/my\/messages(?:\/|$)/i.test(location.pathname)
+  const inInbox = () => /^\/my\/messages(?:\/|$)/i.test(routePath())
     && ['', 'inbox'].includes(location.hash.replace(/^#!?\/?/, '').split(/[/?&]/)[0].toLowerCase());
 
   function syncAction(action) {

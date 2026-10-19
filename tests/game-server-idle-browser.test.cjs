@@ -11,6 +11,7 @@ const styles = [...new Set(manifest.content_scripts.flatMap(entry => entry.css |
 const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" fill="#647abb"/></svg>';
 const words = {
   en: { private: 'Private Servers', public: 'Other Servers', join: 'Join', empty: 'No public servers available.' },
+  id: { private: 'Server Privat', public: 'Server Lainnya', join: 'Gabung', empty: 'Tidak ada server publik yang tersedia.' },
   'zh-cn': { private: '私人服务器', public: '其他服务器', join: '加入', empty: '没有可用的公共服务器' },
   'zh-tw': { private: '私人伺服器', public: '其他伺服器', join: '加入', empty: '沒有可用的公共伺服器' }
 };
@@ -51,19 +52,21 @@ function html(url) {
       const publicList=document.getElementById('${publicId}');
       const content=publicList.querySelector('.native-public-content');
       window.renderPublic=()=>{
-        if(!allowPublic||!servers.classList.contains('active')||content.querySelector('.card-item,.native-empty'))return;
+        if(!allowPublic||location.hash!=='#!/game-instances'||!servers.classList.contains('active')||content.querySelector('.card-item,.native-empty'))return;
         publicLoads++;
         content.innerHTML=${JSON.stringify(url.searchParams.get('mode') === 'empty'
           ? `<p class="native-empty">${w.empty}</p>`
           : `<div class="card-list">${Array.from({ length: 12 }, (_, i) => `<div class="card-item" data-playing="${i}"><div class="game-server-status">${i} of 12 people max</div><button class="game-server-join-btn" onclick="nativeActions.join++">${w.join}</button></div>`).join('')}</div>`)};
       };
       for(const name of ['about','store','game-instances'])document.querySelector('#tab-'+name+' a').onclick=event=>{
-        event.preventDefault();tabEvents.push(name);history.replaceState(history.state,'','#!/'+name);
+        event.preventDefault();tabEvents.push(name);location.hash='!/'+name;
         for(const pane of document.querySelectorAll('.tab-pane'))pane.classList.toggle('active',pane.id===name);
+      };
+      addEventListener('hashchange',()=>{
         // A discarded or initially lazy list waits for both native tab activation
         // and visibility. This is the failure a one-time offscreen visit misses.
-        if(name==='game-instances'&&(publicLoads===0&&allowPublic||publicList.getBoundingClientRect().top<innerHeight+240))renderPublic();
-      };
+        if(location.hash==='#!/game-instances'&&(publicLoads===0&&allowPublic||publicList.getBoundingClientRect().top<innerHeight+240))renderPublic();
+      });
       new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting))renderPublic()},{rootMargin:'240px 0px'}).observe(publicList);
       window.discardServers=()=>{content.innerHTML='<div class="spinner">Loading...</div>'};
       window.fixtureReady=true;
@@ -94,7 +97,7 @@ test('server lists recover after idle at the top, timeout, native eviction and t
       source: fs.readFileSync(path.join(workspace, file), 'utf8') + '\n//# sourceURL=' + file
     });
     for (const locale of Object.keys(words)) for (const mode of ['timeout', 'discarded', 'empty']) {
-      const url = `http://127.0.0.1:${server.address().port}/games/893973440/Flee-the-Facility?locale=${locale}&mode=${mode}#!/game-instances`;
+      const url = `http://127.0.0.1:${server.address().port}${locale === 'id' ? '/id' : ''}/games/893973440/Flee-the-Facility?locale=${locale}&mode=${mode}#!/game-instances`;
       await browser.send('Page.navigate', { url });
       await waitForDocument(browser, '#game-detail-page', url);
       await browser.waitFor("tabEvents.at(-1)==='about' && document.querySelector('#about').classList.contains('active')");
@@ -110,7 +113,12 @@ test('server lists recover after idle at the top, timeout, native eviction and t
       await browser.send('Page.setWebLifecycleState', { state: 'active' });
       await browser.send('Page.bringToFront');
       await browser.evaluate("document.getElementById('game-instances').scrollIntoView({block:'start'})");
-      await browser.waitFor(mode === 'empty' ? "!!document.querySelector('.native-empty')" : "document.querySelectorAll(':is(#running-game-instances-container, #rbx-public-running-games) .card-item').length===12");
+      try {
+        await browser.waitFor(mode === 'empty' ? "!!document.querySelector('.native-empty')" : "document.querySelectorAll(':is(#running-game-instances-container, #rbx-public-running-games) .card-item').length===12");
+      } catch (error) {
+        const state = await browser.evaluate("({tabEvents,hash:location.hash,publicLoads,active:[...document.querySelectorAll('.tab-pane.active')].map(pane=>pane.id),scrollY,content:document.querySelector('.native-public-content').innerHTML})");
+        throw new Error(`${locale}/${mode}: ${JSON.stringify(state)}; script errors: ${JSON.stringify(browser.errors)}`, { cause: error });
+      }
       if (mode !== 'empty') {
         await browser.waitFor("!!document.querySelector('.rc-public-server-filters') && document.querySelectorAll(':is(#running-game-instances-container, #rbx-public-running-games) .card-item:not([data-rc-server-page-hidden])').length===8");
         assert.equal(await browser.evaluate("document.querySelector('#game-instances').classList.contains('active')"), true);

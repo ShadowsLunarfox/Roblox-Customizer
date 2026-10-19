@@ -46,7 +46,7 @@
       <div class="rc-language-warning-icon" aria-hidden="true">!</div>
       <h2 id="rc-language-warning-title">Unsupported Roblox language</h2>
       <p id="rc-language-warning-message"></p>
-      <p id="rc-language-warning-advice">For the best experience, switch Roblox's language to English, Simplified Chinese, or Traditional Chinese.</p>
+      <p id="rc-language-warning-advice">For the best experience, switch Roblox's language to English, Simplified Chinese, Traditional Chinese, or Indonesian.</p>
       <div class="rc-language-warning-actions">
         <a href="/my/account#!/info">Open Roblox language settings</a>
         <button type="button" autofocus>Continue anyway</button>

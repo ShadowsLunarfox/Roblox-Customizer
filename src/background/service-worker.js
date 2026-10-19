@@ -1,10 +1,11 @@
 if (typeof importScripts === 'function') {
-  importScripts('../currency/robux-currency-core.js', 'robux-currency-background.js',
+  importScripts('../shared/routes.js', '../currency/robux-currency-core.js', 'robux-currency-background.js',
     '../home/pinned-games-core.js', 'pinned-games-background.js',
     '../servers/server-history-core.js', '../playtime/playtime-core.js', 'playtime-background.js', 'server-history-background.js',
     '../settings/backup-core.js', 'backup-background.js');
 }
 
+const routePath = globalThis.RobloxCustomizerRoutes?.pathname || (value => value);
 const BADGE_QUERY = 'rc-badge-ownership';
 const PRIVATE_SERVER_QUERY = 'rc-private-server-details';
 const PUBLIC_SERVER_STATUS_QUERY = 'rc-public-server-status';
@@ -29,6 +30,7 @@ const limitedInventoryCache = new Map();
 const rolimonsGameCache = new Map();
 const youtubeFeedCache = new Map();
 const publicServerCountryCache = new Map();
+const publicServerStatusCache = new Map();
 const publicAddressCountryCache = new Map();
 let joinHeaderReady;
 
@@ -551,31 +553,54 @@ function serverCountryCode(server) {
   return typeof code === 'string' && /^[A-Z]{2}$/i.test(code) ? code.toUpperCase() : '';
 }
 
-async function getPublicServerStatuses(placeId, serverIds) {
+async function getPublicServerStatuses(placeId, serverIds, shortIds = []) {
   const wanted = new Set(serverIds);
   const servers = new Map();
+  const shortMatches = new Map(shortIds.map(id => [id, new Map()]));
+  const cached = publicServerStatusCache.get(placeId);
+  const cachedServers = cached && Date.now() - cached.fetchedAt < 90_000 ? cached.servers : null;
+  const inventory = new Map();
   let cursor = '';
-  for (let page = 0; page < 10 && servers.size < wanted.size; page++) {
+  // Roblox displays UUID characters 9..17 in .server-id-text. This provides a
+  // fallback when another renderer prevents the MAIN-world bridge from seeing
+  // its React props. Scan the whole bounded result before accepting a match so
+  // duplicate short IDs cannot silently select a different server.
+  for (let page = 0; page < 10 && (shortMatches.size || servers.size < wanted.size); page++) {
     const url = new URL(`https://games.roblox.com/v1/games/${placeId}/servers/Public`);
     url.searchParams.set('limit', '100');
     url.searchParams.set('sortOrder', 'Asc');
     if (cursor) url.searchParams.set('cursor', cursor);
-    const result = await readJson(url.href);
+    const result = cachedServers ? { data: cachedServers } : await readJson(url.href);
     if (!Array.isArray(result?.data)) break;
     for (const server of result.data) {
       const id = typeof server?.id === 'string' ? server.id.toLowerCase() : '';
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id)) continue;
+      const details = { id, ping: serverPing(server), countryCode: serverCountryCode(server) };
+      inventory.set(id, details);
       if (wanted.has(id)) {
-        servers.set(id, {
-          id,
-          ping: serverPing(server),
-          countryCode: serverCountryCode(server)
-        });
+        servers.set(id, details);
       }
+      shortMatches.get(id.substring(9, 18))?.set(id, details);
     }
     cursor = typeof result.nextPageCursor === 'string' ? result.nextPageCursor : '';
-    if (!cursor) break;
+    if (!cursor) {
+      if (!cachedServers) {
+        if (publicServerStatusCache.size >= 20) publicServerStatusCache.delete(publicServerStatusCache.keys().next().value);
+        publicServerStatusCache.set(placeId, { fetchedAt: Date.now(), servers: [...inventory.values()] });
+      }
+      break;
+    }
   }
-  return { servers: [...servers.values()] };
+  const matches = [];
+  for (const [shortId, candidates] of shortMatches) {
+    // An incomplete inventory could conceal a second server with the same
+    // shortened label. Keep those cards unknown instead of guessing.
+    if (cursor || candidates.size !== 1) continue;
+    const details = candidates.values().next().value;
+    matches.push({ shortId, id: details.id });
+    servers.set(details.id, details);
+  }
+  return { servers: [...servers.values()], matches };
 }
 
 function publicIpv4(address) {
@@ -1022,25 +1047,29 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .then(sendResponse)
       .catch(error => sendResponse({ error: error.message || 'Player details unavailable.' }));
   } else if (message.type === ROLIMONS_GAME_QUERY) {
-    const sourcePlaceId = Number(source.pathname.match(/^\/games\/(\d+)/)?.[1]);
+    const sourcePlaceId = Number(routePath(source.pathname).match(/^\/games\/(\d+)/)?.[1]);
     const placeId = message.placeId;
     if (!Number.isSafeInteger(placeId) || placeId <= 0 || sourcePlaceId !== placeId) return;
     getRolimonsGamePage(placeId)
       .then(sendResponse)
       .catch(error => sendResponse({ error: error.message || 'Rolimons data unavailable.' }));
   } else if (message.type === PUBLIC_SERVER_STATUS_QUERY) {
-    const sourcePlaceId = Number(source.pathname.match(/^\/games\/(\d+)/)?.[1]);
+    const sourcePlaceId = Number(routePath(source.pathname).match(/^\/games\/(\d+)/)?.[1]);
     const placeId = Number(message.placeId);
     const serverIds = message.serverIds;
+    const shortIds = message.shortIds ?? [];
     if (!Number.isSafeInteger(placeId) || placeId <= 0 || sourcePlaceId !== placeId
-      || !Array.isArray(serverIds) || !serverIds.length || serverIds.length > 100
+      || !Array.isArray(serverIds) || !Array.isArray(shortIds)
+      || (!serverIds.length && !shortIds.length) || serverIds.length + shortIds.length > 100
+      || !shortIds.every(id => typeof id === 'string' && /^[0-9a-f]{4}-[0-9a-f]{4}$/i.test(id))
       || !serverIds.every(id => typeof id === 'string'
         && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))) return;
-    getPublicServerStatuses(placeId, [...new Set(serverIds)])
+    getPublicServerStatuses(placeId, [...new Set(serverIds.map(id => id.toLowerCase()))],
+      [...new Set(shortIds.map(id => id.toLowerCase()))])
       .then(sendResponse)
       .catch(error => sendResponse({ error: error.message || 'Server status unavailable' }));
   } else if (message.type === PUBLIC_SERVER_COUNTRY_QUERY) {
-    const sourcePlaceId = Number(source.pathname.match(/^\/games\/(\d+)/)?.[1]);
+    const sourcePlaceId = Number(routePath(source.pathname).match(/^\/games\/(\d+)/)?.[1]);
     const placeId = Number(message.placeId);
     const serverId = message.serverId;
     if (!Number.isSafeInteger(placeId) || placeId <= 0 || sourcePlaceId !== placeId
@@ -1050,7 +1079,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .then(sendResponse)
       .catch(error => sendResponse({ error: error.message || 'Country lookup unavailable.' }));
   } else if (message.type === ROBLOX_GAME_DATA_QUERY) {
-    const sourcePlaceId = Number(source.pathname.match(/^\/games\/(\d+)/)?.[1]);
+    const sourcePlaceId = Number(routePath(source.pathname).match(/^\/games\/(\d+)/)?.[1]);
     const placeId = Number(message.placeId);
     const universeId = Number(message.universeId);
     const section = message.section;
@@ -1064,7 +1093,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .then(sendResponse)
       .catch(error => sendResponse({ error: error.message || 'Roblox game data unavailable.' }));
   } else if (message.type === CATALOG_ITEM_2D_QUERY) {
-    const sourceItem = source.pathname.match(/^\/(catalog|bundles)\/(\d+)(?:\/|$)/i);
+    const sourceItem = routePath(source.pathname).match(/^\/(catalog|bundles)\/(\d+)(?:\/|$)/i);
     const sourceAssetId = Number(sourceItem?.[2]);
     const sourceItemType = sourceItem?.[1].toLowerCase() === 'bundles' ? 'Bundle' : 'Asset';
     const assetId = message.assetId;
@@ -1075,19 +1104,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .then(sendResponse)
       .catch(() => sendResponse({ error: 'Item preview unavailable.' }));
   } else if (message.type === AVATAR_2D_QUERY) {
-    if (!/^\/my\/avatar(?:\/|$)/i.test(source.pathname)) return;
+    if (!/^\/my\/avatar(?:\/|$)/i.test(routePath(source.pathname))) return;
     getAvatar2D()
       .then(sendResponse)
       .catch(error => sendResponse({ error: error.message || 'Avatar preview unavailable.' }));
   } else if (message.type === PROFILE_LIMITEDS_QUERY) {
-    const sourceUserId = Number(source.pathname.match(/^\/users\/(\d+)\/profile(?:\/|$)/)?.[1]);
+    const sourceUserId = Number(routePath(source.pathname).match(/^\/users\/(\d+)\/profile(?:\/|$)/)?.[1]);
     if (!Number.isSafeInteger(sourceUserId) || sourceUserId <= 0
       || message.userId !== sourceUserId) return;
     getLimitedInventory(sourceUserId, message.force === true)
       .then(sendResponse)
       .catch(error => sendResponse({ error: error.message || 'Limited inventory unavailable.' }));
   } else if (message.type === PROFILE_DETAILS_QUERY) {
-    const sourceUserId = Number(source.pathname.match(/^\/users\/(\d+)\/profile(?:\/|$)/)?.[1]);
+    const sourceUserId = Number(routePath(source.pathname).match(/^\/users\/(\d+)\/profile(?:\/|$)/)?.[1]);
     if (!Number.isSafeInteger(sourceUserId) || sourceUserId <= 0
       || message.userId !== sourceUserId) return;
     getProfileDetails(sourceUserId)
@@ -1101,7 +1130,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .then(sendResponse)
       .catch(() => sendResponse({ error: 'Badge ownership unavailable' }));
   } else if (message.type === GAME_X_LINK_QUERY) {
-    const sourcePlaceId = Number(source.pathname.match(/^\/games\/(\d+)/)?.[1]);
+    const sourcePlaceId = Number(routePath(source.pathname).match(/^\/games\/(\d+)/)?.[1]);
     const placeId = message.placeId;
     if (!Number.isSafeInteger(placeId) || placeId <= 0 || sourcePlaceId !== placeId) return;
     const universeId = Number(message.universeId);
@@ -1109,7 +1138,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .then(sendResponse)
       .catch(() => sendResponse({ error: 'Game social link unavailable' }));
   } else if (message.type === GAME_YOUTUBE_LINK_QUERY) {
-    const sourcePlaceId = Number(source.pathname.match(/^\/games\/(\d+)/)?.[1]);
+    const sourcePlaceId = Number(routePath(source.pathname).match(/^\/games\/(\d+)/)?.[1]);
     const placeId = Number(message.placeId);
     if (!Number.isSafeInteger(placeId) || placeId <= 0 || sourcePlaceId !== placeId) return;
     getGameYouTubeLink(placeId, Number(message.universeId))
@@ -1117,37 +1146,37 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .catch(() => sendResponse({ error: 'Game YouTube link unavailable' }));
   } else if (message.type === COMMUNITY_SOCIAL_LINKS_QUERY) {
     const groupId = Number(message.groupId);
-    const sourceGroupId = Number(source.pathname.match(/^\/(?:communities|groups)\/(\d+)(?:\/|$)/i)?.[1]);
+    const sourceGroupId = Number(routePath(source.pathname).match(/^\/(?:communities|groups)\/(\d+)(?:\/|$)/i)?.[1]);
     if (!Number.isSafeInteger(groupId) || groupId <= 0 || sourceGroupId !== groupId) return;
     getCommunitySocialLinks(groupId)
       .then(sendResponse)
       .catch(() => sendResponse({ error: 'Community social links unavailable' }));
   } else if (message.type === X_POSTS_QUERY) {
-    if (!SOCIAL_FEED_PATH.test(source.pathname)) return;
+    if (!SOCIAL_FEED_PATH.test(routePath(source.pathname))) return;
     const handle = message.handle;
     if (typeof handle !== 'string' || !/^[A-Za-z0-9_]{1,15}$/.test(handle)) return;
     getXPosts(handle, message.force === true)
       .then(sendResponse)
       .catch(() => sendResponse({ error: 'X posts unavailable' }));
   } else if (message.type === X_IMAGE_QUERY) {
-    if (!SOCIAL_FEED_PATH.test(source.pathname)) return;
+    if (!SOCIAL_FEED_PATH.test(routePath(source.pathname))) return;
     getXImage(message.url)
       .then(dataUrl => sendResponse({ dataUrl }))
       .catch(() => sendResponse({ error: 'Image unavailable' }));
   } else if (message.type === YOUTUBE_VIDEOS_QUERY) {
-    if (!SOCIAL_FEED_PATH.test(source.pathname)
+    if (!SOCIAL_FEED_PATH.test(routePath(source.pathname))
       || typeof message.channelUrl !== 'string' || message.channelUrl.length > 2048) return;
     getYouTubeVideos(message.channelUrl, message.force === true)
       .then(sendResponse)
       .catch(() => sendResponse({ error: 'YouTube videos unavailable' }));
   } else if (message.type === YOUTUBE_IMAGE_QUERY) {
-    if (!SOCIAL_FEED_PATH.test(source.pathname)
+    if (!SOCIAL_FEED_PATH.test(routePath(source.pathname))
       || typeof message.videoId !== 'string' || !/^[A-Za-z0-9_-]{11}$/.test(message.videoId)) return;
     getXImage(`https://i.ytimg.com/vi/${message.videoId}/hqdefault.jpg`)
       .then(dataUrl => sendResponse({ dataUrl }))
       .catch(() => sendResponse({ error: 'YouTube thumbnail unavailable' }));
   } else {
-    const sourcePlaceId = Number(source.pathname.match(/^\/games\/(\d+)/)?.[1]);
+    const sourcePlaceId = Number(routePath(source.pathname).match(/^\/games\/(\d+)/)?.[1]);
     const placeId = Number(message.placeId);
     const serverIds = message.serverIds;
     const serverNames = message.serverNames;

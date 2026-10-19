@@ -742,6 +742,16 @@ html[data-rc-ui-active] .rc-server-view:where(:not([data-rc-features-disabled], 
   display: none !important;
 }
 
+/* Native controls remain mounted for their event handlers and pagination. */
+#game-detail-page #game-instances .rbx-running-games-load-more:not(:where(#rbx-friends-running-games *, #friends-game-instances-container *)):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+#game-detail-page :is(#running-game-instances-container, #rbx-public-running-games) .server-list-options:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  display: none !important;
+}
+
+#game-detail-page #game-instances .flex.flex-col.width-full:has(> .flex.items-center.justify-between.padding-y-medium.width-full) > .padding-top-medium:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  display: none !important;
+}
+
 #game-detail-page [data-rc-private-server-load-more]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: none !important;
 }

@@ -311,8 +311,8 @@ html[data-rc-ui-active][data-rc-frost-page="profile"] :is([data-rc-profile-secti
   box-shadow: none !important;
 }
 
-/* Collection thumbnail shells share the card's glass instead of opaque gray. */
-html[data-rc-ui-active][data-rc-frost-page="profile"] [data-rc-profile-section="collections"] [data-rc-profile-card] :is([data-rc-profile-card-media], .thumbnail-2d-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+/* Asset thumbnail shells share the card's glass instead of opaque native color. */
+html[data-rc-ui-active][data-rc-frost-page="profile"] :is([data-rc-profile-section="wearing"], [data-rc-profile-section="store"], [data-rc-profile-section="collections"]) [data-rc-profile-card] :is([data-rc-profile-card-media], .thumbnail-2d-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: transparent !important;
   background-image: none !important;
 }

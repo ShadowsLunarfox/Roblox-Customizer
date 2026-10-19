@@ -1,10 +1,16 @@
 {
-  "updated": "2026-10-18",
+  "updated": "2026-10-19",
   "publisher": "Lunarfox 月狐",
   "email": "lunar@lunarfox.my",
   "contacts": [
-    { "label": "Telegram", "url": "https://t.me/Shadows_Lunarfox" },
-    { "label": "X", "url": "https://x.com/ShadowsLunarfox" }
+    {
+      "label": "Telegram",
+      "url": "https://t.me/Shadows_Lunarfox"
+    },
+    {
+      "label": "X",
+      "url": "https://x.com/ShadowsLunarfox"
+    }
   ],
   "locales": {
     "en": {
@@ -21,7 +27,9 @@
         "sections": [
           {
             "heading": "Information used by the extension",
-            "paragraphs": ["Information is used to provide the features you see in the extension:"],
+            "paragraphs": [
+              "Information is used to provide the features you see in the extension:"
+            ],
             "items": [
               "Preferences: language, colors, appearance, Home and social-feed settings, currency selection, language-warning state, and whether you have accepted the Terms of Service.",
               "Backgrounds: files you select, their names, and saved background URLs. Selecting a local file stores a browser-local copy; it does not upload the file to the publisher.",
@@ -43,7 +51,9 @@
           },
           {
             "heading": "Network requests and third parties",
-            "paragraphs": ["Requests are made when the relevant feature runs. The services below receive the requested identifiers or resources and ordinary connection information, such as your network IP address and request headers. They may keep their own logs under their policies. Roblox account credentials are not sent to the non-Roblox APIs listed here."],
+            "paragraphs": [
+              "Requests are made when the relevant feature runs. The services below receive the requested identifiers or resources and ordinary connection information, such as your network IP address and request headers. They may keep their own logs under their policies. Roblox account credentials are not sent to the non-Roblox APIs listed here."
+            ],
             "items": [
               "Roblox APIs and image services: account and user IDs, game/place/universe IDs, badge/item IDs, server IDs, and related queries to load information, thumbnails, presence, and server details. Roblox handles its own website and account activity separately.",
               "ipwho.is: a Roblox game server's public IP address for an estimated server country. This is a lookup of the game server, not a request to locate your device; the service still sees the connection IP used to make the request.",
@@ -68,7 +78,7 @@
               "You can change preferences, remove backgrounds and pins, disable social feeds and playtime tracking, clear the current account's playtime, and export your data. Settings backups include all recorded accounts' histories and a saved background when present. Backups are unencrypted JSON files; keep them private. Import replaces the corresponding saved data rather than merging it.",
               "Recent-server history is excluded from full settings backups. You can delete individual servers, clear one game's list, or clear the current account's recent servers. Reset All also removes all accounts' recent-server history. Turning off only playtime does not stop server-history presence checks; disable both settings to stop those checks.",
               "Saved preferences, files, and histories remain until you remove, reset, or overwrite them or the browser clears storage. Cached responses may remain stored after they expire for use. Reset All deletes extension-local settings, caches, pins, and all accounts' history, and removes background files and page caches on the current Roblox site origin. It keeps the local Terms of Service acceptance flag so the first-opening prompt is not repeated. Default features may resume after reset; disable tracking again if you want it off.",
-              "Uninstalling normally removes extension-local storage but may leave Roblox-site IndexedDB and localStorage. Use Reset All before uninstalling, or clear Roblox site data in your browser to remove those remaining files and caches. Site-data deletion may sign you out. If fallback mode hides data controls, first switch Roblox to English, Simplified Chinese, or Traditional Chinese. Exported files and data stored by third parties must be deleted separately.",
+              "Uninstalling normally removes extension-local storage but may leave Roblox-site IndexedDB and localStorage. Use Reset All before uninstalling, or clear Roblox site data in your browser to remove those remaining files and caches. Site-data deletion may sign you out. If fallback mode hides data controls, first switch Roblox to English, Simplified Chinese, Traditional Chinese, or Indonesian. Exported files and data stored by third parties must be deleted separately.",
               "The publisher cannot inspect or remotely erase data stored only in your browser. Contact the publisher for questions or requests about information you sent to support."
             ]
           },
@@ -90,7 +100,7 @@
             "heading": "What the extension provides",
             "paragraphs": [
               "Roblox Customizer is an independent browser extension for appearance customization and convenience tools on Roblox. It is not affiliated with, sponsored by, or endorsed by Roblox Corporation. Roblox and other third-party names and marks belong to their owners.",
-              "Full functionality currently supports English, Simplified Chinese, and Traditional Chinese Roblox settings. Other languages use a limited mode with image/GIF backgrounds and custom colors. Availability also depends on your browser, Roblox, and external services, which may change or become unavailable. No promise is made that every feature will always work."
+              "Full functionality currently supports English, Simplified Chinese, Traditional Chinese, and Indonesian Roblox settings. Other languages use a limited mode with image/GIF backgrounds and custom colors. Availability also depends on your browser, Roblox, and external services, which may change or become unavailable. No promise is made that every feature will always work."
             ]
           },
           {
@@ -111,7 +121,9 @@
           },
           {
             "heading": "Open-source license",
-            "paragraphs": ["The extension's software is licensed under GNU General Public License version 3, as provided in the repository's LICENSE file. Your rights to run, copy, modify, and redistribute the software are governed by that license. These terms do not restrict or replace those rights. Third-party content remains subject to its own rights and licenses."]
+            "paragraphs": [
+              "The extension's software is licensed under GNU General Public License version 3, as provided in the repository's LICENSE file. Your rights to run, copy, modify, and redistribute the software are governed by that license. These terms do not restrict or replace those rights. Third-party content remains subject to its own rights and licenses."
+            ]
           },
           {
             "heading": "Warranty and liability",
@@ -144,7 +156,9 @@
         "sections": [
           {
             "heading": "扩展使用的信息",
-            "paragraphs": ["以下信息用于提供扩展中可见的功能："],
+            "paragraphs": [
+              "以下信息用于提供扩展中可见的功能："
+            ],
             "items": [
               "偏好设置：语言、颜色、外观、主页和社交动态设置、货币选择、语言警告状态，以及你是否已接受服务条款。",
               "背景：你选择的文件、文件名和已保存的背景网址。选择本地文件会在浏览器中保存一份副本，不会上传给发布者。",
@@ -166,7 +180,9 @@
           },
           {
             "heading": "网络请求与第三方",
-            "paragraphs": ["相关功能运行时会发起请求。以下服务会收到请求中的标识符或资源，以及网络 IP 地址、请求标头等常规连接信息，并可能根据各自政策保留日志。Roblox 账号凭据不会发送给下列非 Roblox API。"],
+            "paragraphs": [
+              "相关功能运行时会发起请求。以下服务会收到请求中的标识符或资源，以及网络 IP 地址、请求标头等常规连接信息，并可能根据各自政策保留日志。Roblox 账号凭据不会发送给下列非 Roblox API。"
+            ],
             "items": [
               "Roblox API 和图片服务：账号和用户 ID、游戏／地点／宇宙 ID、徽章／物品 ID、服务器 ID 及相关查询，用于获取信息、缩略图、在线状态及服务器详情。Roblox 网站和账号活动由 Roblox 自行处理。",
               "ipwho.is：接收 Roblox 游戏服务器的公网 IP 地址，以估算服务器所在国家。这是查询游戏服务器，不是定位你的设备；服务仍可看到发起连接所使用的 IP 地址。",
@@ -191,7 +207,7 @@
               "你可以修改偏好、删除背景和置顶游戏、关闭社交动态及游戏时长记录、清除当前账号的时长并导出数据。设置备份包含所有已记录账号的历史，以及存在时的已保存背景。备份是未加密的 JSON 文件，请妥善保管。导入会替换对应的已有数据，而非合并。",
               "完整设置备份不包含最近服务器记录。可以删除单个服务器、清空某个游戏的列表，或清空当前账号的最近服务器。重置全部也会删除所有账号的最近服务器记录。仅关闭游戏时长不会停止服务器记录使用的状态检查；关闭两项记录后才会停止这些检查。",
               "已保存的偏好、文件和历史会保留至你删除、重置或覆盖，或浏览器清除存储。缓存响应在不再可用于显示后仍可能留在存储中。“重置全部”会删除扩展本地设置、缓存、置顶游戏和所有账号的历史，并删除当前 Roblox 网站来源上的背景文件及页面缓存。它会保留本地的服务条款接受标记，避免重复显示首次打开的提示。重置后默认功能可能恢复运行；如希望停止记录，请再次关闭游戏时长记录。",
-              "卸载通常会移除扩展本地存储，但可能保留 Roblox 网站的 IndexedDB 和 localStorage。卸载前请使用“重置全部”，或通过浏览器清除 Roblox 网站数据以删除剩余文件和缓存；清除网站数据可能使你退出登录。如回退模式隐藏了数据控件，请先将 Roblox 切换为英语、简体中文或繁体中文。导出文件及第三方保存的数据需另行删除。",
+              "卸载通常会移除扩展本地存储，但可能保留 Roblox 网站的 IndexedDB 和 localStorage。卸载前请使用“重置全部”，或通过浏览器清除 Roblox 网站数据以删除剩余文件和缓存；清除网站数据可能使你退出登录。如回退模式隐藏了数据控件，请先将 Roblox 切换为英语、简体中文、繁体中文或印尼语。导出文件及第三方保存的数据需另行删除。",
               "发布者无法查看或远程删除仅保存在你浏览器中的数据。如需咨询或处理你发送给支持的信息，请联系发布者。"
             ]
           },
@@ -213,7 +229,7 @@
             "heading": "扩展提供的服务",
             "paragraphs": [
               "Roblox Customizer 是用于 Roblox 外观自定义及便利工具的独立浏览器扩展，与 Roblox Corporation 无关联，亦未获其赞助或认可。Roblox 及其他第三方名称和商标属于各自权利人。",
-              "完整功能目前支持 Roblox 的英语、简体中文和繁体中文设置。其他语言进入仅支持图片／GIF 背景和自定义颜色的受限模式。功能可用性还取决于浏览器、Roblox 和外部服务，它们可能变化或不可用。我们不保证所有功能始终正常运行。"
+              "完整功能目前支持 Roblox 的英语、简体中文、繁体中文和印尼语设置。其他语言进入仅支持图片／GIF 背景和自定义颜色的受限模式。功能可用性还取决于浏览器、Roblox 和外部服务，它们可能变化或不可用。我们不保证所有功能始终正常运行。"
             ]
           },
           {
@@ -234,7 +250,9 @@
           },
           {
             "heading": "开源许可证",
-            "paragraphs": ["扩展软件采用仓库 LICENSE 文件所载的 GNU 通用公共许可证第 3 版。运行、复制、修改及再分发软件的权利由该许可证规定；这些条款不限制或取代这些权利。第三方内容仍适用各自权利和许可证。"]
+            "paragraphs": [
+              "扩展软件采用仓库 LICENSE 文件所载的 GNU 通用公共许可证第 3 版。运行、复制、修改及再分发软件的权利由该许可证规定；这些条款不限制或取代这些权利。第三方内容仍适用各自权利和许可证。"
+            ]
           },
           {
             "heading": "保证与责任",
@@ -267,7 +285,9 @@
         "sections": [
           {
             "heading": "擴充功能使用的資訊",
-            "paragraphs": ["以下資訊用於提供擴充功能中可見的功能："],
+            "paragraphs": [
+              "以下資訊用於提供擴充功能中可見的功能："
+            ],
             "items": [
               "偏好設定：語言、顏色、外觀、首頁和社群動態設定、貨幣選擇、語言警告狀態，以及你是否已接受服務條款。",
               "背景：你選擇的檔案、檔名和已儲存的背景網址。選擇本機檔案會在瀏覽器中儲存一份副本，不會上傳給發布者。",
@@ -289,7 +309,9 @@
           },
           {
             "heading": "網路請求與第三方",
-            "paragraphs": ["相關功能執行時會發出請求。以下服務會收到請求中的識別碼或資源，以及網路 IP 位址、請求標頭等一般連線資訊，並可能依各自政策保留紀錄。Roblox 帳號憑證不會傳送給下列非 Roblox API。"],
+            "paragraphs": [
+              "相關功能執行時會發出請求。以下服務會收到請求中的識別碼或資源，以及網路 IP 位址、請求標頭等一般連線資訊，並可能依各自政策保留紀錄。Roblox 帳號憑證不會傳送給下列非 Roblox API。"
+            ],
             "items": [
               "Roblox API 和圖片服務：帳號和使用者 ID、遊戲／地點／宇宙 ID、徽章／物品 ID、伺服器 ID 及相關查詢，用於取得資訊、縮圖、線上狀態及伺服器詳細資料。Roblox 網站和帳號活動由 Roblox 自行處理。",
               "ipwho.is：接收 Roblox 遊戲伺服器的公用 IP 位址，以估算伺服器所在國家。這是查詢遊戲伺服器，不是定位你的裝置；服務仍可看到發起連線所使用的 IP 位址。",
@@ -314,7 +336,7 @@
               "你可以修改偏好、刪除背景和釘選遊戲、關閉社群動態及遊戲時間記錄、清除目前帳號的時間並匯出資料。設定備份包含所有已記錄帳號的歷史，以及存在時的已儲存背景。備份是未加密的 JSON 檔案，請妥善保管。匯入會取代對應的已有資料，而非合併。",
               "完整設定備份不包含最近伺服器記錄。可以刪除個別伺服器、清空某個遊戲的清單，或清空目前帳號的最近伺服器。重設全部也會刪除所有帳號的最近伺服器記錄。僅關閉遊戲時間不會停止伺服器記錄使用的狀態檢查；關閉兩項記錄後才會停止這些檢查。",
               "已儲存的偏好、檔案和歷史會保留至你刪除、重設或覆寫，或瀏覽器清除儲存空間。快取回應在不再可用於顯示後仍可能留在儲存空間。“重設全部”會刪除擴充功能本機設定、快取、釘選遊戲和所有帳號的歷史，並刪除目前 Roblox 網站來源上的背景檔案及頁面快取。它會保留本機的服務條款接受標記，避免重複顯示首次開啟的提示。重設後預設功能可能恢復執行；如希望停止記錄，請再次關閉遊戲時間記錄。",
-              "解除安裝通常會移除擴充功能本機儲存空間，但可能保留 Roblox 網站的 IndexedDB 和 localStorage。解除安裝前請使用“重設全部”，或透過瀏覽器清除 Roblox 網站資料以刪除剩餘檔案和快取；清除網站資料可能使你登出。如備援模式隱藏了資料控制項，請先將 Roblox 切換為英語、簡體中文或繁體中文。匯出檔案及第三方儲存的資料需另行刪除。",
+              "解除安裝通常會移除擴充功能本機儲存空間，但可能保留 Roblox 網站的 IndexedDB 和 localStorage。解除安裝前請使用“重設全部”，或透過瀏覽器清除 Roblox 網站資料以刪除剩餘檔案和快取；清除網站資料可能使你登出。如備援模式隱藏了資料控制項，請先將 Roblox 切換為英語、簡體中文、繁體中文或印尼語。匯出檔案及第三方儲存的資料需另行刪除。",
               "發布者無法查看或遠端刪除僅儲存在你瀏覽器中的資料。如需詢問或處理你傳送給支援的資訊，請聯絡發布者。"
             ]
           },
@@ -336,7 +358,7 @@
             "heading": "擴充功能提供的服務",
             "paragraphs": [
               "Roblox Customizer 是用於 Roblox 外觀自訂及便利工具的獨立瀏覽器擴充功能，與 Roblox Corporation 無關聯，亦未獲其贊助或認可。Roblox 及其他第三方名稱和商標屬於各自權利人。",
-              "完整功能目前支援 Roblox 的英語、簡體中文和繁體中文設定。其他語言進入僅支援圖片／GIF 背景和自訂顏色的受限模式。功能可用性還取決於瀏覽器、Roblox 和外部服務，它們可能變更或無法使用。我們不保證所有功能始終正常執行。"
+              "完整功能目前支援 Roblox 的英語、簡體中文、繁體中文和印尼語設定。其他語言進入僅支援圖片／GIF 背景和自訂顏色的受限模式。功能可用性還取決於瀏覽器、Roblox 和外部服務，它們可能變更或無法使用。我們不保證所有功能始終正常執行。"
             ]
           },
           {
@@ -357,7 +379,9 @@
           },
           {
             "heading": "開源授權條款",
-            "paragraphs": ["擴充功能軟體採用儲存庫 LICENSE 檔案所載的 GNU 通用公共授權條款第 3 版。執行、複製、修改及再散布軟體的權利由該授權條款規定；這些條款不限制或取代這些權利。第三方內容仍適用各自權利和授權條款。"]
+            "paragraphs": [
+              "擴充功能軟體採用儲存庫 LICENSE 檔案所載的 GNU 通用公共授權條款第 3 版。執行、複製、修改及再散布軟體的權利由該授權條款規定；這些條款不限制或取代這些權利。第三方內容仍適用各自權利和授權條款。"
+            ]
           },
           {
             "heading": "保證與責任",
@@ -371,6 +395,135 @@
             "paragraphs": [
               "功能和條款可能變更。更新後的條款將附上修訂日期並在此提供；重大變更會在版本發布資訊中說明，並在有要求時透過擴充功能內通知說明。依法需要的同意會在需要之前徵求。",
               "你可以隨時停用或解除安裝擴充功能。如還希望刪除已儲存資料，請依照隱私權政策中的刪除說明操作。停止使用不會取消 GPL 授予你的權利。"
+            ]
+          }
+        ]
+      }
+    },
+    "id": {
+      "name": "Bahasa Indonesia",
+      "languageLabel": "Bahasa",
+      "navigationLabel": "Dokumen hukum",
+      "updatedLabel": "Terakhir diperbarui",
+      "publisherLabel": "Penerbit",
+      "contactHeading": "Kontak",
+      "contactText": "Untuk pertanyaan tentang dokumen ini, permintaan privasi, atau bantuan, hubungi penerbit melalui email. Telegram dan X juga tersedia. Jangan kirim kata sandi, cookie sesi, atau cadangan yang belum disamarkan.",
+      "privacy": {
+        "title": "Kebijakan Privasi",
+        "intro": "Kebijakan ini menjelaskan cara Roblox Customizer menangani informasi. Kebijakan ini mencakup ekstensi browser ini, bukan Roblox, browser, atau layanan pihak ketiga yang memiliki kebijakan masing-masing.",
+        "sections": [
+          {
+            "heading": "Informasi yang digunakan ekstensi",
+            "paragraphs": [
+              "Informasi digunakan untuk menyediakan fitur yang Anda lihat dalam ekstensi:"
+            ],
+            "items": [
+              "Preferensi: bahasa, warna, tampilan, pengaturan Beranda dan feed sosial, pilihan mata uang, status peringatan bahasa, dan apakah Anda telah menyetujui Ketentuan Layanan.",
+              "Latar belakang: file yang Anda pilih, nama file, dan URL latar belakang yang tersimpan. Memilih file lokal menyimpan salinan secara lokal di browser; file tidak diunggah ke penerbit.",
+              "Pengaturan koleksi: ID game yang disematkan, nama dan thumbnail game, nama folder, dan rekomendasi tersembunyi.",
+              "Waktu bermain: ID dan nama pengguna Roblox, ID game/universe/place, nama dan ikon game, perkiraan durasi, jumlah sesi, serta waktu pertama/terakhir bermain dan waktu pengambilan sampel untuk setiap akun yang tercatat.",
+              "Server terbaru: ID pengguna Roblox, ID game/universe/place, ID instans server, nama game, dan waktu terakhir teramati untuk riwayat server terbaru.",
+              "Konten Roblox: URL dan isi halaman, serta informasi profil, avatar, teman, inventaris, lencana, game, server, dan tautan sosial yang diperlukan untuk tampilan dan alat halaman. Halaman akun, pesan, dan transaksi yang ada dapat diubah tampilannya secara lokal; isinya tidak diunggah ke penerbit. Ekstensi tidak membaca riwayat penjelajahan Anda di situs yang tidak terkait.",
+              "Informasi sementara atau dalam cache: postingan sosial publik dan thumbnail, kurs, respons API, dan perkiraan negara server."
+            ]
+          },
+          {
+            "heading": "Penyimpanan lokal dan waktu bermain",
+            "paragraphs": [
+              "Preferensi, sematan, riwayat, dan sebagian cache menggunakan penyimpanan lokal ekstensi browser. File latar belakang menggunakan IndexedDB pada origin situs Roblox tempat file dipilih. Cache kecil untuk tampilan dan baris teman menggunakan localStorage situs Roblox. Ekstensi tidak menggunakan sinkronisasi penyimpanan Chrome atau akun cloud yang dioperasikan penerbit.",
+              "Pencatatan waktu bermain diaktifkan secara bawaan dan memeriksa status akun Roblox yang masuk kira-kira setiap 30 detik selama browser berjalan, termasuk ketika tab Roblox ditutup. Fitur ini memperkirakan aktivitas dari sampel tersebut, bukan merekam permainan. Menonaktifkan pencatatan menghentikan catatan waktu bermain baru dan mempertahankan riwayat yang ada. Pemeriksaan status berlanjut jika pencatatan server terbaru tetap aktif; mode bahasa yang tidak didukung menjeda kedua fitur.",
+              "Pencatatan server terbaru diaktifkan secara bawaan dan menggunakan pemeriksaan status kira-kira setiap 30 detik yang sama dengan waktu bermain. Pengaturannya yang terpisah menghentikan catatan server baru sambil mempertahankan riwayat tersimpan. Masing-masing dari 10 akun yang paling baru digunakan memiliki daftar terpisah berisi hingga 6 server per game, termasuk subplace game tersebut; server baru hanya menggantikan entri terlama dari game yang sama.",
+              "Ekstensi tidak meminta kata sandi Roblox Anda. Panggilan API Roblox yang memerlukan autentikasi menggunakan sesi Roblox yang sudah ada di browser, sehingga Roblox menerima autentikasi yang terkait dengan permintaan tersebut. Cadangan tidak berisi kata sandi Roblox atau cookie sesi."
+            ]
+          },
+          {
+            "heading": "Permintaan jaringan dan pihak ketiga",
+            "paragraphs": [
+              "Permintaan dibuat saat fitur terkait berjalan. Layanan di bawah menerima pengenal atau sumber daya yang diminta serta informasi koneksi biasa, seperti alamat IP jaringan dan header permintaan. Mereka dapat menyimpan log sendiri berdasarkan kebijakan mereka. Kredensial akun Roblox tidak dikirim ke API non-Roblox yang tercantum di sini."
+            ],
+            "items": [
+              "API dan layanan gambar Roblox: ID akun dan pengguna, ID game/place/universe, ID lencana/item, ID server, serta kueri terkait untuk memuat informasi, thumbnail, status, dan detail server. Roblox menangani aktivitas situs dan akun miliknya secara terpisah.",
+              "ipwho.is: alamat IP publik server game Roblox untuk memperkirakan negara server. Ini adalah pencarian lokasi server game, bukan permintaan untuk menemukan perangkat Anda; layanan tetap melihat IP koneksi yang digunakan untuk membuat permintaan.",
+              "Rolimons (www.rolimons.com): ID game/place yang diminta untuk statistik game publik. Membuka tautan analisis pemain atau server mengirimkan pengenal tujuan tersebut ke Rolimons.",
+              "FxEmbed (api.fxtwitter.com) dan host gambar X (pbs.twimg.com dan mosaic.fxtwitter.com): nama akun X publik yang ditautkan pada halaman Roblox, serta referensi postingan/gambar, untuk menampilkan postingan dan media publik.",
+              "YouTube (www.youtube.com) dan host gambarnya (i.ytimg.com): nama atau ID channel publik dan ID video/gambar untuk menampilkan video terbaru dan thumbnail. Permintaan feed tidak mengirim kredensial masuk YouTube.",
+              "jsDelivr (cdn.jsdelivr.net) dan mirror API mata uang (latest.currency-api.pages.dev): permintaan data kurs USD publik. Saldo Roblox dan riwayat waktu bermain Anda tidak dikirim ke layanan kurs ini.",
+              "URL latar belakang jarak jauh yang tersimpan: host latar belakang menerima permintaan file saat dimuat. File latar belakang lokal tidak memerlukan permintaan tersebut. Tautan bantuan atau situs lain menghubungi situs itu hanya saat Anda membukanya."
+            ]
+          },
+          {
+            "heading": "Akses dan penggunaan oleh penerbit",
+            "paragraphs": [
+              "Ekstensi tidak memiliki endpoint pengumpulan data, pelacak iklan, atau layanan analitik penggunaan yang dioperasikan penerbit. Ekstensi tidak mengirim preferensi lokal, latar belakang, atau riwayat waktu bermain Anda ke penerbit, dan penerbit tidak menjual data tersebut atau menggunakannya untuk iklan bertarget. Data digunakan untuk fitur ekstensi yang dinyatakan.",
+              "Jika Anda secara sukarela menghubungi bantuan atau mengirim laporan masalah, penerbit menerima informasi yang Anda kirim, seperti nama kontak, email, laporan, atau tangkapan layar. Informasi digunakan untuk menanggapi dan memecahkan masalah, serta disimpan hanya selama diperlukan untuk tujuan itu atau kewajiban hukum. Anda dapat meminta penghapusan melalui email, dengan tunduk pada kewajiban tersebut dan aturan platform bantuan. Laporan masalah GitHub dan postingan sosial publik dapat terlihat oleh orang lain; gunakan email untuk permintaan pribadi.",
+              "Toko ekstensi dapat secara terpisah memberi penerbit statistik pemasangan agregat, ulasan, dan informasi yang Anda kirim melalui layanan mereka. Aktivitas tersebut diatur oleh kebijakan toko."
+            ]
+          },
+          {
+            "heading": "Kontrol, masa penyimpanan, dan penghapusan",
+            "paragraphs": [
+              "Anda dapat mengubah preferensi, menghapus latar belakang dan sematan, menonaktifkan feed sosial dan pencatatan waktu bermain, mengosongkan waktu bermain akun saat ini, dan mengekspor data. Cadangan pengaturan mencakup riwayat semua akun yang tercatat dan latar belakang tersimpan jika ada. Cadangan berupa file JSON tanpa enkripsi; jaga kerahasiaannya. Impor mengganti data tersimpan terkait, bukan menggabungkannya.",
+              "Riwayat server terbaru tidak disertakan dalam cadangan pengaturan lengkap. Anda dapat menghapus server satu per satu, mengosongkan daftar satu game, atau mengosongkan server terbaru akun saat ini. Reset semua juga menghapus riwayat server terbaru semua akun. Menonaktifkan waktu bermain saja tidak menghentikan pemeriksaan status untuk riwayat server; nonaktifkan kedua pengaturan untuk menghentikan pemeriksaan tersebut.",
+              "Preferensi, file, dan riwayat tersimpan tetap ada hingga Anda menghapus, mereset, atau menimpanya, atau browser membersihkan penyimpanan. Respons yang di-cache mungkin tetap tersimpan setelah kedaluwarsa untuk digunakan. Reset semua menghapus pengaturan lokal ekstensi, cache, sematan, dan riwayat semua akun, serta menghapus file latar belakang dan cache halaman pada origin situs Roblox saat ini. Status persetujuan Ketentuan Layanan lokal tetap disimpan agar permintaan saat pertama dibuka tidak berulang. Fitur bawaan dapat aktif kembali setelah reset; nonaktifkan pencatatan lagi jika Anda ingin fitur tersebut mati.",
+              "Menghapus ekstensi biasanya menghapus penyimpanan lokal ekstensi, tetapi dapat menyisakan IndexedDB dan localStorage situs Roblox. Gunakan Reset semua sebelum menghapus ekstensi, atau hapus data situs Roblox di browser untuk menghapus file dan cache yang tersisa. Penghapusan data situs dapat membuat Anda keluar dari akun. Jika mode terbatas menyembunyikan kontrol data, ubah Roblox terlebih dahulu ke bahasa Inggris, Mandarin Sederhana, Mandarin Tradisional, atau Bahasa Indonesia. File ekspor dan data yang disimpan pihak ketiga harus dihapus secara terpisah.",
+              "Penerbit tidak dapat memeriksa atau menghapus dari jarak jauh data yang hanya tersimpan di browser Anda. Hubungi penerbit untuk pertanyaan atau permintaan tentang informasi yang Anda kirim ke bantuan."
+            ]
+          },
+          {
+            "heading": "Keamanan, pengguna muda, dan pembaruan",
+            "paragraphs": [
+              "Permintaan API bawaan menggunakan HTTPS. Penyimpanan lokal browser dan ekspor tidak memiliki enkripsi tambahan dari ekstensi ini; lindungi perangkat, profil browser, dan file cadangan Anda. Tidak ada metode keamanan yang dapat menjamin perlindungan penuh.",
+              "Ekstensi tidak meminta usia, membuat akun pengguna terpisah, atau mengumpulkan informasi anak untuk iklan. Pemrosesan lokal yang sama seperti dijelaskan di atas berlaku untuk semua pengguna. Orang tua atau wali dapat membantu pengguna muda mengelola pengaturan dan menghapus data lokal.",
+              "Kebijakan ini akan diperbarui ketika praktik data ekstensi berubah. Tanggal di atas menunjukkan versinya. Perubahan penting akan dijelaskan dalam informasi rilis dan, bila diwajibkan, dalam pemberitahuan di ekstensi sebelum pemrosesan baru dimulai."
+            ]
+          }
+        ]
+      },
+      "terms": {
+        "title": "Ketentuan Layanan",
+        "intro": "Ketentuan ini menjelaskan penggunaan Roblox Customizer yang disediakan oleh penerbit yang disebutkan di atas. Baca bersama Kebijakan Privasi. Gunakan ekstensi hanya jika Anda dapat menyetujui ketentuan ini menurut hukum yang berlaku; dapatkan izin orang tua atau wali bila diperlukan.",
+        "sections": [
+          {
+            "heading": "Layanan yang disediakan ekstensi",
+            "paragraphs": [
+              "Roblox Customizer adalah ekstensi browser independen untuk penyesuaian tampilan dan alat bantu di Roblox. Ekstensi ini tidak berafiliasi dengan, disponsori oleh, atau didukung oleh Roblox Corporation. Nama dan merek Roblox serta pihak ketiga lainnya adalah milik pemilik masing-masing.",
+              "Fungsi lengkap saat ini mendukung pengaturan Roblox dalam bahasa Inggris, Mandarin Sederhana, Mandarin Tradisional, dan Bahasa Indonesia. Bahasa lain menggunakan mode terbatas dengan latar belakang gambar/GIF dan warna kustom. Ketersediaan juga bergantung pada browser, Roblox, dan layanan eksternal yang dapat berubah atau tidak tersedia. Tidak ada jaminan bahwa setiap fitur akan selalu berfungsi."
+            ]
+          },
+          {
+            "heading": "Penggunaan yang bertanggung jawab dan konten Anda",
+            "paragraphs": [
+              "Gunakan ekstensi sesuai hukum dan ikuti ketentuan Roblox serta layanan yang Anda akses. Ekstensi tidak memberikan izin untuk melewati izin akun, pembatasan platform, atau tindakan keamanan, dan tidak memberikan Robux gratis atau kepemilikan item.",
+              "Anda bertanggung jawab atas latar belakang, URL, dan konten lain yang Anda pilih. Gunakan konten yang Anda miliki atau diizinkan untuk digunakan, hormati hak dan privasi orang lain, serta hindari file atau tautan berbahaya. Memilih file lokal sebagai latar belakang tidak mengalihkan kepemilikannya kepada penerbit.",
+              "Selalu perbarui browser dan ekstensi serta lindungi perangkat dan akun Anda. Jangan berikan kata sandi Roblox atau cookie sesi Anda kepada penerbit atau pihak lain."
+            ]
+          },
+          {
+            "heading": "Perkiraan, pihak ketiga, dan data tersimpan",
+            "paragraphs": [
+              "Waktu bermain, negara server, ping, statistik game, dan nilai mata uang merupakan perkiraan atau informasi pihak ketiga. Informasi tersebut dapat tidak lengkap, terlambat, atau tidak akurat. Nilai mata uang hanya sebagai informasi, bukan layanan penukaran atau jaminan harga pembayaran. Verifikasi detail penting dengan layanan asalnya.",
+              "Situs, feed, media, dan API eksternal dioperasikan oleh penyedia masing-masing berdasarkan ketentuan dan kebijakan mereka. Penerbit tidak mengontrol ketersediaan, keakuratan, atau kontennya.",
+              "Data ekstensi tersimpan berada dalam profil browser Anda dan bukan cadangan cloud. Ekspor cadangan sebelum mereset, mengimpor, menghapus ekstensi, atau berpindah perangkat. Impor dapat mengganti data yang ada, sedangkan reset atau pembersihan browser dapat menghapusnya. Penerbit tidak dapat memulihkan data yang hanya tersimpan di perangkat Anda. Ekstensi tidak mencadangkan pembelian, saldo, atau progres game Roblox."
+            ]
+          },
+          {
+            "heading": "Lisensi sumber terbuka",
+            "paragraphs": [
+              "Perangkat lunak ekstensi dilisensikan berdasarkan GNU General Public License versi 3, sebagaimana tercantum dalam file LICENSE repositori. Hak Anda untuk menjalankan, menyalin, mengubah, dan mendistribusikan ulang perangkat lunak diatur oleh lisensi tersebut. Ketentuan ini tidak membatasi atau menggantikan hak tersebut. Konten pihak ketiga tetap tunduk pada hak dan lisensinya sendiri."
+            ]
+          },
+          {
+            "heading": "Jaminan dan tanggung jawab",
+            "paragraphs": [
+              "Sejauh diizinkan hukum yang berlaku, ekstensi disediakan apa adanya dan sesuai ketersediaan, tanpa jaminan kelayakan jual, kesesuaian untuk tujuan tertentu, tidak adanya pelanggaran hak, operasi tanpa gangguan, atau keakuratan. Ketentuan jaminan dan tanggung jawab GPL juga berlaku pada perangkat lunak ini.",
+              "Sejauh diizinkan hukum yang berlaku, penerbit tidak bertanggung jawab atas kerugian tidak langsung atau lanjutan, hilangnya keuntungan, atau kehilangan data yang timbul dari penggunaan ekstensi. Tidak ada ketentuan di sini yang mengecualikan tanggung jawab yang secara hukum tidak dapat dikecualikan atau membatasi hak konsumen yang bersifat wajib."
+            ]
+          },
+          {
+            "heading": "Perubahan dan penghentian penggunaan",
+            "paragraphs": [
+              "Fitur dan ketentuan ini dapat berubah. Ketentuan yang diperbarui akan tersedia di sini dengan tanggal baru; perubahan penting akan dijelaskan dalam informasi rilis dan, bila diwajibkan, dalam pemberitahuan di ekstensi. Persetujuan yang diwajibkan hukum akan diminta sebelum diperlukan.",
+              "Anda dapat berhenti menggunakan ekstensi kapan saja dengan menonaktifkan atau menghapusnya. Ikuti petunjuk penghapusan dalam Kebijakan Privasi jika Anda juga ingin menghapus data tersimpan. Mengakhiri penggunaan tidak menghapus hak Anda berdasarkan GPL."
             ]
           }
         ]

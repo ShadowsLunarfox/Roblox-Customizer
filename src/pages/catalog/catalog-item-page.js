@@ -1,5 +1,6 @@
 (globalThis.RobloxCustomizerCompatibility?.runFeature || (initialize => initialize()))(() => {
   'use strict';
+  const routePath = value => globalThis.RobloxCustomizerRoutes?.pathname(value) ?? value ?? location.pathname;
 
   const sendMessage = globalThis.RobloxCustomizerRuntime?.sendMessage
     || ((...args) => chrome.runtime.sendMessage(...args));
@@ -144,12 +145,12 @@
   }
 
   function currentAssetId() {
-    const id = Number(location.pathname.match(ITEM_PATH)?.[2]);
+    const id = Number(routePath().match(ITEM_PATH)?.[2]);
     return Number.isSafeInteger(id) && id > 0 ? id : 0;
   }
 
   function currentItemType() {
-    return location.pathname.match(ITEM_PATH)?.[1].toLowerCase() === 'bundles' ? 'Bundle' : 'Asset';
+    return routePath().match(ITEM_PATH)?.[1].toLowerCase() === 'bundles' ? 'Bundle' : 'Asset';
   }
 
   function isCurrentItem(id, type = itemType) {

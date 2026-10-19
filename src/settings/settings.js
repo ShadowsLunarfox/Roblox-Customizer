@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  const routePath = value => globalThis.RobloxCustomizerRoutes?.pathname(value) ?? value ?? location.pathname;
 
   const sendMessage = globalThis.RobloxCustomizerRuntime?.sendMessage
     || ((...args) => chrome.runtime.sendMessage(...args));
@@ -44,6 +45,9 @@
   let backgroundError = '';
   let backgroundPending = false;
   let homeSyncQueued = false;
+  let homeCardsIterator = null;
+  let homeCardsTimer = 0;
+  const hiddenHomeSections = new Map();
   let homeGreetingUser = null;
   let homeGreetingRequest = null;
   let homeGreetingAttempts = 0;
@@ -84,7 +88,7 @@
     delete saved.clockShowTimeZone;
     delete saved.clockDateFormat;
     delete saved.clockTimeZone;
-    if (!['auto', 'en', 'zh-CN', 'zh-TW'].includes(saved.uiLanguage)) saved.uiLanguage = 'auto';
+    if (!['auto', 'en', 'zh-CN', 'zh-TW', 'id'].includes(saved.uiLanguage)) saved.uiLanguage = 'auto';
     saved.disableTransparency = saved.disableTransparency === true;
     saved.disableBlur = saved.disableBlur === true;
     saved.experimentalCustomColors = saved.experimentalCustomColors === true;
@@ -101,7 +105,7 @@
       globalThis.RobloxCustomizerStartup.syncRoute();
       return;
     }
-    const path = location.pathname;
+    const path = routePath();
     const page = (/^\/catalog(?:\/|$)/i.test(path)
       || /^\/bundles\/\d+(?:\/|$)/i.test(path)) ? 'catalog'
       : /^\/game-pass\/\d+(?:\/|$)/i.test(path) ? 'game-pass'
@@ -295,7 +299,7 @@
   }
 
   function requestHomeGreetingUser() {
-    if (!/^\/home\/?$/i.test(location.pathname)
+    if (!/^\/home\/?$/i.test(routePath())
       || homeGreetingRequest || homeGreetingAttempts >= 3) return;
     homeGreetingAttempts++;
     homeGreetingRequest = new Promise((resolve, reject) => {
@@ -313,14 +317,14 @@
       if (!user.imageUrl && !homeGreetingAvatarRetried) {
         homeGreetingAvatarRetried = true;
         setTimeout(() => {
-          if (!/^\/home\/?$/i.test(location.pathname)) return;
+          if (!/^\/home\/?$/i.test(routePath())) return;
           homeGreetingAttempts = 0;
           requestHomeGreetingUser();
         }, 2500);
       }
     }).catch(() => {
       homeGreetingRequest = null;
-      if (homeGreetingAttempts < 3 && /^\/home\/?$/i.test(location.pathname)) {
+      if (homeGreetingAttempts < 3 && /^\/home\/?$/i.test(routePath())) {
         setTimeout(requestHomeGreetingUser, homeGreetingAttempts * 2000);
       }
     });
@@ -353,10 +357,53 @@
     return '';
   }
 
+  function applyHomeSectionVisibility(hidden = new Set()) {
+    // Page styles can override the stylesheet's display rule. Keep an inline
+    // override only while the section is hidden, preserving its native display
+    // value for toggles, navigation, reused containers and compatibility changes.
+    // The attribute carries that original value if a native renderer clones DOM.
+    for (const section of document.querySelectorAll('[data-rc-home-display]')) {
+      if (hiddenHomeSections.has(section)) continue;
+      try {
+        const previous = JSON.parse(section.getAttribute('data-rc-home-display'));
+        if (typeof previous?.value === 'string' && ['', 'important'].includes(previous.priority)) {
+          hiddenHomeSections.set(section, previous);
+        }
+      } catch { /* Ignore an unrelated or malformed page attribute. */ }
+    }
+    for (const [section, previous] of hiddenHomeSections) {
+      if (hidden.has(section)) continue;
+      if (section.style.getPropertyValue('display') === 'none'
+        && section.style.getPropertyPriority('display') === 'important') {
+        if (previous.value) section.style.setProperty('display', previous.value, previous.priority);
+        else section.style.removeProperty('display');
+      }
+      section.removeAttribute('data-rc-home-display');
+      hiddenHomeSections.delete(section);
+    }
+    for (const section of hidden) {
+      if (!hiddenHomeSections.has(section)) {
+        const previous = { value: section.style.getPropertyValue('display'),
+          priority: section.style.getPropertyPriority('display') };
+        hiddenHomeSections.set(section, previous);
+        section.setAttribute('data-rc-home-display', JSON.stringify(previous));
+      }
+      if (section.style.getPropertyValue('display') !== 'none'
+        || section.style.getPropertyPriority('display') !== 'important') {
+        section.style.setProperty('display', 'none', 'important');
+      }
+    }
+  }
+
   function markHomeSections(home, cardSelector, gameSelector) {
     const sections = new Map();
     const protectedSections = '.friend-carousel-container, #rc-pinned-games, #rc-home-greeting, #rc-settings-overlay';
-    const headingSelector = 'h1, h2, h3, h4, [role="heading"], .game-home-page-carousel-title, .game-carousel-title';
+    const headingSelector = 'h1, h2, h3, h4, [role="heading"], .game-home-page-carousel-title, .game-carousel-title, '
+      + '[data-testid="section-header-title-subtitle-container"]';
+    const headerSelector = '.home-sort-header-container, [data-testid="section-header"], .container-header';
+    const nativeSectionSelector = '.game-sort-carousel-wrapper, [data-testid="home-page-game-grid"]';
+    const sectionSelector = '.game-sort-carousel-container, .game-carousel-container, .game-home-page-carousel-container, '
+      + `.game-grid-container, ${nativeSectionSelector}`;
     const headingKind = node => {
       const direct = homeSectionKind(node.getAttribute('aria-label')) || homeSectionKind(node.textContent);
       if (direct || !node.matches(headingSelector)) return direct;
@@ -366,20 +413,36 @@
         || homeSectionKind(child.textContent)).filter(Boolean));
       return kinds.size === 1 ? [...kinds][0] : '';
     };
-    const labelledTitles = '[aria-label]';
-    for (const heading of home.querySelectorAll(`${headingSelector}, ${labelledTitles}, span, div`)) {
-      if (heading.closest(`${protectedSections}, ${cardSelector}`) || heading.childElementCount > 3) continue;
+    // Native card titles cannot label a Home section. Prune their subtrees
+    // instead of repeatedly inspecting every card descendant as Home loads.
+    const walker = document.createTreeWalker(home, NodeFilter.SHOW_ELEMENT, {
+      acceptNode(node) {
+        if (node.matches(`script, style, ${protectedSections}, ${cardSelector}`)) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const headings = [];
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) headings.push(node);
+    const semanticHeadings = headings.filter(node => node.matches(headingSelector) && node.textContent.trim());
+    for (const heading of headings) {
+      if (heading.childElementCount > 3 && !heading.matches(headingSelector)) continue;
+      // Native section titles can be plain links or buttons. Only recognize
+      // those controls inside a header, rather than unrelated game actions.
+      if (heading.matches('a, button') && !heading.closest(`${headingSelector}, ${headerSelector}`)) continue;
       const kind = headingKind(heading);
       if (!kind || [...heading.children].some(child => homeSectionKind(child.textContent) === kind)) continue;
+      const nativeSection = heading.closest(nativeSectionSelector);
       for (let section = heading.parentElement; section && section !== home && section !== document.body;
         section = section.parentElement) {
         if (section.matches(protectedSections) || section.querySelector(protectedSections)) break;
         // Do not hide a shared wrapper containing another Home section, such as Continue.
-        if ([...section.querySelectorAll(headingSelector)].some(other =>
-          !other.closest(cardSelector) && other.textContent.trim()
-          && headingKind(other) !== kind)) break;
-        if (!section.querySelector(gameSelector) && !section.matches(
-          '.game-sort-carousel-container, .game-carousel-container, .game-home-page-carousel-container, .game-grid-container')) continue;
+        if (semanticHeadings.some(other => section.contains(other) && headingKind(other) !== kind)) break;
+        // The grid/carousel can have inner containers with their own headings.
+        // Mark its complete native wrapper so hiding also removes the header
+        // and preserves the lower grid's identity when it loads first.
+        if (nativeSection?.contains(section) && section !== nativeSection) continue;
+        if (section.closest(headerSelector)) continue;
+        if (!section.querySelector(gameSelector) && !section.matches(sectionSelector)) continue;
         sections.set(section, kind);
         break;
       }
@@ -390,22 +453,33 @@
       section.removeAttribute('data-rc-recommended-section');
     }
     let recommendedPart = 'upper';
+    const hidden = new Set();
     for (const [section, kind] of sections) {
       if (section.getAttribute('data-rc-home-section') !== kind) section.setAttribute('data-rc-home-section', kind);
       if (kind === 'recommended') {
+        // Titles, layout classes and grid test IDs can be reused by both
+        // regions in every language. Preserve first/remaining page order.
+        const part = recommendedPart;
         // DOM order remains stable when a section is hidden or has not loaded
         // its cards yet; visual coordinates would misclassify those sections.
-        if (section.getAttribute('data-rc-recommended-section') !== recommendedPart) {
-          section.setAttribute('data-rc-recommended-section', recommendedPart);
+        if (section.getAttribute('data-rc-recommended-section') !== part) {
+          section.setAttribute('data-rc-recommended-section', part);
         }
-        recommendedPart = 'lower';
+        if (part === 'upper') recommendedPart = 'lower';
       } else section.removeAttribute('data-rc-recommended-section');
+      const preference = kind === 'recommended'
+        ? `hideRecommended${section.getAttribute('data-rc-recommended-section') === 'lower' ? 'Lower' : 'Upper'}`
+        : kind === 'favorites' ? 'hideFavorites' : 'hideStandoutGames';
+      if (settings[preference] === true) hidden.add(section);
     }
+    applyHomeSectionVisibility(hidden);
   }
 
   function syncHomeContent() {
-    if (!enhancementsEnabled()) return;
-    if (!/^\/home\/?$/i.test(location.pathname)) {
+    if (!enhancementsEnabled()) { homeCardsIterator = null; applyHomeSectionVisibility(); return; }
+    if (!/^\/home\/?$/i.test(routePath())) {
+      homeCardsIterator = null;
+      applyHomeSectionVisibility();
       document.getElementById('rc-home-greeting')?.remove();
       clearTimeout(homeGreetingTickTimer);
       homeGreetingTickTimer = 0;
@@ -422,22 +496,41 @@
 
     const cardSelector = '.game-card-container, .game-card, .hover-game-tile, .game-tile, .grid-item-container, [data-testid="game-card"], [data-testid="game-tile"]';
     const gameSelector = `a[href*="/games/"], ${cardSelector}`;
-    for (const link of home.querySelectorAll('a[href*="/games/"]')) {
-      if (link.closest('.friend-carousel-container, #rc-pinned-games')) continue;
-      const card = link.closest(cardSelector);
-      if (card && home.contains(card)) card.classList.add('rc-home-game-card');
-    }
-
     markHomeSections(home, cardSelector, gameSelector);
+    homeCardsIterator = syncHomeCards(home, cardSelector);
+    if (!homeCardsTimer) homeCardsTimer = setTimeout(flushHomeCards, 0);
+  }
 
+  function flushHomeCards() {
+    homeCardsTimer = 0;
+    const start = performance.now();
+    // Yield between cards so GIF decoding, video and native page rendering
+    // can continue even on a slow device during a large Home update.
+    while (homeCardsIterator && performance.now() - start < 6) {
+      if (homeCardsIterator.next().done) homeCardsIterator = null;
+    }
+    if (homeCardsIterator) homeCardsTimer = setTimeout(flushHomeCards, 0);
+  }
+
+  function* syncHomeCards(home, cardSelector) {
     const hiddenIds = new Set(hiddenRecommendedGames().map(game => game.placeId));
     const recommendedCards = new Set();
+    for (const link of home.querySelectorAll('a[href*="/games/"]')) {
+      yield;
+      if (!home.isConnected || !link.isConnected || !home.contains(link)) continue;
+      if (link.closest('.friend-carousel-container, #rc-pinned-games')) continue;
+      const card = link.closest(cardSelector);
+      if (card && home.contains(card) && !card.classList.contains('rc-home-game-card')) card.classList.add('rc-home-game-card');
+    }
+
     for (const section of home.querySelectorAll('[data-rc-recommended-section]')) {
       for (const link of section.querySelectorAll('a[href*="/games/"]')) {
+        yield;
+        if (!section.isConnected || !link.isConnected || !section.contains(link)) continue;
         let url;
         try { url = new URL(link.href); } catch { continue; }
         if (!['www.roblox.com', 'roblox.com'].includes(url.hostname)) continue;
-        const placeId = url.pathname.match(/^\/games\/(\d+)(?:\/|$)/)?.[1];
+        const placeId = routePath(url.pathname).match(/^\/games\/(\d+)(?:\/|$)/)?.[1];
         if (!placeId) continue;
         const card = link.closest('.game-card-container, .grid-item-container, [data-testid="game-card"], [data-testid="game-tile"]')
           || link.closest('.game-card, .hover-game-tile, .game-tile');
@@ -447,9 +540,9 @@
         const name = (card.querySelector('.game-card-name, .game-name, [data-testid="game-title"]')?.textContent
           || link.getAttribute('aria-label') || link.getAttribute('title') || link.textContent || `Game ${placeId}`)
           .trim().replace(/\s+/g, ' ').slice(0, 100);
-        card.setAttribute('data-rc-recommended-card', '');
-        card.dataset.rcRecommendedPlaceId = placeId;
-        card.dataset.rcRecommendedName = name || `Game ${placeId}`;
+        if (!card.hasAttribute('data-rc-recommended-card')) card.setAttribute('data-rc-recommended-card', '');
+        if (card.dataset.rcRecommendedPlaceId !== placeId) card.dataset.rcRecommendedPlaceId = placeId;
+        if (card.dataset.rcRecommendedName !== name) card.dataset.rcRecommendedName = name;
         card.toggleAttribute('data-rc-recommended-hidden', hiddenIds.has(placeId));
         let button = card.querySelector(':scope > .rc-hide-recommended-game');
         if (!button) {
@@ -464,6 +557,7 @@
       }
     }
     for (const card of home.querySelectorAll('[data-rc-recommended-card]')) {
+      yield;
       if (recommendedCards.has(card)) continue;
       card.removeAttribute('data-rc-recommended-card');
       card.removeAttribute('data-rc-recommended-hidden');
@@ -499,12 +593,15 @@
   addEventListener('popstate', queueHomeSync);
   addEventListener('hashchange', queueHomeSync);
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) updateHomeGreeting();
+    if (!document.hidden) {
+      updateHomeGreeting();
+      resumeBackgroundVideo();
+    }
   });
   function scheduleHomeGreetingTick() {
     clearTimeout(homeGreetingTickTimer);
     if (!enhancementsEnabled()) { homeGreetingTickTimer = 0; return; }
-    if (!/^\/home\/?$/i.test(location.pathname)) {
+    if (!/^\/home\/?$/i.test(routePath())) {
       homeGreetingTickTimer = 0;
       return;
     }
@@ -526,6 +623,12 @@
       if (input) input.checked = hidden;
     }
     syncHomeContent();
+  }
+
+  function resumeBackgroundVideo() {
+    if (document.hidden) return;
+    const video = backgroundLayer?.querySelector('video.rc-background-media');
+    if (video?.isConnected && (video.paused || video.ended)) video.play().catch(() => {});
   }
 
   async function applyBackground() {
@@ -578,23 +681,29 @@
 
     const media = document.createElement(type === 'video' ? 'video' : 'img');
     media.className = 'rc-background-media';
-    media.src = source;
     if (type === 'video') {
       media.autoplay = true;
       media.loop = true;
+      media.defaultMuted = true;
       media.muted = true;
       media.playsInline = true;
+      media.preload = 'auto';
       media.setAttribute('disablepictureinpicture', '');
     } else {
       media.alt = '';
     }
+    // Set autoplay and muted state before assigning the source during restore.
+    media.src = source;
     media.addEventListener('error', () => {
       if (generation !== applyGeneration) return;
       backgroundError = 'Could not load this background. Check the file or URL.';
       if (modal) setStatus(backgroundError, true);
     });
     media.addEventListener(type === 'video' ? 'loadeddata' : 'load', () => {
-      if (generation === applyGeneration) backgroundError = '';
+      if (generation === applyGeneration) {
+        backgroundError = '';
+        if (type === 'video') resumeBackgroundVideo();
+      }
     }, { once: true });
 
     const shade = document.createElement('div');
@@ -602,7 +711,7 @@
     layer.style.setProperty('--rc-background-fit', settings.fit);
     layer.style.setProperty('--rc-background-dim', String(settings.dim / 100));
     layer.append(media, shade);
-    if (type === 'video') media.play().catch(() => {});
+    if (type === 'video') resumeBackgroundVideo();
   }
 
   function findSettingsMenu() {
@@ -813,6 +922,7 @@
     const language = modal?.querySelector('#rc-ui-language');
     if (language) language.value = settings.uiLanguage;
     if (!enhancementsEnabled()) {
+      applyHomeSectionVisibility();
       applyAppearance();
       refreshColorControls();
       if (!previous || ['source', 'url', 'urlType', 'fileKey'].some(key => previous[key] !== settings[key])) {
@@ -1306,7 +1416,7 @@
   function updateLegalLinks() {
     if (!modal) return;
     const locale = globalThis.RobloxCustomizerI18n?.locale() || 'en';
-    const language = ['en', 'zh-CN', 'zh-TW'].includes(locale) ? locale : 'en';
+    const language = ['en', 'zh-CN', 'zh-TW', 'id'].includes(locale) ? locale : 'en';
     const suffix = language === 'en' ? '' : `.${language}`;
     for (const link of modal.querySelectorAll('[data-rc-legal-document]')) {
       const file = link.dataset.rcLegalDocument === 'terms' ? 'TERMS' : 'PRIVACY';
@@ -1342,7 +1452,7 @@
         <section id="rc-settings-language-notice" role="note" aria-labelledby="rc-settings-language-notice-title" hidden>
           <strong id="rc-settings-language-notice-title">Your Roblox language is not supported yet</strong>
           <p>Only image backgrounds and custom colors are available. All other features are disabled.</p>
-          <p>To use all features, switch Roblox's language to English, Simplified Chinese, or Traditional Chinese.</p>
+          <p>To use all features, switch Roblox's language to English, Simplified Chinese, Traditional Chinese, or Indonesian.</p>
           <a href="/my/account#!/info">Open Roblox language settings</a>
         </section>
         <p class="rc-settings-intro">Changes save automatically. Sliders and colors apply when released or after a short pause. GIFs and MP4 videos stay animated.</p>
@@ -1353,6 +1463,7 @@
             <option value="en">English</option>
             <option value="zh-CN">简体中文</option>
             <option value="zh-TW">繁體中文</option>
+            <option value="id">Bahasa Indonesia</option>
           </select>
         </div>
         <div id="rc-currency-settings" class="rc-settings-currency"></div>
@@ -1397,23 +1508,24 @@
           <button id="rc-reset-colors" type="button" class="rc-button rc-button-secondary">Reset and disable</button>
         </section>
         <div class="rc-settings-home">
-          <h3>Home page</h3>
-          <label for="rc-hide-favorites" class="rc-settings-toggle">
-            <input id="rc-hide-favorites" type="checkbox">
-            Hide Favorites
-          </label>
-          <label for="rc-hide-standout-games" class="rc-settings-toggle">
-            <input id="rc-hide-standout-games" type="checkbox">
-            Hide Standout Games
-          </label>
-          <label for="rc-hide-recommended-upper" class="rc-settings-toggle">
-            <input id="rc-hide-recommended-upper" type="checkbox">
-            Hide upper Recommended Games
-          </label>
-          <label for="rc-hide-recommended-lower" class="rc-settings-toggle">
-            <input id="rc-hide-recommended-lower" type="checkbox">
-            Hide lower Recommended Games
-          </label>
+          <div class="rc-home-visibility-controls" role="group" aria-label="Home page visibility">
+            <label for="rc-hide-favorites" class="rc-settings-toggle">
+              <input id="rc-hide-favorites" type="checkbox">
+              <span>Hide Favorites</span>
+            </label>
+            <label for="rc-hide-standout-games" class="rc-settings-toggle">
+              <input id="rc-hide-standout-games" type="checkbox">
+              <span>Hide Standout Games</span>
+            </label>
+            <label for="rc-hide-recommended-upper" class="rc-settings-toggle">
+              <input id="rc-hide-recommended-upper" type="checkbox">
+              <span>Hide upper recommendations</span>
+            </label>
+            <label for="rc-hide-recommended-lower" class="rc-settings-toggle">
+              <input id="rc-hide-recommended-lower" type="checkbox">
+              <span>Hide lower recommendations</span>
+            </label>
+          </div>
           <div class="rc-settings-hidden-recommendations">
             <h4>Hidden recommendations</h4>
             <p class="rc-settings-hint">Use Hide on a recommended game. Restore it here whenever you want.</p>
@@ -1701,12 +1813,15 @@
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local' || !changes[STORAGE_KEY]) return;
     if (changes[STORAGE_KEY].newValue?._writer === writerId) return;
+    const previous = settings;
     settings = currentSettings(changes[STORAGE_KEY].newValue);
     const sourceControl = [...(modal?.querySelectorAll('input[name="rc-source"]') || [])]
       .find(input => input.value === settings.source);
     if (sourceControl) sourceControl.checked = true;
     if (modal) refreshSourceControls();
-    applyCurrentSettings();
+    // Storage updates also include unrelated Home, appearance and language
+    // preferences. Preserve an unchanged media element and its playback state.
+    applyCurrentSettings(previous);
   });
 
   const HOME_CONTENT_SELECTOR = '#HomeContainer, .home-container, [data-testid="home-page"], main';
@@ -1716,25 +1831,34 @@
     + '#buy-robux-popover-menu, #robux-popover-menu, [data-rc-header-menu], '
     + 'a[href*="/my/account"], a[href*="/settings"], a[href*="/transactions"], a[href*="/redeem"]';
   function homeContentMutation(record) {
-    if (!/^\/home\/?$/i.test(location.pathname)) return false;
+    if (!/^\/home\/?$/i.test(routePath())) return false;
     const target = record.target instanceof Element ? record.target : record.target.parentElement;
-    if (target?.closest(`#rc-home-greeting, #rc-settings-overlay, #rc-pinned-games, ${FLOATING_UI_SELECTOR}`)) return false;
+    if (record.type === 'attributes' && record.attributeName === 'style') {
+      return hiddenHomeSections.has(target) && (target.style.getPropertyValue('display') !== 'none'
+        || target.style.getPropertyPriority('display') !== 'important');
+    }
+    if (target?.closest(`#rc-home-greeting, #rc-settings-overlay, #rc-pinned-games, .rc-hide-recommended-game, ${FLOATING_UI_SELECTOR}`)) return false;
     if (record.type !== 'childList') return !!target?.closest(HOME_CONTENT_SELECTOR)
       && !!(homeSectionKind(record.oldValue) || homeSectionKind(target.getAttribute('aria-label'))
         || homeSectionKind(target.textContent));
     const nodes = [...record.addedNodes, ...record.removedNodes];
-    if (nodes.length && nodes.every(node => node instanceof Element && node.matches(FLOATING_UI_SELECTOR))) return false;
+    if (nodes.length && nodes.every(node => node instanceof Element
+      && (node.matches(FLOATING_UI_SELECTOR) || node.matches('.rc-hide-recommended-game') && node.isConnected))) return false;
     if (target?.closest(HOME_CONTENT_SELECTOR)) return true;
     return nodes.some(node => node instanceof Element
       && (node.matches(HOME_CONTENT_SELECTOR) || node.querySelector(HOME_CONTENT_SELECTOR)));
   }
   function settingsMenuMutation(record) {
     const target = record.target instanceof Element ? record.target : record.target.parentElement;
-    if (target?.closest('#rc-settings-overlay, .rc-settings-menu-entry')) return false;
+    const excluded = '#rc-settings-overlay, .rc-settings-menu-entry, .rc-hide-recommended-game, '
+      + '.game-card-container, .game-card, .hover-game-tile, .game-tile, .grid-item-container, '
+      + '[data-testid="game-card"], [data-testid="game-tile"]';
+    if (target?.closest(excluded)) return false;
     if (target?.closest(SETTINGS_MENU_SELECTOR)) return true;
     const nodes = record.type === 'childList' ? record.addedNodes : [target];
     return [...nodes].some(node => {
       if (!(node instanceof Element)) return false;
+      if (node.matches(excluded)) return false;
       if (node.matches(SETTINGS_MENU_SELECTOR) || node.querySelector(SETTINGS_MENU_SELECTOR)) return true;
       const buttons = [...(node.matches('button, [role="menuitem"]') ? [node] : []), ...node.querySelectorAll('button, [role="menuitem"]')];
       return buttons.some(button => {
@@ -1743,22 +1867,24 @@
       });
     });
   }
-  let observedHomePath = location.pathname;
+  let observedHomePath = routePath();
   new MutationObserver(records => {
     if (document.body && (backgroundPending || backgroundLayer && !backgroundLayer.isConnected)) {
       void applyBackground();
     }
     const outsideGreeting = records.filter(record =>
-      !(record.target instanceof Element && record.target.closest('#rc-home-greeting')));
-    const routeChanged = observedHomePath !== location.pathname;
-    observedHomePath = location.pathname;
+      !(record.target instanceof Element && record.target.closest('#rc-home-greeting'))
+      && (record.attributeName !== 'style' || hiddenHomeSections.has(record.target)));
+    const routeChanged = observedHomePath !== routePath();
+    observedHomePath = routePath();
     if (routeChanged || outsideGreeting.some(homeContentMutation)) queueHomeSync();
-    if (outsideGreeting.some(record => record.type === 'childList' || record.type === 'attributes')) {
+    if (outsideGreeting.some(record => record.type === 'childList'
+      || record.type === 'attributes' && record.attributeName !== 'style')) {
       if (routeChanged || outsideGreeting.some(settingsMenuMutation)) queueMenuSync();
       syncFrostPage();
     }
   }).observe(document, { childList: true, subtree: true, characterData: true, characterDataOldValue: true,
-    attributes: true, attributeOldValue: true, attributeFilter: ['aria-label'] });
+    attributes: true, attributeOldValue: true, attributeFilter: ['aria-label', 'style'] });
   queueMenuSync();
 
   globalThis.RobloxCustomizerRuntime?.onResume(() => {
@@ -1767,6 +1893,7 @@
     queueMenuSync();
     scheduleHomeGreetingTick();
     if (!document.getElementById('rc-background-layer')) void applyBackground();
+    else resumeBackgroundVideo();
   });
   globalThis.RobloxCustomizerI18n?.onChange(updateHomeGreeting);
   globalThis.RobloxCustomizerI18n?.onChange(updateLegalLinks);

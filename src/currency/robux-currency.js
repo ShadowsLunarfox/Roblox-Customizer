@@ -161,11 +161,17 @@
   function flush() {
     timer = null;
     if (!settings.enabled) { roots.clear(); clear(); return; }
-    const pendingRoots = [...roots];
+    const pending = new Set(roots);
+    const pendingRoots = [];
+    for (const root of pending) {
+      let ancestor = root.parentElement;
+      while (ancestor && !pending.has(ancestor)) ancestor = ancestor.parentElement;
+      if (!ancestor) pendingRoots.push(root);
+    }
     const repaintAll = refreshAll;
     refreshAll = false;
     roots.clear();
-    for (const root of pendingRoots) if (!pendingRoots.some(other => other !== root && other.contains(root))) discover(root);
+    for (const root of pendingRoots) discover(root);
     for (const [target, entry] of entries) {
       if (!target.isConnected || isOwn(target)) { entry.label.remove(); entries.delete(target); }
       else if (repaintAll || pendingRoots.some(root => root.contains(target))) render(target, entry);
@@ -266,8 +272,11 @@
   function start() {
     if (started || !document.body) return;
     started = true;
-    const observer = new MutationObserver(records => {
+    const changes = [];
+    let changesTimer = null;
+    function* processChanges(records) {
       for (const record of records) {
+        yield;
         if (isOwn(record.target)) continue;
         if (record.type === 'childList') {
           const nodes = [...record.addedNodes, ...record.removedNodes];
@@ -297,6 +306,18 @@
         }
         for (const node of record.removedNodes || []) if (node.nodeType === Node.ELEMENT_NODE) queue(node);
       }
+    }
+    function drainChanges() {
+      changesTimer = null;
+      const start = performance.now();
+      while (changes.length && performance.now() - start < 6) {
+        if (changes[0].next().done) changes.shift();
+      }
+      if (changes.length) changesTimer = setTimeout(drainChanges, 0);
+    }
+    const observer = new MutationObserver(records => {
+      changes.push(processChanges(records));
+      if (changesTimer === null) changesTimer = setTimeout(drainChanges, 0);
     });
     observer.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeOldValue: true, attributeFilter: ['class', 'data-testid', 'aria-label', 'value'] });
     for (const event of ['input', 'change']) document.addEventListener(event, event => {

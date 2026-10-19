@@ -1,5 +1,6 @@
 (globalThis.RobloxCustomizerCompatibility?.runFeature || (initialize => initialize()))(() => {
   'use strict';
+  const routePath = value => globalThis.RobloxCustomizerRoutes?.pathname(value) ?? value ?? location.pathname;
   const core = globalThis.RobloxCustomizerPlaytime;
   const i18n = globalThis.RobloxCustomizerI18n;
   const t = (source, values = {}) => i18n?.t(source, values)
@@ -128,7 +129,7 @@
     row.append(art, info, time); return row;
   }
   function syncGamePage() {
-    const placeId = Number(location.pathname.match(/^\/games\/(\d+)(?:\/|$)/)?.[1]);
+    const placeId = Number(routePath().match(/^\/games\/(\d+)(?:\/|$)/)?.[1]);
     const page = core.validId(placeId) ? document.getElementById('game-detail-page') : null;
     const meta = page?.querySelector('#game-detail-meta-data');
     const renderedId = Number(meta?.dataset.placeId || page?.dataset.placeId);
@@ -298,7 +299,7 @@
     return tile;
   }
   function syncHome() {
-    const home = /^\/home\/?$/i.test(location.pathname)
+    const home = /^\/home\/?$/i.test(routePath())
       ? document.querySelector('#HomeContainer, .home-container, [data-testid="home-page"]') : null;
     const clock = home?.querySelector('#rc-home-greeting .rc-home-greeting-clock');
     if (!clock || (!data.enabled && !data.games.length)) {
@@ -446,12 +447,12 @@
     if (area !== 'local' || (!changes[core.STORAGE_KEY] && !changes[core.ENABLED_KEY])) return;
     clearTimeout(loadTimer); loadTimer = setTimeout(() => load(), 30);
   });
-  let observedPath = location.pathname;
+  let observedPath = routePath();
   new MutationObserver(records => {
-    const routeChanged = observedPath !== location.pathname;
-    observedPath = location.pathname;
+    const routeChanged = observedPath !== routePath();
+    observedPath = routePath();
     if (routeChanged) { queuePages(); return; }
-    if (/^\/games\/\d+(?:\/|$)/.test(location.pathname)) {
+    if (/^\/games\/\d+(?:\/|$)/.test(routePath())) {
       const mounts = '#game-detail-page, #game-detail-meta-data, .game-main-content, .game-calls-to-action, .game-details-info, #rc-playtime-game-page';
       if ((gameSection && !gameSection.isConnected) || records.some(record => {
         if (record.target.closest?.('#rc-playtime-game-page')) return false;
@@ -464,7 +465,7 @@
     // Once mounted, native hover portals cannot change the card's data or placement.
     // Resume, locale and storage handlers update those separately. React can still
     // replace the greeting, remove the clock, or navigate away from Home.
-    if (homeSection?.isConnected && /^\/home\/?$/i.test(location.pathname)
+    if (homeSection?.isConnected && /^\/home\/?$/i.test(routePath())
       && homeSection.closest('#rc-home-greeting')?.querySelector('.rc-home-greeting-clock')) return;
     const mounts = '#HomeContainer, .home-container, [data-testid="home-page"], #rc-home-greeting, .rc-home-greeting-clock';
     if (homeSection || records.some(record => record.target.closest?.('#rc-home-greeting')

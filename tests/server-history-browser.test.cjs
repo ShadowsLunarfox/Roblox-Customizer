@@ -26,20 +26,20 @@ function fixture() {
     <style>*{box-sizing:border-box}body{font:16px Arial;margin:20px;background:#34465a;color:white}#settings-popover-menu{position:fixed;top:0;right:0}main{max-width:1000px;margin:auto}</style></head><body class="dark-theme">
     <ul id="settings-popover-menu"><li><a href="/my/account">Settings</a></li></ul><main id="HomeContainer"><h1>Home</h1></main>
     <script>
-    window.saved=structuredClone(${JSON.stringify(initial)});window.currentUser=123;window.publicFull=false;window.lookups=[];
+    window.saved=structuredClone(${JSON.stringify(initial)});window.currentUser=123;window.currentPresence=null;window.publicFull=false;window.lookups=[];
     const listeners=[],messages=[],alarms=new Map(),session={};
     const area=data=>({async get(keys){return structuredClone(keys===null?data:Object.fromEntries((Array.isArray(keys)?keys:[keys]).map(key=>[key,data[key]])))},
       async set(values){const changes={};for(const[key,value]of Object.entries(values)){if(JSON.stringify(data[key])!==JSON.stringify(value))changes[key]={oldValue:data[key],newValue:structuredClone(value)}}Object.assign(data,structuredClone(values));if(data===saved)listeners.forEach(fn=>fn(changes,'local'))},
       async remove(keys){for(const key of keys)delete data[key]},async clear(){for(const key of Object.keys(data))delete data[key]}});
     window.fetch=async(url)=>({ok:true,status:200,headers:{get(){}},async json(){url=String(url);if(url.includes('users/authenticated'))return{id:currentUser,name:'Player',displayName:'Player'};
-      if(url.includes('presence.roblox.com'))return{userPresences:[]};if(url.includes('/universes/v1/places/')){lookups.push(url);return{universeId:456}};
+      if(url.includes('presence.roblox.com'))return{userPresences:currentPresence?[currentPresence]:[]};if(url.includes('/universes/v1/places/')){lookups.push(url);return{universeId:456}};
       if(url.includes('/servers/Public'))return{data:${JSON.stringify(initial.rcServerHistory.accounts[0].servers.map(entry => ({ id: entry.serverId, playing: 1, maxPlayers: 10 })))}.map(entry=>({...entry,playing:publicFull?10:1})),nextPageCursor:null};return{data:[]}}});
     window.chrome={i18n:{getUILanguage:()=> 'en-US'},storage:{local:area(saved),session:area(session),onChanged:{addListener:fn=>listeners.push(fn)}},
       alarms:{async get(key){return alarms.get(key)},async create(key,value){alarms.set(key,value)},async clear(key){return alarms.delete(key)},onAlarm:{addListener(){}}},
       runtime:{id:'fixture',lastError:null,getManifest:()=>({version:'1.0'}),getURL:file=>'/'+file,onMessage:{addListener:fn=>messages.push(fn)},onStartup:{addListener(){}},onInstalled:{addListener(){}},
         sendMessage(message,callback){if(['rc-data-backup','rc-server-history','rc-playtime'].includes(message.type)){for(const fn of messages)if(fn(message,{id:'fixture',url:'https://www.roblox.com'+location.pathname,frameId:0},callback))return;}
         queueMicrotask(()=>callback(message.type==='rc-home-user'?{id:currentUser,name:'Player',displayName:'Player'}:{ok:true,games:[],folders:[],servers:[],data:[]}));}}};
-    window.navigateGame=(placeId,universeId)=>{history.pushState({},'', '/games/'+placeId+'/Test');const main=document.querySelector('main');main.id='game-detail-page';main.dataset.placeId=placeId;
+    window.navigateGame=(placeId,universeId,prefix='')=>{history.pushState({},'', prefix+'/games/'+placeId+'/Test');const main=document.querySelector('main');main.id='game-detail-page';main.dataset.placeId=placeId;
       main.innerHTML='<h1>Game</h1><div id="game-detail-meta-data" data-place-id="'+placeId+'"'+(universeId?' data-universe-id="'+universeId+'"':'')+'></div><section id="game-instances"></section>';dispatchEvent(new PopStateEvent('popstate'))};
     </script>${scripts.map(file => `<script src="/${file}"></script>`).join('')}</body></html>`;
 }
@@ -61,7 +61,7 @@ test('recent servers stay off Home and use separate six-server game lists across
     assert.equal(await browser.evaluate("!!document.querySelector('#rc-server-history-home')"), false);
     await browser.evaluate("document.querySelector('.rc-settings-menu-entry').click()");
     await browser.waitFor("!!document.querySelector('#rc-server-history-settings h3')");
-    for (const locale of ['en', 'zh-CN', 'zh-TW']) for (const [theme, width] of [['dark', 1280], ['light', 390]]) {
+    for (const locale of ['en', 'id', 'zh-CN', 'zh-TW']) for (const [theme, width] of [['dark', 1280], ['light', 390]]) {
       await browser.send('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor: 1, mobile: false });
       await browser.evaluate(`document.body.className='${theme}-theme';RobloxCustomizerI18n.setLanguage('${locale}');document.querySelector('#rc-server-history-settings').scrollIntoView({block:'start'})`);
       await pause(80);
@@ -75,7 +75,7 @@ test('recent servers stay off Home and use separate six-server game lists across
         }
         await browser.evaluate("document.querySelector('#rc-server-history-settings').scrollIntoView({block:'start'})");
       }
-      assert.equal(await browser.evaluate("document.querySelector('#rc-server-history-settings h3').textContent"), { en: 'Recent servers', 'zh-CN': '最近的服务器', 'zh-TW': '最近的伺服器' }[locale]);
+      assert.equal(await browser.evaluate("document.querySelector('#rc-server-history-settings h3').textContent"), { en: 'Recent servers', id: 'Server terbaru', 'zh-CN': '最近的服务器', 'zh-TW': '最近的伺服器' }[locale]);
     }
     await browser.click('#rc-server-history-settings button');
     await browser.waitFor("document.querySelectorAll('#rc-server-history-dialog .rc-server-history-group').length===2");
@@ -119,5 +119,22 @@ test('recent servers stay off Home and use separate six-server game lists across
     await browser.evaluate("history.pushState({},'', '/home');document.querySelector('main').id='HomeContainer';dispatchEvent(new PopStateEvent('popstate'))");
     await browser.waitFor("!document.querySelector('#rc-server-history-game')");
     assert.equal(await browser.evaluate("!!document.querySelector('#rc-server-history-home')"), false, 'Returning Home never remounts recent servers');
+    await browser.evaluate("currentUser=999;RobloxCustomizerI18n.setLanguage('id');navigateGame(700,456,'/id')");
+    await browser.waitFor("document.querySelector('#rc-server-history-game .rc-server-history-note')?.textContent.includes('Belum ada server')");
+    assert.equal(await browser.evaluate("parseFloat(getComputedStyle(document.querySelector('#rc-server-history-game')).paddingTop)>=12"), true,
+      'The empty history panel retains its spacing');
+    assert.equal(await browser.evaluate("getComputedStyle(document.querySelector('#rc-server-history-game > button')).borderRadius"), '8px',
+      'The history action cannot fall back to an unstyled native button');
+    await browser.click('#rc-server-history-game > button');
+    await browser.waitFor("!!document.querySelector('#rc-server-history-dialog[open]')");
+    await browser.evaluate(`currentPresence={userId:999,userPresenceType:2,placeId:789,rootPlaceId:700,universeId:456,gameId:'${id(301)}',lastLocation:'Piggy'};
+      chrome.storage.local.set({serverHistoryEnabled:true})`);
+    await browser.click('#rc-server-history-dialog .rc-server-history-actions button');
+    await browser.waitFor("document.querySelector('#rc-server-history-game .rc-server-history-name')?.textContent==='Piggy'");
+    assert.equal(await browser.evaluate("document.querySelector('#rc-server-history-dialog .rc-server-history-name').textContent"), 'Piggy',
+      'Refreshing recent servers records a confirmed session and updates both lists');
+    assert.equal(await browser.evaluate('saved.playtimeTrackingEnabled'), false, 'Recent-server recording works with playtime disabled');
+    assert.equal(await browser.evaluate("document.querySelector('#rc-server-history-game a.rc-server-button').getAttribute('href')"),
+      `roblox://experiences/start?placeId=789&gameInstanceId=${id(301)}`);
     assert.deepEqual(browser.errors, []);
   });

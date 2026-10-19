@@ -105,7 +105,7 @@
 
 ## 🌐 语言支持
 
-完整功能要求 Roblox 使用 **英语、简体中文或繁体中文**。其他语言会进入回退模式：仅保留图片／GIF 背景和自定义颜色，并保持 Roblox 原生页面布局。
+完整功能要求 Roblox 使用 **英语、简体中文、繁体中文或印尼语**。其他语言会进入回退模式：仅保留图片／GIF 背景和自定义颜色，并保持 Roblox 原生页面布局。
 
 切换 Roblox 的语言即可恢复完整功能。仅更改扩展的界面语言不会退出回退模式。
 
@@ -127,6 +127,9 @@
 <summary><strong>🔧 参与扩展开发？</strong></summary>
 
 修改后台脚本后，请运行 `node scripts/build-service-worker.cjs` 更新仓库中的后台脚本包。
+修改网页桥接、路径工具、语言兼容检查或服务器卡片脚本后，请运行 `node scripts/build-page-bridge.cjs`。MAIN 环境的入口需自行包含依赖，避免 Chrome 对不同脚本环境中的同名文件去重后缺少依赖。
+
+真实扩展注入回归测试为 `node --test tests/extension-server-metadata-browser.test.cjs`。需设置 `CHROME_EXTENSION_TESTS=1`，将 `CHROME_BIN` 指向 Chrome for Testing 或 Chromium，并将 `SERVER_VIEW_REACT_BUNDLE` 指向 Roblox React 脚本的本地副本。测试使用独立配置、实际 manifest 和本地模拟接口。
 
 </details>
 

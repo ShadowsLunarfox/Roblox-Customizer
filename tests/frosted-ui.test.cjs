@@ -70,7 +70,19 @@ function harness() {
   let observeChanges;
   const context = {
     Element, innerHeight: 700,
-    document: { body, addEventListener() {}, querySelectorAll(selector) {
+    NodeFilter: { SHOW_ELEMENT: 1, FILTER_ACCEPT: 1, FILTER_REJECT: 2, FILTER_SKIP: 3 },
+    document: { body, addEventListener() {}, createTreeWalker(root, whatToShow, filter) {
+      const queue = [...(root.children || [body])];
+      return { nextNode() {
+        while (queue.length) {
+          const node = queue.shift();
+          const result = filter.acceptNode(node);
+          if (result !== 2) queue.unshift(...node.children);
+          if (result === 1) return node;
+        }
+        return null;
+      } };
+    }, querySelectorAll(selector) {
       documentQueries.push(selector);
       return body.querySelectorAll(selector);
     } },
@@ -248,6 +260,19 @@ test('unrelated page changes do not trigger a document-wide chat scan', () => {
   observeChanges([{ type: 'attributes', target: card, addedNodes: [] }]);
   timers.shift()();
   assert.equal(documentQueries.length, 0);
+  assert.equal(card.hasAttribute('data-rc-chat-panel'), false);
+});
+
+test('streaming game cards named Chat do not schedule chat discovery or acquire chat glass', () => {
+  const { body, syncPanels, observeChanges, timers } = harness();
+  syncPanels();
+  const card = new Element(body, { className: 'game-card-container',
+    rect: { width: 250, height: 310, bottom: 700 }, style: { position: 'fixed', bottom: '0px' } });
+  const title = new Element(card, { tag: 'span', text: 'Chat' });
+  observeChanges([{ type: 'childList', target: body, addedNodes: [card] },
+    { type: 'characterData', target: title, addedNodes: [] }]);
+  assert.equal(timers.length, 0, 'Game-card updates cannot start a chat scan');
+  syncPanels();
   assert.equal(card.hasAttribute('data-rc-chat-panel'), false);
 });
 

@@ -1,5 +1,6 @@
 (globalThis.RobloxCustomizerCompatibility?.runFeature || (initialize => initialize()))(() => {
   'use strict';
+  const routePath = value => globalThis.RobloxCustomizerRoutes?.pathname(value) ?? value ?? location.pathname;
 
   const ROUTE = /^\/private-server\/configure(?:\/\d+)?\/?$/i;
   const PANEL = '.section, .section-content, .section-container, .configuration-section, '
@@ -16,7 +17,7 @@
   function synchronize() {
     queued = false;
     const desired = new Set();
-    const content = ROUTE.test(location.pathname) && document.querySelector('#content');
+    const content = ROUTE.test(routePath()) && document.querySelector('#content');
     if (content) {
       // Keep native forms and handlers intact, including sections loaded later.
       const candidates = [...content.querySelectorAll(PANEL)].filter(node =>

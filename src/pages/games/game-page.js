@@ -1,5 +1,6 @@
 (globalThis.RobloxCustomizerCompatibility?.runFeature || (initialize => initialize()))(() => {
   'use strict';
+  const routePath = value => globalThis.RobloxCustomizerRoutes?.pathname(value) ?? value ?? location.pathname;
 
   const sendMessage = globalThis.RobloxCustomizerRuntime?.sendMessage
     || ((...args) => chrome.runtime.sendMessage(...args));
@@ -17,9 +18,9 @@
   const PRIVATE_SERVER_RENDER_SELECTOR = '.rc-private-server-summary, .rc-private-server-roster, '
     + '.rc-private-server-proxy, .rc-private-server-more, .rc-private-server-loading, .rc-server-metrics';
   const initialized = new WeakMap();
-  let observedServerPane = null;
-  let serverPaneRecovery = null;
-  const serverPaneObserver = typeof IntersectionObserver === 'function'
+  let observedGamePanes = [];
+  let gamePaneRecovery = null;
+  const gamePaneObserver = typeof IntersectionObserver === 'function'
     ? new IntersectionObserver(() => schedule(), { rootMargin: '240px 0px' }) : null;
   let timer = 0;
   let running = false;
@@ -57,6 +58,7 @@
   const privateDetails = new Map();
   const privateDetailsByName = new Map();
   const publicStatuses = new Map();
+  const publicShortStatuses = new Map();
   const publicCountries = new Map();
   const publicCountryQueue = [];
   let activePublicCountryRequests = 0;
@@ -75,7 +77,7 @@
   });
 
   function placeIdFromPath() {
-    return location.pathname.match(/^\/games\/(\d+)(?:\/|$)/)?.[1] || null;
+    return routePath().match(/^\/games\/(\d+)(?:\/|$)/)?.[1] || null;
   }
 
   function pageMatchesPath(page) {
@@ -87,13 +89,13 @@
   }
 
   function socialFeedContext() {
-    if (!PROFILE_PATH.test(location.pathname)) clearProfileFeedLayout();
+    if (!PROFILE_PATH.test(routePath())) clearProfileFeedLayout();
     const placeId = placeIdFromPath();
     if (placeId) {
       const page = document.querySelector('#game-detail-page');
       return pageMatchesPath(page) ? { kind: 'game', id: placeId, key: `game:${placeId}`, page } : null;
     }
-    const userId = location.pathname.match(PROFILE_PATH)?.[1];
+    const userId = routePath().match(PROFILE_PATH)?.[1];
     if (userId) {
       if (!Number.isSafeInteger(Number(userId)) || Number(userId) <= 0) {
         clearProfileFeedLayout();
@@ -112,7 +114,7 @@
       syncProfileFeedLayout(context);
       return context;
     }
-    const groupId = location.pathname.match(COMMUNITY_PATH)?.[1];
+    const groupId = routePath().match(COMMUNITY_PATH)?.[1];
     const root = groupId && document.querySelector('#group-container');
     if (!root) return null;
     const page = root.querySelector('.group-details') || root;
@@ -202,7 +204,7 @@
   }
 
   function currentPage() {
-    if (!GAME_PATH.test(location.pathname)) return null;
+    if (!GAME_PATH.test(routePath())) return null;
     const page = document.querySelector('#game-detail-page');
     if (!pageMatchesPath(page)) return null;
     const tabs = page?.querySelector('#horizontal-tabs');
@@ -215,7 +217,7 @@
   }
 
   function moveRecommendations() {
-    if (!GAME_PATH.test(location.pathname)) return;
+    if (!GAME_PATH.test(routePath())) return;
     const page = document.querySelector('#game-detail-page');
     if (!pageMatchesPath(page) || !aboutReady(page) || document.body.classList.contains('btr-gamedetails')
       || page.querySelector('#btr-recommendations-wrapper')) return;
@@ -256,7 +258,7 @@
   }
 
   function syncLivePlayerStat() {
-    if (!GAME_PATH.test(location.pathname)) return;
+    if (!GAME_PATH.test(routePath())) return;
     const page = document.querySelector('#game-detail-page');
     if (!pageMatchesPath(page)) return;
     const stats = page.querySelector('#about .game-stat-container');
@@ -279,22 +281,31 @@
     if (!store) return;
 
     const labels = new Map([
+      ['subscription', 'subscriptions'],
       ['subscriptions', 'subscriptions'],
       ['passes', 'passes'],
       ['products', 'products'],
       ['developer products', 'products']
     ]);
     const normalize = node => (node.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
-    const semanticHeadings = [...store.querySelectorAll('h1, h2, h3, h4, h5, h6, [role="heading"]')];
+    const headingSelector = 'h1, h2, h3, h4, h5, h6, [role="heading"]';
+    const itemSelector = '.card-item, .store-card, .item-card-container, .subscription-card-item, [role="dialog"], .modal';
+    const semanticHeadings = [...store.querySelectorAll(headingSelector)].filter(node => !node.closest(itemSelector));
     const headings = [];
 
-    const kind = node => globalThis.RobloxCustomizerNativeLabels?.classify('store', normalize(node))
-      || labels.get(normalize(node));
+    const kind = node => {
+      // These native roots keep their identity across locale/copy changes.
+      if (node.matches(headingSelector)) {
+        if (node.closest('#rbx-subscriptions-container, #rbx-subscriptions-container-content')) return 'subscriptions';
+        if (node.closest('#rbx-developer-products')) return 'products';
+      }
+      return globalThis.RobloxCustomizerNativeLabels?.classify('store', normalize(node)) || labels.get(normalize(node));
+    };
     for (const key of ['subscriptions', 'passes', 'products']) {
       let heading = semanticHeadings.find(node => kind(node) === key);
       if (!heading) {
         heading = [...store.querySelectorAll('div, span, p')]
-          .filter(node => kind(node) === key && !node.closest('.card-item, .store-card, .item-card-container'))
+          .filter(node => kind(node) === key && !node.closest(itemSelector))
           .sort((a, b) => a.querySelectorAll('*').length - b.querySelectorAll('*').length)[0];
       }
       if (!heading) continue;
@@ -875,7 +886,7 @@
   }
 
   function syncBadges() {
-    if (badgeRequest || Date.now() < badgeRetryAfter || !GAME_PATH.test(location.pathname)) return;
+    if (badgeRequest || Date.now() < badgeRetryAfter || !GAME_PATH.test(routePath())) return;
     const page = document.querySelector('#game-detail-page');
     if (!pageMatchesPath(page)) return;
 
@@ -933,9 +944,10 @@
     const ping = details?.ping;
     const validPing = typeof ping === 'number' && Number.isFinite(ping)
       && ping > 0 && ping <= 10_000;
+    const nativeLevel = /^(?:low|medium|high)$/.test(details?.pingLevel || '') ? details.pingLevel : '';
     const countryState = locationLookup ? publicCountries.get(locationLookup.id) : null;
     const code = details?.countryCode || countryState?.countryCode;
-    const countryPending = countryState?.pending === true;
+    const countryPending = countryState?.pending === true || locationLookup?.pending === true;
     let countryName = '';
     if (typeof code === 'string' && /^[A-Z]{2}$/i.test(code)) {
       try {
@@ -943,7 +955,7 @@
           { type: 'region' }).of(code.toUpperCase()) || '';
       } catch { countryName = code.toUpperCase(); }
     }
-    if (!validPing && !countryName && !countryPending && !locationLookup) {
+    if (!validPing && !nativeLevel && !countryName && !countryPending && !locationLookup) {
       metrics?.remove();
       return;
     }
@@ -958,14 +970,17 @@
       metrics.append(latency, country);
       host.append(metrics);
     }
-    const latencyLevel = validPing ? ping <= 100 ? 'low' : ping <= 200 ? 'medium' : 'high' : 'unknown';
+    const latencyLevel = validPing ? ping <= 100 ? 'low' : ping <= 200 ? 'medium' : 'high' : nativeLevel || 'unknown';
     if (metrics.dataset.rcLatency !== latencyLevel) metrics.dataset.rcLatency = latencyLevel;
     const levelLabel = { low: 'Low', medium: 'Moderate', high: 'High' }[latencyLevel];
     const latencyNode = metrics.querySelector('.rc-server-latency');
-    latencyNode.hidden = !validPing;
+    latencyNode.hidden = !validPing && !nativeLevel && !locationLookup;
     if (validPing) setText(latencyNode, `${levelLabel} latency · ${Math.round(ping)} ms`);
+    else if (nativeLevel) setText(latencyNode, `${levelLabel} latency`);
+    else if (locationLookup) setText(latencyNode, locationLookup.unavailable || publicStatuses.has(locationLookup.id) || Date.now() < publicStatusRetryAfter
+      ? 'Latency unavailable' : 'Checking latency...');
     const countryNode = metrics.querySelector('.rc-server-country');
-    countryNode.hidden = !countryName && !countryPending;
+    countryNode.hidden = !countryName && !countryPending && !locationLookup;
     if (countryName) {
       setText(countryNode, `${countryState?.estimated && !details?.countryCode
         ? 'Approx. country' : 'Country'} ${countryName}`);
@@ -977,6 +992,9 @@
       setText(countryNode, 'Finding country...');
       if (globalThis.RobloxCustomizerI18n) globalThis.RobloxCustomizerI18n.attribute(countryNode, 'title', 'Detecting the server country automatically.');
       else countryNode.title = 'Detecting the server country automatically.';
+    } else if (locationLookup) {
+      setText(countryNode, 'Unknown country');
+      countryNode.removeAttribute('title');
     }
     metrics.querySelector('.rc-server-locate')?.remove();
   }
@@ -1026,10 +1044,13 @@
     const ping = Number(pingValue || labelledPing);
     const countryCode = card.getAttribute('data-country-code')
       || card.querySelector('[data-country-code]')?.getAttribute('data-country-code') || '';
+    const pingLevel = card.getAttribute('data-rc-ping-level')
+      || card.querySelector('[data-rc-ping-level]')?.getAttribute('data-rc-ping-level') || '';
     return {
       ping: (pingValue || labelledPing) && Number.isFinite(ping) && ping > 0 && ping <= 10_000
         ? Math.round(ping) : null,
-      countryCode: /^[A-Z]{2}$/i.test(countryCode) ? countryCode.toUpperCase() : ''
+      countryCode: /^[A-Z]{2}$/i.test(countryCode) ? countryCode.toUpperCase() : '',
+      pingLevel: /^(?:low|medium|high)$/i.test(pingLevel) ? pingLevel.toLowerCase() : ''
     };
   }
 
@@ -1037,6 +1058,7 @@
     const native = nativeServerMetrics(card);
     return {
       ping: native.ping ?? details?.ping,
+      pingLevel: native.pingLevel || details?.pingLevel,
       countryCode: details?.countryCode || native.countryCode
     };
   }
@@ -1060,7 +1082,14 @@
         }
       } catch { /* Other controls may have non-URL actions. */ }
     }
-    return '';
+    // Native Roblox cards retain this label even if React props and extension
+    // data attributes are unavailable. Only use an unambiguous API match.
+    return publicShortStatuses.get(publicServerShortId(card))?.id || '';
+  }
+
+  function publicServerShortId(card) {
+    const label = card.querySelector('.server-id-text')?.textContent || '';
+    return label.match(/(?:^|[^0-9a-f])([0-9a-f]{4}-[0-9a-f]{4})\s*$/i)?.[1]?.toLowerCase() || '';
   }
 
   function privateServerIdFromRow(row) {
@@ -1075,7 +1104,7 @@
     for (const link of row.querySelectorAll('a[href]')) {
       try {
         const url = new URL(link.href, location.href);
-        const pathId = Number(url.pathname.match(/^\/private-server\/configure\/(\d+)\/?$/)?.[1]);
+        const pathId = Number(routePath(url.pathname).match(/^\/private-server\/configure\/(\d+)\/?$/)?.[1]);
         if (Number.isSafeInteger(pathId) && pathId > 0) return pathId;
         for (const name of ['privateServerId', 'vipServerId']) {
           const id = Number(url.searchParams.get(name));
@@ -1170,7 +1199,7 @@
     return [...container.querySelectorAll('button, a[role="button"]')].find(button =>
       !button.closest(NON_PUBLIC_SERVER_SECTION_SELECTOR)
       && !button.closest('.rc-public-server-pagination, .rc-public-server-filters')
-      && (/^Load More(?: Servers)?$/i.test(button.textContent.trim())
+      && (button.matches('.rbx-running-games-load-more') || /^Load More(?: Servers)?$/i.test(button.textContent.trim())
         || globalThis.RobloxCustomizerNativeLabels?.matches('loadMore', button.textContent))) || null;
   }
 
@@ -1711,15 +1740,14 @@
 
   function hidePrivateServerLoadMore(page) {
     for (const button of page.querySelectorAll('button, a[role="button"]')) {
-      const loadMore = /^Load More(?: (?:Private )?Servers)?$/i.test(button.textContent.trim())
+      if (button.closest('.rc-private-server-more')) continue;
+      const loadMore = button.matches('.rbx-running-games-load-more') || /^Load More(?: (?:Private )?Servers)?$/i.test(button.textContent.trim())
         || globalThis.RobloxCustomizerNativeLabels?.matches('loadMore', button.textContent);
       if (!loadMore && !button.hasAttribute('data-rc-private-server-load-more')) continue;
       const privateScope = button.closest(PRIVATE_SERVER_SECTION_SELECTOR);
-      // Compact lists paginate through Roblox's own state. Keep that control
-      // available so servers beyond the first API page can still be loaded.
       if (privateScope?.matches('[data-rc-private-server-compact-list]')
         || privateScope?.querySelector('[data-rc-private-server-compact]')) {
-        button.removeAttribute('data-rc-private-server-load-more');
+        button.setAttribute('data-rc-private-server-load-more', '');
         continue;
       }
       const section = button.closest('.server-list-section');
@@ -1807,13 +1835,22 @@
       publicStatusFetchedAt = 0;
       publicStatusRetryAfter = 0;
       publicStatuses.clear();
+      publicShortStatuses.clear();
       publicCountries.clear();
       publicCountryQueue.length = 0;
     }
     const serverIds = new Set();
+    const shortIds = new Set();
     const publicCards = publicServerCards(publicContainer);
+    // The native cards may have mounted before the MAIN-world factory hooks.
+    // Ask that world to recover their current identity from the mounted tree.
+    if (publicCards.length) document.dispatchEvent(new CustomEvent('rc-server-metrics-request'));
     for (const card of publicCards) {
       const id = publicServerIdFromCard(card);
+      const shortId = !id && publicServerShortId(card);
+      const shortState = shortId && publicShortStatuses.get(shortId);
+      const shortPending = !id && !!shortId && !shortState && Date.now() >= publicStatusRetryAfter;
+      if (shortId && (!shortState || Date.now() >= shortState.retryAfter)) shortIds.add(shortId);
       const details = combinedServerMetrics(card, id ? publicStatuses.get(id) : null);
       if (id && !details.ping) serverIds.add(id);
       if (id && !details.countryCode) queuePublicServerCountry(placeId, id);
@@ -1824,24 +1861,38 @@
       if (countryCode) card.dataset.rcServerCountry = countryCode.toUpperCase();
       else card.removeAttribute('data-rc-server-country');
       card.dataset.rcServerCountryState = countryCode ? 'known'
-        : countryState?.pending ? 'pending' : 'unknown';
-      renderServerMetrics(card, details, id ? { placeId, id } : null);
+        : countryState?.pending || shortPending ? 'pending' : 'unknown';
+      renderServerMetrics(card, details, { placeId, id,
+        pending: shortPending,
+        unavailable: !id && (!shortId || !!shortState) });
     }
     syncPublicServerFilters(page, publicContainer, publicCards);
-    if (!serverIds.size || publicStatusRequest || Date.now() < publicStatusRetryAfter
+    if ((!serverIds.size && !shortIds.size) || publicStatusRequest || Date.now() < publicStatusRetryAfter
       || Date.now() - publicStatusFetchedAt < 90_000
-        && [...serverIds].every(id => publicStatuses.has(id))) return;
+        && !shortIds.size && [...serverIds].every(id => publicStatuses.has(id))) return;
     publicStatusRequest = true;
+    const requestedIds = [...serverIds].filter(id => Date.now() - publicStatusFetchedAt >= 90_000
+      || !publicStatuses.has(id)).slice(0, 100);
+    const requestedShortIds = [...shortIds].slice(0, 100 - requestedIds.length);
     sendMessage({ type: 'rc-public-server-status', placeId,
-      serverIds: [...serverIds].slice(0, 100) }, response => {
+      serverIds: requestedIds, ...(requestedShortIds.length ? { shortIds: requestedShortIds } : {}) }, response => {
       publicStatusRequest = false;
+      if (publicStatusPlaceId !== placeId) { schedule(); return; }
       if (chrome.runtime.lastError || !Array.isArray(response?.servers)) {
         publicStatusRetryAfter = Date.now() + 30_000;
         setTimeout(schedule, 30_000);
+        schedule();
         return;
       }
-      if (publicStatusPlaceId !== placeId) return;
-      for (const id of serverIds) publicStatuses.set(id, null);
+      for (const id of requestedIds) publicStatuses.set(id, null);
+      for (const shortId of requestedShortIds) publicShortStatuses.set(shortId, { retryAfter: Date.now() + 90_000 });
+      for (const match of Array.isArray(response.matches) ? response.matches : []) {
+        if (requestedShortIds.includes(match?.shortId) && typeof match.id === 'string'
+          && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(match.id)
+          && match.id.substring(9, 18).toLowerCase() === match.shortId) {
+          publicShortStatuses.set(match.shortId, { id: match.id.toLowerCase(), retryAfter: Date.now() + 90_000 });
+        }
+      }
       for (const server of response.servers) {
         if (typeof server?.id === 'string') publicStatuses.set(server.id.toLowerCase(), server);
       }
@@ -2280,7 +2331,7 @@
         else if (ready(pane)) finish(true);
       };
       const observer = new MutationObserver(inspect);
-      observer.observe(pane, { childList: true, characterData: true, subtree: true });
+      observer.observe(pane, { attributes: true, attributeFilter: ['class'], childList: true, characterData: true, subtree: true });
       timeoutTimer = setTimeout(() => finish(false), timeout);
       // Navigation can replace the entire pane without mutating its descendants.
       const checkRoute = () => {
@@ -2297,7 +2348,13 @@
     // empty-state messages must not end the wait for public servers.
     const publicList = pane.querySelector(PUBLIC_SERVER_CONTAINER_SELECTOR);
     if (publicServerCards(publicList).length) return true;
-    const text = (publicList || pane).textContent || '';
+    // Our translated "no matches" message is not Roblox's empty-state response.
+    // In Indonesian both begin with "Tidak ada server" while native data can
+    // still be loading. Private/friends empty states cannot finish it either.
+    const excluded = `${NON_PUBLIC_SERVER_SECTION_SELECTOR}, .rc-public-server-filters, .rc-public-server-pagination`;
+    const nativeText = node => node.nodeType === 3 ? node.textContent
+      : node.matches?.(excluded) ? '' : Array.from(node.childNodes || [], nativeText).join(' ');
+    const text = nativeText(publicList || pane);
     return /no (?:public |running )?servers (?:found|available)|no running experiences/i.test(text)
       || !!globalThis.RobloxCustomizerNativeLabels?.matches('publicEmptyServers', text);
   }
@@ -2306,50 +2363,105 @@
     return waitForGamePaneContent(page, '#game-instances', serverContentReady, timeout);
   }
 
-  function activateGamePane(state, index) {
-    const url = location.href;
-    const historyState = history.state;
-    state.links[index].click();
-    if (state.page.isConnected && pageMatchesPath(state.page) && placeIdFromPath() === state.placeId) {
-      history.replaceState(historyState, '', url);
-    }
+  function gamePageCurrent(state) {
+    return state.page.isConnected && pageMatchesPath(state.page) && placeIdFromPath() === state.placeId;
   }
 
-  function syncServerPaneLoading() {
+  function activateGamePane(state, index, current = () => true) {
+    let nextAttempt = 0;
+    // DOMContentLoaded can run before Roblox binds its Bootstrap/History tab
+    // handlers. A click alone is not evidence that its lazy renderer started.
+    return waitForGamePaneContent(state.page, ['#about', '#store', '#game-instances'][index], pane => {
+      if (!current()) return true;
+      if (pane.classList.contains('active')) return true;
+      if (Date.now() >= nextAttempt) {
+        nextAttempt = Date.now() + 200;
+        // An unbound anchor would otherwise jump the page to its empty pane.
+        const previousUrl = location.href;
+        state.links[index].addEventListener('click', event => event.preventDefault(), { once: true });
+        state.links[index].click();
+        const hash = `#!/${['about', 'store', 'game-instances'][index]}`;
+        if (pane.classList.contains('active') && location.href === previousUrl && location.hash === hash) {
+          // Restoring a deep link uses replaceState, which does not notify the
+          // native tab hook. Selecting that same hash must notify it explicitly.
+          window.dispatchEvent(new HashChangeEvent('hashchange', { oldURL: previousUrl, newURL: location.href }));
+        }
+      }
+      return pane.classList.contains('active');
+    }, 10_000);
+  }
+
+  function storeContentReady(pane) {
+    return !!pane.querySelector('.card-item, .item-card-container, a[href], button')
+      || /no (?:passes|game passes|products|subscriptions)|does not (?:have|sell)/i.test(pane.textContent)
+      || !!globalThis.RobloxCustomizerNativeLabels?.matches('emptyStore', pane.textContent);
+  }
+
+  function recoverGamePane(state, index) {
+    const recovery = { placeId: state.placeId, index, loading: true, retryAfter: 0,
+      url: gamePaneRecovery?.url || location.href };
+    gamePaneRecovery = recovery;
+    void (async () => {
+      try {
+        if (!await activateGamePane(state, index, () => gamePaneRecovery === recovery)
+          || gamePaneRecovery !== recovery) return;
+        const selector = ['#about', '#store', '#game-instances'][index];
+        const ready = index === 0 ? () => aboutReady(state.page)
+          : index === 1 ? storeContentReady : serverContentReady;
+        await waitForGamePaneContent(state.page, selector, ready);
+      } finally {
+        // Native React hooks read location.hash inside hashchange, after click
+        // returns. Restoring the URL immediately prevents them from mounting.
+        if (gamePaneRecovery === recovery && gamePageCurrent(state)) {
+          recovery.loading = false;
+          if (!state.page.querySelector(['#about', '#store', '#game-instances'][index])?.classList.contains('active')) {
+            recovery.retryAfter = Date.now() + 2000;
+            setTimeout(schedule, 2000);
+          }
+          history.replaceState(history.state, '', recovery.url);
+          if (index === 0) gamePaneRecovery = null;
+          schedule();
+        }
+      }
+    })();
+  }
+
+  function syncGamePaneLoading() {
     const state = currentPage();
-    const pane = state?.page.querySelector('#game-instances') || null;
-    if (observedServerPane !== pane) {
-      serverPaneObserver?.disconnect();
-      observedServerPane = pane;
-      if (pane) serverPaneObserver?.observe(pane);
-      serverPaneRecovery = null;
+    const panes = state ? ['#store', '#game-instances'].map(selector => state.page.querySelector(selector)) : [];
+    if (panes.length !== observedGamePanes.length || panes.some((pane, index) => pane !== observedGamePanes[index])) {
+      gamePaneObserver?.disconnect();
+      observedGamePanes = panes;
+      for (const pane of panes) if (pane) gamePaneObserver?.observe(pane);
+      gamePaneRecovery = null;
     }
-    if (!state || !pane || running || document.hidden
+    if (!state || running || document.hidden
       || initialized.get(state.page) !== state.placeId) return;
-    if (serverPaneRecovery?.placeId !== state.placeId) serverPaneRecovery = null;
+    if (gamePaneRecovery?.placeId !== state.placeId) gamePaneRecovery = null;
 
-    const rect = pane.getBoundingClientRect();
-    const nearby = rect.height > 0 && rect.bottom >= -240 && rect.top <= innerHeight + 240;
-    if (!nearby) {
-      // Let About remount when the user returns to the top of the page.
-      if (serverPaneRecovery && pane.classList.contains('active')) activateGamePane(state, 0);
-      serverPaneRecovery = null;
-      return;
+    const nearby = panes.map((pane, offset) => {
+      const rect = pane?.getBoundingClientRect();
+      return rect?.height > 0 && rect.bottom >= -240 && rect.top <= innerHeight + 240
+        ? { pane, index: offset + 1, distance: Math.abs((rect.top + rect.bottom - innerHeight) / 2) } : null;
+    }).filter(Boolean);
+    const pending = nearby.filter(({ pane, index }) => !(index === 1 ? storeContentReady(pane) : serverContentReady(pane)))
+      .sort((a, b) => a.distance - b.distance);
+    const target = pending[0];
+    if (target) {
+      if (gamePaneRecovery?.index === target.index && (gamePaneRecovery.loading
+        || target.pane.classList.contains('active') || Date.now() < gamePaneRecovery.retryAfter)) return;
+      recoverGamePane(state, target.index);
+    } else if (gamePaneRecovery && gamePaneRecovery.index !== 0
+      && !nearby.some(({ index }) => index === gamePaneRecovery.index)) {
+      // Restore About only after leaving the recovered pane. Store and Servers
+      // can discard an inactive request, so keep their native tab selected.
+      recoverGamePane(state, 0);
     }
-    if (serverContentReady(pane) || serverPaneRecovery && pane.classList.contains('active')) return;
 
-    // The initial offscreen load may time out, or Roblox may later discard an
-    // inactive list. Re-enter its native tab when the user approaches Servers,
-    // and keep it active while visible so lazy loading can finish after 15s.
-    serverPaneRecovery = { placeId: state.placeId };
-    if (!pane.classList.contains('active')) activateGamePane(state, 2);
   }
 
   function waitForStoreContent(page) {
-    return waitForGamePaneContent(page, '#store', pane =>
-      !!pane.querySelector('.card-item, .item-card-container, a[href], button')
-      || /no (?:passes|game passes|products|subscriptions)|does not (?:have|sell)/i.test(pane.textContent)
-      || globalThis.RobloxCustomizerNativeLabels?.matches('emptyStore', pane.textContent), 1500);
+    return waitForGamePaneContent(page, '#store', storeContentReady, 1500);
   }
 
   function syncRolimonsPanel() {
@@ -2444,6 +2556,14 @@
     about.append(panel);
   }
 
+  function privateServerLoadMore(list) {
+    const scope = list.closest('#private-server-container, #private-game-instances-container, #rbx-private-running-games') || list;
+    return [...scope.querySelectorAll('button, a[role="button"]')].find(button =>
+      !button.closest('.rc-private-server-more') && (button.matches('.rbx-running-games-load-more')
+        || /^Load More(?: (?:Private )?Servers)?$/i.test(button.textContent.trim())
+        || globalThis.RobloxCustomizerNativeLabels?.matches('loadMore', button.textContent))) || null;
+  }
+
   function limitPrivateServerCards(list, rows, placeId) {
     const saved = privateVisibleCounts.get(list);
     const visible = saved?.placeId === placeId ? saved.count : 5;
@@ -2452,7 +2572,8 @@
     });
 
     let control = [...list.children].find(child => child.classList.contains('rc-private-server-more'));
-    if (rows.length <= visible) {
+    const nativeMore = privateServerLoadMore(list);
+    if (rows.length <= visible && !nativeMore) {
       control?.remove();
       return;
     }
@@ -2466,13 +2587,18 @@
         const current = privateVisibleCounts.get(list);
         const count = current?.placeId === placeId ? current.count : 5;
         privateVisibleCounts.set(list, { placeId, count: count + 5 });
+        if (!list.querySelector('.rc-private-server-collapsed')) privateServerLoadMore(list)?.click();
         syncPrivateServers();
       });
       control.append(button);
     }
-    setText(control.firstElementChild, `Show More (${rows.length - visible} remaining)`);
-    if (control.previousElementSibling !== rows[rows.length - 1]) {
-      rows[rows.length - 1].after(control);
+    setText(control.firstElementChild, rows.length > visible ? `Show More (${rows.length - visible} remaining)` : 'Load More Servers');
+    control.firstElementChild.disabled = rows.length <= visible && !!(nativeMore?.disabled || nativeMore?.getAttribute('aria-disabled') === 'true');
+    const anchor = rows[rows.length - 1];
+    if (anchor && control.previousElementSibling !== anchor) {
+      anchor.after(control);
+    } else if (!control.isConnected) {
+      list.append(control);
     }
   }
 
@@ -2578,7 +2704,7 @@
 
   function syncPrivateServers() {
     const page = document.querySelector('#game-detail-page') || document;
-    const placeId = Number(location.pathname.match(/^\/games\/(\d+)(?:\/|$)/)?.[1]);
+    const placeId = Number(routePath().match(/^\/games\/(\d+)(?:\/|$)/)?.[1]);
     if (!page || !Number.isSafeInteger(placeId) || placeId <= 0) return;
     if (page !== document && !pageMatchesPath(page)) return;
     hidePrivateServerLoadMore(page);
@@ -2608,7 +2734,7 @@
       try {
         const url = new URL(configure.href, location.href);
         serverId = Number(url.searchParams.get('privateServerId')
-          || url.pathname.match(/^\/private-server\/configure\/(\d+)\/?$/)?.[1]);
+          || routePath(url.pathname).match(/^\/private-server\/configure\/(\d+)\/?$/)?.[1]);
       }
       catch { continue; }
       if (!Number.isSafeInteger(serverId) || serverId <= 0) continue;
@@ -2894,9 +3020,7 @@
     try {
       // A Home-to-game navigation can reuse the document. Let Roblox finish its
       // default About pane before opening the tabs that fetch Store and Servers.
-      if (!state.page.querySelector('#about')?.classList.contains('active')) {
-        state.links[0].click();
-      }
+      if (!await activateGamePane(state, 0)) return;
 
       if (!await waitForGamePaneContent(state.page, '#about', () => aboutReady(state.page), 10_000)) {
         if (!state.page.isConnected || !pageMatchesPath(state.page)
@@ -2910,7 +3034,7 @@
       for (const index of [2, 1]) {
         if (!state.page.isConnected || !pageMatchesPath(state.page)
           || placeIdFromPath() !== state.placeId) return;
-        state.links[index].click();
+        if (!await activateGamePane(state, index)) return;
         if (index === 2) {
           // Prime the native section early without holding up Store for a slow
           // public list. Visibility recovery keeps Servers active on approach.
@@ -2925,7 +3049,7 @@
       // games mounted after the other two panes have fetched their data.
       if (!state.page.isConnected || !pageMatchesPath(state.page)
         || placeIdFromPath() !== state.placeId) return;
-      state.links[0].click();
+      if (!await activateGamePane(state, 0)) return;
       if (!await waitForGamePaneContent(state.page, '#about', () => aboutReady(state.page), 10_000)) {
         if (!state.page.isConnected || !pageMatchesPath(state.page)
           || placeIdFromPath() !== state.placeId) return;
@@ -2935,13 +3059,14 @@
 
       if (!state.page.isConnected || !pageMatchesPath(state.page)
         || placeIdFromPath() !== state.placeId) return;
-      history.replaceState(history.state, '', originalUrl);
       initialized.set(state.page, state.placeId);
     } finally {
+      if (gamePageCurrent(state)) history.replaceState(history.state, '', originalUrl);
       running = false;
       moveRecommendations();
       if (initialized.get(state.page) === state.placeId
         || !state.page.isConnected || placeIdFromPath() !== state.placeId) schedule();
+      else setTimeout(schedule, 2000);
     }
   }
 
@@ -2958,7 +3083,7 @@
       syncBadges();
       syncPrivateServers();
       syncPublicServerStatuses();
-      syncServerPaneLoading();
+      syncGamePaneLoading();
       void initialize();
     }, 500);
   }
@@ -2973,7 +3098,7 @@
   const OWNED_UI = '#rc-settings-overlay, #rc-home-greeting, #rc-playtime-game-page, '
     + '#rc-x-feed-panel, #rc-youtube-feed-panel, #rc-rolimons-panel, '
     + '.rc-public-server-filters, .rc-public-server-pagination, ' + PRIVATE_SERVER_RENDER_SELECTOR;
-  let observedFeaturePath = location.pathname;
+  let observedFeaturePath = routePath();
   function featureMutation(record, scope) {
     const target = record.target instanceof Element ? record.target : record.target.parentElement;
     if (target === document.documentElement && record.type === 'attributes') return true;
@@ -2985,22 +3110,22 @@
   }
 
   new MutationObserver(records => {
-    const routeChanged = observedFeaturePath !== location.pathname;
-    observedFeaturePath = location.pathname;
-    const scope = GAME_PATH.test(location.pathname) ? '#game-detail-page'
-      : COMMUNITY_PATH.test(location.pathname) ? '#group-container'
-      : PROFILE_PATH.test(location.pathname) ? '#profile-container, .profile-container, [data-testid="profile-page"], #content, #container-main, main, [role="main"]' : '';
+    const routeChanged = observedFeaturePath !== routePath();
+    observedFeaturePath = routePath();
+    const scope = GAME_PATH.test(routePath()) ? '#game-detail-page'
+      : COMMUNITY_PATH.test(routePath()) ? '#group-container'
+      : PROFILE_PATH.test(routePath()) ? '#profile-container, .profile-container, [data-testid="profile-page"], #content, #container-main, main, [role="main"]' : '';
     if (!routeChanged && (!scope || !records.some(record => featureMutation(record, scope)))) return;
     const gamePage = document.querySelector('#game-detail-page');
-    if (!running && GAME_PATH.test(location.pathname) && pageMatchesPath(gamePage)
+    if (!running && GAME_PATH.test(routePath()) && pageMatchesPath(gamePage)
       && initialized.get(gamePage) !== placeIdFromPath()) void initialize();
-    if (GAME_PATH.test(location.pathname) && pageMatchesPath(gamePage)
+    if (GAME_PATH.test(routePath()) && pageMatchesPath(gamePage)
       && (routeChanged || records.some(record => featureMutation(record, '#game-instances')))) {
       hidePrivateServerLoadMore(gamePage);
       hideNativePublicServerControls(gamePage,
         gamePage.querySelector(PUBLIC_SERVER_CONTAINER_SELECTOR));
     }
-    const privateListChanged = GAME_PATH.test(location.pathname) && records.some(privateServerSourceMutation);
+    const privateListChanged = GAME_PATH.test(routePath()) && records.some(privateServerSourceMutation);
     if (privateListChanged) {
       syncPrivateServers();
     }
@@ -3010,7 +3135,7 @@
     ...['game', 'community', 'profile'].flatMap(kind =>
       [`data-rc-hide-${kind}-x-feed`, `data-rc-hide-${kind}-youtube-feed`]),
     'data-rc-profile-social-user-id', 'data-rc-profile-x-url', 'data-rc-profile-youtube-url',
-    'data-rc-instance-id', 'data-rc-ping', 'data-btr-instance-id', 'data-rc-playing',
+    'data-rc-instance-id', 'data-rc-ping', 'data-rc-ping-level', 'data-country-code', 'data-btr-instance-id', 'data-rc-playing',
     'data-playing', 'data-player-count', 'src', 'srcset', 'sizes', 'alt',
     'data-private-server-id', 'data-vip-server-id', 'data-server-id', 'data-serverid',
     'data-rc-server-source'
@@ -3019,7 +3144,7 @@
   window.addEventListener('resize', schedule);
   window.addEventListener('popstate', schedule);
   window.addEventListener('hashchange', schedule);
-  if (!serverPaneObserver) window.addEventListener('scroll', schedule, { passive: true });
+  if (!gamePaneObserver) window.addEventListener('scroll', schedule, { passive: true });
   globalThis.RobloxCustomizerRuntime?.onResume(schedule);
   globalThis.RobloxCustomizerI18n?.onChange(locale => {
     badgeDateFormatter = new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'short', day: 'numeric' });

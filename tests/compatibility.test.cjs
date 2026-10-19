@@ -43,7 +43,7 @@ test('Native enhancements wait for Roblox metadata instead of trusting an early 
 });
 
 test('Supported locales start deferred features once and fresh installations do not write flags', async () => {
-  for (const metadata of ['en-US', 'zh_CN', 'zh-Hant-HK']) {
+  for (const metadata of ['en-US', 'zh_CN', 'zh-Hant-HK', 'id', 'id-ID', 'id_id']) {
     const env = environment();
     let started = 0;
     env.api.runFeature(() => started++);

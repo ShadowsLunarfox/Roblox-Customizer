@@ -1,5 +1,6 @@
 (globalThis.RobloxCustomizerCompatibility?.runFeature || (initialize => initialize()))(() => {
   'use strict';
+  const routePath = value => globalThis.RobloxCustomizerRoutes?.pathname(value) ?? value ?? location.pathname;
   const core = globalThis.RobloxCustomizerServerHistory;
   const i18n = globalThis.RobloxCustomizerI18n;
   const t = (source, values) => i18n?.t(source, values) || source;
@@ -28,10 +29,10 @@
     data = { userId: result.userId, enabled: result.enabled !== false, servers: clean.accounts[0]?.servers || [] };
     error = ''; render();
   }
-  async function load() {
+  async function load(action = 'snapshot') {
     if (loading) return loading;
     loading = (async () => {
-      try { accept(await request('snapshot')); }
+      try { accept(await request(action)); }
       catch (failure) { data = { ...data, userId: 0, servers: [] }; error = failure.message; render(); }
       finally { loading = null; }
     })();
@@ -84,7 +85,7 @@
     const toggle = el('label', 'rc-server-history-toggle'), input = el('input'); input.type = 'checkbox';
     input.addEventListener('change', async () => {
       const enabled = input.checked; input.disabled = true;
-      try { accept(await request('set-enabled', { enabled })); }
+      try { accept(await request('set-enabled', { enabled })); if (enabled) void load('refresh'); }
       catch (failure) { error = failure.message; render(); }
       finally { input.disabled = false; input.checked = data.enabled; }
     });
@@ -107,7 +108,7 @@
     }
   }
   function gameContext() {
-    const placeId = Number(location.pathname.match(/^\/games\/(\d+)(?:\/|$)/i)?.[1]);
+    const placeId = Number(routePath().match(/^\/games\/(\d+)(?:\/|$)/i)?.[1]);
     if (!core.validId(placeId)) return null;
     const page = document.querySelector('#game-detail-page'), meta = page?.querySelector('#game-detail-meta-data');
     const renderedPlaceId = Number(page?.getAttribute('data-place-id') || meta?.getAttribute('data-place-id'));
@@ -196,20 +197,20 @@
     const actions = el('div', 'rc-server-history-actions');
     actions.append(button('Refresh', () => {
       for (const [placeId, universeId] of games) if (!universeId) games.delete(placeId);
-      void load();
+      void load('refresh');
     }), button('Clear this account', () => {
       clearTarget = { userId: data.userId, ...(dialogGame ? { universeId: dialogGame.universeId || games.get(dialogGame.placeId) } : {}) };
       confirmation.hidden = false; clear.focus();
     }, 'rc-server-clear'));
     dialog.append(heading, el('p', 'rc-server-history-note'), search, el('div', 'rc-server-dialog-list'), actions, confirmation);
     dialog.addEventListener('close', () => { dialog.remove(); dialog = null; dialogGame = null; if (opener?.isConnected) opener.focus(); });
-    document.body.append(dialog); renderDialog(); dialog.showModal(); search.focus(); void load();
+    document.body.append(dialog); renderDialog(); dialog.showModal(); search.focus(); void load('refresh');
   }
   function render() { updateSettings(); syncPages(); renderDialog(); }
   function queue() { if (queued) return; queued = true; setTimeout(() => { queued = false; syncPages(); renderDialog(); }, 0); }
-  let observedPath = location.pathname;
+  let observedPath = routePath();
   new MutationObserver(records => {
-    if (observedPath !== location.pathname) { observedPath = location.pathname; queue(); void load(); return; }
+    if (observedPath !== routePath()) { observedPath = routePath(); queue(); void load(); return; }
     if (records.some(record => !record.target.closest?.('[id^="rc-server-history"], #rc-settings-overlay, .rc-playtime-panel')
       && (record.type === 'attributes' || [...record.addedNodes, ...record.removedNodes].some(node => node instanceof Element
         && (node.matches('#game-detail-page, #game-detail-meta-data, #game-instances, #rc-server-history-game')
@@ -220,10 +221,11 @@
     clearTimeout(refreshTimer); refreshTimer = setTimeout(load, 60);
   });
   addEventListener('popstate', () => { queue(); void load(); });
-  addEventListener('pageshow', () => void load());
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') void load(); });
+  addEventListener('pageshow', () => void load('refresh'));
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') void load('refresh'); });
   i18n?.onChange(render);
-  globalThis.RobloxCustomizerRuntime?.onResume(load);
+  globalThis.RobloxCustomizerRuntime?.onResume(() => load('refresh'));
+  setInterval(() => { if (data.enabled && document.visibilityState === 'visible') void load('refresh'); }, 30000);
   globalThis.RobloxCustomizerServerHistoryUI = Object.freeze({ mountSettings });
-  void load();
+  void load('refresh');
 });

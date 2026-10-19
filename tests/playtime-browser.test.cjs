@@ -124,7 +124,7 @@ test('Game pages show only this experience’s local playtime and last-played ti
     await browser.evaluate('setSaved({playtimeTrackingEnabled:false})');
     await browser.waitFor('!document.querySelector(".rc-playtime-game-enable").hidden');
     state = await panel(); assert.equal(state.total, '3m 5s'); assert.equal(state.playing, false); assert.match(state.hint, /paused/);
-    for (const [locale, title, total] of [['zh-CN','您的游戏时长','3分5秒'],['zh-TW','您的遊戲時長','3分5秒'],['en','Your playtime','3m 5s']]) {
+    for (const [locale, title, total] of [['zh-CN','您的游戏时长','3分5秒'],['id','Waktu bermain Anda','3m 5d'],['zh-TW','您的遊戲時長','3分5秒'],['en','Your playtime','3m 5s']]) {
       await browser.evaluate(`RobloxCustomizerI18n.setLanguage(${JSON.stringify(locale)})`);
       assert.equal(await browser.evaluate('document.querySelector("#rc-playtime-game-title").textContent'), title);
       assert.equal((await panel()).total, total);

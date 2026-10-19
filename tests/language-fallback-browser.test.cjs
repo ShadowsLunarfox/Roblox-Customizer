@@ -127,9 +127,9 @@ test('Unsupported languages preserve native UI, allow only image backgrounds and
     assert.equal(await browser.evaluate(`document.querySelector('${notice}').checkVisibility()`), true, 'The explanation remains visible after dismissing the one-time pop-up');
     assert.equal(await browser.evaluate(`document.querySelector('${notice} a').getAttribute('href')`), '/my/account#!/info');
     for (const [locale, title, features, supported] of [
-      ['en', 'Your Roblox language is not supported yet', 'Only image backgrounds and custom colors', 'English, Simplified Chinese, or Traditional Chinese'],
-      ['zh-CN', '当前 Roblox 语言暂未支持', '目前仅可使用图片背景和自定义颜色', '英语、简体中文或繁体中文'],
-      ['zh-TW', '目前的 Roblox 語言暫未支援', '目前僅可使用圖片背景和自訂色彩', '英語、簡體中文或繁體中文']
+      ['en', 'Your Roblox language is not supported yet', 'Only image backgrounds and custom colors', 'English, Simplified Chinese, Traditional Chinese, or Indonesian'],
+      ['zh-CN', '当前 Roblox 语言暂未支持', '目前仅可使用图片背景和自定义颜色', '英语、简体中文、繁体中文或印尼语'],
+      ['zh-TW', '目前的 Roblox 語言暫未支援', '目前僅可使用圖片背景和自訂色彩', '英語、簡體中文、繁體中文或印尼語']
     ]) {
       await browser.evaluate(`RobloxCustomizerI18n.setLanguage('${locale}')`);
       await browser.waitFor(`document.querySelector('${notice} strong').textContent===${JSON.stringify(title)}`);

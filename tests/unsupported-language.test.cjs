@@ -29,7 +29,7 @@ function environment({ lang = '', metadata = '', browser = 'en-US' } = {}) {
 }
 
 test('Language support recognizes English and both Chinese variants without treating fallback English as support', () => {
-  for (const language of ['en', 'en-US', ' EN_gb ', 'zh', 'zh_CN', 'zh-TW', 'zh-Hans-SG', 'zh-Hant-HK', 'zh-MO']) {
+  for (const language of ['en', 'en-US', ' EN_gb ', 'zh', 'zh_CN', 'zh-TW', 'zh-Hans-SG', 'zh-Hant-HK', 'zh-MO', 'id', 'id-ID', ' ID_id ']) {
     const { api } = environment({ lang: language });
     assert.equal(api.isSupportedLanguage(api.robloxLanguage()), true, language);
   }

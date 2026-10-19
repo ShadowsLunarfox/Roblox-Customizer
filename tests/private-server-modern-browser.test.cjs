@@ -7,8 +7,8 @@ const { isolatedChrome, waitForDocument, pause } = require('./helpers/chrome.cjs
 const workspace = path.resolve(__dirname, '..');
 const manifest = JSON.parse(fs.readFileSync(path.join(workspace, 'manifest.json'), 'utf8'));
 // Exercise the adapter fallback when direct rendering is unavailable.
-const scripts = manifest.content_scripts.flatMap(entry => entry.js || [])
-  .filter(file => file !== 'src/shared/server-card-view.js');
+const scripts = manifest.content_scripts.flatMap(entry => entry.world === 'MAIN'
+  ? ['src/shared/page-bridge.js'] : entry.js || []);
 const styles = [...new Set(manifest.content_scripts.flatMap(entry => entry.css || []))];
 const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><circle cx="40" cy="40" r="40" fill="#6575a0"/></svg>';
 const setup = `

@@ -176,7 +176,13 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .
   gap: 4px;
   margin-top: auto;
   color: var(--rc-text-secondary);
+  font-size: 16px;
   line-height: 1.5;
+}
+
+html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-price .rc-robux-equivalent:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-price :is(.text-robux, [class^="icon-"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
@@ -191,9 +197,15 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .
 }
 
 html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-footer:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
+  min-height: 40px;
   height: auto;
   margin-top: 0;
+  font-size: 14px;
+  line-height: 1.4;
 }
 
 html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-card-footer .PurchaseButton:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
@@ -205,6 +217,8 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .
   border-radius: 10px;
   white-space: normal;
   overflow-wrap: anywhere;
+  font-size: 14px;
+  line-height: 1.4;
 }
 
 html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .PurchaseButton:not(:disabled, .disabled, [aria-disabled="true"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
@@ -269,6 +283,10 @@ html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) [
 }
 
 /* Retain the native compact subscription layout, carousel and payment actions. */
+html[data-rc-ui-active] #game-detail-page #store .subscriptions-scroll-container > .subscription-card-item:only-child:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  flex-basis: 100%;
+}
+
 html[data-rc-ui-active] #game-detail-page #store .subscription-card-item:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   position: relative;
@@ -329,12 +347,19 @@ html[data-rc-ui-active] #game-detail-page #store .subscription-card-price:where(
   flex-wrap: wrap;
 }
 
+html[data-rc-ui-active] #game-detail-page #store :is(.subscription-card-description, .subscription-card-price):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 html[data-rc-ui-active] #game-detail-page #store .subscription-card-item > button:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   width: 100%;
   min-height: 40px;
   border-radius: 10px;
   white-space: normal;
   overflow-wrap: anywhere;
+  font-size: 14px;
+  line-height: 1.4;
 }
 
 html[data-rc-ui-active] #game-detail-page #store .subscription-card-item > button:not(:disabled, .disabled, [aria-disabled="true"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
@@ -350,6 +375,10 @@ html[data-rc-ui-active] #game-detail-page #store .subscription-card-item > butto
 
   html[data-rc-ui-active] #game-detail-page :is(#store, #rbx-developer-products) .store-cards:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
     gap: 12px;
+  }
+
+  html[data-rc-ui-active] #game-detail-page #store .rc-store-category:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+    padding: 12px;
   }
 }
 

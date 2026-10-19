@@ -34,6 +34,8 @@ test('backup includes every preference and account, preserves folder links, and 
   assert.deepEqual(backup.validate(copy(envelope(data))).data, data);
   assert.equal(JSON.stringify(data).includes('live-session'), false);
   assert.equal(source.rcPlaytimeHistory.active.browserSessionId, 'live-session', 'Export does not stop live tracking');
+  const indonesian = backup.snapshot({ ...source, customBackground: { ...source.customBackground, uiLanguage: 'id' } });
+  assert.equal(backup.validate(envelope(indonesian)).data.customBackground.uiLanguage, 'id');
   const defaults = backup.snapshot({});
   assert.equal(defaults.playtimeTrackingEnabled, true);
   assert.deepEqual(defaults.pinnedGames, []);

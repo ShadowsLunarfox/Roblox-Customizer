@@ -77,7 +77,7 @@ function harness(initial = {}) {
       if (url.includes('/servers/Public')) { if (fail) throw new TypeError('Offline'); const body = pages[Math.min(publicCalls++, pages.length - 1)]; return { ok: true, async json() { return body; } }; }
       return { ok: true, headers: { get() {} }, async json() { return { data: [] }; } };
     } });
-  for (const file of ['src/servers/server-history-core.js', 'src/playtime/playtime-core.js', 'src/background/playtime-background.js', 'src/background/server-history-background.js']) vm.runInContext(fs.readFileSync(path.resolve(__dirname, '..', file), 'utf8'), context);
+  for (const file of ['src/shared/routes.js', 'src/servers/server-history-core.js', 'src/playtime/playtime-core.js', 'src/background/playtime-background.js', 'src/background/server-history-background.js']) vm.runInContext(fs.readFileSync(path.resolve(__dirname, '..', file), 'utf8'), context);
   const sender = { id: 'extension', url: 'https://www.roblox.com/home', frameId: 0 };
   const message = (type, action, extra = {}, source = sender) => new Promise(resolve => {
     for (const fn of events.message) if (fn({ type, action, ...extra }, source, value => resolve(JSON.parse(JSON.stringify(value))))) return;
@@ -124,6 +124,24 @@ test('history and playtime share one poll, with independent opt-outs and no reco
   await h.chrome.storage.local.set({ serverHistoryEnabled: false }); release(); await pending;
   assert.equal(h.local.rcServerHistory.accounts[0].servers[0].visitedAt, last);
 });
+
+test('recent-server refresh records confirmed joins with playtime off and shares its throttle and opt-out', async () => {
+  const h = harness();
+  let result = await h.history('refresh');
+  assert.equal(result.servers[0].serverId, id(1));
+  assert.equal(h.local.rcPlaytimeHistory.accounts.length, 0);
+  await h.history('refresh');
+  assert.equal(h.requests.filter(request => request.url.includes('presence.roblox.com')).length, 1);
+  h.presence({ ...presence, gameId: id(2) }); h.advance();
+  result = await h.history('refresh');
+  assert.deepEqual(result.servers.map(server => server.serverId), [id(2), id(1)]);
+  await h.history('set-enabled', { userId: 123, enabled: false });
+  h.presence({ ...presence, gameId: id(3) }); h.advance();
+  result = await h.history('refresh');
+  assert.equal(result.enabled, false);
+  assert.deepEqual(result.servers.map(server => server.serverId), [id(2), id(1)]);
+  assert.equal(h.requests.filter(request => request.url.includes('presence.roblox.com')).length, 2);
+});
 test('history always checks account ownership before reads, deletion and availability requests', async () => {
   const h = harness(); await h.poll(); h.user({ id: 321 });
   assert.deepEqual((await h.history()).servers, []);
@@ -150,7 +168,7 @@ test('clearing one game preserves other games and other accounts and rejects inv
 test('game lookup resolves root places without exposing history to other routes', async () => {
   const h = harness();
   assert.equal(await h.history('resolve-game', { placeId: 700 }), undefined, 'Home cannot request game-page lookups');
-  const sender = { id: 'extension', url: 'https://www.roblox.com/games/700/Test', frameId: 0 };
+  const sender = { id: 'extension', url: 'https://www.roblox.com/id/games/700/Test', frameId: 0 };
   const result = await h.history('resolve-game', { placeId: 700 }, sender);
   assert.equal(result.universeId, 456);
   assert.equal(await h.history('resolve-game', { placeId: 701 }, sender), undefined);

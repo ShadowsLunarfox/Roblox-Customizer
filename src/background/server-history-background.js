@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  const routePath = globalThis.RobloxCustomizerRoutes?.pathname || (value => value);
   const core = globalThis.RobloxCustomizerServerHistory;
   const LANGUAGE_KEY = 'robloxCustomizerUnsupportedLanguage';
   async function json(url, credentials = 'omit') {
@@ -84,8 +85,14 @@
     if (sender.id !== chrome.runtime.id || url.protocol !== 'https:'
       || !['www.roblox.com', 'roblox.com'].includes(url.hostname) || (sender.frameId ?? 0) !== 0) return;
     if (message.action === 'resolve-game'
-      && Number(url.pathname.match(/^\/games\/(\d+)(?:\/|$)/)?.[1]) !== message.placeId) return;
-    globalThis.RobloxCustomizerPlaytimeBackground.withStorageLock(() => handle(message))
+      && Number(routePath(url.pathname).match(/^\/games\/(\d+)(?:\/|$)/)?.[1]) !== message.placeId) return;
+    const tracking = globalThis.RobloxCustomizerPlaytimeBackground;
+    // Refresh presence outside the history lock: the poll writes both histories
+    // under that same lock. The shared throttle still deduplicates tabs.
+    const operation = message.action === 'refresh'
+      ? tracking.refresh().then(() => tracking.withStorageLock(() => handle({ ...message, action: 'snapshot' })))
+      : tracking.withStorageLock(() => handle(message));
+    operation
       .then(respond, error => respond({ ok: false, error: error.message || 'Could not load recent servers. Please try again.' }));
     return true;
   });

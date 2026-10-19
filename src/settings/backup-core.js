@@ -24,7 +24,7 @@
     const settings = { ...value };
     delete settings._writer;
     const options = { source: ['none', 'file', 'url'], fit: ['cover', 'contain'],
-      urlType: ['auto', 'image', 'video'], uiLanguage: ['auto', 'en', 'zh-CN', 'zh-TW'] };
+      urlType: ['auto', 'image', 'video'], uiLanguage: ['auto', 'en', 'zh-CN', 'zh-TW', 'id'] };
     for (const [key, allowed] of Object.entries(options)) {
       if (key in settings && !allowed.includes(settings[key])) fail();
     }

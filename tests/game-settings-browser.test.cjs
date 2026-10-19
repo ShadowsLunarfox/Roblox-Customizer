@@ -8,6 +8,7 @@ const workspace = path.resolve(__dirname, '..');
 const manifest = JSON.parse(fs.readFileSync(path.join(workspace, 'manifest.json'), 'utf8'));
 const styles = [...new Set(manifest.content_scripts.flatMap(entry => entry.css || []))];
 const scripts = ['src/shared/startup.js', 'src/pages/games/private-server-configure.js'];
+const storeScripts = ['src/shared/routes.js', 'src/shared/native-labels.js', 'src/pages/games/game-page.js'];
 const art = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="480" height="480"%3E%3Crect width="480" height="480" fill="%23386b94"/%3E%3Ccircle cx="240" cy="240" r="100" fill="%23ffd47c"/%3E%3C/svg%3E';
 const configPath = '/private-server/configure/4169319554';
 const storePath = '/games/130950966579217/Title-Unavailable#!/store/developer-products';
@@ -55,18 +56,23 @@ function productCards(page = 1) {
   return ['Small item', 'A product with a longer title that wraps into multiple lines', 'LongProductName'.repeat(7), 'Unavailable product'].map((name, i) => `<li class="list-item developer-product-tile"><div class="store-card"><div class="store-product-card-thumbnail"><a href="/developer-products/${page * 10 + i}/sample"><span class="thumbnail-2d-container"><img alt="${name}" src='${art}' width="480" height="480"></span></a>${i === 0 ? '<div class="pending-badge"><span class="pending-icon">&#9201;</span><span class="pending-count">1</span></div>' : ''}</div><div class="store-product-card-caption"><div class="store-product-card-name" title="${name}">${name}</div><div class="store-card-price"><span class="icon-robux-16x16"></span><span class="text-robux">${(i + 1) * 125}</span></div><div class="store-card-footer"><button type="button" class="PurchaseButton btn-buy-md btn-full-width rbx-gear-passes-purchase" data-product-id="${page * 10 + i}" ${i === 3 ? 'disabled' : ''}><span>Buy</span></button></div></div></div></li>`).join('') + '<li class="list-item developer-product-tile hidden" id="hidden-product">Native hidden item</li>';
 }
 
-function store(standalone) {
-  const products = `<div id="rbx-developer-products" class="container-list game-dev-store game-passes"><div class="container-header"><h2>Products</h2></div><ul class="hlist store-cards store-developer-products-row">${productCards()}</ul><div class="overview-pagination-container"><button type="button" id="previous" disabled>Previous</button><button type="button" id="next">Next</button></div><p class="text-description" id="empty" hidden>No products available.</p></div>`;
+function store(standalone, indonesian = false) {
+  const products = `<div id="rbx-developer-products" class="container-list game-dev-store game-passes"><div class="container-header"><h2>${indonesian ? 'Produk' : 'Products'}</h2></div><ul class="hlist store-cards store-developer-products-row">${productCards()}</ul><div class="overview-pagination-container"><button type="button" id="previous" disabled>Previous</button><button type="button" id="next">Next</button></div><p class="text-description" id="empty" hidden>No products available.</p></div>`;
   const passes = `<section><h2>Passes</h2><ul class="store-cards"><li class="list-item"><div class="store-card"><a href="/game-pass/1903230850/Admin-Commands"><span class="thumbnail-2d-container"><img alt="Game pass" src='${art}' width="150" height="150"></span></a><div class="store-card-caption"><a class="store-card-name" href="/game-pass/1903230850/Admin-Commands">Admin Commands with a long game pass name</a><div class="store-card-price"><span class="text-robux">250</span></div><div class="store-card-footer"><button class="PurchaseButton" data-product-id="90">Buy</button></div></div></div></li></ul></section>`;
   // Current GameSubscriptions host classes, including the native detail/payment overlay host.
   const subscriptions = `<section><h2>Subscriptions</h2><div class="subscriptions-scroll-container has-peek"><div class="subscription-card-item bg-shift-200"><div class="subscription-card-info" id="subscription-details"><div class="subscription-card-thumbnail"><span class="subscription-thumbnail-container-class"><img src='${art}' alt="Subscription"></span></div><div class="subscription-card-text"><span class="subscription-card-title">每月会员 / 每月會員 — A longer subscription title</span><span class="subscription-card-description">A complete description with benefits that must wrap without covering the price or purchase button.</span><div class="subscription-card-price"><span>MYR 19.90 / 每月</span></div></div></div><button id="subscribe">Subscribe</button><div class="subscription-card-overlays"><div role="dialog" id="subscription-dialog" hidden><p>Subscription details</p><button id="close-subscription">Cancel</button></div></div></div></div></section>`;
-  return `<div id="game-detail-page" data-place-id="130950966579217">${standalone ? products : `<div class="tab-content"><section id="store">${products}${passes}${subscriptions}</section></div>`}</div><div role="dialog" id="purchase-dialog" hidden><p>Sample purchase confirmation</p><button type="button" id="cancel">Cancel</button></div>`;
+  const nativePasses = indonesian ? passes.replace('<section><h2>Passes</h2>', '<section id="native-passes"><h2>Pas</h2>')
+    .replace('<button class="PurchaseButton" data-product-id="90">Buy</button>', '<span class="text-label owned">Dimiliki</span>')
+    .replace('class="store-card-price"', 'class="store-card-price" data-rc-currency-stack')
+    .replace('<span class="text-robux">250</span>', '<span class="text-robux">250</span><span class="rc-robux-equivalent">\u2248 RM 11.95 MYR</span>') : passes;
+  const nativeSubscriptions = indonesian ? subscriptions.replace('<section><h2>Subscriptions</h2>', '<section id="rbx-subscriptions-container-content"><div class="container-header"><h3>Subscription</h3></div>') : subscriptions;
+  return `<div id="game-detail-page" data-place-id="${indonesian ? '606849621' : '130950966579217'}">${standalone ? products : `<div class="tab-content"><section id="store">${indonesian ? nativeSubscriptions + nativePasses + products : products + passes + subscriptions}</section></div>`}</div><div role="dialog" id="purchase-dialog" hidden><p>Sample purchase confirmation</p><button type="button" id="cancel">Cancel</button></div>`;
 }
 
 function fixture(url) {
   const variant = url.searchParams.get('variant') || 'legacy';
   const isConfig = url.pathname.startsWith('/private-server/');
-  const markup = isConfig ? (variant.startsWith('summary-') ? configurationSummary(variant) : configuration(variant)) : store(variant === 'standalone');
+  const markup = isConfig ? (variant.startsWith('summary-') ? configurationSummary(variant) : configuration(variant)) : store(variant === 'standalone', variant === 'indonesian');
   return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
     ${process.env.GAME_SETTINGS_NATIVE_CSS ? '<link rel="stylesheet" href="/native.css">' : ''}
     <style>${subscriptionStyles}</style>
@@ -74,6 +80,7 @@ function fixture(url) {
     <style>.summary-heading{display:flex;align-items:baseline;justify-content:space-between;gap:20px;margin-bottom:24px}.summary-heading h1{margin:0}.summary-art{float:left;width:256px;margin-right:16px}.summary-art img{display:block;border-radius:10px}.summary-details{margin-left:272px}.summary-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #8886}.summary-row .text-label{flex:none;width:148px}.summary-row .text-overflow{min-width:0}.summary-row #rename{flex:none;margin-left:auto}.icon-edit{display:block;width:16px;height:16px;background:currentColor;clip-path:polygon(15% 65%,65% 15%,85% 35%,35% 85%,10% 90%)}#later-controls{clear:both;padding-top:24px}@media(max-width:640px){.summary-heading{display:block}.summary-art{float:none;width:256px;max-width:100%;margin:0 0 20px}.summary-details{margin:0}.summary-row{flex-wrap:wrap}.summary-row .text-label{width:100%}}</style>
     ${styles.map(file => `<link rel="stylesheet" href="/${file}">`).join('')}
     ${scripts.map(file => `<script src="/${file}"></script>`).join('')}
+    ${variant === 'indonesian' ? '<script>window.chrome={runtime:{lastError:null,sendMessage(message,callback){callback({error:"No optional fixture data"})}}}</script>' + storeScripts.map(file => `<script src="/${file}"></script>`).join('') : ''}
     </head><body class="dark-theme"><main><div id="content"></div></main><script>
     window.actions=[];window.saves=[];window.page=1;
     setTimeout(()=>{document.querySelector('#content').innerHTML=${JSON.stringify(markup)};window.fixtureReady=true;
@@ -96,7 +103,7 @@ function fixture(url) {
 
 async function setup(t, name) {
   if (process.env.GAME_SETTINGS_NATIVE_CSS) assert.ok(fs.existsSync(process.env.GAME_SETTINGS_NATIVE_CSS));
-  const assets = [...styles, ...scripts];
+  const assets = [...styles, ...scripts, ...storeScripts];
   const server = http.createServer((request, response) => {
     response.setHeader('Cache-Control', 'no-store');
     const url = new URL(request.url, 'http://localhost');
@@ -149,9 +156,9 @@ async function checkLayouts(browser, kind) {
           }
           const cards = await browser.evaluate(`([...document.querySelectorAll('.store-card')].map(n=>{const image=n.querySelector('img').getBoundingClientRect(),caption=n.querySelector('.store-product-card-caption,.store-card-caption').getBoundingClientRect();return {square:Math.abs(image.width-image.height)<1,below:caption.top>=image.bottom}}))`);
           assert.ok(cards.every(n=>n.square&&n.below), `${label}: square artwork stays above the details`);
-          const subscription = await browser.evaluate(`(()=>{const n=document.querySelector('.subscription-card-item');if(!n)return null;const r=n.getBoundingClientRect(),host=n.parentElement.getBoundingClientRect(),image=n.querySelector('img').getBoundingClientRect();return {width:r.width,host:host.width,image:image.width}})()`);
+          const subscription = await browser.evaluate(`(()=>{const n=document.querySelector('.subscription-card-item');if(!n)return null;const r=n.getBoundingClientRect(),host=n.parentElement.getBoundingClientRect(),image=n.querySelector('img').getBoundingClientRect();return {width:r.width,host:host.width,image:image.width,single:n.matches(':only-child')}})()`);
           if (subscription) {
-            const expectedWidth = width <= 767 ? subscription.host - 60 : subscription.host / 2 - 46;
+            const expectedWidth = subscription.single ? subscription.host : width <= 767 ? subscription.host - 60 : subscription.host / 2 - 46;
             assert.ok(Math.abs(subscription.width-expectedWidth)<1, `${label}: native subscription carousel sizing survives`);
             assert.equal(subscription.image, 56, `${label}: compact subscription artwork survives`);
           }
@@ -295,5 +302,53 @@ test('Store restores compact cards while retaining native purchases, subscriptio
     await browser.evaluate("document.querySelector('.store-cards').replaceChildren();document.querySelector('#empty').hidden=false");
     assert.equal(await browser.evaluate("document.querySelector('#empty').checkVisibility()"), true);
   }
+  assert.deepEqual(browser.errors, []);
+});
+
+test('Indonesian Store gives Subscription, Pas and Produk matching sections without changing native actions', { skip: !process.env.CHROME_BIN, timeout: 30000 }, async t => {
+  const { browser, base } = await setup(t, 'indonesian-store');
+  const url = `${base}/id/games/606849621/Jailbreak?variant=indonesian#!/store`;
+  await browser.send('Page.navigate', { url });
+  await waitForDocument(browser, '#store', url);
+  await browser.waitFor("document.querySelectorAll('#store .rc-store-category').length===3");
+  assert.deepEqual(await browser.evaluate("[...document.querySelectorAll('[data-rc-store-section-title]')].map(n=>n.dataset.rcStoreSectionTitle)"), ['subscriptions', 'passes', 'products']);
+  await checkLayouts(browser, 'store');
+  assert.equal(await browser.evaluate("document.querySelector('#native-passes .owned').textContent"), 'Dimiliki');
+  assert.ok(await browser.evaluate("document.querySelector('#native-passes .store-card-footer').getBoundingClientRect().height>=40"), 'Owned labels keep the same action space as purchase buttons');
+  assert.equal(await browser.evaluate("getComputedStyle(document.querySelector('#native-passes .rc-robux-equivalent')).fontSize"), '12px');
+  for (const width of [1000, 390, 320]) {
+    await browser.send('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor: 1, mobile: width < 600 });
+    await browser.evaluate('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))');
+    const sizes = await browser.evaluate("[...document.querySelectorAll('#store .rc-store-category')].map(n=>{const r=n.getBoundingClientRect();return{left:r.left,width:r.width}})");
+    assert.ok(sizes.every(size=>Math.abs(size.left-sizes[0].left)<1&&Math.abs(size.width-sizes[0].width)<1), 'All three sections align');
+    assert.equal(await browser.evaluate("document.documentElement.scrollWidth>innerWidth"), false);
+    if (process.env.GAME_SETTINGS_SCREENSHOTS && width !== 390) {
+      await browser.evaluate('scrollTo(0,0)');
+      const shot = await browser.send('Page.captureScreenshot', { captureBeyondViewport: true });
+      fs.writeFileSync(path.join(workspace, `.tmp-store-indonesian-${width}.png`), Buffer.from(shot.data, 'base64'));
+    }
+  }
+  await browser.click('#subscribe');
+  const dialog = await browser.evaluate("(()=>{const r=document.querySelector('#subscription-dialog').getBoundingClientRect();return{left:r.left,width:r.width}})()");
+  assert.ok(Math.abs(dialog.left-64)<1&&Math.abs(dialog.width-192)<1, 'Subscription confirmation keeps its viewport positioning');
+  await browser.click('#close-subscription');
+  await browser.click('#rbx-developer-products .PurchaseButton:not([disabled])');
+  assert.equal(await browser.evaluate("document.querySelector('#purchase-dialog').hidden"), false);
+  await browser.click('#cancel');
+  assert.deepEqual(await browser.evaluate('actions'), ['subscribe', '10']);
+  await browser.evaluate(`const host=document.querySelector('.subscriptions-scroll-container');for(let i=0;i<2;i++){
+    const card=host.firstElementChild.cloneNode(true);card.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));card.querySelector('.subscription-card-overlays').remove();host.append(card);
+  }`);
+  await browser.waitFor("document.querySelectorAll('.subscription-card-item').length===3");
+  const carousel = await browser.evaluate("(()=>{const n=document.querySelector('.subscriptions-scroll-container'),r=n.firstElementChild.getBoundingClientRect();return{card:r.width,host:n.clientWidth,overflow:n.scrollWidth>n.clientWidth}})()");
+  assert.ok(Math.abs(carousel.card-(carousel.host-60))<1&&carousel.overflow, 'Multiple subscriptions retain their native scrolling and preview width');
+  await browser.evaluate(`for(const root of ['#rbx-subscriptions-container-content','#rbx-developer-products']){
+    const section=document.querySelector(root),heading=section.querySelector('h2,h3');
+    heading.textContent=root.includes('subscriptions')?'Updated native heading':'Barang';
+    heading.classList.remove('rc-store-section-title');heading.removeAttribute('data-rc-store-section-title');
+    section.classList.remove('rc-store-category');section.removeAttribute('data-rc-store-section');
+  }`);
+  await browser.waitFor("document.querySelectorAll('#store .rc-store-category').length===3");
+  assert.equal(await browser.evaluate("document.querySelector('#rbx-developer-products h2').textContent"), 'Barang', 'Structural recognition preserves the native heading text');
   assert.deepEqual(browser.errors, []);
 });

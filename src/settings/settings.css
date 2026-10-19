@@ -1291,10 +1291,40 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
   border-top: 1px solid var(--rc-settings-divider);
 }
 
-#rc-settings-overlay .rc-settings-home h3 {
+#rc-settings-overlay .rc-home-visibility-controls {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+#rc-settings-overlay .rc-home-visibility-controls .rc-settings-toggle {
+  align-items: flex-start;
+  min-height: 48px;
   margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--rc-settings-divider);
+  border-radius: 10px;
+  background: var(--rc-control-bg);
   color: var(--rc-text);
-  font-size: 18px;
+  font: 400 16px/1.5 Arial, sans-serif;
+}
+
+#rc-settings-overlay .rc-home-visibility-controls .rc-settings-toggle:hover {
+  background: var(--rc-control-hover);
+}
+
+#rc-settings-overlay .rc-home-visibility-controls .rc-settings-toggle:focus-within {
+  outline: 2px solid var(--rc-focus, #8eaaff);
+  outline-offset: 2px;
+}
+
+#rc-settings-overlay .rc-home-visibility-controls input[type="checkbox"] {
+  margin-top: 2px;
+}
+
+#rc-settings-overlay .rc-home-visibility-controls span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 #rc-settings-overlay .rc-settings-social {
@@ -1829,7 +1859,7 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
   #rc-settings-overlay .rc-action-spacer { display: none; }
   #rc-settings-overlay .rc-settings-intro { margin-bottom: 14px; }
   #rc-settings-overlay .rc-settings-field { padding: 14px; }
-  #rc-settings-overlay :is(.rc-settings-language, .rc-settings-friends, .rc-settings-greetings, .rc-settings-clock) { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  #rc-settings-overlay :is(.rc-settings-language, .rc-settings-options, .rc-settings-friends, .rc-settings-greetings, .rc-settings-clock) { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   #rc-settings-overlay #rc-custom-color-fields { padding: 14px; gap: 16px 10px; }
   #rc-settings-overlay .rc-color-value { flex-wrap: wrap; gap: 4px 8px; }
 }

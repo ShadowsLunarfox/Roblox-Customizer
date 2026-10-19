@@ -1,5 +1,6 @@
 (globalThis.RobloxCustomizerCompatibility?.runFeature || (initialize => initialize()))(() => {
   'use strict';
+  const routePath = value => globalThis.RobloxCustomizerRoutes?.pathname(value) ?? value ?? location.pathname;
 
   const HOME_CAROUSEL = 'WebHomeFriendsCarousel';
   const FIND_PATH = /^\/v1\/users\/\d+\/friends\/find\/?$/;
@@ -10,6 +11,7 @@
   const componentTypes = new WeakMap();
   const patchedMethods = new WeakMap();
   const watchedProperties = new WeakMap();
+  const mountedServerAttributes = new WeakMap();
   let renderingFriends = null;
 
   function isHomeFriends(props) {
@@ -17,17 +19,17 @@
   }
 
   function isServerList(props) {
-    return GAME_PATH.test(location.pathname) && !!props?.loadMoreGameInstances
+    return GAME_PATH.test(routePath()) && !!props?.loadMoreGameInstances
       && 'headerTitle' in props;
   }
 
   function isServerCard(props) {
-    return GAME_PATH.test(location.pathname) && props && 'gameServerStatus' in props
+    return GAME_PATH.test(routePath()) && props && 'gameServerStatus' in props
       && typeof props.id === 'string' && INSTANCE_ID.test(props.id);
   }
 
   function isPrivateServerCard(props) {
-    const placeId = Number(location.pathname.match(/^\/games\/(\d+)(?:\/|$)/)?.[1]);
+    const placeId = Number(routePath().match(/^\/games\/(\d+)(?:\/|$)/)?.[1]);
     if (!placeId || !props || !Number.isSafeInteger(props.vipServerId) || props.vipServerId <= 0) return false;
     // The compact private-server row has no placeId, serverListType or
     // gameServerStatus props. Its numeric VIP identity distinguishes it from
@@ -80,21 +82,75 @@
       if (!server) return null;
       const metrics = {};
       if (typeof server.ping === 'number' && Number.isFinite(server.ping)) metrics.ping = server.ping;
+      if (/^(?:Low|Medium|High)$/i.test(server.pingSignalLevel || '')) metrics.pingSignalLevel = server.pingSignalLevel;
+      const country = server.serverLocation?.countryCode || server.location?.countryCode || server.countryCode;
+      if (typeof country === 'string' && /^[a-z]{2}$/i.test(country)) metrics.countryCode = country.toUpperCase();
       if (Number.isSafeInteger(server.playing) && server.playing >= 0) metrics.playing = server.playing;
       return metrics;
     });
   }
 
+  function serverMetricAttributes(props) {
+    const next = { 'data-rc-instance-id': props.id.toLowerCase() };
+    if (typeof props.ping === 'number' && Number.isFinite(props.ping)
+      && props.ping > 0 && props.ping <= 10_000) next['data-rc-ping'] = Math.round(props.ping);
+    const playing = props.playing ?? props.currentPlayersCount;
+    if (Number.isSafeInteger(playing) && playing >= 0) next['data-rc-playing'] = playing;
+    if (/^(?:Low|Medium|High)$/i.test(props.pingSignalLevel || '')) next['data-rc-ping-level'] = props.pingSignalLevel.toLowerCase();
+    const country = props.serverLocation?.countryCode || props.location?.countryCode || props.countryCode;
+    if (typeof country === 'string' && /^[a-z]{2}$/i.test(country)) next['data-country-code'] = country.toUpperCase();
+    return next;
+  }
+
   function exposeServerCardMetrics(result, props) {
-    return mapElements(result, (_, elementProps) => {
+    const attachToCard = !isPrivateServerCard(props);
+    return mapElements(result, (element, elementProps) => {
       if (typeof elementProps.className !== 'string'
-        || !elementProps.className.includes('game-server-join-btn')) return null;
-      const next = { 'data-rc-instance-id': props.id.toLowerCase() };
-      if (typeof props.ping === 'number' && Number.isFinite(props.ping)
-        && props.ping > 0 && props.ping <= 10_000) next['data-rc-ping'] = Math.round(props.ping);
-      if (Number.isSafeInteger(props.playing) && props.playing >= 0) next['data-rc-playing'] = props.playing;
-      return next;
+        || !(elementProps.className.includes('game-server-join-btn')
+          || attachToCard && typeof element.type === 'string' && elementProps.className.split(/\s+/).includes('card-item'))) return null;
+      // Custom Button components can discard unknown props. Put identity and
+      // metrics on the actual native card DOM as well as the legacy Join hook.
+      return serverMetricAttributes(props);
     });
+  }
+
+  function syncMountedServerMetrics() {
+    if (!GAME_PATH.test(routePath())) return;
+    const page = document.querySelector?.('#game-detail-page');
+    const placeId = Number(routePath().match(/^\/games\/(\d+)(?:\/|$)/)?.[1]);
+    if (!page || Number(page.getAttribute('data-place-id')) !== placeId) return;
+    for (const card of page.querySelectorAll('#running-game-instances-container .card-item, #rbx-public-running-games .card-item')) {
+      try {
+        let fiber;
+        for (let node = card, depth = 0; node && depth < 3 && !fiber; node = node.parentElement, depth++) {
+          const key = Object.keys(node).find(name => /^__react(?:Fiber|InternalInstance)\$/.test(name));
+          if (key) fiber = node[key];
+        }
+        // React can retain the previous host fiber after committing its alternate.
+        let root = fiber;
+        for (let depth = 0; root?.return && depth < 100; depth++) root = root.return;
+        if (root?.stateNode?.current && root.stateNode.current !== root && fiber?.alternate) fiber = fiber.alternate;
+        let metrics;
+        for (let depth = 0; fiber && depth < 40; depth++, fiber = fiber.return) {
+          const props = fiber.memoizedProps;
+          if (!metrics && isServerCard(props) && props.serverListType === 'public') metrics = props;
+          if (metrics && Array.isArray(props?.gameInstances)) {
+            const server = props.gameInstances.find(value => typeof value?.id === 'string' && value.id.toLowerCase() === metrics.id.toLowerCase());
+            if (server) metrics = { ...metrics, ...server };
+            break;
+          }
+        }
+        if (!metrics) continue;
+        const next = serverMetricAttributes(metrics);
+        for (const [name, value] of Object.entries(mountedServerAttributes.get(card) || {})) {
+          if (!(name in next) && card.getAttribute(name) === String(value)) card.removeAttribute(name);
+        }
+        for (const [name, value] of Object.entries(next)) {
+          if (card.getAttribute(name) !== String(value)) card.setAttribute(name, String(value));
+        }
+        mountedServerAttributes.set(card, next);
+      } catch { /* Unfamiliar React versions leave native cards intact. */ }
+    }
   }
 
   function wrapComponent(type) {
@@ -221,7 +277,7 @@
   }
 
   function friendRequestUrl(config) {
-    if (!/(?:^|\/)home\/?$/i.test(location.pathname)) return null;
+    if (!/(?:^|\/)home\/?$/i.test(routePath())) return null;
     try {
       const url = new URL(config?.url, location.href);
       return url.origin === 'https://friends.roblox.com' && FIND_PATH.test(url.pathname)
@@ -325,7 +381,7 @@
   // Run launches in Roblox's page context while preserving the user's click gesture.
   document.addEventListener('click', event => {
     if (!event.isTrusted || event.button !== 0 || event.ctrlKey || event.metaKey
-      || event.shiftKey || event.altKey || !/^\/home\/?$/i.test(location.pathname)) return;
+      || event.shiftKey || event.altKey || !/^\/home\/?$/i.test(routePath())) return;
     const button = event.target?.closest?.('#rc-pinned-games .rc-pinned-game-join[data-rc-pinned-place-id]');
     if (!button) return;
     const placeId = Number(button.getAttribute('data-rc-pinned-place-id'));
@@ -340,8 +396,10 @@
     } catch { failed(); }
   }, true);
 
+  document.addEventListener('rc-server-metrics-request', syncMountedServerMetrics);
   connect();
+  syncMountedServerMetrics();
   document.addEventListener('load', event => {
-    if (event.target?.tagName === 'SCRIPT') connect();
+    if (event.target?.tagName === 'SCRIPT') { connect(); syncMountedServerMetrics(); }
   }, true);
 });

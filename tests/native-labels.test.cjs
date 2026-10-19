@@ -71,3 +71,38 @@ test('player filtering reads Chinese counts including zero and full-width number
   }
   for (const text of ['Private server 123', '20/8人', '没有服务器']) assert.equal(labels.playerCount(text), null, text);
 });
+
+test('Indonesian native sections, controls, preview modes and player counts are recognized', () => {
+  for (const [group, text, key] of [
+    ['home', 'Favorit (1.234) Lihat Semua →', 'favorites'],
+    ['home', 'Direkomendasikan untuk Anda', 'recommended'], ['home', 'Game Unggulan', 'standout'],
+    ['home', 'Direkomendasikan untukmu', 'recommended'], ['home', 'Direkomendasikan Lihat Semua →', 'recommended'],
+    ['home', 'Recommended', 'recommended'],
+    ['profile', 'Pengalaman Virtual', 'experiences'], ['profile', 'Sedang Dipakai', 'wearing'],
+    ['profile', 'Saat Ini Memakai', 'wearing'], ['profile', 'Saat Ini Memakai Lihat Semua →', 'wearing'],
+    ['profile', 'Teman (200)', 'friends'], ['profile', 'Komunitas', 'communities'], ['profile', 'Koleksi', 'collections'],
+    ['store', 'Langganan', 'subscriptions'], ['store', 'Subscription', 'subscriptions'],
+    ['store', 'Pas', 'passes'], ['store', 'Pass', 'passes'], ['store', 'Produk Developer', 'products'],
+    ['avatar', 'Pakaian', 'clothing'], ['avatar', 'Aksesori', 'accessories'], ['avatar', 'Kemeja Klasik', 'classic shirts']
+  ]) assert.equal(labels.classify(group, text), key, text);
+  for (const [kind, text] of [
+    ['settings', 'Pengaturan'], ['about', 'Tentang'], ['creations', 'Kreasi'], ['chat', 'Obrolan'],
+    ['seeAll', 'Lihat Semua'], ['more', 'Selengkapnya'], ['noBio', 'Belum ada bio.'], ['followers', '12 pengikut'],
+    ['tryOn', 'Coba Pakai'], ['join', 'Gabung'], ['livePlayers', 'Sedang Bermain'], ['loadMore', 'Muat Lebih Banyak'],
+    ['sortBy', 'Urutkan Berdasarkan:'], ['excludeFull', 'Kecualikan Server Penuh'],
+    ['loadMore', 'Load Lebih Banyak'], ['excludeFull', 'Mengecualikan Server Penuh'], ['publicEmptyServers', 'Tidak Menemukan Server.'],
+    ['emptyServers', 'Tidak ada server privat.'], ['publicEmptyServers', 'Tidak ada pengalaman virtual yang berjalan saat ini.'],
+    ['createPrivate', 'Buat Server Privat'], ['emptyStore', 'Tidak ada pass untuk dijual.']
+  ]) assert.equal(labels.matches(kind, text), true, text);
+  assert.equal(labels.previewMode('Beralih ke 3D'), '3');
+  assert.equal(labels.previewMode('Lihat dalam 2D'), '2');
+  for (const [text, playing, max] of [['8 dari 20 orang maksimal', 8, 20], ['0/20 pemain', 0, 20], ['1.234 pemain', 1234, null]]) {
+    assert.equal(labels.playerCount(text)?.playing, playing, text);
+    assert.equal(labels.playerCount(text)?.maxPlayers, max, text);
+  }
+  assert.equal(labels.classify('home', 'Favorit Simulator'), '');
+  for (const title of ['Direkomendasikan Simulator', 'Direkomendasikan untukmu Adventure', 'Recommended Simulator']) {
+    assert.equal(labels.classify('home', title), '', title);
+  }
+  assert.equal(labels.matches('chat', 'Obrolan Simulator'), false);
+});

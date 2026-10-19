@@ -7,7 +7,7 @@ const { test } = require('node:test');
 const source = fs.readFileSync(path.join(__dirname, '..', 'src/pages/games/game-page.js'), 'utf8');
 const labels = fs.readFileSync(path.join(__dirname, '..', 'src/shared/native-labels.js'), 'utf8');
 const exposed = source.replace(/  syncPrivateServers\(\);\s*  void initialize\(\);\s*  schedule\(\);\s*\}\);\s*$/, `
-  globalThis.gameLoading = { initialize, waitForServerContent, syncServerPaneLoading,
+  globalThis.gameLoading = { initialize, waitForServerContent, syncGamePaneLoading, placeIdFromPath,
     bind(state) {
       currentPage = () => state;
       aboutReady = () => state.about.loaded;
@@ -31,6 +31,7 @@ function environment(readyState = 'interactive') {
     disconnect() { observers.delete(this); }
   }
   const pane = () => ({ isConnected: true, loaded: true, textContent: '',
+    get childNodes() { return this.nodes || [{ nodeType: 3, textContent: this.textContent }]; },
     active: false, rect: { top: 2000, bottom: 2200, height: 200 },
     classList: { contains() { return this.owner.active; } },
     getBoundingClientRect() { return this.rect; },
@@ -47,14 +48,16 @@ function environment(readyState = 'interactive') {
   servers.publicList = true;
   about.active = true;
   for (const node of [about, store, servers]) node.classList.owner = node;
-  const page = { isConnected: true, getAttribute: name => name === 'data-place-id' ? '123' : null,
+  const page = { isConnected: true, hasAttribute() { return false; }, setAttribute() {}, getAttribute: name => name === 'data-place-id' ? '123' : null,
     querySelector: selector => ({ '#about': about, '#store': store, '#game-instances': servers })[selector] || null };
   const document = { readyState, querySelector: () => null, addEventListener() {} };
   const location = { pathname: '/games/123/Test', href: 'https://www.roblox.com/games/123/Test' };
   const clicks = [];
   const restored = [];
   const state = { page, about, placeId: '123', links: ['about', 'store', 'servers'].map(name => ({
+    addEventListener() {},
     click() {
+      if (document.nativeTabsReady === false) return;
       clicks.push({ name, time }); about.loaded = name === 'about';
       for (const [key, node] of Object.entries({ about, store, servers })) node.active = key === name;
     }
@@ -71,6 +74,7 @@ function environment(readyState = 'interactive') {
   const api = context.gameLoading;
   api.bind(state);
   return { api, document, page, about, store, servers, state, location, clicks, restored, timers,
+    loadRoutes() { vm.runInContext(fs.readFileSync(path.join(__dirname, '../src/shared/routes.js'), 'utf8'), context); },
     update(node, changes) {
       Object.assign(node, changes);
       for (const observer of [...observers]) if (observer.root === node) observer.callback([]);
@@ -86,6 +90,14 @@ function environment(readyState = 'interactive') {
     }
   };
 }
+
+test('localized game routes recover when shared helpers load after the game script', () => {
+  const env = environment();
+  env.location.pathname = '/id/games/1537690962/Bee-Swarm-Simulator';
+  assert.equal(env.api.placeIdFromPath(), null);
+  env.loadRoutes();
+  assert.equal(env.api.placeIdFromPath(), '1537690962');
+});
 
 test('game panes initialize before slow image loads finish', async () => {
   const env = environment();
@@ -113,8 +125,7 @@ test('Servers starts immediately while Store content is still pending', async ()
   const env = environment();
   env.store.loaded = false;
   const loading = env.api.initialize();
-  await Promise.resolve();
-  await Promise.resolve();
+  for (let i = 0; i < 12; i++) await Promise.resolve();
   assert.deepEqual(env.clicks.map(({ name }) => name), ['servers', 'store']);
   assert.equal(env.clicks[0].time, 0, 'Servers has no dependency on the Store response');
   env.advance(100);
@@ -134,7 +145,7 @@ test('a slow public list cannot hold Store behind the full server-request timeou
   const env = environment();
   env.servers.loaded = false;
   const loading = env.api.initialize();
-  for (let i = 0; i < 4; i++) await Promise.resolve();
+  for (let i = 0; i < 12; i++) await Promise.resolve();
   assert.deepEqual(env.clicks.map(({ name }) => name), ['servers']);
   env.advance(1500);
   await loading;
@@ -212,31 +223,31 @@ test('a timed-out offscreen server list recovers on approach and stays active un
   const env = environment();
   env.servers.loaded = false;
   const loading = env.api.initialize();
-  for (let i = 0; i < 4; i++) await Promise.resolve();
+  for (let i = 0; i < 12; i++) await Promise.resolve();
   assert.deepEqual(env.clicks.map(({ name }) => name), ['servers']);
   env.advance(15_000);
   await loading;
   assert.equal(env.about.active, true);
-  env.api.syncServerPaneLoading();
+  env.api.syncGamePaneLoading();
   assert.equal(env.clicks.length, 3, 'No offscreen retry loop');
 
   env.servers.rect = { top: 900, bottom: 1100, height: 200 };
-  env.api.syncServerPaneLoading();
+  env.api.syncGamePaneLoading();
   assert.deepEqual(env.clicks.map(({ name }) => name), ['servers', 'store', 'about', 'servers']);
   assert.equal(env.restored.at(-1)[2], env.location.href);
   env.advance(60_000);
-  env.api.syncServerPaneLoading();
+  env.api.syncGamePaneLoading();
   assert.equal(env.servers.active, true, 'A second slow load stays selected while nearby');
   assert.equal(env.clicks.length, 4, 'No repeated tab clicks while loading');
   env.update(env.servers, { loaded: true });
-  env.api.syncServerPaneLoading();
+  env.api.syncGamePaneLoading();
   assert.equal(env.clicks.length, 4, 'Loaded content remains untouched');
 
   env.servers.rect = { top: 2000, bottom: 2200, height: 200 };
-  env.api.syncServerPaneLoading();
+  env.api.syncGamePaneLoading();
   assert.equal(env.about.active, true, 'About is restored when scrolling back up');
   env.servers.rect = { top: 400, bottom: 600, height: 200 };
-  env.api.syncServerPaneLoading();
+  env.api.syncGamePaneLoading();
   assert.equal(env.clicks.length, 5, 'Revisiting an intact list does not reload it');
 });
 
@@ -245,16 +256,16 @@ test('native content discarded after initialization recovers without replaying S
   await env.api.initialize();
   env.servers.loaded = false;
   env.servers.rect = { top: 400, bottom: 600, height: 200 };
-  env.api.syncServerPaneLoading();
+  env.api.syncGamePaneLoading();
   assert.deepEqual(env.clicks.map(({ name }) => name), ['servers', 'store', 'about', 'servers']);
   env.servers.loaded = true;
-  env.api.syncServerPaneLoading();
+  env.api.syncGamePaneLoading();
   env.document.hidden = true;
   env.servers.rect = { top: 2000, bottom: 2200, height: 200 };
-  env.api.syncServerPaneLoading();
+  env.api.syncGamePaneLoading();
   assert.equal(env.clicks.length, 4, 'Hidden documents cannot change native tabs');
   env.document.hidden = false;
-  env.api.syncServerPaneLoading();
+  env.api.syncGamePaneLoading();
   assert.equal(env.clicks.length, 5);
 });
 
@@ -265,6 +276,119 @@ test('recovery never clicks stale tabs after game navigation', async () => {
   env.servers.rect = { top: 400, bottom: 600, height: 200 };
   env.state.placeId = '456';
   env.location.pathname = '/games/456/Next';
-  env.api.syncServerPaneLoading();
+  env.api.syncGamePaneLoading();
   assert.equal(env.clicks.length, 3);
+});
+
+test('initialization waits for native tab handlers bound after DOM readiness', async () => {
+  const env = environment();
+  env.document.nativeTabsReady = false;
+  const loading = env.api.initialize();
+  for (let i = 0; i < 12; i++) await Promise.resolve();
+  env.advance(900);
+  assert.deepEqual(env.clicks, [], 'Unbound clicks cannot count as a completed load');
+  env.document.nativeTabsReady = true;
+  env.advance(200);
+  await loading;
+  assert.deepEqual(env.clicks.map(({ name }) => name), ['servers', 'store', 'about']);
+  assert.ok(env.clicks[0].time >= 900);
+  assert.equal(env.timers.size, 0);
+});
+
+test('a failed native activation leaves initialization eligible for retry', async () => {
+  const env = environment();
+  env.document.nativeTabsReady = false;
+  const loading = env.api.initialize();
+  for (let i = 0; i < 12; i++) await Promise.resolve();
+  env.advance(10_000);
+  await loading;
+  assert.deepEqual(env.clicks, []);
+  assert.equal(env.restored.at(-1)[2], env.location.href);
+  env.document.nativeTabsReady = true;
+  await env.api.initialize();
+  assert.deepEqual(env.clicks.map(({ name }) => name), ['servers', 'store', 'about']);
+});
+
+test('Store recovery preserves the native hash until its async content arrives', async () => {
+  const env = environment();
+  await env.api.initialize();
+  env.store.loaded = false;
+  env.store.rect = { top: 400, bottom: 600, height: 200 };
+  env.api.syncGamePaneLoading();
+  for (let i = 0; i < 12; i++) await Promise.resolve();
+  assert.deepEqual(env.clicks.map(({ name }) => name), ['servers', 'store', 'about', 'store']);
+  assert.equal(env.restored.length, 1, 'The native renderer still needs the selected tab URL');
+  env.update(env.store, { loaded: true });
+  for (let i = 0; i < 12; i++) await Promise.resolve();
+  assert.equal(env.restored.length, 2);
+  assert.equal(env.store.active, true, 'Store remains mounted while nearby');
+  env.store.rect = { top: 2000, bottom: 2200, height: 200 };
+  env.api.syncGamePaneLoading();
+  for (let i = 0; i < 12; i++) await Promise.resolve();
+  assert.equal(env.about.active, true);
+  assert.equal(env.restored.length, 3);
+});
+
+test('switching recovery targets cancels retries from the previous pane', async () => {
+  const env = environment();
+  await env.api.initialize();
+  env.store.loaded = false;
+  env.store.rect = { top: 400, bottom: 600, height: 200 };
+  env.document.nativeTabsReady = false;
+  env.api.syncGamePaneLoading();
+  env.store.rect = { top: -1000, bottom: -800, height: 200 };
+  env.servers.loaded = false;
+  env.servers.rect = { top: 400, bottom: 600, height: 200 };
+  env.document.nativeTabsReady = true;
+  env.api.syncGamePaneLoading();
+  env.advance(400);
+  for (let i = 0; i < 12; i++) await Promise.resolve();
+  assert.deepEqual(env.clicks.map(({ name }) => name), ['servers', 'store', 'about', 'servers']);
+  assert.equal(env.servers.active, true);
+});
+
+test('Indonesian filter results and private empty states cannot finish native public loading', async () => {
+  for (const text of ['Tidak ada server yang cocok dengan filter ini.', 'Tidak ada server privat.', 'Tidak ditemukan server privat.']) {
+    const env = environment();
+    env.servers.loaded = false;
+    env.servers.textContent = text;
+    const loading = env.api.waitForServerContent(env.page, 100);
+    env.advance(100);
+    assert.equal(await loading, false, text);
+  }
+  for (const text of ['Tidak ada server publik yang tersedia.', 'Tidak ada server.', 'Tidak ada pengalaman virtual yang berjalan saat ini.']) {
+    const env = environment();
+    env.servers.loaded = false;
+    env.servers.textContent = text;
+    assert.equal(await env.api.waitForServerContent(env.page), true, text);
+  }
+});
+
+test('extension-owned messages never complete native server loading in any language', async () => {
+  const env = environment();
+  env.servers.loaded = false;
+  env.servers.nodes = [{ matches: selector => selector.includes('.rc-public-server-pagination'),
+    childNodes: [{ nodeType: 3, textContent: 'No public servers available.' }] }];
+  const loading = env.api.waitForServerContent(env.page, 100);
+  env.advance(100);
+  assert.equal(await loading, false);
+});
+
+test('viewport updates do not restart an activation still waiting for native handlers', async () => {
+  const env = environment();
+  await env.api.initialize();
+  env.store.loaded = false;
+  env.store.rect = { top: 400, bottom: 600, height: 200 };
+  env.document.nativeTabsReady = false;
+  env.api.syncGamePaneLoading();
+  const waitingTimers = env.timers.size;
+  for (let i = 0; i < 10; i++) env.api.syncGamePaneLoading();
+  assert.equal(env.timers.size, waitingTimers, 'Only one native activation owns the pane');
+  env.document.nativeTabsReady = true;
+  env.advance(200);
+  for (let i = 0; i < 12; i++) await Promise.resolve();
+  env.update(env.store, { loaded: true });
+  for (let i = 0; i < 12; i++) await Promise.resolve();
+  assert.deepEqual(env.clicks.map(({ name }) => name), ['servers', 'store', 'about', 'store']);
+  assert.equal(env.timers.size, 0);
 });

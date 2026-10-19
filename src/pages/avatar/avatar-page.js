@@ -1,5 +1,6 @@
 (globalThis.RobloxCustomizerCompatibility?.runFeature || (initialize => initialize()))(() => {
   'use strict';
+  const routePath = value => globalThis.RobloxCustomizerRoutes?.pathname(value) ?? value ?? location.pathname;
 
   const sendMessage = globalThis.RobloxCustomizerRuntime?.sendMessage
     || ((...args) => chrome.runtime.sendMessage(...args));
@@ -94,7 +95,7 @@
   let last3DClickAt = 0;
   const tried3D = new WeakSet();
 
-  const onAvatarPage = () => AVATAR_PATH.test(location.pathname);
+  const onAvatarPage = () => AVATAR_PATH.test(routePath());
 
   function pageRoot() {
     return document.querySelector('#content')

@@ -20,6 +20,9 @@
   const SURFACE_SELECTOR = 'div, section, article, main, aside, header, footer, form, ul, ol, li, button';
   const MESSAGE_REGION = '[role="log"], [aria-live], .dialog-body, [data-rc-chat-scroll]';
   const DISCOVERY_SELECTOR = `${NATIVE_HOST}, ${NATIVE_PANEL}, ${CHAT_LIST_PANEL}, ${CHAT_INPUT}, ${CHAT_HEADER}`;
+  const NON_CHAT = 'head, script, style, link, meta, .game-card-container, .game-card, .hover-game-tile, .game-tile, .grid-item-container, '
+    + '[data-testid="game-card"], [data-testid="game-tile"], #rc-settings-overlay, #rc-pinned-games, '
+    + '#rc-home-greeting, .rc-hide-recommended-game';
   const panels = new Set();
   const discoveryRoots = new Set([document]);
   const dirtyPanels = new Set();
@@ -84,11 +87,16 @@
 
   function isChatHeader(node) {
     const label = node.getAttribute('aria-label') || node.getAttribute('title');
-    const text = Array.from(node.childNodes).filter(child => child.nodeType === 3)
-      .map(child => child.textContent).join(' ').trim();
-    return /^chat$/i.test(label || '') || /^chat$/i.test(text)
-      || globalThis.RobloxCustomizerNativeLabels?.matches('chat', label)
-      || globalThis.RobloxCustomizerNativeLabels?.matches('chat', text);
+    const matches = value => !!value && value.length <= 80 && (/^chat$/i.test(value)
+      || globalThis.RobloxCustomizerNativeLabels?.matches('chat', value));
+    if (matches(label)) return true;
+    if (node.childElementCount > 8) return false;
+    let text = '';
+    for (const child of node.childNodes) {
+      if (child.nodeType === 3) text += child.textContent + ' ';
+      if (text.length > 80) return false;
+    }
+    return matches(text.trim());
   }
 
   function panelForHeader(header) {
@@ -194,8 +202,18 @@
   }
 
   function discover(root) {
-    const nodes = root instanceof Element ? [root, ...root.querySelectorAll(DISCOVERY_SELECTOR)]
-      : root.querySelectorAll(DISCOVERY_SELECTOR);
+    if (root instanceof Element && root.closest(NON_CHAT)) return;
+    // Prune card subtrees before visiting their many divs and spans. A game
+    // named Chat is not a chat launcher, including while Home is streaming.
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, {
+      acceptNode(node) {
+        if (node.matches(NON_CHAT)) return NodeFilter.FILTER_REJECT;
+        return node.matches(DISCOVERY_SELECTOR) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+      }
+    });
+    const nodes = [];
+    if (root instanceof Element) nodes.push(root);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) nodes.push(node);
     for (const node of nodes) {
       let panel = null;
       if (isHost(node)) {
@@ -275,6 +293,7 @@
     let changed = false;
     for (const record of records) {
       const target = record.target instanceof Element ? record.target : record.target.parentElement;
+      if (target?.closest(NON_CHAT)) continue;
       const panel = target?.closest('[data-rc-chat-panel]');
       if (panel) {
         panels.add(panel);
@@ -289,7 +308,7 @@
         changed = true;
       }
       for (const node of record.addedNodes || []) {
-        if (!(node instanceof Element)) continue;
+        if (!(node instanceof Element) || node.closest(NON_CHAT)) continue;
         discoveryRoots.add(node);
         changed = true;
       }

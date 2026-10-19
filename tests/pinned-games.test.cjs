@@ -17,7 +17,8 @@ function worker(initial = [], options = {}) {
   let writes = 0;
   const requests = [];
   const context = vm.createContext({
-    RobloxCustomizerPinnedGames: core, URL, URLSearchParams, AbortController, setTimeout, clearTimeout, crypto: webcrypto,
+    RobloxCustomizerPinnedGames: core, RobloxCustomizerRoutes: require('../src/shared/routes.js'),
+    URL, URLSearchParams, AbortController, setTimeout, clearTimeout, crypto: webcrypto,
     chrome: {
       runtime: { id: 'test-extension', onMessage: { addListener(fn) { listener = fn; } } },
       storage: { local: {
@@ -197,6 +198,19 @@ test('failed metadata or storage never adds a phantom pin; offline refresh retai
   assert.deepEqual((await offline.send('list')).games, existing);
   const count = offline.requests.length;
   await offline.send('list'); assert.equal(offline.requests.length, count, 'Refresh failures back off');
+});
+
+test('localized Home supports folders and pins without accepting unrelated routes or place IDs', async () => {
+  const env = worker([record(1)]);
+  assert.equal((await env.send('list', {}, '/id/home')).games.length, 1);
+  const created = await env.send('create-folder', { name: 'Indonesia' }, '/id/home');
+  const folderId = created.folders[0].id;
+  assert.equal((await env.send('move', { universeId: 1001, folderId }, '/id-id/home')).games[0].folderId, folderId);
+  assert.equal((await env.send('pin', { placeId: 2, folderId }, '/id/games/2/Test')).ok, true);
+  assert.equal(await env.send('pin', { placeId: 3 }, '/id/games/2/Test'), null);
+  assert.equal(await env.send('create-folder', { name: 'Wrong route' }, '/id/catalog/1'), null);
+  assert.equal(await env.send('list', {}, '/id/home', { url: 'https://evil.test/id/home' }), null);
+  assert.equal(await env.send('list', {}, '/identity/home'), null);
 });
 
 test('worker rejects mismatched place IDs, invalid IDs, unrelated pages and other origins', async () => {

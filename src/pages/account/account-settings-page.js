@@ -1,5 +1,6 @@
 (globalThis.RobloxCustomizerCompatibility?.runFeature || (initialize => initialize()))(() => {
   'use strict';
+  const routePath = value => globalThis.RobloxCustomizerRoutes?.pathname(value) ?? value ?? location.pathname;
 
   const attributes = new Map();
   let queued = false;
@@ -35,7 +36,7 @@
     if (!href) return '';
     try {
       const url = new URL(href, location.href);
-      if (url.origin !== location.origin || !/^\/my\/account\/?$/i.test(url.pathname)) return '';
+      if (url.origin !== location.origin || !/^\/my\/account\/?$/i.test(routePath(url.pathname))) return '';
       const name = url.hash.replace(/^#!?\/?/, '').split(/[/?]/)[0].toLowerCase();
       return TAB_NAMES.has(name) ? name : '';
     } catch { return ''; }
@@ -56,7 +57,7 @@
 
   function synchronize() {
     queued = false;
-    if (!/^\/my\/account\/?$/i.test(location.pathname) && !attributes.size) return;
+    if (!/^\/my\/account\/?$/i.test(routePath()) && !attributes.size) return;
     const desired = new Map();
     const mark = (node, name) => {
       if (!node) return;
@@ -64,7 +65,7 @@
       desired.get(node).add(name);
     };
 
-    if (/^\/my\/account\/?$/i.test(location.pathname)) {
+    if (/^\/my\/account\/?$/i.test(routePath())) {
       const content = document.querySelector('#content');
       if (content) {
         const links = [...content.querySelectorAll('a[href]')].filter(link => tabName(link));

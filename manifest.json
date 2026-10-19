@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "__MSG_extensionName__",
   "default_locale": "en",
-  "version": "1.0.0.0",
+  "version": "1.0.1",
   "description": "__MSG_extensionDescription__",
   "icons": {
     "16": "icons/icon-16.png",
@@ -68,6 +68,7 @@
         "https://create.roblox.com/*"
       ],
       "js": [
+        "src/shared/routes.js",
         "src/shared/compatibility.js",
         "src/shared/runtime.js",
         "src/shared/native-labels.js",
@@ -88,9 +89,7 @@
         "https://roblox.com/*"
       ],
       "js": [
-        "src/shared/compatibility.js",
-        "src/shared/server-card-view.js",
-        "src/shared/page-bridge.js"
+        "src/shared/page-bridge-bundle.js"
       ],
       "run_at": "document_start",
       "world": "MAIN"
@@ -127,6 +126,8 @@
         "src/playtime/playtime.css"
       ],
       "js": [
+        "src/shared/routes.js",
+        "src/shared/compatibility.js",
         "src/shared/startup.js",
         "src/home/friends.js",
         "src/settings/backup-core.js",
@@ -154,6 +155,8 @@
         "https://roblox.com/*"
       ],
       "js": [
+        "src/shared/routes.js",
+        "src/shared/compatibility.js",
         "src/pages/games/game-page.js"
       ],
       "run_at": "document_start"
@@ -161,9 +164,13 @@
     {
       "matches": [
         "https://www.roblox.com/my/messages*",
-        "https://roblox.com/my/messages*"
+        "https://roblox.com/my/messages*",
+        "https://www.roblox.com/*/my/messages*",
+        "https://roblox.com/*/my/messages*"
       ],
       "js": [
+        "src/shared/routes.js",
+        "src/shared/compatibility.js",
         "src/pages/account/messages-page.js"
       ],
       "run_at": "document_start"
