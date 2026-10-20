@@ -7,7 +7,7 @@ const { isolatedChrome, waitForDocument } = require('./helpers/chrome.cjs');
 const workspace = path.resolve(__dirname, '..');
 const manifest = JSON.parse(fs.readFileSync(path.join(workspace, 'manifest.json'), 'utf8'));
 const styles = [...new Set(manifest.content_scripts.flatMap(entry => entry.css || []))];
-const scripts = ['src/shared/native-labels.js', 'src/pages/avatar/avatar-page.js'];
+const scripts = ['src/shared/routes.js', 'src/shared/native-labels.js', 'src/pages/avatar/avatar-page.js'];
 const locales = {
   en: {
     main: ['Recently Worn', 'Accessories', 'Clothing', 'Body Parts', 'Animations', 'Expired', 'Recently Added', 'Characters'],
@@ -36,6 +36,30 @@ const locales = {
     animations: ['動作', '步行', '跌落', '奔跑', '跳躍', '游泳', '攀爬', '閒置'],
     recent: ['目前穿戴', '最近新增', '角色'],
     body: ['體型', '身高', '寬度', '頭部', '比例']
+  },
+  th: {
+    main: ['ล่าสุด', 'ไอเท็มเสริม', 'เสื้อผ้า', 'ร่างกาย', 'แอนิเมชัน', 'อวาตาร์', 'การแต่งหน้า', 'พื้นหลัง'],
+    accessories: ['ศีรษะ', 'ใบหน้า', 'คอ', 'ไหล่', 'ด้านหน้า', 'ด้านหลัง', 'เอว', 'อุปกรณ์'],
+    clothing: [['เสื้อผ้าท่อนบน', 'เสื้อยืด', 'เสื้อเชิ้ต', 'เสื้อสเวตเตอร์'], ['เสื้อชั้นนอก', 'เสื้อแจ็คเก็ต'],
+      ['เสื้อผ้าท่อนล่าง', 'กางเกงขายาว', 'กางเกงขาสั้น', 'เดรสและกระโปรง'],
+      ['รองเท้า', 'รองเท้าข้างซ้าย', 'รองเท้าข้างขวา'],
+      ['คลาสสิก', 'เสื้อเชิ้ตแบบคลาสสิก', 'กางเกงขายาวแบบคลาสสิก', 'เสื้อยืดแบบคลาสสิก']],
+    animations: ['ท่าทาง', 'เดิน', 'หล่น', 'วิ่ง', 'กระโดด', 'ว่ายน้ำ', 'ปีน', 'อยู่นิ่ง'],
+    recent: ['เพิ่มเข้ามาล่าสุด', 'สวมใส่ล่าสุด', 'ไอเท็มเสริม', 'เสื้อผ้า', 'ส่วนของร่างกาย', 'แอนิเมชัน', 'ตัวละคร', 'หมดอายุแล้ว'],
+    avatars: ['ซื้อแล้ว', 'ผลงานสร้างสรรค์'],
+    bodyFilters: ['การปรับขนาด', 'ศีรษะ', 'สีผิว'],
+    body: ['ประเภทร่างกาย', 'ความสูง', 'ความกว้าง', 'ศีรษะ', 'สัดส่วน']
+  },
+  ko: {
+    main: ['최근', '장신구', '복장', '신체', '애니메이션', '아바타', '메이크업', '배경'],
+    accessories: ['머리', '얼굴', '목', '어깨', '전면', '후면', '허리', '장비'],
+    clothing: [['상의', '티셔츠', '셔츠', '스웨터'], ['겉옷', '재킷'],
+      ['하의', '바지', '반바지', '원피스 및 치마'], ['신발', '왼쪽 신발', '오른쪽 신발'],
+      ['클래식', '클래식 셔츠', '클래식 바지', '클래식 티셔츠']],
+    animations: ['감정 표현', '걷기', '낙하', '달리기', '점프', '수영', '오르기', '빈둥대기'],
+    recent: ['새로 추가된 아이템', '최근 장착', '장신구', '복장', '신체 부위', '애니메이션', '캐릭터', '만료됨'],
+    avatars: ['구매함', '창작물'], bodyFilters: ['왼 다리', '오른 다리', '배율', '머리', '피부색'],
+    body: ['신체 유형', '키', '너비', '머리', '비율']
   }
 };
 const escape = text => text.replaceAll('&', '&amp;');
@@ -73,11 +97,13 @@ function fixture(locale) {
     <div class="preview-column"><div class="native-preview-host"><div class="native-backdrop" aria-hidden="true"></div><div id="late-inline" class="native-late-backdrop" aria-hidden="true"></div><div id="avatar-preview"><div class="native-scene"><div class="native-backdrop" aria-hidden="true"></div><div class="native-late-backdrop" aria-hidden="true"></div>${[0,1,2,3].map(i=>`<div class="native-tile" aria-hidden="true" style="left:${i%2*50}%;top:${Math.floor(i/2)*50}%"></div>`).join('')}<canvas id="native-model" width="300" height="${previewHeight}"></canvas></div><button id="native-background" type="button"><span class="native-control-icon"></span>Background</button></div></div>${locale==='zh-tw'?bodyControls:''}</div>
     <div class="inventory-column"><nav id="avatar-categories"><ul id="main-row">
       ${l.main.map((name, i) => action(name, `main-${i}`, i === 0)).join('')}
-    </ul><ul id="accessories" class="avatar-subcategories">${l.accessories.map((name, i) => action(name, `accessory-${i}`, i === 0)).join('')}</ul>
-    <div id="clothing" class="avatar-subcategories" hidden>${l.clothing.map((row, i) => `<div id="clothing-row-${i}" class="clothing-row"><div class="native-heading" data-native-key="heading-${i}"><span id="heading-${i}">${escape(row[0])}</span></div><ul class="native-options">${row.slice(1).map((name, j) => action(name, `clothing-${i}-${j}`)).join('')}</ul></div>`).join('')}</div>
-    <ul id="animations" class="avatar-subcategories" hidden>${l.animations.map((name, i) => action(name, `animation-${i}`, i < 3)).join('')}</ul>
-    <ul id="recent" class="avatar-subcategories" hidden>${l.recent.map((name, i) => action(name, `recent-${i}`)).join('')}</ul></nav>
-    <div class="avatar-items-container"><a id="inventory-card" class="avatar-item-card" href="/catalog/1/Head"><img src="/image.svg"><span>Head</span></a><p id="native-result">All items</p></div>${locale==='zh-cn'?bodyControls:''}</div></div>${locale==='en'?`<div id="native-body-footer">${bodyControls}</div>`:''}</main>
+    </ul><ul id="accessories" class="avatar-subcategories">${l.accessories.map((name, i) => action(name, `accessory-${i}`, i === 0 || locale === 'ko' && [4, 5].includes(i))).join('')}</ul>
+    <div id="clothing" class="avatar-subcategories" hidden>${l.clothing.map((row, i) => `<div id="clothing-row-${i}" class="clothing-row"><div class="native-heading" data-native-key="heading-${i}"><span id="heading-${i}">${escape(row[0])}</span></div><ul class="native-options">${row.slice(1).map((name, j) => action(name, `clothing-${i}-${j}`, locale === 'ko')).join('')}</ul></div>`).join('')}</div>
+    <ul id="animations" class="avatar-subcategories" hidden>${l.animations.map((name, i) => action(name, `animation-${i}`, i < 3 || locale === 'ko')).join('')}</ul>
+    <ul id="recent" class="avatar-subcategories" hidden>${l.recent.map((name, i) => action(name, `recent-${i}`, true)).join('')}</ul>
+    ${l.avatars ? `<ul id="avatars" class="avatar-subcategories" hidden>${l.avatars.map((name, i) => action(name, `avatar-${i}`, true)).join('')}</ul>` : ''}
+    ${l.bodyFilters ? `<ul id="body-filters" class="avatar-subcategories" hidden>${l.bodyFilters.map((name, i) => action(name, `body-filter-${i}`, true)).join('')}</ul>` : ''}</nav>
+    <div class="avatar-items-container"><a id="inventory-card" class="avatar-item-card" href="/catalog/1/Head"><img src="/image.svg"><span>Head</span></a><p id="native-result">All items</p></div>${locale!=='en'&&locale!=='zh-tw'?bodyControls:''}</div></div>${locale==='en'?`<div id="native-body-footer">${bodyControls}</div>`:''}</main>
     <script>
       window.chrome={runtime:{lastError:null,sendMessage(message,callback){setTimeout(()=>callback({state:'Completed',imageUrl:location.origin+'/image.svg'}),0)}}};
       window.nativeCalls=[];window.originalActions=[...document.querySelectorAll('[data-native-key]')];
@@ -96,7 +122,7 @@ function fixture(locale) {
         action.parentElement.querySelectorAll(':scope > .active').forEach(node=>node.classList.remove('active'));action.classList.add('active');
         if(key.startsWith('main-')){
           document.querySelectorAll('.avatar-subcategories').forEach(node=>node.hidden=true);
-          const menu=({'main-1':'accessories','main-2':'clothing','main-4':'animations'})[key]||'recent';
+          const menu=({'main-1':'accessories','main-2':'clothing','main-4':'animations',${l.avatars ? "'main-5':'avatars'," : ''}${l.bodyFilters ? "'main-3':'body-filters'," : ''}})[key]||'recent';
           document.getElementById(menu).hidden=false;
         }
         document.getElementById('native-result').textContent=key;
@@ -129,7 +155,7 @@ test('avatar filters stay aligned, localized, and native across menu changes and
   { skip: !process.env.CHROME_BIN }, async t => {
     const server = http.createServer((request, response) => {
       const url = new URL(request.url, 'http://localhost');
-      if (url.pathname === '/my/avatar') { response.setHeader('Content-Type', 'text/html; charset=utf-8');response.end(fixture(url.searchParams.get('locale') || 'en'));return; }
+      if (['/my/avatar', '/th/my/avatar', '/ko/my/avatar'].includes(url.pathname)) { response.setHeader('Content-Type', 'text/html; charset=utf-8');response.end(fixture(url.searchParams.get('locale') || 'en'));return; }
       if (url.pathname === '/image.svg') { response.setHeader('Content-Type', 'image/svg+xml');response.end('<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect width="300" height="300" fill="#789"/></svg>');return; }
       const file = url.pathname.slice(1);
       if (![...styles, ...scripts].includes(file)) { response.writeHead(404);response.end();return; }
@@ -139,7 +165,7 @@ test('avatar filters stay aligned, localized, and native across menu changes and
     t.after(() => new Promise(resolve => server.close(resolve)));
     const browser = await isolatedChrome(t, 'avatar-navigation');
     for (const locale of Object.keys(locales)) {
-      const url = `http://127.0.0.1:${server.address().port}/my/avatar?locale=${locale}`;
+      const url = `http://127.0.0.1:${server.address().port}${['th','ko'].includes(locale)?'/'+locale:''}/my/avatar?locale=${locale}`;
       await browser.send('Page.navigate', { url });await waitForDocument(browser, '#main-row', url);
       await browser.waitFor("document.querySelectorAll('[data-rc-avatar-main-control]').length===8");
       await browser.waitFor("!!document.querySelector('[data-rc-avatar-body-controls]')");
@@ -189,7 +215,11 @@ test('avatar filters stay aligned, localized, and native across menu changes and
         assert.match(preview.icon, /url\(/, 'native control icons are preserved');
         assert.equal(preview.modelFilter, 'none');assert.equal(preview.cardFilter, 'none');
         assert.equal(preview.originalCanvas, true, 'native 3D model stays mounted');
-        for (const [tab, menu, count, key] of [[1, 'accessories', 8, 'accessory-0'], [2, 'clothing', 17, 'clothing-0-2'], [4, 'animations', 8, 'animation-1'], [0, 'recent', 3, 'recent-1']]) {
+        const menus = [[1, 'accessories', 8, 'accessory-0'], [2, 'clothing', locales[locale].clothing.flat().length, 'clothing-0-2'],
+          [4, 'animations', 8, 'animation-1'], [0, 'recent', locales[locale].recent.length, 'recent-1']];
+        if (locales[locale].avatars) menus.push([5, 'avatars', locales[locale].avatars.length, 'avatar-1'],
+          [3, 'body-filters', locales[locale].bodyFilters.length, 'body-filter-0']);
+        for (const [tab, menu, count, key] of menus) {
           await browser.click(`#main-${tab}`);
           await browser.waitFor(`document.querySelector('#${menu}').checkVisibility()`);
           const state = await browser.evaluate(layout);
@@ -221,9 +251,10 @@ test('avatar filters stay aligned, localized, and native across menu changes and
           await browser.click(`#${key}`);
           assert.equal(await browser.evaluate('nativeCalls.at(-1)'), key, `${label}: native filtering still fires`);
           assert.equal(await browser.evaluate(`getComputedStyle(document.querySelector('#${key}')).backgroundColor`), 'rgb(51, 95, 255)', `${label}: selected option is visible`);
-          if (process.env.AVATAR_SCREENSHOT_DIR && locale === 'zh-tw' && theme === 'dark-theme' && menu === 'clothing' && width !== 700) {
+          if (process.env.AVATAR_SCREENSHOT_DIR && theme === 'dark-theme' && width !== 700
+            && (['th','ko'].includes(locale) || locale === 'zh-tw' && menu === 'clothing')) {
             const shot = await browser.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
-            fs.writeFileSync(path.join(process.env.AVATAR_SCREENSHOT_DIR, `avatar-${width}.png`), Buffer.from(shot.data, 'base64'));
+            fs.writeFileSync(path.join(process.env.AVATAR_SCREENSHOT_DIR, `avatar-${locale}-${menu}-${width}.png`), Buffer.from(shot.data, 'base64'));
           }
         }
       }

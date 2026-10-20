@@ -16,7 +16,9 @@ function savedData() {
   history.accounts.push({userId:321,name:'Second',displayName:'第二个账号',games:copy(history.accounts[0].games)});
   return {customBackground:{source:'none',glassBlur:23,glassOpacity:67,uiLanguage:'zh-TW',
     customAccentColor:'#aabbcc',hideFavorites:true,hiddenRecommendedGames:[{placeId:'111',name:'Hidden'}],
-    greetingMorning:'Good morning',_writer:'do-not-export'},
+    greetingMorning:'Good morning',showHomeBanner:false,showHomeAvatar:false,showHomeLabel:true,
+    showHomeDisplayName:false,showHomeUsername:true,showHomeGreeting:false,showHomeClock:false,
+    clockShowDate:false,showHomeMostPlayed:true,showPinnedGames:false,_writer:'do-not-export'},
     robuxCurrency:{enabled:false,currency:'CNY'},pinnedGames:[{universeId:456,placeId:789,name:'Private game',folderId:'favorites',iconUrl:'',updatedAt:123}],
     pinnedGameFolders:[{id:'favorites',name:'我的游戏'}],rcPlaytimeHistory:history,playtimeTrackingEnabled:true,
     robuxCurrencyRates:{doNotExport:true},'rc-youtube-cache':{doNotExport:true}};
@@ -31,11 +33,18 @@ test('backup includes every preference and account, preserves folder links, and 
   assert.equal(data.rcPlaytimeHistory.accounts.length, 2);
   assert.equal(data.rcPlaytimeHistory.accounts[0].games[0].totalMs, 30000);
   assert.equal(data.pinnedGames[0].folderId, data.pinnedGameFolders[0].id);
+  assert.equal(data.customBackground.showPinnedGames, false);
   assert.deepEqual(backup.validate(copy(envelope(data))).data, data);
   assert.equal(JSON.stringify(data).includes('live-session'), false);
   assert.equal(source.rcPlaytimeHistory.active.browserSessionId, 'live-session', 'Export does not stop live tracking');
   const indonesian = backup.snapshot({ ...source, customBackground: { ...source.customBackground, uiLanguage: 'id' } });
   assert.equal(backup.validate(envelope(indonesian)).data.customBackground.uiLanguage, 'id');
+  const japanese = backup.snapshot({ ...source, customBackground: { ...source.customBackground, uiLanguage: 'ja' } });
+  assert.equal(backup.validate(envelope(japanese)).data.customBackground.uiLanguage, 'ja');
+  const thai = backup.snapshot({ ...source, customBackground: { ...source.customBackground, uiLanguage: 'th' } });
+  assert.equal(backup.validate(envelope(thai)).data.customBackground.uiLanguage, 'th');
+  const korean = backup.snapshot({ ...source, customBackground: { ...source.customBackground, uiLanguage: 'ko' } });
+  assert.equal(backup.validate(envelope(korean)).data.customBackground.uiLanguage, 'ko');
   const defaults = backup.snapshot({});
   assert.equal(defaults.playtimeTrackingEnabled, true);
   assert.deepEqual(defaults.pinnedGames, []);
@@ -46,7 +55,9 @@ test('backup validates the envelope, nested preferences, complete records and me
   for (const corrupt of [b=>{b.format='other';},b=>{delete b.data.rcPlaytimeHistory;},b=>{b.data.rcPlaytimeHistory.version=2;},
     b=>{b.data.rcPlaytimeHistory.accounts[0].games[0].totalMs=-1;},b=>{b.data.rcPlaytimeHistory.accounts.push(b.data.rcPlaytimeHistory.accounts[0]);},
     b=>{b.data.pinnedGames[0].folderId='missing';},b=>{b.data.customBackground.glassBlur=100;},b=>{b.data.robuxCurrency.currency='INVALID';},
-    b=>{b.data.playtimeTrackingEnabled='false';},b=>{b.data.customBackground.source='url';b.data.customBackground.url='javascript:alert(1)';},
+    b=>{b.data.playtimeTrackingEnabled='false';},b=>{b.data.customBackground.showHomeBanner='false';},
+    b=>{b.data.customBackground.showHomeMostPlayed=1;},b=>{b.data.customBackground.showPinnedGames='false';},
+    b=>{b.data.customBackground.source='url';b.data.customBackground.url='javascript:alert(1)';},
     b=>{b.data.extra='not a setting';},b=>{b.data.customBackground=JSON.parse('{"__proto__":{"polluted":true}}');}]) {
     const value = copy(good); corrupt(value); assert.throws(()=>backup.validate(value), /Invalid backup/);
   }
@@ -60,6 +71,22 @@ test('backup validates the envelope, nested preferences, complete records and me
     assert.throws(()=>backup.validate({...media,media:{...media.media,...patch}}), /Invalid backup/);
   }
   assert.equal({}.polluted, undefined);
+});
+
+test('font preferences require a matching, bounded binary attachment and keep legacy backups readable', () => {
+  const value = envelope(backup.snapshot(savedData()));
+  Object.assign(value.data.customBackground, { customFontEnabled: true, fontFileKey: 'font-key', fontFileName: 'My font.woff2' });
+  value.font = { key: 'font-key', name: 'My font.woff2', type: 'font/woff2', size: 1, lastModified: 0, base64: 'YQ==' };
+  assert.deepEqual(backup.validate(value).font, value.font);
+  for (const change of [b => { delete b.font; }, b => { b.font.key = 'other'; }, b => { b.font.type = 'text/html'; },
+    b => { b.font.base64 = 'invalid!'; }, b => { b.font.size = 33 * 1024 * 1024; },
+    b => { b.data.customBackground.fontFileKey = '../font'; }, b => { b.data.customBackground.fontFileName = 'font.html'; },
+    b => { b.data.customBackground.customFontEnabled = 'yes'; }, b => { b.font.name = 'different.woff2'; }]) {
+    const invalid = copy(value); change(invalid); assert.throws(() => backup.validate(invalid), /Invalid backup/);
+  }
+  value.data.customBackground.customFontEnabled = false;
+  assert.deepEqual(backup.validate(value).font, value.font, 'A disabled font is kept for later use');
+  assert.equal(backup.validate(envelope(backup.snapshot(savedData()))).font, null, 'Older backups need no font attachment');
 });
 
 function worker() {

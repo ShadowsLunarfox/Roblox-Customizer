@@ -29,11 +29,11 @@ function environment({ lang = '', metadata = '', browser = 'en-US' } = {}) {
 }
 
 test('Language support recognizes English and both Chinese variants without treating fallback English as support', () => {
-  for (const language of ['en', 'en-US', ' EN_gb ', 'zh', 'zh_CN', 'zh-TW', 'zh-Hans-SG', 'zh-Hant-HK', 'zh-MO', 'id', 'id-ID', ' ID_id ']) {
+  for (const language of ['en', 'en-US', ' EN_gb ', 'zh', 'zh_CN', 'zh-TW', 'zh-Hans-SG', 'zh-Hant-HK', 'zh-MO', 'id', 'id-ID', ' ID_id ', 'ja', 'ja-JP', ' JA_jp ', 'th', 'th-TH', ' TH_th ', 'ko', 'ko-KR', ' KO_kr ']) {
     const { api } = environment({ lang: language });
     assert.equal(api.isSupportedLanguage(api.robloxLanguage()), true, language);
   }
-  for (const language of ['fr', 'pt-BR', 'es_ES', 'de-DE', 'ja', 'ko-KR', 'ms', 'english', 'zhongwen']) {
+  for (const language of ['fr', 'pt-BR', 'es_ES', 'de-DE', 'ms', 'english', 'zhongwen', 'japanese', 'japan', 'thai', 'thailand', 'korean', 'korea']) {
     const { api } = environment({ lang: language, browser: 'zh-CN' });
     assert.equal(api.locale(), 'en', language);
     assert.equal(api.isSupportedLanguage(api.robloxLanguage()), false, language);

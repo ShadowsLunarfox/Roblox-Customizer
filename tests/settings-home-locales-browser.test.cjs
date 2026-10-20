@@ -65,10 +65,10 @@ test('Settings sliders align with their labels and Chinese Home switches persist
     assert.equal(await browser.evaluate("document.documentElement.hasAttribute('data-rc-background-active')"), false, 'No wallpaper is needed');
     await browser.send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
     assert.deepEqual(await browser.evaluate("[...document.querySelectorAll('.rc-settings-nav-button')].map(n=>n.dataset.rcSettingsCategory)"),
-      ['appearance', 'home', 'social', 'currency', 'data']);
+      ['appearance', 'home', 'pinned-games', 'social', 'currency', 'data']);
     assert.equal(await browser.evaluate("(()=>{const dialog=document.querySelector('.rc-settings-dialog').getBoundingClientRect(),nav=document.querySelector('.rc-settings-nav').getBoundingClientRect(),content=document.querySelector('.rc-settings-content').getBoundingClientRect();return dialog.width>=850&&nav.right<content.left})()"),
       true, 'Desktop settings use a wider panel with a category rail');
-    for (const category of ['home', 'social', 'currency', 'data', 'appearance']) {
+    for (const category of ['home', 'pinned-games', 'social', 'currency', 'data', 'appearance']) {
       await browser.click(`.rc-settings-nav-button[data-rc-settings-category="${category}"]`);
       assert.equal(await browser.evaluate(`(()=>{const content=document.querySelector('.rc-settings-content').getBoundingClientRect(),section=document.querySelector('#rc-settings-category-${category}').getBoundingClientRect(),button=document.querySelector('.rc-settings-nav-button[data-rc-settings-category="${category}"]');return button.getAttribute('aria-current')==='true'&&section.top>=content.top-2&&section.top<content.bottom})()`),
         true, `${category} navigation scrolls its category into view`);

@@ -127,9 +127,10 @@ test('Unsupported languages preserve native UI, allow only image backgrounds and
     assert.equal(await browser.evaluate(`document.querySelector('${notice}').checkVisibility()`), true, 'The explanation remains visible after dismissing the one-time pop-up');
     assert.equal(await browser.evaluate(`document.querySelector('${notice} a').getAttribute('href')`), '/my/account#!/info');
     for (const [locale, title, features, supported] of [
-      ['en', 'Your Roblox language is not supported yet', 'Only image backgrounds and custom colors', 'English, Simplified Chinese, Traditional Chinese, or Indonesian'],
-      ['zh-CN', '当前 Roblox 语言暂未支持', '目前仅可使用图片背景和自定义颜色', '英语、简体中文、繁体中文或印尼语'],
-      ['zh-TW', '目前的 Roblox 語言暫未支援', '目前僅可使用圖片背景和自訂色彩', '英語、簡體中文、繁體中文或印尼語']
+      ['en', 'Your Roblox language is not supported yet', 'Only image backgrounds, custom colors, and custom fonts', 'English, Simplified Chinese, Traditional Chinese, Indonesian, Japanese, Thai, or Korean'],
+      ['zh-CN', '当前 Roblox 语言暂未支持', '目前仅可使用图片背景、自定义颜色和自定义字体', '英语、简体中文、繁体中文、印尼语、日语、泰语或韩语'],
+      ['zh-TW', '目前的 Roblox 語言暫未支援', '目前僅可使用圖片背景、自訂色彩和自訂字體', '英語、簡體中文、繁體中文、印尼語、日語、泰語或韓語'],
+      ['ko', '아직 지원하지 않는 Roblox 언어입니다', '이미지 배경, 사용자 지정 색상 및 글꼴만', '일본어, 태국어 또는 한국어']
     ]) {
       await browser.evaluate(`RobloxCustomizerI18n.setLanguage('${locale}')`);
       await browser.waitFor(`document.querySelector('${notice} strong').textContent===${JSON.stringify(title)}`);

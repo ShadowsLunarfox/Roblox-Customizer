@@ -4,6 +4,7 @@ const http = require('node:http');
 const path = require('node:path');
 const { test } = require('node:test');
 const { isolatedChrome, waitForDocument, pause } = require('./helpers/chrome.cjs');
+const testFont = require('./helpers/font.cjs');
 const workspace = path.resolve(__dirname, '..');
 const manifest = JSON.parse(fs.readFileSync(path.join(workspace, 'manifest.json'), 'utf8'));
 const entries = manifest.content_scripts.filter(entry => entry.world !== 'MAIN');
@@ -57,6 +58,8 @@ test('Settings backup previews account ownership before restoring data and media
     const imagePath=path.join(files,'wallpaper.png');
     const image=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aOwAAAABJRU5ErkJggg==','base64');
     fs.writeFileSync(imagePath,image);
+    const fontPath=path.join(files,'Local font.ttf');
+    if(testFont)fs.copyFileSync(testFont,fontPath);
     const browser=await isolatedChrome(t,'backup');
     await browser.send('Browser.setDownloadBehavior',{behavior:'allow',downloadPath:files});
     await browser.send('Emulation.setDeviceMetricsOverride',{width:1360,height:1000,deviceScaleFactor:1,mobile:false});
@@ -72,6 +75,10 @@ test('Settings backup previews account ownership before restoring data and media
     await browser.click('input[name="rc-source"][value="file"]');
     await upload('#rc-file',imagePath);
     await browser.waitFor("saved.customBackground.source==='file'&&document.querySelector('#rc-background-layer img')?.naturalWidth===1");
+    if(testFont){
+      await upload('#rc-font-file',fontPath);
+      await browser.waitFor("saved.customBackground.customFontEnabled&&document.documentElement.hasAttribute('data-rc-custom-font')");
+    }
     // Export must include an edit still waiting in the slider debounce queue.
     await browser.evaluate("(()=>{const n=document.getElementById('rc-glass-blur');n.value='29';n.dispatchEvent(new Event('input',{bubbles:true}));document.getElementById('rc-export-backup').click()})()");
     await browser.waitFor("document.getElementById('rc-settings-status').textContent==='Backup exported.'");
@@ -87,6 +94,8 @@ test('Settings backup previews account ownership before restoring data and media
     assert.equal(backup.data.rcPlaytimeHistory.accounts[0].games[0].totalMs,123456);
     assert.deepEqual(Buffer.from(backup.media.base64,'base64'),image);
     const originalKey=backup.data.customBackground.fileKey;
+    const originalFontKey=backup.data.customBackground.fontFileKey;
+    if(testFont)assert.deepEqual(Buffer.from(backup.font.base64,'base64'),fs.readFileSync(testFont));
     await browser.evaluate("chrome.storage.local.set({customBackground:{source:'none',uiLanguage:'en',glassBlur:4,clockShowSeconds:false},pinnedGames:[],pinnedGameFolders:[],robuxCurrency:{enabled:true,currency:'USD'},rcPlaytimeHistory:RobloxCustomizerPlaytime.normalize(null),playtimeTrackingEnabled:true})");
     const beforeImport=await browser.evaluate('JSON.stringify(saved)');
     await upload('#rc-import-file',backupPath);
@@ -106,7 +115,11 @@ test('Settings backup previews account ownership before restoring data and media
     assert.equal(restored.customBackground.glassBlur,29);
     assert.equal(restored.customBackground.greetingMorning,'Hello player');
     assert.notEqual(restored.customBackground.fileKey,originalKey,'Media is restored under a fresh key');
-    assert.deepEqual({...restored.customBackground,fileKey:originalKey},backup.data.customBackground,'All appearance and homepage preferences round trip');
+    if(testFont){
+      await browser.waitFor("document.documentElement.hasAttribute('data-rc-custom-font')&&!RobloxCustomizerFonts.state().loading");
+      assert.notEqual(restored.customBackground.fontFileKey,originalFontKey,'The font is restored under a fresh key');
+    }
+    assert.deepEqual({...restored.customBackground,fileKey:originalKey,...(testFont?{fontFileKey:originalFontKey}:{})},backup.data.customBackground,'All appearance and homepage preferences round trip');
     for(const key of ['pinnedGames','pinnedGameFolders','robuxCurrency','playtimeTrackingEnabled','rcPlaytimeHistory']) assert.deepEqual(restored[key],backup.data[key],key);
     assert.equal(await browser.evaluate("document.getElementById('rc-glass-blur').value"),'29');
     assert.equal(await browser.evaluate("document.getElementById('rc-currency-select').value"),'CNY');
@@ -127,6 +140,18 @@ test('Settings backup previews account ownership before restoring data and media
     assert.equal(await browser.evaluate('JSON.stringify(saved)'),before);
     assert.deepEqual(await mediaKeys(),keys);
     await browser.evaluate('failBackupSet=false');
+    if(testFont){
+      const brokenFont=structuredClone(backup);
+      Object.assign(brokenFont.font,{base64:'YQ==',size:1});
+      const brokenFontPath=path.join(files,'broken-font-backup.json');
+      fs.writeFileSync(brokenFontPath,JSON.stringify(brokenFont));
+      await upload('#rc-import-file',brokenFontPath);
+      await browser.waitFor("!!document.querySelector('#rc-import-preview')");
+      await browser.click('#rc-import-preview-confirm');
+      await browser.waitFor("document.getElementById('rc-settings-status').textContent==='This font file could not be loaded. Try another font file.'");
+      assert.equal(await browser.evaluate('JSON.stringify(saved)'),before,'A corrupt font cannot partially replace saved settings');
+      assert.deepEqual(await mediaKeys(),keys,'A corrupt font leaves no staged wallpaper or font behind');
+    }
     // A lost acknowledgement after commit must never delete the restored image.
     await browser.evaluate('dropBackupReply=true');
     await upload('#rc-import-file',backupPath);
@@ -134,8 +159,9 @@ test('Settings backup previews account ownership before restoring data and media
     await browser.click('#rc-import-preview-confirm');
     await browser.waitFor("document.getElementById('rc-settings-status').textContent==='No response from the extension.'&&document.querySelector('#rc-background-layer img')?.naturalWidth===1");
     assert.ok((await mediaKeys()).includes(await browser.evaluate('saved.customBackground.fileKey')));
+    if(testFont)assert.ok((await mediaKeys()).includes(await browser.evaluate('saved.customBackground.fontFileKey')));
     await browser.evaluate('dropBackupReply=false');
-    for(const [locale,title,exportText,importText]of [['zh-CN','备份与恢复','导出备份','导入备份'],['zh-TW','備份與還原','匯出備份','匯入備份'],['en','Backup and restore','Export backup','Import backup']]){
+    for(const [locale,title,exportText,importText]of [['zh-CN','备份与恢复','导出备份','导入备份'],['zh-TW','備份與還原','匯出備份','匯入備份'],['ja','バックアップと復元','バックアップを書き出す','バックアップを読み込む'],['th','สำรองและกู้คืนข้อมูล','ส่งออกข้อมูลสำรอง','นำเข้าข้อมูลสำรอง'],['ko','백업 및 복원','백업 내보내기','백업 가져오기'],['en','Backup and restore','Export backup','Import backup']]){
       await browser.evaluate(`(()=>{const n=document.getElementById('rc-ui-language');n.value='${locale}';n.dispatchEvent(new Event('change',{bubbles:true}))})()`);
       assert.deepEqual(await browser.evaluate("['rc-backup-title','rc-export-backup','rc-import-backup'].map(id=>document.getElementById(id).textContent)"),[title,exportText,importText]);
       for(const theme of ['light','dark']){

@@ -1,0 +1,24 @@
+/* Native icon fonts keep their glyphs. Text added later inherits the same rule. */
+html[data-rc-custom-font] body,
+html[data-rc-custom-font] body :not(:where(
+  [data-icon], [data-icon] *, [class^="icon-"], [class^="icon-"] *,
+  [class*=" icon-"], [class*=" icon-"] *, .material-icons, .material-icons *,
+  [class*="material-symbols"], [class*="material-symbols"] *,
+  .fa, .fas, .far, .fab, .glyphicon
+)),
+html[data-rc-custom-font] body :not(:where(
+  [data-icon], [class^="icon-"], [class*=" icon-"], .material-icons,
+  [class*="material-symbols"], .fa, .fas, .far, .fab, .glyphicon
+))::before,
+html[data-rc-custom-font] body :not(:where(
+  [data-icon], [class^="icon-"], [class*=" icon-"], .material-icons,
+  [class*="material-symbols"], .fa, .fas, .far, .fab, .glyphicon
+))::after {
+  font-family: var(--rc-website-font) !important;
+}
+
+html[data-rc-custom-font] input::placeholder,
+html[data-rc-custom-font] textarea::placeholder,
+html[data-rc-custom-font] input::file-selector-button {
+  font-family: var(--rc-website-font) !important;
+}

@@ -31,7 +31,7 @@ test('Centered language warning persists across reopening and reloads, and retur
           <main id="HomeContainer"><h1>Home</h1></main></body></html>`);
       }
     });
-    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+    await new Promise(resolve => server.listen(Number(process.env.LANGUAGE_WARNING_TEST_PORT) || 0, '127.0.0.1', resolve));
     t.after(() => new Promise(resolve => { server.closeAllConnections(); server.close(resolve); }));
     const browser = await isolatedChrome(t, 'unsupported-language');
     await browser.send('Emulation.setFocusEmulationEnabled', { enabled: true });
@@ -73,7 +73,7 @@ test('Centered language warning persists across reopening and reloads, and retur
     await browser.waitFor(visible);
     assert.equal(await browser.evaluate(`document.querySelector('${warning}').getAttribute('role')`), 'alertdialog');
     let text = await browser.evaluate(`document.querySelector('${warning}').textContent`);
-    for (const expected of ['fr-FR', 'Some features may not work correctly', 'English, Simplified Chinese, Traditional Chinese, or Indonesian']) {
+    for (const expected of ['fr-FR', 'Some features may not work correctly', 'English, Simplified Chinese, Traditional Chinese, Indonesian, Japanese, Thai, or Korean']) {
       assert.ok(text.includes(expected), expected);
     }
     assert.equal(await browser.evaluate(`document.querySelector('${warning} a').getAttribute('href')`), '/my/account#!/info');
@@ -113,7 +113,7 @@ test('Centered language warning persists across reopening and reloads, and retur
       const screenshot = await browser.send('Page.captureScreenshot', { format: 'png' });
       fs.writeFileSync(path.join(workspace, '.tmp-language-warning.png'), Buffer.from(screenshot.data, 'base64'));
     }
-    for (const language of ['en-US', 'zh_CN', 'zh-TW', 'zh-Hans-SG', 'zh-Hant-HK']) {
+    for (const language of ['en-US', 'zh_CN', 'zh-TW', 'zh-Hans-SG', 'zh-Hant-HK', 'ja-JP', 'th-TH', 'ko-KR']) {
       await setLanguage(language);
       await browser.waitFor(`!(${visible})`);
     }
@@ -136,13 +136,19 @@ test('Centered language warning persists across reopening and reloads, and retur
     await navigate('?lang=pt-BR');
     assert.equal(await browser.evaluate(visible), false, 'The language-change warning stays dismissed after navigation');
     await navigate('?lang=ja');
-    await browser.waitFor(`${visible} && document.querySelector('${warning}').textContent.includes('ja')`);
+    assert.equal(await browser.evaluate(visible), false, 'Japanese is supported and does not display a warning');
+    await navigate('?lang=th');
+    assert.equal(await browser.evaluate(visible), false, 'Thai is supported and does not display a warning');
+    await navigate('?lang=ko-KR');
+    assert.equal(await browser.evaluate(visible), false, 'Korean is supported and does not display a warning');
+    await navigate('?lang=fr-FR');
+    await browser.waitFor(`${visible} && document.querySelector('${warning}').textContent.includes('fr-FR')`);
     await dismiss();
     await browser.evaluate("document.documentElement.lang=''");
     await browser.evaluate("document.querySelector('meta[name=locale-data]').remove()");
     await browser.waitFor(`!(${visible})`);
     await browser.evaluate("localStorage.removeItem('preferences')");
-    await navigate('?lang=ja&delay=1');
+    await navigate('?lang=fr-FR&delay=1');
     await browser.click('.rc-settings-menu-entry');
     assert.equal(await browser.evaluate(visible), false, 'The first opening waits for saved warning state');
     await browser.evaluate('resolveWarningRead()');

@@ -73,11 +73,13 @@
         "src/shared/runtime.js",
         "src/shared/native-labels.js",
         "src/shared/i18n.js",
+        "src/shared/fonts.js",
         "src/currency/robux-currency-core.js",
         "src/currency/robux-currency.js"
       ],
       "css": [
         "src/shared/theme.css",
+        "src/shared/fonts.css",
         "src/currency/robux-currency.css"
       ],
       "all_frames": true,

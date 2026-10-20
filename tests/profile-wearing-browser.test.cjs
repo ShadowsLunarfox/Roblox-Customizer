@@ -8,17 +8,27 @@ const workspace = path.resolve(__dirname, '..');
 const entries = JSON.parse(fs.readFileSync(path.join(workspace, 'manifest.json'), 'utf8')).content_scripts;
 const scripts = [...new Set(entries.filter(entry => entry.world !== 'MAIN').flatMap(entry => entry.js || []))];
 const styles = [...new Set(entries.flatMap(entry => entry.css || []))];
-const titles = { en: 'Currently Wearing', 'zh-cn': '当前穿戴', 'zh-tw': '目前穿戴', id: 'Saat Ini Memakai' };
+const titles = { en: 'Currently Wearing', 'zh-cn': '当前穿戴', 'zh-tw': '目前穿戴', id: 'Saat Ini Memakai', ja: '装備中', th: 'สวมอยู่ตอนนี้', ko: '현재 장착 중' };
 const names = ['Rubah Kemono Putih (Mata Berwarna)', 'Ekor Rubah Arktik Fluffy', 'Kantong Modular (Hitam)',
   'Ekor Wag Senang Idle', 'Kanji | PANTALON KANJI', "Kanji | Kanji’s Sweatshirt (Creature)", 'Paket Animasi Rthro'];
+const thaiNames = ['แพ็คแอนิเมชันที่มีสไตล์', 'Frosty Flair - ทอมมี่ ฮิลฟิเกอร์', 'กระโปรงจีบสีชมพู',
+  'กระเป๋าสะพายหลัง กระต่ายสีขาว', 'สัตว์เลี้ยง Axolotl Shoulder!', 'โบว์สีขาว', 'หูแมวน่ารักพร้อมโบว์'];
+const koreanNames = ['즐거운 애니메이션 팩', '귀여운 고양이 카와이 배경', 'Sticker(스티커) 댄스 무브 - NCT 127',
+  '회색 플라이츠 스커트', '흰색 편안한 네코 후드', '돌고래 댄스', '영웅의 착지'];
+const namesFor = locale => locale === 'th' ? thaiNames : locale === 'ko' ? koreanNames : names;
+const pricesFor = locale => locale === 'th' ? [300, 170, 120, 105, 99, 70, 70]
+  : locale === 'ko' ? [216, 154, 150, 120, 100, 100, 80] : [75, 65, 55, 45, 35, 25, 'Gratis'];
+const prefixFor = locale => ['id', 'ja', 'th', 'ko'].includes(locale) ? '/' + locale : '';
 
 function cards(locale) {
-  const prefix = locale === 'id' ? '/id' : '';
-  return names.map((name, i) => `<div id="collection-carousel-item" class="native-tile"><li class="item-card" data-item="${i}">
+  const prefix = prefixFor(locale);
+  const itemNames = namesFor(locale);
+  const prices = pricesFor(locale);
+  return itemNames.map((name, i) => `<div id="collection-carousel-item" class="native-tile"><li class="item-card" data-item="${i}">
     <div class="item-card-container" style="background:#485889"><a class="item-card-link" href="${prefix}/${i === 6 ? 'bundles' : 'catalog'}/${1000 + i}/Item">
       <div class="item-card-thumb-container" style="background:#6171a4"><div class="thumbnail-2d-container" style="background:#6171a4"><img src="/asset.svg" alt="${name}"></div></div></a>
       <div class="item-card-caption" style="background:#485889"><a class="item-card-name" href="${prefix}/${i === 6 ? 'bundles' : 'catalog'}/${1000 + i}/Item">${name}</a>
-      <div class="item-card-price">${i === 6 ? 'Gratis' : '<span class="icon-robux-16x16"></span>' + (75 - i * 10)}</div></div></div></li></div>`).join('');
+      <div class="item-card-price">${typeof prices[i] === 'number' ? '<span class="icon-robux-16x16"></span>' : ''}${prices[i]}</div></div></div></li></div>`).join('');
 }
 
 function fixture(locale) {
@@ -48,7 +58,7 @@ test('native wearing cards share transparent thumbnail and caption surfaces in e
         response.end(fixture(url.searchParams.get('locale') || 'en'));
       }
     });
-    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+    await new Promise(resolve => server.listen(Number(process.env.PROFILE_WEARING_TEST_PORT) || 0, '127.0.0.1', resolve));
     t.after(() => new Promise(resolve => { server.closeAllConnections(); server.close(resolve); }));
     const browser = await isolatedChrome(t, 'profile-wearing');
     await browser.send('Emulation.setDeviceMetricsOverride', { width: 1400, height: 700, deviceScaleFactor: 1, mobile: false });
@@ -56,8 +66,12 @@ test('native wearing cards share transparent thumbnail and caption surfaces in e
       window.chrome={i18n:{getUILanguage:()=> 'en-US'},storage:{local:{async get(){return {robloxCustomizerTermsAccepted:true,customBackground:{source:'url',url:location.origin+'/wallpaper.svg',urlType:'image',experimentalCustomColors:true,customTextColor:'#ffffff',customBackgroundColor:'#394b84',customAccentColor:'#fc33ff',glassBlur:40,glassOpacity:51}}},async set(){},async remove(){}},onChanged:{addListener(){}}},runtime:{lastError:null,getURL:file=>'/'+file,sendMessage(message,callback){setTimeout(()=>callback?.({error:'No optional fixture data'}),0)}}};
     ` });
     for (const file of scripts) await browser.send('Page.addScriptToEvaluateOnNewDocument', { source: fs.readFileSync(path.join(workspace, file), 'utf8') + '\n//# sourceURL=' + file });
-    for (const locale of Object.keys(titles)) {
-      const url = `http://127.0.0.1:${server.address().port}${locale === 'id' ? '/id' : ''}/users/7366396729/profile?locale=${locale}`;
+    const profiles = Object.keys(titles).flatMap(locale => (locale === 'th' ? [2950704295, 671910625] : [7366396729])
+      .map(userId => ({ locale, userId })));
+    // URL prefixes and the language actually rendered by Roblox can differ.
+    profiles.push({ locale: 'ko', userId: 2950704295, prefix: '/th' });
+    for (const { locale, userId, prefix = prefixFor(locale) } of profiles) {
+      const url = `http://127.0.0.1:${server.address().port}${prefix}/users/${userId}/profile?locale=${locale}`;
       await browser.send('Page.navigate', { url });
       await waitForDocument(browser, '#wearing', url);
       await browser.waitFor("document.querySelectorAll('#wearing [data-rc-profile-card]').length===7");
@@ -71,13 +85,14 @@ test('native wearing cards share transparent thumbnail and caption surfaces in e
         backgrounds:[...section.querySelectorAll('.item-card-container,.item-card-thumb-container,.thumbnail-2d-container,.item-card-caption')].map(n=>getComputedStyle(n).backgroundColor),
         surfaces:[...section.querySelectorAll('[data-rc-profile-card]')].map(n=>getComputedStyle(n).backgroundColor),
         clipped:[...section.querySelectorAll('.item-card-name')].some(n=>n.scrollHeight>n.clientHeight+1),
-        price:section.querySelector('[data-item="6"] .item-card-price').textContent
+        price:[...section.querySelector('[data-item="6"] .item-card-price').childNodes]
+          .filter(node=>node.nodeType===Node.TEXT_NODE).map(node=>node.textContent).join('').trim()
       }})()`);
       assert.equal(result.section, 'wearing', locale);
-      assert.deepEqual(result.names, names, 'Native item names remain unchanged');
+      assert.deepEqual(result.names, namesFor(locale), 'Native item names remain unchanged');
       assert.equal(result.preserved, true, 'Native cards and their handlers are preserved');
       assert.equal(result.clipped, false, 'Long item names are readable');
-      assert.equal(result.price, 'Gratis');
+      assert.equal(result.price, String(pricesFor(locale).at(-1)));
       assert.ok(result.backgrounds.every(color => color === 'rgba(0, 0, 0, 0)'), `${locale}: opaque native thumbnail and caption backgrounds must clear`);
       assert.ok(result.surfaces.every(color => {
         const opacity = Number(color.match(/[\d.]+/g)?.[3]);
@@ -86,7 +101,7 @@ test('native wearing cards share transparent thumbnail and caption surfaces in e
       await browser.click('#wearing [data-testid="carousel-scroll-arrow"]');
       await browser.click('#wearing [data-item="0"] .item-card-link');
       assert.deepEqual(await browser.evaluate('[arrowClicks,itemClicks]'), [1, 1]);
-      await browser.evaluate(`document.querySelector('#wearing h2').textContent='Saat Ini Memakai';document.querySelector('.carousel-items').innerHTML=${JSON.stringify(cards('id'))}`);
+      await browser.evaluate(`document.querySelector('#wearing h2').textContent='${locale === 'th' ? 'สวมอยู่ตอนนี้' : 'Saat Ini Memakai'}';document.querySelector('.carousel-items').innerHTML=${JSON.stringify(cards(locale === 'th' ? 'th' : 'id'))}`);
       await browser.waitFor("document.querySelectorAll('#wearing [data-rc-profile-card]').length===7 && document.querySelector('#wearing').dataset.rcProfileSection==='wearing'");
     }
     assert.deepEqual(browser.errors, []);

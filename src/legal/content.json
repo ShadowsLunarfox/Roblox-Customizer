@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-19",
+  "updated": "2026-10-20",
   "publisher": "Lunarfox 月狐",
   "email": "lunar@lunarfox.my",
   "contacts": [
@@ -33,6 +33,7 @@
             "items": [
               "Preferences: language, colors, appearance, Home and social-feed settings, currency selection, language-warning state, and whether you have accepted the Terms of Service.",
               "Backgrounds: files you select, their names, and saved background URLs. Selecting a local file stores a browser-local copy; it does not upload the file to the publisher.",
+              "Fonts: font files you select and their file names. A browser-local copy changes Roblox text; the file is not uploaded to the publisher.",
               "Organization: pinned game IDs, game names and thumbnails, folder names, and hidden recommendations.",
               "Playtime: Roblox user IDs and usernames, game/universe/place IDs, game names and icons, estimated durations, session counts, and first/last played and sampling timestamps for each recorded account.",
               "Recent servers: Roblox user IDs, game/universe/place IDs, server instance IDs, game names, and last-observed timestamps for recent-server history.",
@@ -46,7 +47,8 @@
               "Preferences, pins, history, and some caches use the browser's extension-local storage. Background files use IndexedDB on the Roblox site origin where they were selected. Small appearance and friend-row caches use Roblox-site localStorage. The extension does not use Chrome storage sync or a publisher-operated cloud account.",
               "Playtime tracking is enabled by default and checks the signed-in account's Roblox presence approximately every 30 seconds while the browser runs, including when Roblox tabs are closed. It estimates activity from those samples, not recordings of gameplay. Disabling playtime stops new playtime records and preserves existing history. Presence checks continue if recent-server tracking remains enabled; unsupported-language fallback pauses both features.",
               "Recent-server tracking is enabled by default and shares the approximately 30-second presence checks with playtime. Its independent setting stops new server records while keeping saved history. Each of the 10 most recently used accounts retains a separate list of up to 6 servers per game, including that game's subplaces; a new server replaces only that game's oldest entry.",
-              "The extension does not ask for your Roblox password. Authenticated Roblox API calls use your browser's existing Roblox session, so Roblox receives the authentication associated with those requests. Backups do not include Roblox passwords or session cookies."
+              "The extension does not ask for your Roblox password. Authenticated Roblox API calls use your browser's existing Roblox session, so Roblox receives the authentication associated with those requests. Backups do not include Roblox passwords or session cookies.",
+              "Selected font files also use IndexedDB on the Roblox site origin where they were selected. A small font-selection cache uses that site's localStorage; it contains settings and a file identifier, not font bytes."
             ]
           },
           {
@@ -78,8 +80,9 @@
               "You can change preferences, remove backgrounds and pins, disable social feeds and playtime tracking, clear the current account's playtime, and export your data. Settings backups include all recorded accounts' histories and a saved background when present. Backups are unencrypted JSON files; keep them private. Import replaces the corresponding saved data rather than merging it.",
               "Recent-server history is excluded from full settings backups. You can delete individual servers, clear one game's list, or clear the current account's recent servers. Reset All also removes all accounts' recent-server history. Turning off only playtime does not stop server-history presence checks; disable both settings to stop those checks.",
               "Saved preferences, files, and histories remain until you remove, reset, or overwrite them or the browser clears storage. Cached responses may remain stored after they expire for use. Reset All deletes extension-local settings, caches, pins, and all accounts' history, and removes background files and page caches on the current Roblox site origin. It keeps the local Terms of Service acceptance flag so the first-opening prompt is not repeated. Default features may resume after reset; disable tracking again if you want it off.",
-              "Uninstalling normally removes extension-local storage but may leave Roblox-site IndexedDB and localStorage. Use Reset All before uninstalling, or clear Roblox site data in your browser to remove those remaining files and caches. Site-data deletion may sign you out. If fallback mode hides data controls, first switch Roblox to English, Simplified Chinese, Traditional Chinese, or Indonesian. Exported files and data stored by third parties must be deleted separately.",
-              "The publisher cannot inspect or remotely erase data stored only in your browser. Contact the publisher for questions or requests about information you sent to support."
+              "Uninstalling normally removes extension-local storage but may leave Roblox-site IndexedDB and localStorage. Use Reset All before uninstalling, or clear Roblox site data in your browser to remove those remaining files and caches. Site-data deletion may sign you out. If fallback mode hides data controls, first switch Roblox to English, Simplified Chinese, Traditional Chinese, Indonesian, Japanese, Thai, or Korean. Exported files and data stored by third parties must be deleted separately.",
+              "The publisher cannot inspect or remotely erase data stored only in your browser. Contact the publisher for questions or requests about information you sent to support.",
+              "Restore default font removes the selected font from the current site origin. Reset All also removes saved fonts there. Settings backups include a selected font file, including when temporarily disabled."
             ]
           },
           {
@@ -100,7 +103,7 @@
             "heading": "What the extension provides",
             "paragraphs": [
               "Roblox Customizer is an independent browser extension for appearance customization and convenience tools on Roblox. It is not affiliated with, sponsored by, or endorsed by Roblox Corporation. Roblox and other third-party names and marks belong to their owners.",
-              "Full functionality currently supports English, Simplified Chinese, Traditional Chinese, and Indonesian Roblox settings. Other languages use a limited mode with image/GIF backgrounds and custom colors. Availability also depends on your browser, Roblox, and external services, which may change or become unavailable. No promise is made that every feature will always work."
+              "Full functionality currently supports English, Simplified Chinese, Traditional Chinese, Indonesian, Japanese, Thai, and Korean Roblox settings. Other languages use a limited mode with image/GIF backgrounds, custom colors, and custom fonts. Availability also depends on your browser, Roblox, and external services, which may change or become unavailable. No promise is made that every feature will always work."
             ]
           },
           {
@@ -162,6 +165,7 @@
             "items": [
               "偏好设置：语言、颜色、外观、主页和社交动态设置、货币选择、语言警告状态，以及你是否已接受服务条款。",
               "背景：你选择的文件、文件名和已保存的背景网址。选择本地文件会在浏览器中保存一份副本，不会上传给发布者。",
+              "字体：你选择的字体文件及文件名。浏览器中保存的本地副本用于更改 Roblox 网页文字的字体，文件不会上传给发布者。",
               "整理数据：置顶游戏的 ID、名称和缩略图、文件夹名称及隐藏的推荐内容。",
               "游戏时长：各已记录账号的 Roblox 用户 ID 和用户名，游戏／宇宙／地点 ID、游戏名称和图标、估算时长、会话次数、首次和最近游玩时间及采样时间。",
               "最近服务器：记录使用的 Roblox 用户 ID、游戏／宇宙／地点 ID、服务器实例 ID、游戏名称和最近确认时间。",
@@ -175,7 +179,8 @@
               "偏好、置顶游戏、历史及部分缓存保存在浏览器的扩展本地存储中。背景文件保存在选择文件时所在 Roblox 网站来源的 IndexedDB 中。少量外观和好友行数缓存使用 Roblox 网站的 localStorage。扩展不使用 Chrome 存储同步，也没有由发布者运营的云端账号。",
               "游戏时长记录默认开启，在浏览器运行期间约每 30 秒检查已登录账号的 Roblox 状态，包括 Roblox 标签页已关闭时。时长根据状态采样估算，不会录制游戏过程。关闭游戏时长记录会停止新增时长记录并保留历史；如果最近服务器记录仍开启，状态检查会继续。不支持语言的回退模式会暂停这两项功能。",
               "最近服务器记录默认开启，与游戏时长共享约每 30 秒一次的状态检查。可通过独立开关停止新增服务器记录并保留历史。为最近使用的 10 个账号分别按游戏保存独立列表，每个游戏最多保留 6 个服务器，包括该游戏的子场景；新增服务器时只移除该游戏最旧的记录。",
-              "扩展不会要求你提供 Roblox 密码。需要身份验证的 Roblox API 请求使用浏览器现有的 Roblox 会话，因此 Roblox 会收到相应的身份验证信息。备份不包含 Roblox 密码或会话 Cookie。"
+              "扩展不会要求你提供 Roblox 密码。需要身份验证的 Roblox API 请求使用浏览器现有的 Roblox 会话，因此 Roblox 会收到相应的身份验证信息。备份不包含 Roblox 密码或会话 Cookie。",
+              "选定的字体文件同样保存在选择文件时所在 Roblox 网站来源的 IndexedDB 中。少量字体选择缓存使用该网站的 localStorage，仅包含设置和文件标识，不包含字体文件内容。"
             ]
           },
           {
@@ -207,8 +212,9 @@
               "你可以修改偏好、删除背景和置顶游戏、关闭社交动态及游戏时长记录、清除当前账号的时长并导出数据。设置备份包含所有已记录账号的历史，以及存在时的已保存背景。备份是未加密的 JSON 文件，请妥善保管。导入会替换对应的已有数据，而非合并。",
               "完整设置备份不包含最近服务器记录。可以删除单个服务器、清空某个游戏的列表，或清空当前账号的最近服务器。重置全部也会删除所有账号的最近服务器记录。仅关闭游戏时长不会停止服务器记录使用的状态检查；关闭两项记录后才会停止这些检查。",
               "已保存的偏好、文件和历史会保留至你删除、重置或覆盖，或浏览器清除存储。缓存响应在不再可用于显示后仍可能留在存储中。“重置全部”会删除扩展本地设置、缓存、置顶游戏和所有账号的历史，并删除当前 Roblox 网站来源上的背景文件及页面缓存。它会保留本地的服务条款接受标记，避免重复显示首次打开的提示。重置后默认功能可能恢复运行；如希望停止记录，请再次关闭游戏时长记录。",
-              "卸载通常会移除扩展本地存储，但可能保留 Roblox 网站的 IndexedDB 和 localStorage。卸载前请使用“重置全部”，或通过浏览器清除 Roblox 网站数据以删除剩余文件和缓存；清除网站数据可能使你退出登录。如回退模式隐藏了数据控件，请先将 Roblox 切换为英语、简体中文、繁体中文或印尼语。导出文件及第三方保存的数据需另行删除。",
-              "发布者无法查看或远程删除仅保存在你浏览器中的数据。如需咨询或处理你发送给支持的信息，请联系发布者。"
+              "卸载通常会移除扩展本地存储，但可能保留 Roblox 网站的 IndexedDB 和 localStorage。卸载前请使用“重置全部”，或通过浏览器清除 Roblox 网站数据以删除剩余文件和缓存；清除网站数据可能使你退出登录。如回退模式隐藏了数据控件，请先将 Roblox 切换为英语、简体中文、繁体中文、印尼语、日语、泰语或韩语。导出文件及第三方保存的数据需另行删除。",
+              "发布者无法查看或远程删除仅保存在你浏览器中的数据。如需咨询或处理你发送给支持的信息，请联系发布者。",
+              "“恢复默认字体”会删除当前网站来源中选定的字体文件，“重置全部”也会删除该来源中保存的字体。设置备份包含选定的字体文件，包括暂时停用的字体。"
             ]
           },
           {
@@ -229,7 +235,7 @@
             "heading": "扩展提供的服务",
             "paragraphs": [
               "Roblox Customizer 是用于 Roblox 外观自定义及便利工具的独立浏览器扩展，与 Roblox Corporation 无关联，亦未获其赞助或认可。Roblox 及其他第三方名称和商标属于各自权利人。",
-              "完整功能目前支持 Roblox 的英语、简体中文、繁体中文和印尼语设置。其他语言进入仅支持图片／GIF 背景和自定义颜色的受限模式。功能可用性还取决于浏览器、Roblox 和外部服务，它们可能变化或不可用。我们不保证所有功能始终正常运行。"
+              "完整功能目前支持 Roblox 的英语、简体中文、繁体中文、印尼语、日语、泰语和韩语设置。其他语言进入仅支持图片／GIF 背景、自定义颜色和自定义字体的受限模式。功能可用性还取决于浏览器、Roblox 和外部服务，它们可能变化或不可用。我们不保证所有功能始终正常运行。"
             ]
           },
           {
@@ -291,6 +297,7 @@
             "items": [
               "偏好設定：語言、顏色、外觀、首頁和社群動態設定、貨幣選擇、語言警告狀態，以及你是否已接受服務條款。",
               "背景：你選擇的檔案、檔名和已儲存的背景網址。選擇本機檔案會在瀏覽器中儲存一份副本，不會上傳給發布者。",
+              "字體：你選擇的字體檔案及檔名。瀏覽器中儲存的本機副本用於變更 Roblox 網頁文字的字體，檔案不會上傳給發布者。",
               "整理資料：釘選遊戲的 ID、名稱和縮圖、資料夾名稱及隱藏的推薦內容。",
               "遊戲時間：各已記錄帳號的 Roblox 使用者 ID 和使用者名稱，遊戲／宇宙／地點 ID、遊戲名稱和圖示、估算時間、工作階段次數、首次和最近遊玩時間及取樣時間。",
               "最近伺服器：記錄使用的 Roblox 使用者 ID、遊戲／宇宙／地點 ID、伺服器執行個體 ID、遊戲名稱和最近確認時間。",
@@ -304,7 +311,8 @@
               "偏好、釘選遊戲、歷史及部分快取儲存在瀏覽器的擴充功能本機儲存空間。背景檔案儲存在選擇檔案時所在 Roblox 網站來源的 IndexedDB。少量外觀和好友列數快取使用 Roblox 網站的 localStorage。擴充功能不使用 Chrome 儲存同步，也沒有由發布者營運的雲端帳號。",
               "遊戲時間記錄預設開啟，在瀏覽器執行期間約每 30 秒檢查已登入帳號的 Roblox 狀態，包括 Roblox 分頁已關閉時。時間根據狀態取樣估算，不會錄製遊戲過程。關閉遊戲時間記錄會停止新增時間記錄並保留歷史；如果最近伺服器記錄仍開啟，狀態檢查會繼續。不支援語言的備援模式會暫停這兩項功能。",
               "最近伺服器記錄預設開啟，與遊戲時間共用約每 30 秒一次的狀態檢查。可透過獨立開關停止新增伺服器記錄並保留歷史。為最近使用的 10 個帳號分別依遊戲儲存獨立清單，每個遊戲最多保留 6 個伺服器，包括該遊戲的子場景；新增伺服器時只移除該遊戲最舊的記錄。",
-              "擴充功能不會要求你提供 Roblox 密碼。需要身分驗證的 Roblox API 請求使用瀏覽器現有的 Roblox 工作階段，因此 Roblox 會收到相應的身分驗證資訊。備份不包含 Roblox 密碼或工作階段 Cookie。"
+              "擴充功能不會要求你提供 Roblox 密碼。需要身分驗證的 Roblox API 請求使用瀏覽器現有的 Roblox 工作階段，因此 Roblox 會收到相應的身分驗證資訊。備份不包含 Roblox 密碼或工作階段 Cookie。",
+              "選定的字體檔案同樣儲存在選擇檔案時所在 Roblox 網站來源的 IndexedDB 中。少量字體選擇快取使用該網站的 localStorage，僅包含設定和檔案識別碼，不包含字體檔案內容。"
             ]
           },
           {
@@ -336,8 +344,9 @@
               "你可以修改偏好、刪除背景和釘選遊戲、關閉社群動態及遊戲時間記錄、清除目前帳號的時間並匯出資料。設定備份包含所有已記錄帳號的歷史，以及存在時的已儲存背景。備份是未加密的 JSON 檔案，請妥善保管。匯入會取代對應的已有資料，而非合併。",
               "完整設定備份不包含最近伺服器記錄。可以刪除個別伺服器、清空某個遊戲的清單，或清空目前帳號的最近伺服器。重設全部也會刪除所有帳號的最近伺服器記錄。僅關閉遊戲時間不會停止伺服器記錄使用的狀態檢查；關閉兩項記錄後才會停止這些檢查。",
               "已儲存的偏好、檔案和歷史會保留至你刪除、重設或覆寫，或瀏覽器清除儲存空間。快取回應在不再可用於顯示後仍可能留在儲存空間。“重設全部”會刪除擴充功能本機設定、快取、釘選遊戲和所有帳號的歷史，並刪除目前 Roblox 網站來源上的背景檔案及頁面快取。它會保留本機的服務條款接受標記，避免重複顯示首次開啟的提示。重設後預設功能可能恢復執行；如希望停止記錄，請再次關閉遊戲時間記錄。",
-              "解除安裝通常會移除擴充功能本機儲存空間，但可能保留 Roblox 網站的 IndexedDB 和 localStorage。解除安裝前請使用“重設全部”，或透過瀏覽器清除 Roblox 網站資料以刪除剩餘檔案和快取；清除網站資料可能使你登出。如備援模式隱藏了資料控制項，請先將 Roblox 切換為英語、簡體中文、繁體中文或印尼語。匯出檔案及第三方儲存的資料需另行刪除。",
-              "發布者無法查看或遠端刪除僅儲存在你瀏覽器中的資料。如需詢問或處理你傳送給支援的資訊，請聯絡發布者。"
+              "解除安裝通常會移除擴充功能本機儲存空間，但可能保留 Roblox 網站的 IndexedDB 和 localStorage。解除安裝前請使用“重設全部”，或透過瀏覽器清除 Roblox 網站資料以刪除剩餘檔案和快取；清除網站資料可能使你登出。如備援模式隱藏了資料控制項，請先將 Roblox 切換為英語、簡體中文、繁體中文、印尼語、日語、泰語或韓語。匯出檔案及第三方儲存的資料需另行刪除。",
+              "發布者無法查看或遠端刪除僅儲存在你瀏覽器中的資料。如需詢問或處理你傳送給支援的資訊，請聯絡發布者。",
+              "「恢復預設字體」會刪除目前網站來源中選定的字體檔案，「重設全部」也會刪除該來源中儲存的字體。設定備份包含選定的字體檔案，包括暫時停用的字體。"
             ]
           },
           {
@@ -358,7 +367,7 @@
             "heading": "擴充功能提供的服務",
             "paragraphs": [
               "Roblox Customizer 是用於 Roblox 外觀自訂及便利工具的獨立瀏覽器擴充功能，與 Roblox Corporation 無關聯，亦未獲其贊助或認可。Roblox 及其他第三方名稱和商標屬於各自權利人。",
-              "完整功能目前支援 Roblox 的英語、簡體中文、繁體中文和印尼語設定。其他語言進入僅支援圖片／GIF 背景和自訂顏色的受限模式。功能可用性還取決於瀏覽器、Roblox 和外部服務，它們可能變更或無法使用。我們不保證所有功能始終正常執行。"
+              "完整功能目前支援 Roblox 的英語、簡體中文、繁體中文、印尼語、日語、泰語和韓語設定。其他語言進入僅支援圖片／GIF 背景、自訂顏色和自訂字體的受限模式。功能可用性還取決於瀏覽器、Roblox 和外部服務，它們可能變更或無法使用。我們不保證所有功能始終正常執行。"
             ]
           },
           {
@@ -420,6 +429,7 @@
             "items": [
               "Preferensi: bahasa, warna, tampilan, pengaturan Beranda dan feed sosial, pilihan mata uang, status peringatan bahasa, dan apakah Anda telah menyetujui Ketentuan Layanan.",
               "Latar belakang: file yang Anda pilih, nama file, dan URL latar belakang yang tersimpan. Memilih file lokal menyimpan salinan secara lokal di browser; file tidak diunggah ke penerbit.",
+              "Font: file font yang Anda pilih beserta namanya. Salinan lokal di browser mengubah teks Roblox; file tidak diunggah ke penerbit.",
               "Pengaturan koleksi: ID game yang disematkan, nama dan thumbnail game, nama folder, dan rekomendasi tersembunyi.",
               "Waktu bermain: ID dan nama pengguna Roblox, ID game/universe/place, nama dan ikon game, perkiraan durasi, jumlah sesi, serta waktu pertama/terakhir bermain dan waktu pengambilan sampel untuk setiap akun yang tercatat.",
               "Server terbaru: ID pengguna Roblox, ID game/universe/place, ID instans server, nama game, dan waktu terakhir teramati untuk riwayat server terbaru.",
@@ -433,7 +443,8 @@
               "Preferensi, sematan, riwayat, dan sebagian cache menggunakan penyimpanan lokal ekstensi browser. File latar belakang menggunakan IndexedDB pada origin situs Roblox tempat file dipilih. Cache kecil untuk tampilan dan baris teman menggunakan localStorage situs Roblox. Ekstensi tidak menggunakan sinkronisasi penyimpanan Chrome atau akun cloud yang dioperasikan penerbit.",
               "Pencatatan waktu bermain diaktifkan secara bawaan dan memeriksa status akun Roblox yang masuk kira-kira setiap 30 detik selama browser berjalan, termasuk ketika tab Roblox ditutup. Fitur ini memperkirakan aktivitas dari sampel tersebut, bukan merekam permainan. Menonaktifkan pencatatan menghentikan catatan waktu bermain baru dan mempertahankan riwayat yang ada. Pemeriksaan status berlanjut jika pencatatan server terbaru tetap aktif; mode bahasa yang tidak didukung menjeda kedua fitur.",
               "Pencatatan server terbaru diaktifkan secara bawaan dan menggunakan pemeriksaan status kira-kira setiap 30 detik yang sama dengan waktu bermain. Pengaturannya yang terpisah menghentikan catatan server baru sambil mempertahankan riwayat tersimpan. Masing-masing dari 10 akun yang paling baru digunakan memiliki daftar terpisah berisi hingga 6 server per game, termasuk subplace game tersebut; server baru hanya menggantikan entri terlama dari game yang sama.",
-              "Ekstensi tidak meminta kata sandi Roblox Anda. Panggilan API Roblox yang memerlukan autentikasi menggunakan sesi Roblox yang sudah ada di browser, sehingga Roblox menerima autentikasi yang terkait dengan permintaan tersebut. Cadangan tidak berisi kata sandi Roblox atau cookie sesi."
+              "Ekstensi tidak meminta kata sandi Roblox Anda. Panggilan API Roblox yang memerlukan autentikasi menggunakan sesi Roblox yang sudah ada di browser, sehingga Roblox menerima autentikasi yang terkait dengan permintaan tersebut. Cadangan tidak berisi kata sandi Roblox atau cookie sesi.",
+              "File font yang dipilih juga menggunakan IndexedDB pada origin situs Roblox tempat file dipilih. Cache kecil untuk pilihan font menggunakan localStorage situs tersebut; isinya hanya pengaturan dan pengenal file, bukan data font."
             ]
           },
           {
@@ -465,8 +476,9 @@
               "Anda dapat mengubah preferensi, menghapus latar belakang dan sematan, menonaktifkan feed sosial dan pencatatan waktu bermain, mengosongkan waktu bermain akun saat ini, dan mengekspor data. Cadangan pengaturan mencakup riwayat semua akun yang tercatat dan latar belakang tersimpan jika ada. Cadangan berupa file JSON tanpa enkripsi; jaga kerahasiaannya. Impor mengganti data tersimpan terkait, bukan menggabungkannya.",
               "Riwayat server terbaru tidak disertakan dalam cadangan pengaturan lengkap. Anda dapat menghapus server satu per satu, mengosongkan daftar satu game, atau mengosongkan server terbaru akun saat ini. Reset semua juga menghapus riwayat server terbaru semua akun. Menonaktifkan waktu bermain saja tidak menghentikan pemeriksaan status untuk riwayat server; nonaktifkan kedua pengaturan untuk menghentikan pemeriksaan tersebut.",
               "Preferensi, file, dan riwayat tersimpan tetap ada hingga Anda menghapus, mereset, atau menimpanya, atau browser membersihkan penyimpanan. Respons yang di-cache mungkin tetap tersimpan setelah kedaluwarsa untuk digunakan. Reset semua menghapus pengaturan lokal ekstensi, cache, sematan, dan riwayat semua akun, serta menghapus file latar belakang dan cache halaman pada origin situs Roblox saat ini. Status persetujuan Ketentuan Layanan lokal tetap disimpan agar permintaan saat pertama dibuka tidak berulang. Fitur bawaan dapat aktif kembali setelah reset; nonaktifkan pencatatan lagi jika Anda ingin fitur tersebut mati.",
-              "Menghapus ekstensi biasanya menghapus penyimpanan lokal ekstensi, tetapi dapat menyisakan IndexedDB dan localStorage situs Roblox. Gunakan Reset semua sebelum menghapus ekstensi, atau hapus data situs Roblox di browser untuk menghapus file dan cache yang tersisa. Penghapusan data situs dapat membuat Anda keluar dari akun. Jika mode terbatas menyembunyikan kontrol data, ubah Roblox terlebih dahulu ke bahasa Inggris, Mandarin Sederhana, Mandarin Tradisional, atau Bahasa Indonesia. File ekspor dan data yang disimpan pihak ketiga harus dihapus secara terpisah.",
-              "Penerbit tidak dapat memeriksa atau menghapus dari jarak jauh data yang hanya tersimpan di browser Anda. Hubungi penerbit untuk pertanyaan atau permintaan tentang informasi yang Anda kirim ke bantuan."
+              "Menghapus ekstensi biasanya menghapus penyimpanan lokal ekstensi, tetapi dapat menyisakan IndexedDB dan localStorage situs Roblox. Gunakan Reset semua sebelum menghapus ekstensi, atau hapus data situs Roblox di browser untuk menghapus file dan cache yang tersisa. Penghapusan data situs dapat membuat Anda keluar dari akun. Jika mode terbatas menyembunyikan kontrol data, ubah Roblox terlebih dahulu ke bahasa Inggris, Mandarin Sederhana, Mandarin Tradisional, Bahasa Indonesia, bahasa Jepang, bahasa Thai, atau bahasa Korea. File ekspor dan data yang disimpan pihak ketiga harus dihapus secara terpisah.",
+              "Penerbit tidak dapat memeriksa atau menghapus dari jarak jauh data yang hanya tersimpan di browser Anda. Hubungi penerbit untuk pertanyaan atau permintaan tentang informasi yang Anda kirim ke bantuan.",
+              "Pulihkan font bawaan menghapus font yang dipilih dari origin situs saat ini. Reset Semua juga menghapus font tersimpan di sana. Cadangan pengaturan menyertakan file font yang dipilih, termasuk ketika dinonaktifkan sementara."
             ]
           },
           {
@@ -487,7 +499,7 @@
             "heading": "Layanan yang disediakan ekstensi",
             "paragraphs": [
               "Roblox Customizer adalah ekstensi browser independen untuk penyesuaian tampilan dan alat bantu di Roblox. Ekstensi ini tidak berafiliasi dengan, disponsori oleh, atau didukung oleh Roblox Corporation. Nama dan merek Roblox serta pihak ketiga lainnya adalah milik pemilik masing-masing.",
-              "Fungsi lengkap saat ini mendukung pengaturan Roblox dalam bahasa Inggris, Mandarin Sederhana, Mandarin Tradisional, dan Bahasa Indonesia. Bahasa lain menggunakan mode terbatas dengan latar belakang gambar/GIF dan warna kustom. Ketersediaan juga bergantung pada browser, Roblox, dan layanan eksternal yang dapat berubah atau tidak tersedia. Tidak ada jaminan bahwa setiap fitur akan selalu berfungsi."
+              "Fungsi lengkap saat ini mendukung pengaturan Roblox dalam bahasa Inggris, Mandarin Sederhana, Mandarin Tradisional, Bahasa Indonesia, bahasa Jepang, bahasa Thai, dan bahasa Korea. Bahasa lain menggunakan mode terbatas dengan latar belakang gambar/GIF, warna kustom, dan font kustom. Ketersediaan juga bergantung pada browser, Roblox, dan layanan eksternal yang dapat berubah atau tidak tersedia. Tidak ada jaminan bahwa setiap fitur akan selalu berfungsi."
             ]
           },
           {
@@ -524,6 +536,402 @@
             "paragraphs": [
               "Fitur dan ketentuan ini dapat berubah. Ketentuan yang diperbarui akan tersedia di sini dengan tanggal baru; perubahan penting akan dijelaskan dalam informasi rilis dan, bila diwajibkan, dalam pemberitahuan di ekstensi. Persetujuan yang diwajibkan hukum akan diminta sebelum diperlukan.",
               "Anda dapat berhenti menggunakan ekstensi kapan saja dengan menonaktifkan atau menghapusnya. Ikuti petunjuk penghapusan dalam Kebijakan Privasi jika Anda juga ingin menghapus data tersimpan. Mengakhiri penggunaan tidak menghapus hak Anda berdasarkan GPL."
+            ]
+          }
+        ]
+      }
+    },
+    "ja": {
+      "name": "日本語",
+      "languageLabel": "言語",
+      "navigationLabel": "利用規約とポリシー",
+      "updatedLabel": "最終更新日",
+      "publisherLabel": "公開者",
+      "contactHeading": "お問い合わせ",
+      "contactText": "本書に関するご質問、プライバシーに関するご依頼、サポートについては、公開者にメールでお問い合わせください。TelegramとXも利用できます。パスワード、セッションCookie、個人情報を除去していないバックアップは送信しないでください。",
+      "privacy": {
+        "title": "プライバシーポリシー",
+        "intro": "本ポリシーはRoblox Customizerによる情報の取り扱いを説明します。対象はこのブラウザー拡張機能です。Roblox、ブラウザー、第三者サービスにはそれぞれ独自のポリシーがあります。",
+        "sections": [
+          {
+            "heading": "拡張機能が使用する情報",
+            "paragraphs": [
+              "拡張機能に表示される機能を提供するため、次の情報を使用します。"
+            ],
+            "items": [
+              "設定：言語、色、外観、ホームとソーシャルフィードの設定、選択した通貨、言語に関する警告の状態、利用規約への同意状況。",
+              "背景：選択したファイル、その名前、保存した背景URL。ローカルファイルを選ぶとブラウザー内にコピーが保存されます。公開者へのアップロードは行いません。",
+              "フォント：選択したフォントファイルとファイル名。ブラウザー内のコピーを使用してRobloxの文字表示を変更します。公開者へのアップロードは行いません。",
+              "整理用データ：ピン留めしたゲームのID、名前、サムネイル、フォルダー名、非表示にしたおすすめ。",
+              "プレイ時間：記録したアカウントごとのRobloxユーザーIDとユーザー名、ゲーム・ユニバース・プレースのID、ゲーム名とアイコン、推定時間、プレイ回数、最初と最後のプレイ日時、計測日時。",
+              "最近のサーバー：サーバー履歴用のRobloxユーザーID、ゲーム・ユニバース・プレースのID、サーバーインスタンスID、ゲーム名、最後に確認した日時。",
+              "Robloxのコンテンツ：画面の装飾やツールに必要なページのURLと内容、プロフィール、アバター、フレンド、インベントリ、バッジ、ゲーム、サーバー、ソーシャルリンクの情報。既存のアカウント、メッセージ、取引ページの外観をローカルで変更する場合がありますが、その内容を公開者に送信することはありません。無関係なウェブサイトの閲覧履歴は読み取りません。",
+              "一時情報またはキャッシュ：公開ソーシャル投稿とサムネイル、為替レート、APIの応答、サーバー所在国の推定情報。"
+            ]
+          },
+          {
+            "heading": "ローカル保存とプレイ時間",
+            "paragraphs": [
+              "設定、ピン留め、履歴、一部のキャッシュはブラウザーの拡張機能用ローカルストレージに保存します。背景ファイルは、選択したRobloxサイトのオリジンのIndexedDBに保存します。外観とフレンド行数の小さなキャッシュには、そのRobloxサイトのlocalStorageを使用します。Chromeのストレージ同期や、公開者が運営するクラウドアカウントは使用しません。",
+              "プレイ時間の記録は初期状態で有効です。Robloxのタブを閉じていても、ブラウザーの実行中はログイン中のアカウントのRobloxステータスを約30秒ごとに確認します。ゲームプレイの録画ではなく、そのサンプルから活動時間を推定します。プレイ時間を無効にすると新しい記録は停止しますが、既存の履歴は残ります。最近のサーバーの記録が有効な場合はステータス確認を続けます。未対応言語の制限モードでは両方を一時停止します。",
+              "最近のサーバーの記録も初期状態で有効で、プレイ時間と約30秒ごとのステータス確認を共有します。独立した設定で新しいサーバー記録を停止でき、保存した履歴は残ります。最近使用した最大10アカウントについて、ゲームごとにサブプレースを含む最大6件のサーバーを別々に保存します。新しいサーバーはそのゲームの最も古い記録だけを置き換えます。",
+              "拡張機能がRobloxのパスワードを求めることはありません。認証が必要なRoblox APIの呼び出しにはブラウザー内の既存のRobloxセッションを使用するため、Robloxはそのリクエストに伴う認証情報を受け取ります。バックアップにRobloxのパスワードやセッションCookieは含まれません。",
+              "選択したフォントファイルも、選択したRobloxサイトのオリジンのIndexedDBに保存します。小さなフォント選択キャッシュにはそのサイトのlocalStorageを使用します。キャッシュに含まれるのは設定とファイル識別子で、フォント本体のバイトデータではありません。"
+            ]
+          },
+          {
+            "heading": "ネットワークリクエストと第三者サービス",
+            "paragraphs": [
+              "関連機能の実行時にリクエストを送信します。以下のサービスは要求された識別子やリソースと、接続元IPアドレス、リクエストヘッダーなど通常の接続情報を受け取ります。各サービスのポリシーに基づき、ログを保存する場合があります。以下のRoblox以外のAPIにRobloxアカウントの認証情報を送信することはありません。"
+            ],
+            "items": [
+              "RobloxのAPIと画像サービス：情報、サムネイル、ステータス、サーバー詳細の取得に必要なアカウント・ユーザーID、ゲーム・プレース・ユニバースID、バッジ・アイテムID、サーバーID、関連するクエリ。Robloxは自社ウェブサイトとアカウントの活動を別途処理します。",
+              "ipwho.is：サーバー所在国を推定するためのRobloxゲームサーバーの公開IPアドレス。照会対象はゲームサーバーであり、利用者の端末の位置を調べるリクエストではありません。ただし、このサービスはリクエストに使用された接続元IPを受け取ります。",
+              "Rolimons（www.rolimons.com）：公開ゲーム統計を取得する対象のゲーム・プレースID。プレイヤーやサーバーの分析リンクを開くと、そのリンク先の識別子がRolimonsに送信されます。",
+              "FxEmbed（api.fxtwitter.com）とXの画像ホスト（pbs.twimg.com、mosaic.fxtwitter.com）：公開投稿やメディアを表示するための、Robloxページに紐づいた公開Xハンドルと投稿・画像の参照情報。",
+              "YouTube（www.youtube.com）と画像ホスト（i.ytimg.com）：最近の動画とサムネイルを表示するための公開チャンネルのハンドルまたはID、動画・画像ID。フィードのリクエストにYouTubeのログイン認証情報は含めません。",
+              "jsDelivr（cdn.jsdelivr.net）と通貨APIミラー（latest.currency-api.pages.dev）：公開されているUSD為替レートデータのリクエスト。Robloxの残高やプレイ履歴はこれらのレートサービスに送信しません。",
+              "保存したリモート背景URL：背景を読み込む際、そのファイルのホストにリクエストを送信します。ローカルの背景ファイルにはこのリクエストは不要です。サポートや他のサイトへのリンクは、利用者が開いたときにのみ接続します。"
+            ]
+          },
+          {
+            "heading": "公開者によるアクセスと利用",
+            "paragraphs": [
+              "この拡張機能には、公開者が運営するデータ収集先、広告トラッカー、利用状況分析サービスはありません。ローカルの設定、背景、プレイ履歴を公開者に送信せず、公開者がそれらを販売したりターゲティング広告に使用したりすることもありません。データは明示した拡張機能のために使用します。",
+              "利用者が任意でサポートに連絡したり問題を報告したりした場合、公開者は送信された連絡名、メールアドレス、報告内容、スクリーンショットなどを受け取ります。それらは回答と問題解決に使用し、その目的または法的義務に必要な期間のみ保管します。法的義務とサポートプラットフォームの規則に従う範囲で、メールによる削除依頼が可能です。GitHubのIssueや公開ソーシャル投稿は他の人にも見える場合があります。非公開の依頼にはメールをご利用ください。",
+              "ブラウザーストアは別途、インストール数の集計、レビュー、そのサービスを通じて提出された情報を公開者に提供する場合があります。それらには各ストアのポリシーが適用されます。"
+            ]
+          },
+          {
+            "heading": "利用者の操作、保存期間、削除",
+            "paragraphs": [
+              "設定の変更、背景とピン留めの削除、ソーシャルフィードとプレイ時間記録の無効化、現在のアカウントのプレイ時間の消去、データの書き出しができます。設定バックアップには記録した全アカウントの履歴と、保存済みの背景があればその背景を含みます。バックアップは暗号化されていないJSONファイルですので、非公開で保管してください。読み込むと該当データは統合ではなく置き換えになります。",
+              "最近のサーバー履歴は設定全体のバックアップには含まれません。個別のサーバー、ゲーム1件分の一覧、現在のアカウントの最近のサーバーを削除できます。「すべてリセット」は全アカウントの最近のサーバー履歴も削除します。プレイ時間だけを無効にしてもサーバー履歴のステータス確認は停止しません。確認を停止するには両方の設定を無効にしてください。",
+              "保存した設定、ファイル、履歴は、削除、リセット、上書き、ブラウザーによるストレージの消去まで残ります。キャッシュした応答は有効期限後も保存される場合があります。「すべてリセット」は拡張機能用ローカルストレージの設定、キャッシュ、ピン留め、全アカウントの履歴を削除し、現在のRobloxサイトのオリジンの背景ファイルとページキャッシュも削除します。初回の同意画面を繰り返さないよう、利用規約への同意フラグは保持します。リセット後は標準で有効な機能が再開する場合があります。記録を停止したい場合は再度無効にしてください。",
+              "通常、アンインストールすると拡張機能用ローカルストレージは削除されますが、RobloxサイトのIndexedDBやlocalStorageは残る場合があります。残りのファイルやキャッシュを削除するには、アンインストール前に「すべてリセット」を使用するか、ブラウザーでRobloxのサイトデータを消去してください。サイトデータの消去によってログアウトする場合があります。制限モードでデータ操作が非表示の場合は、先にRobloxを英語、簡体字中国語、繁体字中国語、インドネシア語、日本語、タイ語、韓国語のいずれかに切り替えてください。書き出したファイルや第三者が保存するデータは別途削除する必要があります。",
+              "公開者はブラウザー内のみに保存されたデータを確認したり、遠隔で削除したりできません。サポートに送信した情報に関する質問や依頼は公開者にお問い合わせください。",
+              "「標準フォントに戻す」は、現在のサイトのオリジンから選択したフォントを削除します。「すべてリセット」もそのオリジンの保存済みフォントを削除します。設定バックアップには、一時的に無効にしている場合も選択済みのフォントファイルを含めます。"
+            ]
+          },
+          {
+            "heading": "セキュリティ、年少の利用者、更新",
+            "paragraphs": [
+              "組み込みのAPIリクエストはHTTPSを使用します。拡張機能によるローカル保存や書き出しには追加の暗号化を行いません。端末、ブラウザープロファイル、バックアップファイルを保護してください。どのセキュリティ対策も完全な保護を保証することはできません。",
+              "拡張機能は年齢を尋ねたり、別の利用者アカウントを作成したり、広告のために子どもの情報を収集したりしません。上記と同じローカル処理をすべての利用者に適用します。保護者は年少の利用者の設定管理やローカルデータの削除を支援できます。",
+              "データの取り扱いが変わる場合は本ポリシーを更新します。上部の日付で版を識別できます。重要な変更はリリース情報に記載し、必要な場合は新しい処理を開始する前に拡張機能内でも通知します。"
+            ]
+          }
+        ]
+      },
+      "terms": {
+        "title": "利用規約",
+        "intro": "本規約は、上記公開者が提供するRoblox Customizerの利用について定めます。プライバシーポリシーと合わせてお読みください。適用法に基づき本規約に同意できる場合のみ使用し、必要な場合は保護者の許可を得てください。",
+        "sections": [
+          {
+            "heading": "拡張機能が提供するもの",
+            "paragraphs": [
+              "Roblox Customizerは、Robloxの外観カスタマイズと便利なツールを提供する独立したブラウザー拡張機能です。Roblox Corporationとの提携、同社による支援や承認はありません。Robloxおよび第三者の名称や商標は、それぞれの権利者に帰属します。",
+              "現在、Robloxの英語、簡体字中国語、繁体字中国語、インドネシア語、日本語、タイ語、韓国語の設定で全機能に対応しています。その他の言語では、画像・GIF背景、カスタムカラー、カスタムフォントのみの制限モードとなります。機能の利用可否は、変更や停止の可能性があるブラウザー、Roblox、外部サービスにも左右されます。すべての機能が常に動作することを保証するものではありません。"
+            ]
+          },
+          {
+            "heading": "適切な利用と利用者のコンテンツ",
+            "paragraphs": [
+              "法令を守り、Robloxおよびアクセスする各サービスの規約に従って使用してください。本拡張機能は、アカウント権限、プラットフォームの制限、セキュリティ対策の回避を許可するものではなく、無料のRobuxやアイテムの所有権を提供するものでもありません。",
+              "利用者が選ぶ背景、URL、その他のコンテンツは利用者自身の責任で使用してください。所有するもの、または使用の許可を得たものを使用し、他者の権利とプライバシーを尊重し、悪意のあるファイルやリンクを避けてください。ローカル背景にファイルを選んでも、その所有権が公開者に移転することはありません。",
+              "ブラウザーと拡張機能を最新に保ち、端末とアカウントを保護してください。公開者や他者にRobloxのパスワードやセッションCookieを渡さないでください。"
+            ]
+          },
+          {
+            "heading": "推定値、第三者、保存データ",
+            "paragraphs": [
+              "プレイ時間、サーバー所在国、Ping、ゲーム統計、通貨換算額は推定値または第三者の情報です。不完全、遅延、不正確な場合があります。通貨換算は参考情報であり、両替サービスや決済価格の保証ではありません。重要な情報は元のサービスで確認してください。",
+              "外部のウェブサイト、フィード、メディア、APIは各提供者が独自の規約とポリシーに基づいて運営します。公開者はそれらの可用性、正確性、内容を管理していません。",
+              "拡張機能の保存データはブラウザープロファイルに属し、クラウドバックアップではありません。リセット、読み込み、アンインストール、端末変更の前にバックアップを書き出してください。読み込みで既存データが置き換わり、リセットやブラウザーの消去で削除される場合があります。公開者は端末内のみにあるデータを復元できません。拡張機能はRobloxの購入、残高、ゲームの進行状況をバックアップしません。"
+            ]
+          },
+          {
+            "heading": "オープンソースライセンス",
+            "paragraphs": [
+              "拡張機能のソフトウェアには、リポジトリのLICENSEファイルに記載されたGNU General Public Licenseバージョン3を適用します。実行、複製、変更、再配布の権利はそのライセンスに従います。本規約はそれらの権利を制限または置き換えるものではありません。第三者のコンテンツにはそれぞれの権利とライセンスが適用されます。"
+            ]
+          },
+          {
+            "heading": "保証と責任",
+            "paragraphs": [
+              "適用法で認められる範囲で、この拡張機能は現状有姿かつ提供可能な状態で提供されます。商品性、特定目的への適合性、権利非侵害、継続動作、正確性に関する保証はありません。ソフトウェアにはGPLの保証および責任に関する規定も適用されます。",
+              "適用法で認められる範囲で、公開者は拡張機能の利用に起因する間接的・結果的な損失、逸失利益、データの損失について責任を負いません。法的に除外できない責任を除外したり、強行法規上の消費者の権利を制限したりするものではありません。"
+            ]
+          },
+          {
+            "heading": "変更と利用終了",
+            "paragraphs": [
+              "機能と本規約は変更される場合があります。更新された規約は改訂日とともにここに掲載します。重要な変更はリリース情報に記載し、必要な場合は拡張機能内でも通知します。法的に必要な同意は、必要となる前に求めます。",
+              "拡張機能を無効化またはアンインストールすることで、いつでも利用を終了できます。保存データも削除する場合はプライバシーポリシーの手順に従ってください。利用を終了してもGPLに基づく権利は失われません。"
+            ]
+          }
+        ]
+      }
+    },
+    "th": {
+      "name": "ไทย",
+      "languageLabel": "ภาษา",
+      "navigationLabel": "เอกสารทางกฎหมาย",
+      "updatedLabel": "อัปเดตล่าสุด",
+      "publisherLabel": "ผู้เผยแพร่",
+      "contactHeading": "ติดต่อ",
+      "contactText": "หากมีคำถามเกี่ยวกับเอกสารเหล่านี้ คำขอด้านความเป็นส่วนตัว หรือต้องการความช่วยเหลือ โปรดติดต่อผู้เผยแพร่ทางอีเมล สามารถติดต่อผ่าน Telegram และ X ได้เช่นกัน โปรดอย่าส่งรหัสผ่าน คุกกี้เซสชัน หรือข้อมูลสำรองที่ยังไม่ได้ปกปิดข้อมูลส่วนตัว",
+      "privacy": {
+        "title": "นโยบายความเป็นส่วนตัว",
+        "intro": "นโยบายนี้อธิบายวิธีที่ Roblox Customizer จัดการข้อมูล โดยครอบคลุมเฉพาะส่วนขยายเบราว์เซอร์นี้ ไม่ครอบคลุม Roblox เบราว์เซอร์ หรือบริการภายนอก ซึ่งมีนโยบายของตนเอง",
+        "sections": [
+          {
+            "heading": "ข้อมูลที่ส่วนขยายใช้",
+            "paragraphs": [
+              "ใช้ข้อมูลต่อไปนี้เพื่อให้บริการฟังก์ชันที่คุณเห็นในส่วนขยาย:"
+            ],
+            "items": [
+              "การตั้งค่า: ภาษา สี รูปลักษณ์ หน้าหลักและฟีดโซเชียล สกุลเงิน สถานะคำเตือนภาษา และสถานะการยอมรับข้อกำหนดการใช้งาน",
+              "พื้นหลัง: ไฟล์ที่คุณเลือก ชื่อไฟล์ และ URL พื้นหลังที่บันทึกไว้ การเลือกไฟล์ในเครื่องจะเก็บสำเนาไว้ในเบราว์เซอร์ ไม่อัปโหลดไฟล์ไปยังผู้เผยแพร่",
+              "แบบอักษร: ไฟล์แบบอักษรที่คุณเลือกและชื่อไฟล์ ใช้สำเนาในเบราว์เซอร์เพื่อเปลี่ยนตัวอักษรของ Roblox ไม่อัปโหลดไฟล์ไปยังผู้เผยแพร่",
+              "การจัดระเบียบ: ID เกมที่ปักหมุด ชื่อเกม ภาพขนาดย่อ ชื่อโฟลเดอร์ และรายการแนะนำที่ซ่อนไว้",
+              "เวลาเล่น: ID ผู้ใช้และชื่อผู้ใช้ Roblox, ID เกม ยูนิเวิร์สและสถานที่ ชื่อและไอคอนเกม ระยะเวลาโดยประมาณ จำนวนครั้งที่เล่น เวลาเล่นครั้งแรกและล่าสุด และเวลาที่เก็บตัวอย่างของแต่ละบัญชีที่บันทึกไว้",
+              "เซิร์ฟเวอร์ล่าสุด: ID ผู้ใช้ Roblox, ID เกม ยูนิเวิร์สและสถานที่ ID อินสแตนซ์เซิร์ฟเวอร์ ชื่อเกม และเวลาที่ตรวจพบล่าสุดสำหรับประวัติเซิร์ฟเวอร์",
+              "เนื้อหา Roblox: URL และเนื้อหาหน้า ข้อมูลโปรไฟล์ อวาตาร์ เพื่อน ช่องเก็บไอเท็ม เหรียญตรา เกม เซิร์ฟเวอร์ และลิงก์โซเชียลที่จำเป็นต่อการตกแต่งหน้าและเครื่องมือ หน้าเกี่ยวกับบัญชี ข้อความ และธุรกรรมเดิมอาจถูกเปลี่ยนรูปลักษณ์ในเครื่อง แต่ไม่ส่งเนื้อหาไปยังผู้เผยแพร่ ส่วนขยายไม่อ่านประวัติการเข้าชมเว็บไซต์อื่นที่ไม่เกี่ยวข้อง",
+              "ข้อมูลชั่วคราวหรือแคช: โพสต์โซเชียลสาธารณะและภาพขนาดย่อ อัตราแลกเปลี่ยน ผลตอบกลับ API และประเทศของเซิร์ฟเวอร์โดยประมาณ"
+            ]
+          },
+          {
+            "heading": "การเก็บข้อมูลในเครื่องและเวลาเล่น",
+            "paragraphs": [
+              "การตั้งค่า การปักหมุด ประวัติ และแคชบางส่วนใช้ที่เก็บข้อมูลเฉพาะส่วนขยายภายในเบราว์เซอร์ ไฟล์พื้นหลังเก็บใน IndexedDB ของต้นทางเว็บไซต์ Roblox ที่ใช้เลือกไฟล์ แคชขนาดเล็กสำหรับรูปลักษณ์และจำนวนแถวเพื่อนใช้ localStorage ของเว็บไซต์ Roblox ส่วนขยายไม่ใช้ Chrome storage sync หรือบัญชีคลาวด์ที่ผู้เผยแพร่ให้บริการ",
+              "การบันทึกเวลาเล่นเปิดใช้งานโดยค่าเริ่มต้น และตรวจสอบสถานะ Roblox ของบัญชีที่เข้าสู่ระบบประมาณทุก 30 วินาทีขณะที่เบราว์เซอร์ทำงาน แม้ปิดแท็บ Roblox แล้ว เป็นการประมาณกิจกรรมจากตัวอย่างสถานะ ไม่ใช่การบันทึกวิดีโอการเล่น การปิดบันทึกเวลาเล่นจะหยุดสร้างรายการใหม่และเก็บประวัติเดิมไว้ หากยังเปิดบันทึกเซิร์ฟเวอร์ล่าสุด จะยังตรวจสอบสถานะต่อ โหมดจำกัดสำหรับภาษาที่ไม่รองรับจะพักทั้งสองฟังก์ชัน",
+              "การบันทึกเซิร์ฟเวอร์ล่าสุดเปิดโดยค่าเริ่มต้น และใช้การตรวจสอบสถานะประมาณทุก 30 วินาทีร่วมกับเวลาเล่น มีการตั้งค่าแยกเพื่อหยุดบันทึกเซิร์ฟเวอร์ใหม่โดยเก็บประวัติเดิมไว้ สำหรับ 10 บัญชีที่ใช้ล่าสุด แต่ละบัญชีจะมีรายการแยกตามเกม เกมละไม่เกิน 6 เซิร์ฟเวอร์ รวมสถานที่ย่อยของเกมนั้น เซิร์ฟเวอร์ใหม่จะแทนที่เฉพาะรายการที่เก่าที่สุดของเกมเดียวกัน",
+              "ส่วนขยายไม่ขอรหัสผ่าน Roblox การเรียก Roblox API ที่ต้องยืนยันตัวตนจะใช้เซสชัน Roblox ที่มีอยู่ในเบราว์เซอร์ Roblox จึงได้รับข้อมูลยืนยันตัวตนที่เกี่ยวข้องกับคำขอนั้น ข้อมูลสำรองไม่รวมรหัสผ่าน Roblox หรือคุกกี้เซสชัน",
+              "ไฟล์แบบอักษรที่เลือกใช้ IndexedDB ของต้นทางเว็บไซต์ Roblox ที่เลือกเช่นกัน แคชการเลือกแบบอักษรขนาดเล็กใช้ localStorage ของเว็บไซต์นั้น โดยมีเพียงการตั้งค่าและตัวระบุไฟล์ ไม่มีข้อมูลไบต์ของแบบอักษร"
+            ]
+          },
+          {
+            "heading": "คำขอเครือข่ายและบริการภายนอก",
+            "paragraphs": [
+              "จะส่งคำขอเมื่อฟังก์ชันที่เกี่ยวข้องทำงาน บริการด้านล่างจะได้รับตัวระบุหรือทรัพยากรที่ร้องขอ พร้อมข้อมูลการเชื่อมต่อทั่วไป เช่น IP เครือข่ายของคุณและส่วนหัวคำขอ แต่ละบริการอาจเก็บบันทึกตามนโยบายของตนเอง จะไม่ส่งข้อมูลยืนยันตัวตนบัญชี Roblox ไปยัง API ที่ไม่ใช่ของ Roblox ตามรายการนี้"
+            ],
+            "items": [
+              "API และบริการภาพของ Roblox: ID บัญชีและผู้ใช้ ID เกม สถานที่และยูนิเวิร์ส ID เหรียญตราและไอเท็ม ID เซิร์ฟเวอร์ และคำค้นที่เกี่ยวข้อง เพื่อโหลดข้อมูล ภาพขนาดย่อ สถานะ และรายละเอียดเซิร์ฟเวอร์ Roblox จัดการกิจกรรมเว็บไซต์และบัญชีของตนเองแยกต่างหาก",
+              "ipwho.is: IP สาธารณะของเซิร์ฟเวอร์เกม Roblox เพื่อประมาณประเทศของเซิร์ฟเวอร์ เป็นการค้นหาข้อมูลเซิร์ฟเวอร์เกม ไม่ใช่การระบุตำแหน่งอุปกรณ์ของคุณ อย่างไรก็ตาม บริการยังเห็น IP ต้นทางที่ใช้ส่งคำขอ",
+              "Rolimons (www.rolimons.com): ID เกมหรือสถานที่ที่ร้องขอเพื่อดูสถิติเกมสาธารณะ การเปิดลิงก์วิเคราะห์ผู้เล่นหรือเซิร์ฟเวอร์จะส่งตัวระบุของปลายทางนั้นไปยัง Rolimons",
+              "FxEmbed (api.fxtwitter.com) และโฮสต์ภาพของ X (pbs.twimg.com และ mosaic.fxtwitter.com): ชื่อบัญชี X สาธารณะที่เชื่อมโยงบนหน้า Roblox และข้อมูลอ้างอิงโพสต์หรือภาพ เพื่อแสดงโพสต์และสื่อสาธารณะ",
+              "YouTube (www.youtube.com) และโฮสต์ภาพ (i.ytimg.com): ชื่อหรือ ID ช่องสาธารณะ และ ID วิดีโอหรือภาพ เพื่อแสดงวิดีโอล่าสุดและภาพขนาดย่อ คำขอฟีดไม่ส่งข้อมูลเข้าสู่ระบบ YouTube",
+              "jsDelivr (cdn.jsdelivr.net) และมิเรอร์ API สกุลเงิน (latest.currency-api.pages.dev): คำขอข้อมูลอัตราแลกเปลี่ยน USD สาธารณะ จะไม่ส่งยอด Robux หรือประวัติการเล่นไปยังบริการอัตราแลกเปลี่ยนเหล่านี้",
+              "URL พื้นหลังระยะไกลที่บันทึกไว้: โฮสต์พื้นหลังจะได้รับคำขอไฟล์เมื่อโหลด พื้นหลังที่เป็นไฟล์ในเครื่องไม่ต้องส่งคำขอนี้ ลิงก์ช่วยเหลือหรือเว็บไซต์อื่นจะติดต่อเว็บไซต์นั้นเมื่อคุณเปิดลิงก์เท่านั้น"
+            ]
+          },
+          {
+            "heading": "การเข้าถึงและใช้ข้อมูลของผู้เผยแพร่",
+            "paragraphs": [
+              "ส่วนขยายไม่มีปลายทางเก็บข้อมูล ตัวติดตามโฆษณา หรือบริการวิเคราะห์การใช้งานที่ผู้เผยแพร่ดำเนินการเอง ไม่ส่งการตั้งค่า พื้นหลัง หรือประวัติการเล่นในเครื่องไปยังผู้เผยแพร่ และผู้เผยแพร่ไม่ขายหรือใช้ข้อมูลดังกล่าวเพื่อโฆษณาเจาะจงกลุ่ม ข้อมูลใช้สำหรับฟังก์ชันที่ส่วนขยายระบุไว้",
+              "หากคุณติดต่อฝ่ายช่วยเหลือหรือแจ้งปัญหาโดยสมัครใจ ผู้เผยแพร่จะได้รับข้อมูลที่คุณส่ง เช่น ชื่อผู้ติดต่อ อีเมล รายงาน หรือภาพหน้าจอ ใช้ข้อมูลเพื่อให้คำตอบและแก้ปัญหา และเก็บเท่าที่จำเป็นต่อวัตถุประสงค์นั้นหรือภาระตามกฎหมาย คุณขอลบข้อมูลทางอีเมลได้ภายใต้ภาระดังกล่าวและกฎของแพลตฟอร์มช่วยเหลือ GitHub issues และโพสต์โซเชียลสาธารณะอาจเปิดให้ผู้อื่นเห็น โปรดใช้อีเมลสำหรับคำขอส่วนตัว",
+              "ร้านค้าส่วนขยายของเบราว์เซอร์อาจให้สถิติการติดตั้งแบบรวม รีวิว และข้อมูลที่คุณส่งผ่านบริการของร้านแก่ผู้เผยแพร่แยกต่างหาก กิจกรรมเหล่านั้นอยู่ภายใต้นโยบายของร้านค้า"
+            ]
+          },
+          {
+            "heading": "การควบคุม ระยะเวลาเก็บ และการลบข้อมูล",
+            "paragraphs": [
+              "คุณเปลี่ยนการตั้งค่า ลบพื้นหลังและการปักหมุด ปิดฟีดโซเชียลและการบันทึกเวลาเล่น ล้างเวลาเล่นของบัญชีปัจจุบัน และส่งออกข้อมูลได้ ข้อมูลสำรองการตั้งค่ารวมประวัติทุกบัญชีที่บันทึกและพื้นหลังที่บันทึกไว้ หากมี ไฟล์สำรองเป็น JSON ที่ไม่เข้ารหัส โปรดเก็บเป็นส่วนตัว การนำเข้าจะแทนที่ข้อมูลที่เกี่ยวข้อง ไม่ใช่รวมเข้าด้วยกัน",
+              "ประวัติเซิร์ฟเวอร์ล่าสุดไม่รวมอยู่ในข้อมูลสำรองการตั้งค่าทั้งหมด คุณลบเซิร์ฟเวอร์รายตัว ล้างรายการของเกมหนึ่งเกม หรือล้างเซิร์ฟเวอร์ล่าสุดของบัญชีปัจจุบันได้ รีเซ็ตทั้งหมดจะลบประวัติเซิร์ฟเวอร์ล่าสุดของทุกบัญชีด้วย การปิดเวลาเล่นอย่างเดียวไม่หยุดตรวจสอบสถานะสำหรับประวัติเซิร์ฟเวอร์ ต้องปิดทั้งสองการตั้งค่าเพื่อหยุดตรวจสอบ",
+              "การตั้งค่า ไฟล์ และประวัติจะเก็บไว้จนกว่าคุณลบ รีเซ็ต แทนที่ หรือเบราว์เซอร์ล้างที่เก็บข้อมูล ผลตอบกลับที่แคชไว้อาจยังคงอยู่หลังหมดอายุ รีเซ็ตทั้งหมดจะลบการตั้งค่า แคช การปักหมุด และประวัติทุกบัญชีในพื้นที่ส่วนขยาย พร้อมลบไฟล์พื้นหลังและแคชหน้าของต้นทาง Roblox ปัจจุบัน จะคงสถานะยอมรับข้อกำหนดการใช้งานไว้เพื่อไม่ให้ถามซ้ำเมื่อเปิดครั้งแรก ฟังก์ชันที่เปิดโดยค่าเริ่มต้นอาจเริ่มอีกครั้งหลังรีเซ็ต หากไม่ต้องการบันทึกให้ปิดอีกครั้ง",
+              "การถอนการติดตั้งมักลบพื้นที่จัดเก็บของส่วนขยาย แต่อาจเหลือ IndexedDB และ localStorage ของเว็บไซต์ Roblox ใช้รีเซ็ตทั้งหมดก่อนถอนการติดตั้ง หรือล้างข้อมูลเว็บไซต์ Roblox ในเบราว์เซอร์เพื่อลบไฟล์และแคชที่เหลือ การล้างข้อมูลเว็บไซต์อาจทำให้คุณออกจากระบบ หากโหมดจำกัดซ่อนเครื่องมือข้อมูล ให้เปลี่ยนภาษา Roblox เป็นอังกฤษ จีนตัวย่อ จีนตัวเต็ม อินโดนีเซีย ญี่ปุ่น ไทย หรือเกาหลีก่อน ไฟล์ที่ส่งออกและข้อมูลที่บุคคลภายนอกเก็บต้องลบแยกต่างหาก",
+              "ผู้เผยแพร่ไม่สามารถตรวจสอบหรือลบจากระยะไกลซึ่งข้อมูลที่อยู่เฉพาะในเบราว์เซอร์ของคุณ โปรดติดต่อผู้เผยแพร่หากมีคำถามหรือคำขอเกี่ยวกับข้อมูลที่คุณส่งให้ฝ่ายช่วยเหลือ",
+              "คืนค่าแบบอักษรเริ่มต้นจะลบแบบอักษรที่เลือกออกจากต้นทางเว็บไซต์ปัจจุบัน รีเซ็ตทั้งหมดจะลบแบบอักษรที่บันทึกไว้ที่นั่นด้วย ข้อมูลสำรองการตั้งค่ารวมไฟล์แบบอักษรที่เลือก แม้จะปิดใช้ชั่วคราวก็ตาม"
+            ]
+          },
+          {
+            "heading": "ความปลอดภัย ผู้ใช้ที่อายุน้อย และการปรับปรุงนโยบาย",
+            "paragraphs": [
+              "คำขอ API ที่มีในส่วนขยายใช้ HTTPS ส่วนขยายไม่ได้เพิ่มการเข้ารหัสให้ที่เก็บข้อมูลในเบราว์เซอร์หรือไฟล์ที่ส่งออก โปรดปกป้องอุปกรณ์ โปรไฟล์เบราว์เซอร์ และข้อมูลสำรองของคุณ ไม่มีมาตรการใดรับประกันความปลอดภัยได้อย่างสมบูรณ์",
+              "ส่วนขยายไม่ขออายุ ไม่สร้างบัญชีผู้ใช้แยก และไม่เก็บข้อมูลเด็กเพื่อการโฆษณา ผู้ใช้ทุกคนได้รับการประมวลผลในเครื่องแบบเดียวกับที่อธิบายไว้ข้างต้น ผู้ปกครองสามารถช่วยผู้ใช้ที่อายุน้อยจัดการการตั้งค่าและลบข้อมูลในเครื่องได้",
+              "นโยบายนี้จะปรับปรุงเมื่อวิธีจัดการข้อมูลของส่วนขยายเปลี่ยนแปลง วันที่ด้านบนระบุเวอร์ชัน การเปลี่ยนแปลงสำคัญจะอธิบายในข้อมูลเผยแพร่เวอร์ชัน และแจ้งในส่วนขยายก่อนเริ่มการประมวลผลใหม่หากจำเป็น"
+            ]
+          }
+        ]
+      },
+      "terms": {
+        "title": "ข้อกำหนดการใช้งาน",
+        "intro": "ข้อกำหนดนี้อธิบายการใช้ Roblox Customizer ซึ่งให้บริการโดยผู้เผยแพร่ที่ระบุข้างต้น โปรดอ่านควบคู่กับนโยบายความเป็นส่วนตัว ใช้ส่วนขยายเฉพาะเมื่อคุณสามารถยอมรับข้อกำหนดตามกฎหมายที่ใช้บังคับได้ และขออนุญาตผู้ปกครองเมื่อจำเป็น",
+        "sections": [
+          {
+            "heading": "สิ่งที่ส่วนขยายให้บริการ",
+            "paragraphs": [
+              "Roblox Customizer เป็นส่วนขยายเบราว์เซอร์อิสระสำหรับปรับแต่งรูปลักษณ์และเพิ่มเครื่องมืออำนวยความสะดวกบน Roblox ไม่ได้เป็นพันธมิตร ได้รับการสนับสนุน หรือได้รับการรับรองจาก Roblox Corporation ชื่อและเครื่องหมายของ Roblox และบุคคลภายนอกเป็นของเจ้าของแต่ละราย",
+              "ขณะนี้รองรับฟังก์ชันทั้งหมดเมื่อ Roblox ใช้ภาษาอังกฤษ จีนตัวย่อ จีนตัวเต็ม อินโดนีเซีย ญี่ปุ่น ไทย หรือเกาหลี ภาษาอื่นใช้โหมดจำกัดที่มีพื้นหลังภาพหรือ GIF สีและแบบอักษรที่กำหนดเอง การใช้งานยังขึ้นอยู่กับเบราว์เซอร์ Roblox และบริการภายนอก ซึ่งอาจเปลี่ยนแปลงหรือหยุดให้บริการได้ ไม่รับประกันว่าทุกฟังก์ชันจะทำงานตลอดเวลา"
+            ]
+          },
+          {
+            "heading": "การใช้อย่างรับผิดชอบและเนื้อหาของคุณ",
+            "paragraphs": [
+              "ใช้ส่วนขยายโดยชอบด้วยกฎหมาย และปฏิบัติตามข้อกำหนดของ Roblox และบริการที่คุณเข้าถึง ส่วนขยายไม่ได้อนุญาตให้ข้ามสิทธิ์บัญชี ข้อจำกัดแพลตฟอร์ม หรือมาตรการความปลอดภัย และไม่ได้ให้ Robux ฟรีหรือกรรมสิทธิ์ไอเท็ม",
+              "คุณรับผิดชอบพื้นหลัง URL และเนื้อหาอื่นที่เลือก ใช้เฉพาะเนื้อหาที่คุณเป็นเจ้าของหรือได้รับอนุญาต เคารพสิทธิและความเป็นส่วนตัวของผู้อื่น และหลีกเลี่ยงไฟล์หรือลิงก์ที่เป็นอันตราย การเลือกไฟล์เป็นพื้นหลังในเครื่องไม่โอนกรรมสิทธิ์ให้ผู้เผยแพร่",
+              "อัปเดตเบราว์เซอร์และส่วนขยายให้เป็นปัจจุบัน และปกป้องอุปกรณ์กับบัญชีของคุณ อย่าให้รหัสผ่าน Roblox หรือคุกกี้เซสชันแก่ผู้เผยแพร่หรือบุคคลอื่น"
+            ]
+          },
+          {
+            "heading": "ค่าประมาณ บุคคลภายนอก และข้อมูลที่บันทึกไว้",
+            "paragraphs": [
+              "เวลาเล่น ประเทศของเซิร์ฟเวอร์ ค่า Ping สถิติเกม และมูลค่าสกุลเงินเป็นค่าประมาณหรือข้อมูลจากบุคคลภายนอก อาจไม่ครบ ล่าช้า หรือคลาดเคลื่อน มูลค่าเทียบเท่าสกุลเงินมีไว้ให้ข้อมูล ไม่ใช่บริการแลกเงินหรือราคาชำระที่รับประกัน โปรดตรวจสอบข้อมูลสำคัญกับบริการต้นทาง",
+              "เว็บไซต์ ฟีด สื่อ และ API ภายนอกดำเนินการโดยผู้ให้บริการแต่ละรายภายใต้ข้อกำหนดและนโยบายของตน ผู้เผยแพร่ไม่ควบคุมความพร้อมใช้งาน ความถูกต้อง หรือเนื้อหาของบริการเหล่านั้น",
+              "ข้อมูลส่วนขยายที่บันทึกไว้เป็นของโปรไฟล์เบราว์เซอร์ ไม่ใช่ข้อมูลสำรองบนคลาวด์ โปรดส่งออกข้อมูลสำรองก่อนรีเซ็ต นำเข้า ถอนการติดตั้ง หรือเปลี่ยนอุปกรณ์ การนำเข้าอาจแทนที่ข้อมูลเดิม และการรีเซ็ตหรือการล้างเบราว์เซอร์อาจลบข้อมูล ผู้เผยแพร่ไม่สามารถกู้คืนข้อมูลที่เก็บเฉพาะในอุปกรณ์ของคุณ ส่วนขยายไม่สำรองการซื้อ ยอดคงเหลือ หรือความคืบหน้าในเกม Roblox"
+            ]
+          },
+          {
+            "heading": "สัญญาอนุญาตโอเพนซอร์ส",
+            "paragraphs": [
+              "ซอฟต์แวร์ของส่วนขยายอยู่ภายใต้ GNU General Public License เวอร์ชัน 3 ตามไฟล์ LICENSE ในที่เก็บโค้ด สิทธิในการใช้งาน คัดลอก แก้ไข และแจกจ่ายต่อเป็นไปตามสัญญาอนุญาตนั้น ข้อกำหนดนี้ไม่จำกัดหรือแทนที่สิทธิเหล่านั้น เนื้อหาของบุคคลภายนอกยังอยู่ภายใต้สิทธิและสัญญาอนุญาตของตนเอง"
+            ]
+          },
+          {
+            "heading": "การรับประกันและความรับผิด",
+            "paragraphs": [
+              "เท่าที่กฎหมายอนุญาต ส่วนขยายให้บริการตามสภาพและตามที่มี โดยไม่มีการรับประกันความเหมาะสมในเชิงพาณิชย์ ความเหมาะสมต่อวัตถุประสงค์เฉพาะ การไม่ละเมิดสิทธิ การทำงานอย่างต่อเนื่อง หรือความถูกต้อง ข้อกำหนดการรับประกันและความรับผิดของ GPL ใช้กับซอฟต์แวร์ด้วย",
+              "เท่าที่กฎหมายอนุญาต ผู้เผยแพร่ไม่รับผิดชอบความเสียหายทางอ้อมหรือสืบเนื่อง กำไรที่สูญเสีย หรือข้อมูลสูญหายจากการใช้ส่วนขยาย ข้อความนี้ไม่ตัดความรับผิดที่กฎหมายห้ามตัด และไม่จำกัดสิทธิผู้บริโภคที่กฎหมายบังคับรับรอง"
+            ]
+          },
+          {
+            "heading": "การเปลี่ยนแปลงและการหยุดใช้งาน",
+            "paragraphs": [
+              "ฟังก์ชันและข้อกำหนดอาจเปลี่ยนแปลง ข้อกำหนดที่ปรับปรุงจะแสดงที่นี่พร้อมวันที่แก้ไข การเปลี่ยนแปลงสำคัญจะระบุในข้อมูลเผยแพร่เวอร์ชัน และแจ้งในส่วนขยายหากจำเป็น การยอมรับที่กฎหมายกำหนดจะถูกขอก่อนถึงเวลาที่จำเป็นต้องได้รับ",
+              "คุณหยุดใช้งานได้ทุกเมื่อโดยปิดหรือถอนการติดตั้งส่วนขยาย หากต้องการลบข้อมูลที่บันทึกไว้ด้วย โปรดทำตามคำแนะนำการลบในนโยบายความเป็นส่วนตัว การหยุดใช้งานไม่ทำให้สิทธิภายใต้ GPL สิ้นสุดลง"
+            ]
+          }
+        ]
+      }
+    },
+    "ko": {
+      "name": "한국어",
+      "languageLabel": "언어",
+      "navigationLabel": "법적 문서",
+      "updatedLabel": "최종 업데이트",
+      "publisherLabel": "배포자",
+      "contactHeading": "문의",
+      "contactText": "이 문서에 관한 질문, 개인정보 관련 요청 또는 지원이 필요하면 배포자에게 이메일로 연락하세요. Telegram과 X도 이용할 수 있습니다. 비밀번호, 세션 쿠키 또는 민감한 정보를 가리지 않은 백업 파일은 보내지 마세요.",
+      "privacy": {
+        "title": "개인정보 처리방침",
+        "intro": "이 방침은 Roblox Customizer가 정보를 처리하는 방법을 설명합니다. 이 브라우저 확장 프로그램에 적용되며, 별도의 방침을 가진 Roblox, 브라우저 또는 외부 서비스에는 적용되지 않습니다.",
+        "sections": [
+          {
+            "heading": "확장 프로그램에서 사용하는 정보",
+            "paragraphs": [
+              "확장 프로그램에 표시되는 기능을 제공하기 위해 다음 정보를 사용합니다."
+            ],
+            "items": [
+              "환경설정: 언어, 색상, 모양, 홈 및 소셜 피드 설정, 통화 선택, 언어 경고 상태, 이용 약관 동의 여부.",
+              "배경: 선택한 파일과 파일 이름, 저장한 배경 URL. 로컬 파일을 선택하면 브라우저에 로컬 사본을 저장하며 배포자에게 업로드하지 않습니다.",
+              "글꼴: 선택한 글꼴 파일과 파일 이름. 브라우저에 저장한 로컬 사본으로 Roblox의 글꼴을 변경하며 파일을 배포자에게 업로드하지 않습니다.",
+              "정리 정보: 고정한 게임 ID, 게임 이름과 썸네일, 폴더 이름, 숨긴 추천 항목.",
+              "플레이 시간: 기록된 각 계정의 Roblox 사용자 ID와 사용자 이름, 게임·유니버스·장소 ID, 게임 이름과 아이콘, 추정 플레이 시간, 세션 수, 최초·최근 플레이 시각과 상태 확인 시각.",
+              "최근 서버: 최근 서버 기록에 사용되는 Roblox 사용자 ID, 게임·유니버스·장소 ID, 서버 인스턴스 ID, 게임 이름, 마지막으로 확인한 시각.",
+              "Roblox 콘텐츠: 페이지 스타일과 도구에 필요한 페이지 URL 및 콘텐츠, 프로필, 아바타, 친구, 인벤토리, 배지, 게임, 서버, 소셜 링크 정보. 기존 계정, 메시지, 거래 페이지의 스타일을 로컬에서 변경할 수 있으며 그 내용을 배포자에게 업로드하지 않습니다. 관련 없는 웹사이트의 방문 기록은 읽지 않습니다.",
+              "임시 또는 캐시 정보: 공개 소셜 게시물과 썸네일, 환율, API 응답, 서버 국가 추정 정보."
+            ]
+          },
+          {
+            "heading": "로컬 저장소와 플레이 시간",
+            "paragraphs": [
+              "환경설정, 고정 항목, 기록 및 일부 캐시는 브라우저의 확장 프로그램 로컬 저장소를 사용합니다. 배경 파일은 선택한 Roblox 사이트 출처의 IndexedDB에 저장합니다. 소규모 모양 및 친구 목록 행 캐시는 Roblox 사이트의 localStorage를 사용합니다. Chrome 저장소 동기화나 배포자가 운영하는 클라우드 계정은 사용하지 않습니다.",
+              "플레이 시간 기록은 기본적으로 켜져 있으며 Roblox 탭이 닫혀 있어도 브라우저가 실행되는 동안 약 30초마다 로그인한 계정의 Roblox 접속 상태를 확인합니다. 게임 화면을 녹화하는 것이 아니라 이러한 상태 샘플로 활동 시간을 추정합니다. 플레이 시간 기록을 끄면 새 기록은 중지되고 기존 기록은 유지됩니다. 최근 서버 기록이 켜져 있으면 접속 상태 확인은 계속되며, 지원하지 않는 언어의 제한 모드에서는 두 기능 모두 일시 중지됩니다.",
+              "최근 서버 기록은 기본적으로 켜져 있으며 플레이 시간 기록과 약 30초 간격의 접속 상태 확인을 공유합니다. 별도 설정으로 새 서버 기록을 중지해도 저장된 기록은 유지됩니다. 최근에 사용한 계정 최대 10개 각각에 대해 게임별로 서버를 최대 6개까지 따로 저장하며 해당 게임의 하위 장소도 포함됩니다. 새 서버가 추가되면 해당 게임의 가장 오래된 기록만 교체합니다.",
+              "확장 프로그램은 Roblox 비밀번호를 요구하지 않습니다. 인증이 필요한 Roblox API 요청에는 브라우저의 기존 Roblox 세션을 사용하므로 Roblox는 해당 요청과 관련된 인증 정보를 받습니다. 백업에는 Roblox 비밀번호나 세션 쿠키가 포함되지 않습니다.",
+              "선택한 글꼴 파일도 선택한 Roblox 사이트 출처의 IndexedDB를 사용합니다. 작은 글꼴 선택 캐시는 해당 사이트의 localStorage를 사용하며, 글꼴 데이터 대신 설정과 파일 식별자를 포함합니다."
+            ]
+          },
+          {
+            "heading": "네트워크 요청과 외부 서비스",
+            "paragraphs": [
+              "관련 기능이 실행될 때 요청이 이루어집니다. 아래 서비스는 요청한 식별자나 리소스와 네트워크 IP 주소 및 요청 헤더 같은 일반적인 연결 정보를 받습니다. 각 서비스는 자체 방침에 따라 로그를 보관할 수 있습니다. 아래에 나열된 Roblox 외부 API로는 Roblox 계정 인증 정보를 보내지 않습니다."
+            ],
+            "items": [
+              "Roblox API 및 이미지 서비스: 정보, 썸네일, 접속 상태, 서버 상세 정보를 불러오는 데 필요한 계정 및 사용자 ID, 게임·장소·유니버스 ID, 배지·아이템 ID, 서버 ID 및 관련 검색 조건. Roblox는 자체 웹사이트와 계정 활동을 별도로 처리합니다.",
+              "ipwho.is: 서버 국가를 추정하기 위한 Roblox 게임 서버의 공개 IP 주소. 사용자의 기기가 아닌 게임 서버를 조회하는 요청이지만 서비스에는 요청에 사용한 연결 IP 주소가 보입니다.",
+              "Rolimons(www.rolimons.com): 공개 게임 통계를 요청한 게임·장소 ID. 플레이어나 서버 분석 링크를 열면 해당 대상의 식별자가 Rolimons로 전송됩니다.",
+              "FxEmbed(api.fxtwitter.com) 및 X 이미지 호스트(pbs.twimg.com, mosaic.fxtwitter.com): 공개 게시물과 미디어를 표시하기 위해 Roblox 페이지에 연결된 공개 X 사용자 이름과 게시물·이미지 참조 정보를 사용합니다.",
+              "YouTube(www.youtube.com) 및 이미지 호스트(i.ytimg.com): 최근 동영상과 썸네일을 표시하기 위한 공개 채널 사용자 이름 또는 ID, 동영상·이미지 ID. 피드 요청에는 YouTube 로그인 인증 정보를 보내지 않습니다.",
+              "jsDelivr(cdn.jsdelivr.net) 및 통화 API 미러(latest.currency-api.pages.dev): 공개 USD 환율 데이터 요청. Roblox 잔액과 플레이 기록은 이 환율 서비스에 보내지 않습니다.",
+              "저장된 원격 배경 URL: 배경을 불러올 때 해당 호스트가 파일 요청을 받습니다. 로컬 배경 파일에는 이러한 요청이 필요하지 않습니다. 지원 또는 다른 사이트의 링크는 사용자가 열 때만 해당 사이트에 연결됩니다."
+            ]
+          },
+          {
+            "heading": "배포자의 접근과 정보 사용",
+            "paragraphs": [
+              "이 확장 프로그램에는 배포자가 운영하는 데이터 수집 서버, 광고 추적기 또는 사용 통계 서비스가 없습니다. 로컬 환경설정, 배경 또는 플레이 기록을 배포자에게 전송하지 않으며, 배포자는 이 데이터를 판매하거나 맞춤형 광고에 사용하지 않습니다. 데이터는 명시된 확장 프로그램 기능에 사용됩니다.",
+              "자발적으로 지원을 요청하거나 문제를 등록하면 배포자는 연락처 이름, 이메일, 보고 내용 또는 스크린샷 등 사용자가 보낸 정보를 받습니다. 해당 정보는 응답과 문제 해결에 사용되며, 그 목적이나 법적 의무에 필요한 기간에만 보관합니다. 관련 의무 및 지원 플랫폼 규칙에 따라 이메일로 삭제를 요청할 수 있습니다. GitHub 이슈와 공개 소셜 게시물은 다른 사람에게 보일 수 있으므로 비공개 요청에는 이메일을 사용하세요.",
+              "브라우저 스토어는 자체 서비스를 통해 집계된 설치 통계, 리뷰 및 사용자가 제출한 정보를 배포자에게 별도로 제공할 수 있습니다. 이러한 활동에는 해당 스토어의 방침이 적용됩니다."
+            ]
+          },
+          {
+            "heading": "설정, 보관 및 삭제",
+            "paragraphs": [
+              "환경설정을 변경하고, 배경과 고정 항목을 삭제하고, 소셜 피드 및 플레이 시간 기록을 끄고, 현재 계정의 플레이 시간을 지우고, 데이터를 내보낼 수 있습니다. 설정 백업에는 기록된 모든 계정의 기록과 저장된 배경이 있으면 해당 배경이 포함됩니다. 백업은 암호화되지 않은 JSON 파일이므로 비공개로 보관하세요. 가져오기는 해당 저장 데이터를 병합하지 않고 교체합니다.",
+              "최근 서버 기록은 전체 설정 백업에서 제외됩니다. 개별 서버, 한 게임의 목록 또는 현재 계정의 최근 서버를 삭제할 수 있습니다. 모두 초기화를 실행하면 모든 계정의 최근 서버 기록도 삭제됩니다. 플레이 시간 기록만 꺼도 서버 기록을 위한 접속 상태 확인은 중지되지 않습니다. 확인을 중지하려면 두 설정을 모두 끄세요.",
+              "저장된 환경설정, 파일 및 기록은 사용자가 삭제·초기화·덮어쓰기하거나 브라우저가 저장소를 지울 때까지 유지됩니다. 캐시된 응답은 유효기간이 지난 뒤에도 저장소에 남을 수 있습니다. 모두 초기화는 확장 프로그램의 로컬 설정, 캐시, 고정 항목, 모든 계정의 기록을 삭제하고 현재 Roblox 사이트 출처의 배경 파일과 페이지 캐시를 삭제합니다. 최초 실행 안내가 반복되지 않도록 로컬 이용 약관 동의 상태는 유지합니다. 초기화 후 기본 기능이 다시 켜질 수 있으므로 기록을 원하지 않으면 다시 끄세요.",
+              "확장 프로그램을 제거하면 일반적으로 확장 프로그램의 로컬 저장소는 삭제되지만 Roblox 사이트의 IndexedDB와 localStorage는 남을 수 있습니다. 제거 전에 모두 초기화를 사용하거나 브라우저에서 Roblox 사이트 데이터를 지워 남은 파일과 캐시를 삭제하세요. 사이트 데이터를 지우면 로그아웃될 수 있습니다. 제한 모드에서 데이터 설정이 숨겨져 있으면 먼저 Roblox 언어를 영어, 중국어 간체, 중국어 번체, 인도네시아어, 일본어, 태국어 또는 한국어로 변경하세요. 내보낸 파일과 외부 서비스에 저장된 데이터는 별도로 삭제해야 합니다.",
+              "배포자는 브라우저에만 저장된 데이터를 확인하거나 원격으로 삭제할 수 없습니다. 지원 요청으로 보낸 정보에 관한 질문이나 요청은 배포자에게 연락하세요.",
+              "기본 글꼴로 복원하면 현재 사이트 출처에서 선택한 글꼴을 삭제합니다. 모두 초기화도 해당 출처의 저장된 글꼴을 삭제합니다. 설정 백업에는 일시적으로 꺼져 있는 경우에도 선택한 글꼴 파일이 포함됩니다."
+            ]
+          },
+          {
+            "heading": "보안, 어린 사용자 및 업데이트",
+            "paragraphs": [
+              "내장 API 요청은 HTTPS를 사용합니다. 로컬 브라우저 저장소와 내보낸 파일에는 이 확장 프로그램이 제공하는 추가 암호화가 없습니다. 기기, 브라우저 프로필 및 백업 파일을 보호하세요. 어떤 보안 방식도 완전한 보호를 보장할 수는 없습니다.",
+              "확장 프로그램은 나이를 요구하거나 별도 사용자 계정을 만들거나 광고를 위해 아동의 정보를 수집하지 않습니다. 위에서 설명한 로컬 처리는 모든 사용자에게 동일하게 적용됩니다. 부모 또는 보호자는 어린 사용자가 설정을 관리하고 로컬 데이터를 삭제하도록 도울 수 있습니다.",
+              "확장 프로그램의 데이터 처리 방식이 변경되면 이 방침을 업데이트합니다. 위 날짜로 버전을 확인할 수 있습니다. 중요한 변경 사항은 릴리스 정보에 설명하며, 필요한 경우 새로운 처리가 시작되기 전에 확장 프로그램 내에서 안내합니다."
+            ]
+          }
+        ]
+      },
+      "terms": {
+        "title": "이용 약관",
+        "intro": "이 약관은 위에 명시된 배포자가 제공하는 Roblox Customizer의 사용에 관한 것입니다. 개인정보 처리방침과 함께 읽어 주세요. 관련 법에 따라 이 약관에 동의할 수 있는 경우에만 확장 프로그램을 사용하고, 필요한 경우 부모 또는 보호자의 허락을 받으세요.",
+        "sections": [
+          {
+            "heading": "확장 프로그램이 제공하는 기능",
+            "paragraphs": [
+              "Roblox Customizer는 Roblox의 모양 변경과 편의 도구를 제공하는 독립적인 브라우저 확장 프로그램입니다. Roblox Corporation과 제휴하거나 후원 또는 보증을 받지 않습니다. Roblox 및 기타 외부 서비스의 이름과 상표는 각 소유자에게 속합니다.",
+              "현재 Roblox 언어가 영어, 중국어 간체, 중국어 번체, 인도네시아어, 일본어, 태국어 또는 한국어일 때 전체 기능을 지원합니다. 다른 언어에서는 이미지·GIF 배경, 사용자 지정 색상 및 글꼴만 제공하는 제한 모드를 사용합니다. 사용 가능 여부는 변경되거나 중단될 수 있는 브라우저, Roblox 및 외부 서비스에도 영향을 받습니다. 모든 기능이 항상 작동한다고 보장하지 않습니다."
+            ]
+          },
+          {
+            "heading": "책임 있는 사용과 사용자 콘텐츠",
+            "paragraphs": [
+              "확장 프로그램을 합법적으로 사용하고 Roblox 및 이용하는 서비스의 약관을 준수하세요. 이 확장 프로그램은 계정 권한, 플랫폼 제한 또는 보안 조치를 우회할 권한을 부여하지 않으며 무료 Robux나 아이템 소유권을 제공하지 않습니다.",
+              "선택한 배경, URL 및 기타 콘텐츠에 대한 책임은 사용자에게 있습니다. 소유하거나 사용 권한이 있는 콘텐츠를 사용하고 다른 사람의 권리와 개인정보를 존중하며 악성 파일이나 링크를 피하세요. 로컬 배경용 파일을 선택해도 해당 파일의 소유권이 배포자에게 이전되지 않습니다.",
+              "브라우저와 확장 프로그램을 최신 상태로 유지하고 기기와 계정을 보호하세요. Roblox 비밀번호나 세션 쿠키를 배포자 또는 다른 사람에게 제공하지 마세요."
+            ]
+          },
+          {
+            "heading": "추정치, 외부 서비스 및 저장 데이터",
+            "paragraphs": [
+              "플레이 시간, 서버 국가, 핑, 게임 통계 및 통화 금액은 추정치 또는 외부 정보입니다. 불완전하거나 지연되거나 부정확할 수 있습니다. 통화 환산액은 참고용이며 환전 서비스나 보장된 결제 가격이 아닙니다. 중요한 정보는 원래 서비스에서 확인하세요.",
+              "외부 웹사이트, 피드, 미디어 및 API는 각 제공업체가 자체 약관과 방침에 따라 운영합니다. 배포자는 해당 서비스의 이용 가능 여부, 정확성 또는 콘텐츠를 통제하지 않습니다.",
+              "저장된 확장 프로그램 데이터는 브라우저 프로필에 속하며 클라우드 백업이 아닙니다. 초기화, 가져오기, 제거 또는 기기 변경 전에 백업을 내보내세요. 가져오기는 기존 데이터를 교체할 수 있으며 초기화나 브라우저 정리는 데이터를 삭제할 수 있습니다. 배포자는 기기에만 저장된 데이터를 복구할 수 없습니다. 확장 프로그램은 Roblox 구매 내역, 잔액 또는 게임 진행 상황을 백업하지 않습니다."
+            ]
+          },
+          {
+            "heading": "오픈 소스 라이선스",
+            "paragraphs": [
+              "확장 프로그램의 소프트웨어는 저장소의 LICENSE 파일에 명시된 GNU 일반 공중 사용 허가서 버전 3(GPLv3)에 따라 배포됩니다. 소프트웨어를 실행, 복사, 수정 및 재배포할 권리는 해당 라이선스에 따릅니다. 이 약관은 그러한 권리를 제한하거나 대체하지 않습니다. 외부 콘텐츠에는 각각의 권리와 라이선스가 계속 적용됩니다."
+            ]
+          },
+          {
+            "heading": "보증 및 책임",
+            "paragraphs": [
+              "관련 법이 허용하는 범위에서 확장 프로그램은 있는 그대로, 제공 가능한 상태로 제공되며 상품성, 특정 목적에 대한 적합성, 비침해, 중단 없는 작동 또는 정확성에 대한 보증이 없습니다. 소프트웨어에는 GPL의 보증 및 책임 조항도 적용됩니다.",
+              "관련 법이 허용하는 범위에서 배포자는 확장 프로그램 사용으로 인한 간접적 또는 결과적 손해, 이익 손실 또는 데이터 손실에 대해 책임을 지지 않습니다. 이 약관은 법적으로 배제할 수 없는 책임을 배제하거나 법률상 보장되는 소비자의 권리를 제한하지 않습니다."
+            ]
+          },
+          {
+            "heading": "변경 및 사용 종료",
+            "paragraphs": [
+              "기능과 이 약관은 변경될 수 있습니다. 업데이트된 약관은 수정된 날짜와 함께 여기에서 확인할 수 있습니다. 중요한 변경 사항은 릴리스 정보 및 필요한 경우 확장 프로그램 내 안내로 설명합니다. 법적으로 필요한 동의는 필요한 시점 전에 요청합니다.",
+              "언제든지 확장 프로그램을 끄거나 제거하여 사용을 중단할 수 있습니다. 저장 데이터도 삭제하려면 개인정보 처리방침의 삭제 안내를 따르세요. 사용을 종료해도 GPL에 따른 권리는 유지됩니다."
             ]
           }
         ]

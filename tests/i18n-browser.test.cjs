@@ -42,7 +42,7 @@ function fixture(route, lang) {
   return `<!doctype html><html lang="${lang}" class="dark-theme"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="locale-data" data-language-code="${lang}"><style>body{margin:20px;font:16px/1.5 Arial;background:#24252c;color:white}main{max-width:1000px;margin:auto}a{color:inherit}button{padding:8px}img{width:100px;height:100px}#settings-popover-menu{position:fixed;right:0;top:0;z-index:1000}#settings-popover-menu a{display:block;padding:12px}.ng-hide{display:none!important}</style>${styles.map(file => `<link rel="stylesheet" href="/${file}">`).join('')}</head><body><header><span id="nav-robux-amount">12500</span></header><ul id="settings-popover-menu" role="menu"><li><a href="/my/account">Settings</a></li></ul><p id="native-copy">Refresh</p>${content}</body></html>`;
 }
 
-test('Extension UI switches between English, Chinese and Indonesian without losing controls or translating user content',
+test('Extension UI switches between all supported languages without losing controls or translating user content',
   { skip: !process.env.CHROME_BIN, timeout: 60000 }, async t => {
     const files = new Set([...scripts, ...styles, 'icons/icon-48.png', 'icons/icon-128.png']);
     const server = http.createServer((request, response) => {
@@ -86,9 +86,12 @@ test('Extension UI switches between English, Chinese and Indonesian without losi
       'zh-CN': ['Roblox 自定义工具', '扩展语言', '关闭', '隐藏上方推荐', '货币名称或代码', '置顶游戏', '隐藏', '外观', '语言与数据'],
       'zh-TW': ['Roblox 自訂工具', '擴充功能語言', '關閉', '隱藏上方推薦', '貨幣名稱或代碼', '釘選遊戲', '隱藏', '外觀', '語言與資料'],
       en: ['Roblox Customizer', 'Extension language', 'Close', 'Hide upper recommendations', 'Currency name or code', 'Pinned Games', 'Hide', 'Appearance', 'Language & data'],
-      id: ['Roblox Customizer', 'Bahasa ekstensi', 'Tutup', 'Sembunyikan rekomendasi di atas', 'Nama atau kode mata uang', 'Game yang Disematkan', 'Sembunyikan', 'Tampilan', 'Bahasa & data']
+      id: ['Roblox Customizer', 'Bahasa ekstensi', 'Tutup', 'Sembunyikan rekomendasi di atas', 'Nama atau kode mata uang', 'Game yang Disematkan', 'Sembunyikan', 'Tampilan', 'Bahasa & data'],
+      ja: ['Roblox Customizer', '拡張機能の言語', '閉じる', '上部のおすすめを非表示', '通貨名または通貨コード', 'ピン留めしたゲーム', '非表示', '外観', '言語とデータ'],
+      th: ['Roblox Customizer', 'ภาษาของส่วนขยาย', 'ปิด', 'ซ่อนรายการแนะนำด้านบน', 'ชื่อหรือรหัสสกุลเงิน', 'เกมที่ปักหมุด', 'ซ่อน', 'รูปลักษณ์', 'ภาษาและข้อมูล'],
+      ko: ['Roblox Customizer', '확장 프로그램 언어', '닫기', '상단 추천 숨기기', '통화 이름 또는 코드', '고정 게임', '숨기기', '모양', '언어 및 데이터']
     };
-    for (const language of ['zh-CN', 'id', 'zh-TW', 'en', 'zh-TW']) {
+    for (const language of ['zh-CN', 'id', 'ja', 'th', 'ko', 'zh-TW', 'en', 'zh-TW']) {
       await locale(language);
       await browser.waitFor(`document.querySelector('#rc-settings-title').textContent===${JSON.stringify(labels[language][0])}`);
       assert.deepEqual(await browser.evaluate(`[
@@ -116,9 +119,9 @@ test('Extension UI switches between English, Chinese and Indonesian without losi
           return {overflow:dialog.scrollWidth>dialog.clientWidth+1||language.scrollWidth>language.clientWidth+1,rows};
         })()`);
         assert.equal(layout.overflow, false, `${language}/${theme}/${width}: labels and fields fit`);
-        if (process.env.I18N_SCREENSHOTS && language === 'id') {
+        if (process.env.I18N_SCREENSHOTS && ['id', 'ja', 'th', 'ko'].includes(language)) {
           const shot = await browser.send('Page.captureScreenshot');
-          fs.writeFileSync(path.join(process.env.I18N_SCREENSHOTS, `id-${theme}-${width}.png`), Buffer.from(shot.data, 'base64'));
+          fs.writeFileSync(path.join(process.env.I18N_SCREENSHOTS, `${language}-${theme}-${width}.png`), Buffer.from(shot.data, 'base64'));
         }
         assert.deepEqual(layout.rows, [[true, true], [true, true]], 'Translated slider labels stay beside their sliders');
       }
@@ -159,6 +162,27 @@ test('Extension UI switches between English, Chinese and Indonesian without losi
     await browser.click('.rc-settings-menu-entry');
     assert.equal(await browser.evaluate("document.querySelector('#rc-ui-language').value"), 'id', 'Indonesian selection survives settings normalization and reload');
     assert.equal(await text('#rc-done'), 'Tutup');
+    await locale('ja');
+    await browser.send('Page.reload'); await waitForDocument(browser, '#HomeContainer');
+    await browser.waitFor("RobloxCustomizerI18n.locale()==='ja' && !!document.querySelector('.rc-settings-menu-entry')");
+    await browser.click('.rc-settings-menu-entry');
+    assert.equal(await browser.evaluate("document.querySelector('#rc-ui-language').value"), 'ja', 'Japanese selection survives settings normalization and reload');
+    assert.equal(await text('#rc-done'), '閉じる');
+    assert.equal(await text('.rc-settings-nav-button[data-rc-settings-category="pinned-games"] span:last-child'), 'ピン留めしたゲーム');
+    await locale('th');
+    await browser.send('Page.reload'); await waitForDocument(browser, '#HomeContainer');
+    await browser.waitFor("RobloxCustomizerI18n.locale()==='th' && !!document.querySelector('.rc-settings-menu-entry')");
+    await browser.click('.rc-settings-menu-entry');
+    assert.equal(await browser.evaluate("document.querySelector('#rc-ui-language').value"), 'th', 'Thai selection survives settings normalization and reload');
+    assert.equal(await text('#rc-done'), 'ปิด');
+    assert.equal(await text('.rc-settings-nav-button[data-rc-settings-category="pinned-games"] span:last-child'), 'เกมที่ปักหมุด');
+    await locale('ko');
+    await browser.send('Page.reload'); await waitForDocument(browser, '#HomeContainer');
+    await browser.waitFor("RobloxCustomizerI18n.locale()==='ko' && !!document.querySelector('.rc-settings-menu-entry')");
+    await browser.click('.rc-settings-menu-entry');
+    assert.equal(await browser.evaluate("document.querySelector('#rc-ui-language').value"), 'ko', 'Korean selection survives settings normalization and reload');
+    assert.equal(await text('#rc-done'), '닫기');
+    assert.equal(await text('.rc-settings-nav-button[data-rc-settings-category="pinned-games"] span:last-child'), '고정 게임');
     await locale('auto');
     await browser.evaluate("document.querySelector('meta[name=locale-data]').remove();document.documentElement.lang='zh-TW'");
     await browser.waitFor("document.querySelector('#rc-settings-title').textContent==='Roblox 自訂工具'");

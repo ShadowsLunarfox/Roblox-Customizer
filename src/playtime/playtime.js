@@ -302,26 +302,37 @@
     const home = /^\/home\/?$/i.test(routePath())
       ? document.querySelector('#HomeContainer, .home-container, [data-testid="home-page"]') : null;
     const clock = home?.querySelector('#rc-home-greeting .rc-home-greeting-clock');
-    if (!clock || (!data.enabled && !data.games.length)) {
+    const root = document.documentElement;
+    if (!clock || root.hasAttribute('data-rc-hide-home-banner') || root.hasAttribute('data-rc-hide-home-most-played')
+      || (!data.enabled && !data.games.length)) {
+      let changed = !!homeSection;
       homeSection?.remove(); homeSection = null; homeSignature = '';
       homeResizeObserver?.disconnect(); homeResizeObserver = null; homeAccountId = 0;
       // Restore the original clock layout when the summary is absent.
       for (const widgets of document.querySelectorAll('.rc-home-greeting-widgets')) {
         widgets.replaceWith(...widgets.childNodes);
+        changed = true;
       }
+      if (changed) document.dispatchEvent(new Event('rc-home-banner-content-changed'));
       return;
     }
+    let changed = false;
     if (!homeSection?.isConnected) {
       homeResizeObserver?.disconnect(); homeSection = mountCarousel(); homeSignature = '';
+      changed = true;
     }
     let widgets = clock.parentElement;
     if (!widgets.classList.contains('rc-home-greeting-widgets')) {
       widgets = element('div', 'rc-home-greeting-widgets');
       clock.before(widgets); widgets.append(clock);
+      changed = true;
     }
-    if (homeSection.parentElement !== widgets) widgets.append(homeSection);
+    if (homeSection.parentElement !== widgets) { widgets.append(homeSection); changed = true; }
     const signature = JSON.stringify([data.account?.userId, data.games, i18n?.locale()]);
-    if (signature === homeSignature) return;
+    if (signature === homeSignature) {
+      if (changed) document.dispatchEvent(new Event('rc-home-banner-content-changed'));
+      return;
+    }
     homeSignature = signature;
     homeSection.querySelector('h2').textContent = t('Your most played');
     const summary = homeSection.querySelector('.rc-playtime-home-summary');
@@ -348,6 +359,7 @@
     homeSection.querySelector('.rc-playtime-empty').textContent = data.games.length ? ''
       : t('No playtime recorded yet. Join a game with tracking enabled to start.');
     updateCarouselNavigation();
+    if (changed) document.dispatchEvent(new Event('rc-home-banner-content-changed'));
   }
   function renderHistory() {
     if (!dialog) return;
@@ -465,6 +477,8 @@
     // Once mounted, native hover portals cannot change the card's data or placement.
     // Resume, locale and storage handlers update those separately. React can still
     // replace the greeting, remove the clock, or navigate away from Home.
+    if (document.documentElement.hasAttribute('data-rc-hide-home-banner')
+      || document.documentElement.hasAttribute('data-rc-hide-home-most-played')) return;
     if (homeSection?.isConnected && /^\/home\/?$/i.test(routePath())
       && homeSection.closest('#rc-home-greeting')?.querySelector('.rc-home-greeting-clock')) return;
     const mounts = '#HomeContainer, .home-container, [data-testid="home-page"], #rc-home-greeting, .rc-home-greeting-clock';
@@ -474,6 +488,7 @@
   }).observe(document, { childList: true, subtree: true, attributes: true,
     attributeFilter: ['data-place-id', 'data-universe-id', 'id'], attributeOldValue: true });
   addEventListener('popstate', queuePages);
+  document.addEventListener('rc-home-banner-preferences-changed', queuePages);
   i18n?.onChange(() => { homeSignature = ''; render(); });
   globalThis.RobloxCustomizerRuntime?.onResume(() => { queuePages(); load('refresh'); });
   // Keep an open page up to date and restore a dropped background alarm. The worker

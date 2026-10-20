@@ -4,7 +4,7 @@
 (function (root) {
   'use strict';
   function pathname(value = root.location?.pathname || '/') {
-    return String(value).replace(/^\/(?:en|zh|id)(?:[-_][a-z0-9]+)*(?=\/|$)/i, '') || '/';
+    return String(value).replace(/^\/(?:en|zh|id|ja|th|ko)(?:[-_][a-z0-9]+)*(?=\/|$)/i, '') || '/';
   }
   const routes = Object.freeze({ pathname });
   root.RobloxCustomizerRoutes = routes;
@@ -46,7 +46,7 @@
     // Roblox can emit html lang="en" before its actual locale metadata arrives.
     const language = metadata || (document.body || document.readyState !== 'loading' ? root.lang?.trim() : '');
     const next = !language && document.readyState === 'loading' ? 'pending'
-      : language && !/^(?:en|zh|id)(?:-|$)/i.test(language.replaceAll('_', '-')) ? 'fallback' : 'full';
+      : language && !/^(?:en|zh|id|ja|th|ko)(?:-|$)/i.test(language.replaceAll('_', '-')) ? 'fallback' : 'full';
     const previous = state;
     const changed = root.getAttribute('data-rc-compatibility') !== next;
     state = next;

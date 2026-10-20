@@ -2,7 +2,7 @@
 (function (root) {
   'use strict';
   function pathname(value = root.location?.pathname || '/') {
-    return String(value).replace(/^\/(?:en|zh|id)(?:[-_][a-z0-9]+)*(?=\/|$)/i, '') || '/';
+    return String(value).replace(/^\/(?:en|zh|id|ja|th|ko)(?:[-_][a-z0-9]+)*(?=\/|$)/i, '') || '/';
   }
   const routes = Object.freeze({ pathname });
   root.RobloxCustomizerRoutes = routes;

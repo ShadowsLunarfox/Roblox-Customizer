@@ -24,7 +24,7 @@
     const settings = { ...value };
     delete settings._writer;
     const options = { source: ['none', 'file', 'url'], fit: ['cover', 'contain'],
-      urlType: ['auto', 'image', 'video'], uiLanguage: ['auto', 'en', 'zh-CN', 'zh-TW', 'id'] };
+      urlType: ['auto', 'image', 'video'], uiLanguage: ['auto', 'en', 'zh-CN', 'zh-TW', 'id', 'ja', 'th', 'ko'] };
     for (const [key, allowed] of Object.entries(options)) {
       if (key in settings && !allowed.includes(settings[key])) fail();
     }
@@ -33,14 +33,18 @@
       if (key in settings && (!Number.isFinite(settings[key]) || settings[key] < min || settings[key] > max)) fail();
     }
     for (const [key, item] of Object.entries(settings)) {
-      if (/^(?:hide|show|disable|clockShow|clockHour)|^experimentalCustomColors$/.test(key)
+      if (/^(?:hide|show|disable|clockShow|clockHour)|^(?:experimentalCustomColors|customFontEnabled)$/.test(key)
         && key !== 'hiddenRecommendedGames' && typeof item !== 'boolean') fail();
       if (/^custom(?:Text|Background|Accent)Color$/.test(key) && !/^#[0-9a-f]{6}$/i.test(item)) fail();
-      if (['url','fileKey','fileName','greetingMorning','greetingAfternoon','greetingEvening'].includes(key)
+      if (['url','fileKey','fileName','fontFileKey','fontFileName','greetingMorning','greetingAfternoon','greetingEvening'].includes(key)
         && typeof item !== 'string') fail();
     }
     if (settings.fileKey && settings.fileKey.length > 100) fail();
     if (settings.source === 'file' && !settings.fileKey) fail();
+    if (settings.fontFileKey && (!/^[\w-]{1,100}$/.test(settings.fontFileKey)
+      || settings.fontFileKey === settings.fileKey || typeof settings.fontFileName !== 'string'
+      || settings.fontFileName.length > 255 || !/\.(?:ttf|otf|woff2?)$/i.test(settings.fontFileName))) fail();
+    if (settings.customFontEnabled === true && !settings.fontFileKey) fail();
     if (settings.source === 'url') {
       try { if (!['http:', 'https:'].includes(new URL(settings.url).protocol)) fail(); } catch { fail(); }
     }
@@ -102,8 +106,17 @@
         || media.size !== media.base64.length / 4 * 3 - (media.base64.endsWith('==') ? 2 : media.base64.endsWith('=') ? 1 : 0)
         || !count(media.lastModified)) fail();
     } else if (media !== null) fail();
+    const font = value.font ?? null;
+    if (clean.customBackground.fontFileKey) {
+      if (!object(font) || font.key !== clean.customBackground.fontFileKey || typeof font.name !== 'string'
+        || font.name !== clean.customBackground.fontFileName || !/^font\/(?:ttf|otf|woff2?)$/.test(font.type)
+        || typeof font.base64 !== 'string' || font.base64.length % 4 || !/^[A-Za-z0-9+/]*={0,2}$/.test(font.base64)
+        || !count(font.size) || !font.size || font.size > 32 * 1024 * 1024
+        || font.size !== font.base64.length / 4 * 3 - (font.base64.endsWith('==') ? 2 : font.base64.endsWith('=') ? 1 : 0)
+        || !count(font.lastModified)) fail();
+    } else if (font !== null) fail();
     return { format: FORMAT, version: VERSION, createdAt: value.createdAt,
-      extensionVersion: value.extensionVersion, data: clean, media };
+      extensionVersion: value.extensionVersion, data: clean, media, font };
   }
   const api = Object.freeze({ FORMAT, VERSION, MAX_BYTES, KEYS, data, snapshot, validate });
   root.RobloxCustomizerBackup = api;

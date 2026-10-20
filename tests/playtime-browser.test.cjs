@@ -60,7 +60,7 @@ async function serve(t) {
     response.setHeader('Content-Type', file.endsWith('.css') ? 'text/css' : file.endsWith('.js') ? 'text/javascript' : file.endsWith('.png') ? 'image/png' : 'text/html; charset=utf-8');
     response.end(assets.has(file) ? fs.readFileSync(path.join(workspace, file)) : fixture(`/${file}`));
   });
-  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  await new Promise(resolve => server.listen(Number(process.env.PLAYTIME_TEST_PORT) || 0, '127.0.0.1', resolve));
   t.after(() => new Promise(resolve => { server.closeAllConnections(); server.close(resolve); }));
   return `http://127.0.0.1:${server.address().port}`;
 }
@@ -124,7 +124,7 @@ test('Game pages show only this experience’s local playtime and last-played ti
     await browser.evaluate('setSaved({playtimeTrackingEnabled:false})');
     await browser.waitFor('!document.querySelector(".rc-playtime-game-enable").hidden');
     state = await panel(); assert.equal(state.total, '3m 5s'); assert.equal(state.playing, false); assert.match(state.hint, /paused/);
-    for (const [locale, title, total] of [['zh-CN','您的游戏时长','3分5秒'],['id','Waktu bermain Anda','3m 5d'],['zh-TW','您的遊戲時長','3分5秒'],['en','Your playtime','3m 5s']]) {
+    for (const [locale, title, total] of [['zh-CN','您的游戏时长','3分5秒'],['id','Waktu bermain Anda','3m 5d'],['ja','あなたのプレイ時間','3分5秒'],['th','เวลาเล่นของคุณ','3 นาที 5 วินาที'],['ko','내 플레이 시간','3분 5초'],['zh-TW','您的遊戲時長','3分5秒'],['en','Your playtime','3m 5s']]) {
       await browser.evaluate(`RobloxCustomizerI18n.setLanguage(${JSON.stringify(locale)})`);
       assert.equal(await browser.evaluate('document.querySelector("#rc-playtime-game-title").textContent'), title);
       assert.equal((await panel()).total, total);

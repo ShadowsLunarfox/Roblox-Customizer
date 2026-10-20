@@ -20,20 +20,34 @@
     { key: `show${page.prefix}XFeed`, id: `rc-show-${page.kind}-x-feed`,
       attribute: `data-rc-hide-${page.kind}-x-feed`, legacy: 'hideXFeed', label: 'Enable X feed' }
   ]);
+  const HOME_BANNER = [
+    { key: 'showHomeBanner', part: 'banner', label: 'Show Home banner' },
+    { key: 'showHomeAvatar', part: 'avatar', label: 'Show avatar' },
+    { key: 'showHomeLabel', part: 'label', label: 'Show Home label' },
+    { key: 'showHomeDisplayName', part: 'display-name', label: 'Show display name' },
+    { key: 'showHomeUsername', part: 'username', label: 'Show username' },
+    { key: 'showHomeGreeting', part: 'greeting', label: 'Show greeting' },
+    { key: 'showHomeClock', part: 'clock', label: 'Show clock' },
+    { key: 'clockShowDate', part: 'date', label: 'Show date' },
+    { key: 'showHomeMostPlayed', part: 'most-played', label: 'Show most played' }
+  ].map(control => ({ ...control, id: control.key === 'clockShowDate' ? 'rc-clock-date' : `rc-home-show-${control.part}` }));
   const DEFAULTS = {
     source: 'none', url: '', urlType: 'auto', fileKey: '', fileName: '',
     fit: 'cover', dim: 20, glassBlur: 18, glassOpacity: 62, uiLanguage: 'auto',
     disableTransparency: false, disableBlur: false,
+    customFontEnabled: false, fontFileKey: '', fontFileName: '',
     experimentalCustomColors: false,
     customTextColor: '#f4f6fb', customBackgroundColor: '#14161c', customAccentColor: '#335fff',
     hideFavorites: false, hideStandoutGames: false,
     hideRecommendedUpper: false, hideRecommendedLower: false,
-    hiddenRecommendedGames: [], friendRows: 3,
+    hiddenRecommendedGames: [], friendRows: 3, showPinnedGames: true,
     greetingMorning: '', greetingAfternoon: '', greetingEvening: '',
     clockShowSeconds: true, clockShowDate: true, clockHour12: false,
+    ...Object.fromEntries(HOME_BANNER.map(control => [control.key, true])),
     ...Object.fromEntries(FEED_VISIBILITY.map(control => [control.key, true]))
   };
   let settings = { ...DEFAULTS };
+  Object.assign(settings, globalThis.RobloxCustomizerStartup?.homePreferences?.() || {});
   let activeObjectUrl = null;
   let backgroundLayer = null;
   let applyGeneration = 0;
@@ -61,9 +75,17 @@
   let modalClosing = false;
   let backupBusy = false;
   let mediaTask = Promise.resolve();
+  let fontTask = Promise.resolve();
+  let fontSelection = 0;
   const writerId = crypto.randomUUID();
   const pendingFileDeletes = new Set();
   const homeFormatterCache = new Map();
+  let pinnedLibrary = { games: [], folders: [] };
+  let pinnedLibraryReady = false;
+  let pinnedLibraryError = false;
+  let pinnedLibraryLoad = 0;
+  let pinnedLibraryFolder = '*';
+  let pinnedLibraryLimit = 24;
   const HOME_VISIBILITY = [
     { key: 'hideFavorites', id: 'rc-hide-favorites', attribute: 'data-rc-hide-favorites' },
     { key: 'hideStandoutGames', id: 'rc-hide-standout-games', attribute: 'data-rc-hide-standout-games' },
@@ -88,10 +110,13 @@
     delete saved.clockShowTimeZone;
     delete saved.clockDateFormat;
     delete saved.clockTimeZone;
-    if (!['auto', 'en', 'zh-CN', 'zh-TW', 'id'].includes(saved.uiLanguage)) saved.uiLanguage = 'auto';
+    if (!['auto', 'en', 'zh-CN', 'zh-TW', 'id', 'ja', 'th', 'ko'].includes(saved.uiLanguage)) saved.uiLanguage = 'auto';
     saved.disableTransparency = saved.disableTransparency === true;
     saved.disableBlur = saved.disableBlur === true;
     saved.experimentalCustomColors = saved.experimentalCustomColors === true;
+    for (const control of HOME_BANNER) saved[control.key] = saved[control.key] !== false;
+    saved.showPinnedGames = saved.showPinnedGames !== false;
+    if (globalThis.RobloxCustomizerFonts) Object.assign(saved, globalThis.RobloxCustomizerFonts.normalize(saved));
     for (const key of ['customTextColor', 'customBackgroundColor', 'customAccentColor']) {
       saved[key] = typeof saved[key] === 'string' && /^#[0-9a-f]{6}$/i.test(saved[key])
         ? saved[key].toLowerCase() : DEFAULTS[key];
@@ -259,36 +284,48 @@
     if (!card) return;
     const now = new Date();
     const displayName = homeGreetingUser?.displayName || homeGreetingUser?.name;
-    const greeting = homeGreetingText(now);
-    const title = displayName ? `${displayName}, ${greeting}`
-      : `${greeting.charAt(0).toUpperCase()}${greeting.slice(1)}`;
+    const visibleName = settings.showHomeDisplayName !== false ? displayName : '';
+    const greeting = settings.showHomeGreeting !== false ? homeGreetingText(now) : '';
+    const title = visibleName && greeting ? `${visibleName}, ${greeting}`
+      : visibleName || (greeting ? `${greeting.charAt(0).toUpperCase()}${greeting.slice(1)}` : '');
     const heading = card.querySelector('.rc-home-greeting-title');
     if (heading.textContent !== title) heading.textContent = title;
+    heading.hidden = !title;
+    const label = card.querySelector('.rc-home-greeting-eyebrow');
+    label.hidden = settings.showHomeLabel === false;
 
     const username = card.querySelector('.rc-home-greeting-username');
     const usernameText = homeGreetingUser?.name ? `@${homeGreetingUser.name}` : '';
     if (username.textContent !== usernameText) username.textContent = usernameText;
-    username.hidden = !usernameText;
+    username.hidden = settings.showHomeUsername === false || !usernameText;
+    const copy = card.querySelector('.rc-home-greeting-copy');
+    copy.hidden = label.hidden && heading.hidden && username.hidden;
 
     const avatar = card.querySelector('.rc-home-greeting-avatar');
+    avatar.hidden = settings.showHomeAvatar === false;
     const image = card.querySelector('.rc-home-greeting-avatar img');
     const initial = card.querySelector('.rc-home-greeting-initial');
     const imageUrl = homeGreetingUser?.imageUrl || '';
     if (imageUrl && image.src !== imageUrl) image.src = imageUrl;
     image.hidden = !imageUrl;
     initial.hidden = !!imageUrl;
-    initial.textContent = (displayName || '?').slice(0, 1).toUpperCase();
+    const letter = (displayName || '?').slice(0, 1).toUpperCase();
+    if (initial.textContent !== letter) initial.textContent = letter;
     setUIAttribute(avatar, 'aria-label', displayName ? `${displayName}'s avatar` : 'Player avatar');
 
     const clock = card.querySelector('.rc-home-greeting-time');
+    clock.hidden = settings.showHomeClock === false;
+    card.querySelector('.rc-home-greeting-clock-label').hidden = clock.hidden;
     const showSeconds = settings.clockShowSeconds !== false;
     const hour12 = settings.clockHour12 === true;
-    const clockText = homeFormatter(`time|${showSeconds}|${hour12}`, undefined, {
-      hour: '2-digit', minute: '2-digit',
-      second: showSeconds ? '2-digit' : undefined, hour12
-    }).format(now);
-    if (clock.textContent !== clockText) clock.textContent = clockText;
-    clock.dateTime = now.toISOString();
+    if (!clock.hidden && settings.showHomeBanner !== false) {
+      const clockText = homeFormatter(`time|${showSeconds}|${hour12}`, undefined, {
+        hour: '2-digit', minute: '2-digit',
+        second: showSeconds ? '2-digit' : undefined, hour12
+      }).format(now);
+      if (clock.textContent !== clockText) clock.textContent = clockText;
+      clock.dateTime = now.toISOString();
+    }
 
     const date = card.querySelector('.rc-home-greeting-date');
     date.hidden = settings.clockShowDate === false;
@@ -296,10 +333,16 @@
       const dateText = homeDateText(now);
       if (date.textContent !== dateText) date.textContent = dateText;
     }
+    card.querySelector('.rc-home-greeting-clock').hidden = clock.hidden && date.hidden;
+    const mostPlayed = settings.showHomeMostPlayed !== false && !!card.querySelector('#rc-playtime-home');
+    card.hidden = settings.showHomeBanner === false || (avatar.hidden && copy.hidden && clock.hidden && date.hidden && !mostPlayed);
+    card.toggleAttribute('data-rc-home-no-identity', avatar.hidden && copy.hidden);
   }
 
   function requestHomeGreetingUser() {
     if (!/^\/home\/?$/i.test(routePath())
+      || settings.showHomeBanner === false
+      || ['showHomeAvatar', 'showHomeDisplayName', 'showHomeUsername'].every(key => settings[key] === false)
       || homeGreetingRequest || homeGreetingAttempts >= 3) return;
     homeGreetingAttempts++;
     homeGreetingRequest = new Promise((resolve, reject) => {
@@ -605,7 +648,12 @@
       homeGreetingTickTimer = 0;
       return;
     }
-    const interval = settings.clockShowSeconds === false ? 60_000 : 1000;
+    if (settings.showHomeBanner === false
+      || [settings.showHomeGreeting, settings.showHomeClock, settings.clockShowDate].every(value => value === false)) {
+      homeGreetingTickTimer = 0;
+      return;
+    }
+    const interval = settings.showHomeClock === false || settings.clockShowSeconds === false ? 60_000 : 1000;
     homeGreetingTickTimer = setTimeout(() => {
       homeGreetingTickTimer = 0;
       updateHomeGreeting();
@@ -623,6 +671,119 @@
       if (input) input.checked = hidden;
     }
     syncHomeContent();
+  }
+
+  function refreshHomeBannerControls() {
+    if (!modal) return;
+    for (const control of HOME_BANNER) modal.querySelector(`#${control.id}`).checked = settings[control.key] !== false;
+    modal.querySelector('#rc-home-banner-parts').disabled = settings.showHomeBanner === false;
+    for (const id of ['rc-greeting-morning', 'rc-greeting-afternoon', 'rc-greeting-evening']) {
+      modal.querySelector(`#${id}`).disabled = settings.showHomeBanner === false || settings.showHomeGreeting === false;
+    }
+    for (const id of ['rc-clock-seconds', 'rc-clock-hour-format']) {
+      modal.querySelector(`#${id}`).disabled = settings.showHomeBanner === false || settings.showHomeClock === false;
+    }
+  }
+
+  function applyPinnedGamesVisibility() {
+    document.documentElement?.toggleAttribute('data-rc-hide-pinned-games', settings.showPinnedGames === false);
+    const input = modal?.querySelector('#rc-show-pinned-games');
+    if (input) input.checked = settings.showPinnedGames !== false;
+    document.dispatchEvent(new Event('rc-pinned-games-visibility-changed'));
+  }
+
+  function renderPinnedLibrary() {
+    const panel = modal?.querySelector('.rc-settings-pinned-games');
+    if (!panel) return;
+    const t = (source, values) => globalThis.RobloxCustomizerI18n?.t(source, values) || source;
+    const { games, folders } = pinnedLibrary;
+    const filter = panel.querySelector('#rc-saved-pinned-folder');
+    const summary = panel.querySelector('#rc-saved-pinned-summary');
+    const status = panel.querySelector('#rc-saved-pinned-status');
+    const list = panel.querySelector('#rc-saved-pinned-games');
+    const more = panel.querySelector('#rc-saved-pinned-more');
+    filter.disabled = !pinnedLibraryReady || pinnedLibraryError;
+    if (!pinnedLibraryReady || pinnedLibraryError) {
+      status.textContent = t(pinnedLibraryError ? 'Could not load saved games and folders.' : 'Loading saved games and folders…');
+      status.hidden = false;
+      summary.textContent = '';
+      list.replaceChildren();
+      more.hidden = true;
+      return;
+    }
+    if (pinnedLibraryFolder !== '*' && pinnedLibraryFolder !== ''
+      && !folders.some(folder => folder.id === pinnedLibraryFolder)) pinnedLibraryFolder = '*';
+    const counts = new Map();
+    for (const game of games) counts.set(game.folderId || '', (counts.get(game.folderId || '') || 0) + 1);
+    const options = [['*', t('All games'), games.length], ['', t('Uncategorized'), counts.get('') || 0],
+      ...folders.map(folder => [folder.id, folder.name, counts.get(folder.id) || 0])];
+    filter.replaceChildren(...options.map(([id, name, count]) => {
+      const option = document.createElement('option');
+      option.value = id; option.textContent = `${name} (${count})`;
+      option.dataset.rcI18nIgnore = '';
+      return option;
+    }));
+    filter.value = pinnedLibraryFolder;
+    summary.textContent = `${t('{count} games', { count: games.length })} · ${t('{count} folders', { count: folders.length })}`;
+    const filtered = pinnedLibraryFolder === '*' ? games : games.filter(game => (game.folderId || '') === pinnedLibraryFolder);
+    const folderNames = new Map(folders.map(folder => [folder.id, folder.name]));
+    list.replaceChildren(...filtered.slice(0, pinnedLibraryLimit).map(game => {
+      const item = document.createElement('li');
+      const link = document.createElement('a');
+      link.href = `/games/${game.placeId}`;
+      link.target = '_blank'; link.rel = 'noopener';
+      link.dataset.rcI18nIgnore = '';
+      const art = document.createElement('span');
+      art.className = 'rc-saved-pin-art'; art.setAttribute('aria-hidden', 'true');
+      art.textContent = [...game.name][0];
+      if (game.iconUrl) {
+        const image = document.createElement('img');
+        image.src = game.iconUrl; image.alt = ''; image.loading = 'lazy'; image.decoding = 'async';
+        image.addEventListener('error', () => image.remove(), { once: true });
+        art.append(image);
+      }
+      const name = document.createElement('span');
+      name.className = 'rc-saved-pin-name'; name.textContent = game.name;
+      const folder = document.createElement('span');
+      folder.className = 'rc-saved-pin-folder'; folder.textContent = folderNames.get(game.folderId) || t('Uncategorized');
+      link.append(art, name, folder); item.append(link);
+      return item;
+    }));
+    status.textContent = t(games.length ? 'No games in this folder.' : 'No pinned games yet.');
+    status.hidden = filtered.length > 0;
+    more.hidden = filtered.length <= pinnedLibraryLimit;
+  }
+
+  async function loadPinnedLibrary() {
+    const target = modal;
+    if (!target) return;
+    const generation = ++pinnedLibraryLoad;
+    pinnedLibraryError = false;
+    renderPinnedLibrary();
+    try {
+      const saved = await chrome.storage.local.get(['pinnedGames', 'pinnedGameFolders']);
+      if (modal !== target || generation !== pinnedLibraryLoad) return;
+      pinnedLibrary = globalThis.RobloxCustomizerPinnedGames?.state(saved.pinnedGames, saved.pinnedGameFolders)
+        || { games: [], folders: [] };
+      pinnedLibraryReady = true;
+    } catch {
+      if (modal !== target || generation !== pinnedLibraryLoad) return;
+      pinnedLibraryError = true;
+    }
+    renderPinnedLibrary();
+  }
+
+  function applyHomeBannerPreferences() {
+    for (const control of HOME_BANNER) {
+      document.documentElement?.toggleAttribute(`data-rc-hide-home-${control.part}`, settings[control.key] === false);
+    }
+    refreshHomeBannerControls();
+    if (/^\/home\/?$/i.test(routePath())) {
+      const home = document.querySelector('#HomeContainer, .home-container, [data-testid="home-page"]');
+      if (home) syncHomeGreeting(home);
+    }
+    scheduleHomeGreetingTick();
+    document.dispatchEvent(new Event('rc-home-banner-preferences-changed'));
   }
 
   function resumeBackgroundVideo() {
@@ -916,7 +1077,47 @@
     modalClosing = false;
   }
 
+  function setFontStatus(message) {
+    const status = modal?.querySelector('#rc-font-status');
+    if (status) status.textContent = globalThis.RobloxCustomizerI18n?.t(message) || message;
+  }
+
+  function refreshFontControls() {
+    if (!modal) return;
+    const control = modal.querySelector('#rc-custom-font-enabled');
+    if (!control) return;
+    control.checked = settings.customFontEnabled === true;
+    control.disabled = !settings.fontFileKey || !globalThis.RobloxCustomizerFonts;
+    modal.querySelector('#rc-font-file').disabled = !globalThis.RobloxCustomizerFonts;
+    modal.querySelector('#rc-font-file-name').textContent = settings.fontFileName || '';
+    modal.querySelector('#rc-reset-font').disabled = !settings.fontFileKey;
+    const state = globalThis.RobloxCustomizerFonts?.state();
+    setFontStatus(state?.error || (state?.loading ? 'Loading font...'
+      : settings.customFontEnabled ? 'Custom font is active.' : 'The default Roblox font is active.'));
+  }
+
+  async function applyFontSelection(file) {
+    const selection = ++fontSelection;
+    const fonts = globalThis.RobloxCustomizerFonts;
+    if (!file || !fonts) return;
+    const key = crypto.randomUUID();
+    try {
+      setFontStatus('Loading font...');
+      const face = await fonts.prepareFile(file);
+      if (selection !== fontSelection) return;
+      await writeFile(key, file);
+      if (selection !== fontSelection) { void deleteFile(key).catch(() => {}); return; }
+      fonts.cacheFile(key, face);
+      changeSettings({ ...settings, customFontEnabled: true, fontFileKey: key, fontFileName: file.name }, true);
+    } catch (error) {
+      void deleteFile(key).catch(() => {});
+      if (selection === fontSelection) setFontStatus(error.message || 'This font file could not be loaded. Try another font file.');
+    }
+  }
+
   function applyCurrentSettings(previous) {
+    void globalThis.RobloxCustomizerFonts?.apply(settings);
+    refreshFontControls();
     pendingAppearance = null;
     globalThis.RobloxCustomizerI18n?.setLanguage(settings.uiLanguage);
     const language = modal?.querySelector('#rc-ui-language');
@@ -948,13 +1149,17 @@
       applyHomePreferences();
       renderHiddenRecommendedGames();
     }
+    if (!previous || HOME_BANNER.some(control => previous[control.key] !== settings[control.key])) {
+      applyHomeBannerPreferences();
+    }
+    if (!previous || previous.showPinnedGames !== settings.showPinnedGames) applyPinnedGamesVisibility();
     if (!previous || previous.friendRows !== settings.friendRows) {
       document.dispatchEvent(new CustomEvent('rc-friend-rows-changed', {
         detail: { rows: settings.friendRows }
       }));
     }
     if (!previous || ['greetingMorning', 'greetingAfternoon', 'greetingEvening',
-      'clockShowSeconds', 'clockShowDate', 'clockHour12']
+      'clockShowSeconds', 'clockHour12']
       .some(key => previous[key] !== settings[key])) updateHomeGreeting();
     if (!previous || previous.clockShowSeconds !== settings.clockShowSeconds) scheduleHomeGreetingTick();
     if (!previous || ['source', 'url', 'urlType', 'fileKey'].some(key => previous[key] !== settings[key])) {
@@ -988,7 +1193,7 @@
     saveQueue = saveQueue.then(async () => {
       await chrome.storage.local.set({ [STORAGE_KEY]: snapshot });
       for (const key of [...pendingFileDeletes]) {
-        if (key === settings.fileKey) continue;
+        if (key === settings.fileKey || key === settings.fontFileKey) continue;
         try { await deleteFile(key); pendingFileDeletes.delete(key); } catch { /* Retry later. */ }
       }
       return true;
@@ -1008,6 +1213,7 @@
   function changeSettings(next, saveImmediately = false) {
     const previous = settings;
     if (previous.fileKey && previous.fileKey !== next.fileKey) pendingFileDeletes.add(previous.fileKey);
+    if (previous.fontFileKey && previous.fontFileKey !== next.fontFileKey) pendingFileDeletes.add(previous.fontFileKey);
     settings = next;
     settingsChanged = true;
     applyCurrentSettings(previous);
@@ -1088,7 +1294,7 @@
     const unlock = lockBackupControls();
     backupStatus('Preparing backup...');
     try {
-      await mediaTask;
+      await Promise.all([mediaTask, fontTask]);
       if (!await (persistTimer ? flushSettingsSave() : saveQueue)) return;
       const core = globalThis.RobloxCustomizerBackup;
       const result = await backupRequest('export');
@@ -1110,8 +1316,22 @@
         media = { key: background.fileKey, name: background.fileName || file.name || 'background',
           type, size: file.size, lastModified: file.lastModified || 0, base64: encoded };
       }
+      let font = null;
+      if (background.fontFileKey) {
+        const file = await readFile(background.fontFileKey);
+        if (!file) throw new Error('Your saved font file is unavailable. Choose it again.');
+        const base64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result.slice(reader.result.indexOf(',') + 1));
+          reader.onerror = () => reject(reader.error);
+          reader.readAsDataURL(file);
+        });
+        font = { key: background.fontFileKey, name: background.fontFileName,
+          type: `font/${background.fontFileName.split('.').pop().toLowerCase()}`,
+          size: file.size, lastModified: file.lastModified || 0, base64 };
+      }
       const backup = core.validate({ format: core.FORMAT, version: core.VERSION,
-        createdAt: new Date().toISOString(), extensionVersion: result.extensionVersion, data: result.data, media });
+        createdAt: new Date().toISOString(), extensionVersion: result.extensionVersion, data: result.data, media, font });
       const blob = new Blob([JSON.stringify(backup)], { type: 'application/json' });
       if (blob.size > core.MAX_BYTES) throw new Error('Backup files must be smaller than 256 MB.');
       const url = URL.createObjectURL(blob);
@@ -1139,6 +1359,7 @@
         <p>This backup contains your extension appearance, Home and social settings, currency preference, pinned games and folders, and playtime histories.</p>
         <p id="rc-import-preview-counts"></p>
         <p id="rc-import-preview-media"></p>
+        <p id="rc-import-preview-font" hidden></p>
         <p>Playtime stays with the original Roblox accounts listed below. If you sign in to a different account, this history will not appear as that account's Home playtime after the next account check; the records remain stored.</p>
         <ul id="rc-import-preview-accounts"></ul>
         <p>Roblox account data, Robux, purchases, and game progress cannot be imported.</p>
@@ -1162,6 +1383,10 @@
       : backup.data.customBackground.source === 'url'
         ? 'A saved background URL is included; no uploaded file is included.'
         : 'No uploaded background file is included.');
+    if (backup.font) {
+      preview.querySelector('#rc-import-preview-font').hidden = false;
+      preview.querySelector('#rc-import-preview-font').textContent = t('A custom font file is included.');
+    }
     const list = preview.querySelector('#rc-import-preview-accounts');
     if (!accounts.length) {
       const empty = document.createElement('li');
@@ -1224,10 +1449,11 @@
     const unlock = lockBackupControls();
     backupStatus('Importing backup...');
     let mediaKey = '';
+    let fontKey = '';
     let imported = false;
     let submitted = false;
     try {
-      await mediaTask;
+      await Promise.all([mediaTask, fontTask]);
       if (!await (persistTimer ? flushSettingsSave() : saveQueue)) return;
       if (backup.media) {
         const parts = [];
@@ -1243,7 +1469,22 @@
         backup.data.customBackground.fileKey = mediaKey;
         backup.data.customBackground.fileName = backup.media.name;
       }
+      if (backup.font) {
+        const parts = [];
+        for (let i = 0; i < backup.font.base64.length; i += 1048576) {
+          const bytes = atob(backup.font.base64.slice(i, i + 1048576));
+          parts.push(Uint8Array.from(bytes, character => character.charCodeAt(0)));
+          if (i) await new Promise(resolve => setTimeout(resolve, 0));
+        }
+        const file = new File(parts, backup.font.name, { type: backup.font.type, lastModified: backup.font.lastModified });
+        const face = await globalThis.RobloxCustomizerFonts.prepareFile(file);
+        fontKey = crypto.randomUUID();
+        await writeFile(fontKey, file);
+        globalThis.RobloxCustomizerFonts.cacheFile(fontKey, face);
+        backup.data.customBackground.fontFileKey = fontKey;
+      }
       const oldKey = settings.fileKey;
+      const oldFontKey = settings.fontFileKey;
       submitted = true;
       await backupRequest('import', { data: backup.data });
       imported = true;
@@ -1251,10 +1492,12 @@
       settingsChanged = true;
       applyCurrentSettings();
       if (oldKey && oldKey !== mediaKey) void deleteFile(oldKey).catch(() => {});
+      if (oldFontKey && oldFontKey !== fontKey) void deleteFile(oldFontKey).catch(() => {});
     } catch (error) {
       // A closed/timed-out response does not prove the worker failed to commit.
       // Keep its media in that case so a completed/late restore stays usable.
       if (mediaKey && !imported && (!submitted || error.backupRejected)) await deleteFile(mediaKey).catch(() => {});
+      if (fontKey && !imported && (!submitted || error.backupRejected)) await deleteFile(fontKey).catch(() => {});
       backupStatus(error.message || 'Could not import backup. Your existing data was kept.', true);
     } finally {
       unlock();
@@ -1282,7 +1525,8 @@
     backupStatus('Resetting all data...');
     try {
       ++mediaSelection;
-      await mediaTask;
+      ++fontSelection;
+      await Promise.all([mediaTask, fontTask]);
       clearTimeout(persistTimer);
       persistTimer = 0;
       pendingAppearance = null;
@@ -1290,7 +1534,7 @@
       await clearFiles();
       await backupRequest('reset');
       pendingFileDeletes.clear();
-      for (const key of ['roblox-customizer-visuals-v1', 'roblox-customizer-friend-rows']) {
+      for (const key of ['roblox-customizer-visuals-v1', 'roblox-customizer-friend-rows', 'roblox-customizer-font-v1']) {
         try { localStorage.removeItem(key); } catch { /* These are optional page caches. */ }
       }
       location.reload();
@@ -1349,8 +1593,9 @@
     const content = layout.querySelector('.rc-settings-content');
     const categories = [
       { id: 'appearance', title: 'Appearance', nodes: ['.rc-default-source', '.rc-settings-field',
-        '.rc-settings-options', '.rc-settings-glass', '.rc-settings-colors'] },
+        '.rc-settings-options', '.rc-settings-glass', '.rc-settings-colors', '.rc-settings-fonts'] },
       { id: 'home', title: 'Home page', nodes: ['.rc-settings-home', '#rc-playtime-settings', '#rc-server-history-settings'] },
+      { id: 'pinned-games', title: 'Pinned Games', nodes: ['.rc-settings-pinned-games'] },
       { id: 'social', title: 'Social', nodes: ['.rc-settings-social'] },
       { id: 'currency', title: 'Currency', nodes: ['#rc-currency-settings'] },
       { id: 'data', title: 'Language & data', nodes: ['.rc-settings-language', '.rc-settings-backup'] }
@@ -1416,7 +1661,7 @@
   function updateLegalLinks() {
     if (!modal) return;
     const locale = globalThis.RobloxCustomizerI18n?.locale() || 'en';
-    const language = ['en', 'zh-CN', 'zh-TW', 'id'].includes(locale) ? locale : 'en';
+    const language = ['en', 'zh-CN', 'zh-TW', 'id', 'ja', 'th', 'ko'].includes(locale) ? locale : 'en';
     const suffix = language === 'en' ? '' : `.${language}`;
     for (const link of modal.querySelectorAll('[data-rc-legal-document]')) {
       const file = link.dataset.rcLegalDocument === 'terms' ? 'TERMS' : 'PRIVACY';
@@ -1451,8 +1696,8 @@
         </div>
         <section id="rc-settings-language-notice" role="note" aria-labelledby="rc-settings-language-notice-title" hidden>
           <strong id="rc-settings-language-notice-title">Your Roblox language is not supported yet</strong>
-          <p>Only image backgrounds and custom colors are available. All other features are disabled.</p>
-          <p>To use all features, switch Roblox's language to English, Simplified Chinese, Traditional Chinese, or Indonesian.</p>
+          <p>Only image backgrounds, custom colors, and custom fonts are available. All other features are disabled.</p>
+          <p>To use all features, switch Roblox's language to English, Simplified Chinese, Traditional Chinese, Indonesian, Japanese, Thai, or Korean.</p>
           <a href="/my/account#!/info">Open Roblox language settings</a>
         </section>
         <p class="rc-settings-intro">Changes save automatically. Sliders and colors apply when released or after a short pause. GIFs and MP4 videos stay animated.</p>
@@ -1464,6 +1709,9 @@
             <option value="zh-CN">简体中文</option>
             <option value="zh-TW">繁體中文</option>
             <option value="id">Bahasa Indonesia</option>
+            <option value="ja">日本語</option>
+            <option value="th">ไทย</option>
+            <option value="ko">한국어</option>
           </select>
         </div>
         <div id="rc-currency-settings" class="rc-settings-currency"></div>
@@ -1507,6 +1755,34 @@
           </fieldset>
           <button id="rc-reset-colors" type="button" class="rc-button rc-button-secondary">Reset and disable</button>
         </section>
+        <section class="rc-settings-fonts" aria-labelledby="rc-font-title">
+          <h3 id="rc-font-title">Website font</h3>
+          <p class="rc-settings-hint">Choose a local font file to change text across Roblox. Your file stays in this browser.</p>
+          <label for="rc-font-file">Font file</label>
+          <input id="rc-font-file" type="file" accept=".ttf,.otf,.woff,.woff2" aria-describedby="rc-font-formats">
+          <p id="rc-font-formats" class="rc-settings-hint">TTF, OTF, WOFF, or WOFF2, up to 32 MB. Missing characters use a fallback font.</p>
+          <p id="rc-font-file-name" data-rc-i18n-ignore translate="no"></p>
+          <label class="rc-settings-toggle"><input id="rc-custom-font-enabled" type="checkbox"> Use custom font</label>
+          <p id="rc-font-preview" data-rc-i18n-ignore translate="no" aria-label="Font preview">Aa Bb Cc · 0123456789<br>中文字体預覽 · Selamat datang!</p>
+          <p id="rc-font-status" class="rc-settings-hint" role="status" aria-live="polite"></p>
+          <button id="rc-reset-font" type="button" class="rc-button rc-button-secondary">Restore default font</button>
+        </section>
+        <div class="rc-settings-pinned-games">
+          <label for="rc-show-pinned-games" class="rc-settings-toggle">
+            <input id="rc-show-pinned-games" type="checkbox">
+            <span>Enable Pinned Games</span>
+          </label>
+          <p class="rc-settings-hint">Turn off to remove Pinned Games from Home and the pin buttons on game pages. Your saved games and folders remain available here.</p>
+          <h4>Saved games and folders</h4>
+          <p id="rc-saved-pinned-summary" class="rc-settings-hint"></p>
+          <div class="rc-settings-pinned-filter">
+            <label for="rc-saved-pinned-folder">Game folders</label>
+            <select id="rc-saved-pinned-folder" data-rc-i18n-ignore></select>
+          </div>
+          <ul id="rc-saved-pinned-games"></ul>
+          <p id="rc-saved-pinned-status" class="rc-settings-hint" role="status"></p>
+          <button id="rc-saved-pinned-more" type="button" class="rc-button rc-button-secondary" hidden>Show more games</button>
+        </div>
         <div class="rc-settings-home">
           <div class="rc-home-visibility-controls" role="group" aria-label="Home page visibility">
             <label for="rc-hide-favorites" class="rc-settings-toggle">
@@ -1538,6 +1814,16 @@
               <option value="3">3 rows</option>
             </select>
           </div>
+          <div class="rc-settings-home-banner" aria-labelledby="rc-home-banner-title">
+            <h4 id="rc-home-banner-title">Home banner</h4>
+            <p class="rc-settings-hint">Choose what appears in the banner. Hidden parts keep their settings and playtime history.</p>
+            <label class="rc-settings-toggle"><input id="rc-home-show-banner" type="checkbox"> Show Home banner</label>
+            <fieldset id="rc-home-banner-parts">
+              <legend>Banner contents</legend>
+              ${HOME_BANNER.filter(control => control.key !== 'showHomeBanner').map(control =>
+                `<label class="rc-settings-toggle"><input id="${control.id}" type="checkbox"> ${control.label}</label>`).join('')}
+            </fieldset>
+          </div>
           <div class="rc-settings-greetings">
             <h4>Personal greetings</h4>
             <p class="rc-settings-hint">Shown after your name. Leave blank to use the default greeting.</p>
@@ -1552,7 +1838,6 @@
             <h4>Home clock</h4>
             <div class="rc-settings-clock-toggles">
               <label class="rc-settings-toggle"><input id="rc-clock-seconds" type="checkbox"> Show seconds</label>
-              <label class="rc-settings-toggle"><input id="rc-clock-date" type="checkbox"> Show date</label>
             </div>
             <label for="rc-clock-hour-format">Hour format</label>
             <select id="rc-clock-hour-format"><option value="24">24-hour</option><option value="12">12-hour</option></select>
@@ -1609,6 +1894,8 @@
       globalThis.RobloxCustomizerServerHistoryUI?.mountSettings(modal.querySelector('#rc-server-history-settings'));
     }
     organizeSettingsCategories();
+    pinnedLibraryReady = false;
+    void loadPinnedLibrary();
     // Previously saved URL backgrounds still render, but have no source control.
     const sourceControl = [...modal.querySelectorAll('input[name="rc-source"]')]
       .find(input => input.value === settings.source);
@@ -1621,6 +1908,7 @@
     modal.querySelector('#rc-glass-opacity').value = settings.glassOpacity;
     modal.querySelector('#rc-glass-opacity-value').value = `${settings.glassOpacity}%`;
     for (const control of HOME_VISIBILITY) modal.querySelector(`#${control.id}`).checked = settings[control.key] === true;
+    modal.querySelector('#rc-show-pinned-games').checked = settings.showPinnedGames !== false;
     for (const control of FEED_VISIBILITY) modal.querySelector(`#${control.id}`).checked = settings[control.key] === true;
     renderHiddenRecommendedGames();
     modal.querySelector('#rc-friend-rows').value = String(Math.max(1, Math.min(3,
@@ -1640,6 +1928,8 @@
     refreshSourceControls();
     refreshEffectControls();
     refreshColorControls();
+    refreshFontControls();
+    refreshHomeBannerControls();
     if (backgroundError) setStatus(backgroundError, true);
     modal.querySelector('#rc-export-backup').addEventListener('click', exportBackup);
     modal.querySelector('#rc-import-backup').addEventListener('click', () => modal.querySelector('#rc-import-file').click());
@@ -1714,6 +2004,31 @@
         customTextColor: DEFAULTS.customTextColor, customBackgroundColor: DEFAULTS.customBackgroundColor,
         customAccentColor: DEFAULTS.customAccentColor }, true);
     });
+    modal.querySelector('#rc-font-file').addEventListener('change', event => {
+      const file = event.target.files[0];
+      event.target.value = '';
+      if (file) fontTask = applyFontSelection(file);
+    });
+    modal.querySelector('#rc-custom-font-enabled').addEventListener('change', event => {
+      ++fontSelection;
+      changeSettings({ ...settings, customFontEnabled: event.target.checked }, true);
+    });
+    modal.querySelector('#rc-reset-font').addEventListener('click', () => {
+      ++fontSelection;
+      changeSettings({ ...settings, customFontEnabled: false, fontFileKey: '', fontFileName: '' }, true);
+    });
+    modal.querySelector('#rc-show-pinned-games').addEventListener('change', event => {
+      changeSettings({ ...settings, showPinnedGames: event.target.checked }, true);
+    });
+    modal.querySelector('#rc-saved-pinned-folder').addEventListener('change', event => {
+      pinnedLibraryFolder = event.target.value;
+      pinnedLibraryLimit = 24;
+      renderPinnedLibrary();
+    });
+    modal.querySelector('#rc-saved-pinned-more').addEventListener('click', () => {
+      pinnedLibraryLimit += 24;
+      renderPinnedLibrary();
+    });
     for (const control of HOME_VISIBILITY) {
       modal.querySelector(`#${control.id}`).addEventListener('change', event => {
         changeSettings({ ...settings, [control.key]: event.target.checked }, true);
@@ -1733,7 +2048,12 @@
         changeSettings({ ...settings, [key]: event.target.value });
       });
     }
-    for (const [id, key] of [['seconds', 'clockShowSeconds'], ['date', 'clockShowDate']]) {
+    for (const control of HOME_BANNER) {
+      modal.querySelector(`#${control.id}`).addEventListener('change', event => {
+        changeSettings({ ...settings, [control.key]: event.target.checked }, true);
+      });
+    }
+    for (const [id, key] of [['seconds', 'clockShowSeconds']]) {
       modal.querySelector(`#rc-clock-${id}`).addEventListener('change', event => {
         changeSettings({ ...settings, [key]: event.target.checked }, true);
       });
@@ -1756,7 +2076,7 @@
       else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     });
     if (!enhancementsEnabled()) {
-      for (const node of modal.querySelectorAll('.rc-settings-glass, #rc-settings-category-home, #rc-settings-category-social, #rc-settings-category-currency, #rc-settings-category-data, #rc-reset-all, .rc-action-spacer')) {
+      for (const node of modal.querySelectorAll('.rc-settings-glass, #rc-settings-category-home, #rc-settings-category-pinned-games, #rc-settings-category-social, #rc-settings-category-currency, #rc-settings-category-data, #rc-reset-all, .rc-action-spacer')) {
         node.hidden = true;
         for (const input of node.querySelectorAll('input, select, button')) input.disabled = true;
       }
@@ -1811,7 +2131,9 @@
   }, true);
 
   chrome.storage.onChanged.addListener((changes, area) => {
-    if (area !== 'local' || !changes[STORAGE_KEY]) return;
+    if (area !== 'local') return;
+    if (changes.pinnedGames || changes.pinnedGameFolders) void loadPinnedLibrary();
+    if (!changes[STORAGE_KEY]) return;
     if (changes[STORAGE_KEY].newValue?._writer === writerId) return;
     const previous = settings;
     settings = currentSettings(changes[STORAGE_KEY].newValue);
@@ -1896,7 +2218,10 @@
     else resumeBackgroundVideo();
   });
   globalThis.RobloxCustomizerI18n?.onChange(updateHomeGreeting);
+  document.addEventListener('rc-home-banner-content-changed', updateHomeGreeting);
   globalThis.RobloxCustomizerI18n?.onChange(updateLegalLinks);
+  globalThis.RobloxCustomizerI18n?.onChange(renderPinnedLibrary);
+  globalThis.RobloxCustomizerFonts?.onChange(refreshFontControls);
   globalThis.RobloxCustomizerCompatibility?.onBeforeReload(() => persistTimer ? flushSettingsSave() : saveQueue);
   chrome.runtime.onMessage?.addListener((message, sender) => {
     if (message?.type === 'rc-open-settings' && sender.id === chrome.runtime.id) openModal();

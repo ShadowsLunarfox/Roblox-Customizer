@@ -8,6 +8,9 @@ const workspace = path.resolve(__dirname, '..');
 const titles = {
   en: { terms: 'Terms of Service', privacy: 'Privacy Policy' },
   id: { terms: 'Ketentuan Layanan', privacy: 'Kebijakan Privasi' },
+  ja: { terms: '利用規約', privacy: 'プライバシーポリシー' },
+  th: { terms: 'ข้อกำหนดการใช้งาน', privacy: 'นโยบายความเป็นส่วนตัว' },
+  ko: { terms: '이용 약관', privacy: '개인정보 처리방침' },
   'zh-CN': { terms: '服务条款', privacy: '隐私政策' },
   'zh-TW': { terms: '服務條款', privacy: '隱私權政策' }
 };
@@ -69,7 +72,7 @@ test('Settings and first-visit acceptance link to GitHub policies in all languag
       await browser.evaluate('openCustomizer()');
       await browser.waitFor("!!document.querySelector('#rc-settings-overlay')");
       assert.equal(await browser.evaluate('RobloxCustomizerCompatibility.fallback()'), robloxLanguage === 'fr-FR');
-      for (const language of ['en', 'id', 'zh-CN', 'zh-TW']) {
+      for (const language of ['en', 'id', 'ja', 'th', 'ko', 'zh-CN', 'zh-TW']) {
         await browser.evaluate(`RobloxCustomizerI18n.setLanguage(${JSON.stringify(language)})`);
         await browser.waitFor(`document.querySelector('[data-rc-legal-document="privacy"]').textContent===${JSON.stringify(titles[language].privacy)}`);
         for (const width of [1280, 320]) {
@@ -115,7 +118,7 @@ test('Settings and first-visit acceptance link to GitHub policies in all languag
     await browser.evaluate('openCustomizer();openCustomizer();openCustomizer()');
     assert.equal(await browser.evaluate("document.querySelectorAll('#rc-terms-dialog').length"), 1, 'Repeated opening requests share one prompt');
     assert.equal(await browser.evaluate("!!document.querySelector('#rc-settings-overlay')"), false, 'Settings wait for acceptance');
-    for (const [language, title] of [['en','Welcome to Roblox Customizer'], ['id','Selamat datang di Roblox Customizer'], ['zh-CN','欢迎使用 Roblox Customizer'], ['zh-TW','歡迎使用 Roblox Customizer']]) {
+    for (const [language, title] of [['en','Welcome to Roblox Customizer'], ['id','Selamat datang di Roblox Customizer'], ['ja','Roblox Customizerへようこそ'], ['th','ยินดีต้อนรับสู่ Roblox Customizer'], ['ko','Roblox Customizer에 오신 것을 환영합니다'], ['zh-CN','欢迎使用 Roblox Customizer'], ['zh-TW','歡迎使用 Roblox Customizer']]) {
       await browser.evaluate(`RobloxCustomizerI18n.setLanguage(${JSON.stringify(language)})`);
       await browser.waitFor(`document.querySelector('#rc-terms-title').textContent===${JSON.stringify(title)}`);
       for (const width of [1280, 320]) {

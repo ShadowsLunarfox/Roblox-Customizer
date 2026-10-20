@@ -56,6 +56,24 @@ test('avatar navigation recognizes current English and Chinese filter names', ()
   assert.equal(labels.classify('avatar', 'Recently Worn Simulator'), '');
 });
 
+test('Thai avatar filters recognize the native clothing, body, avatar and recent menu names', () => {
+  const cases = {
+    accessories: ['ไอเท็มเสริม'], makeup: ['การแต่งหน้า'],
+    'recently added': ['เพิ่มเข้ามาล่าสุด'], recent: ['สวมใส่ล่าสุด'], expired: ['หมดอายุแล้ว'],
+    creations: ['ผลงานสร้างสรรค์'], scale: ['การปรับขนาด'],
+    tops: ['เสื้อผ้าท่อนบน'], outerwear: ['เสื้อชั้นนอก'], bottoms: ['เสื้อผ้าท่อนล่าง'],
+    jackets: ['เสื้อแจ็คเก็ต'], pants: ['กางเกงขายาว'],
+    'left shoe': ['รองเท้าข้างซ้าย'], 'right shoe': ['รองเท้าข้างขวา'],
+    'classic shirts': ['เสื้อเชิ้ตแบบคลาสสิก'], 'classic pants': ['กางเกงขายาวแบบคลาสสิก'],
+    'classic t-shirts': ['เสื้อยืดแบบคลาสสิก'], fall: ['หล่น']
+  };
+  for (const [expected, names] of Object.entries(cases)) for (const name of names) {
+    assert.equal(labels.classify('avatar', name), expected, name);
+    assert.equal(labels.classify('avatar', name.normalize('NFKC')), expected, `${name} (NFKC)`);
+    assert.equal(labels.classify('avatar', `${name} Simulator`), '', `${name}: exact filter label only`);
+  }
+});
+
 test('localized accessible preview labels identify 2D and 3D controls', () => {
   for (const [text, expected] of [['3D', '3'], ['Switch to 2D', '2'], ['切换至３Ｄ视图', '3'],
     ['切換到 2D 模式', '2'], ['以 3D 檢視', '3']]) assert.equal(labels.previewMode(text), expected, text);
@@ -70,6 +88,120 @@ test('player filtering reads Chinese counts including zero and full-width number
     assert.equal(parsed?.maxPlayers, maxPlayers, text);
   }
   for (const text of ['Private server 123', '20/8人', '没有服务器']) assert.equal(labels.playerCount(text), null, text);
+});
+
+test('Thai labels handle combining marks, Thai digits, control scope and private server empty states', () => {
+  for (const [group, text, key] of [
+    ['home', 'รายการโปรด (๑๒) ดูทั้งหมด →', 'favorites'], ['home', 'แนะนำสำหรับคุณ', 'recommended'],
+    ['home', 'เกมที่โดดเด่น', 'standout'], ['home', 'เกมที่แนะนำ', 'recommended'],
+    ['profile', 'กำลังสวมใส่', 'wearing'], ['profile', 'สวมอยู่ตอนนี้', 'wearing'],
+    ['profile', 'สวมอยู่ตอนนี้ ดูทั้งหมด →', 'wearing'], ['profile', 'ประสบการณ์', 'experiences'], ['profile', 'เพื่อน (200)', 'friends'],
+    ['profile', 'ชุมชน', 'communities'], ['profile', 'คอลเลกชัน', 'collections'],
+    ['store', 'การสมัครสมาชิก', 'subscriptions'], ['store', 'พาส', 'passes'], ['store', 'ผลิตภัณฑ์ผู้พัฒนา', 'products'],
+    ['avatar', 'เสื้อผ้า', 'clothing'], ['avatar', 'เสื้อยืดคลาสสิก', 'classic t-shirts'], ['avatar', 'ลำตัว', 'torso'],
+    ['avatar', 'สวมอยู่ตอนนี้', 'currently wearing']
+  ]) assert.equal(labels.classify(group, text), key, text);
+  for (const [kind, text] of [
+    ['settings', 'การตั้งค่า'], ['about', 'เกี่ยวกับ'], ['creations', 'ผลงาน'], ['chat', 'แชท'], ['seeAll', 'ดูทั้งหมด'],
+    ['more', 'แสดงเพิ่มเติม'], ['noBio', 'ยังไม่มีคำแนะนำตัว'], ['followers', 'ผู้ติดตาม 12 คน'],
+    ['tryOn', 'ลองสวมใส่'], ['join', 'เข้าร่วม'], ['livePlayers', 'กำลังเล่น'], ['loadMore', 'โหลดเพิ่มเติม'],
+    ['sortBy', 'เรียงตาม:'], ['excludeFull', 'ยกเว้นเซิร์ฟเวอร์ที่เต็ม'], ['emptyServers', 'ไม่มีเซิร์ฟเวอร์ส่วนตัว'],
+    ['publicEmptyServers', 'ไม่พบเซิร์ฟเวอร์สาธารณะ'], ['createPrivate', 'สร้างเซิร์ฟเวอร์ส่วนตัว'], ['emptyStore', 'ไม่มีพาสขาย']
+  ]) {
+    assert.equal(labels.matches(kind, text), true, text);
+    assert.equal(labels.matches(kind, text.normalize('NFKC')), true, text + ' (NFKC)');
+  }
+  assert.equal(labels.matches('publicEmptyServers', 'ไม่มีเซิร์ฟเวอร์ส่วนตัว'), false);
+  assert.equal(labels.classify('home', 'แนะนำสำหรับคุณ Simulator'), '');
+  assert.equal(labels.classify('profile', 'สวมอยู่ตอนนี้ Simulator'), '');
+  assert.equal(labels.matches('chat', 'แชท Simulator'), false);
+  assert.equal(labels.previewMode('เปลี่ยนเป็น 2D'), '2');
+  assert.equal(labels.previewMode('ดูแบบ 3D'), '3');
+  for (const [text, playing, max] of [['8 จาก 20 คน', 8, 20], ['๘ จาก ๒๐ คน', 8, 20], ['0/20 คน', 0, 20], ['1,234 คน', 1234, null]]) {
+    assert.equal(labels.playerCount(text)?.playing, playing, text);
+    assert.equal(labels.playerCount(text)?.maxPlayers, max, text);
+  }
+  assert.equal(labels.playerCount('๒๐ จาก ๘ คน'), null);
+});
+
+test('Korean native labels, avatar filters and server counts preserve their scope', () => {
+  for (const [group, text, key] of [
+    ['home', '즐겨찾기 (１２) 모두 보기 →', 'favorites'], ['home', '회원님을 위한 추천', 'recommended'],
+    ['home', '추천 게임', 'recommended'], ['home', '주목할 만한 게임', 'standout'],
+    ['home', '이런 건 어떠세요', 'recommended'], ['home', '이런 건 어떠세요 모두 보기 →', 'recommended'],
+    ['home', '주목할 게임', 'standout'], ['home', '주목할 게임 Roblox의 미래를 만들어가는 선별된 게임', 'standout'],
+    ['profile', '현재 착용 중', 'wearing'], ['profile', '현재 착용 중 전체 보기', 'wearing'],
+    ['profile', '현재 장착 중', 'wearing'], ['profile', '현재 장착 중 모두 보기 →', 'wearing'],
+    ['profile', '친구 (200)', 'friends'], ['profile', '커뮤니티', 'communities'], ['profile', '체험', 'experiences'],
+    ['profile', '컬렉션', 'collections'], ['store', '구독', 'subscriptions'], ['store', '패스', 'passes'], ['store', '개발자 상품', 'products'],
+    ['avatar', '의상 메뉴', 'clothing'], ['avatar', '클래식 티셔츠', 'classic t-shirts'], ['avatar', '신체 부위', 'body'],
+    ['avatar', '크기 조정', 'scale'], ['avatar', '왼쪽 신발', 'left shoe'], ['avatar', '낙하', 'fall'], ['avatar', '창작물', 'creations'],
+    ['avatar', '현재 장착 중', 'currently wearing']
+  ]) {
+    assert.equal(labels.classify(group, text), key, text);
+    assert.equal(labels.classify(group, text.normalize('NFD')), key, `${text} (decomposed Hangul)`);
+  }
+  for (const [kind, text] of [
+    ['settings', '설정'], ['about', '소개'], ['creations', '창작물'], ['chat', '채팅'], ['seeAll', '모두 보기'],
+    ['more', '더 보기'], ['noBio', '아직 소개가 없습니다.'], ['followers', '팔로워 12명'],
+    ['tryOn', '착용해 보기'], ['join', '참가'], ['livePlayers', '플레이 중'], ['loadMore', '더 불러오기'],
+    ['sortBy', '정렬 기준:'], ['excludeFull', '가득 찬 서버 제외'], ['emptyServers', '비공개 서버가 없습니다.'],
+    ['publicEmptyServers', '현재 실행 중인 체험이 없습니다.'], ['createPrivate', '비공개 서버 만들기'], ['emptyStore', '패스가 없습니다.']
+  ]) assert.equal(labels.matches(kind, text), true, text);
+  assert.equal(labels.matches('publicEmptyServers', '비공개 서버가 없습니다.'), false);
+  assert.equal(labels.matches('chat', '채팅 시뮬레이터'), false);
+  for (const text of ['회원님을 위한 추천 시뮬레이터', '즐겨찾기 게임 시뮬레이터', '이런 건 어떠세요 시뮬레이터']) assert.equal(labels.classify('home', text), '', text);
+  assert.equal(labels.classify('profile', '현재 장착 중 시뮬레이터'), '');
+  assert.equal(labels.previewMode('2D로 전환'), '2');
+  assert.equal(labels.previewMode('3D 미리 보기'), '3');
+  assert.equal(labels.previewMode('3D 모델 상점'), '');
+  for (const [text, playing, max] of [['최대 20명 중 8명', 8, 20], ['20명 중 0명', 0, 20], ['8/20명', 8, 20], ['1,234명', 1234, null]]) {
+    assert.equal(labels.playerCount(text)?.playing, playing, text);
+    assert.equal(labels.playerCount(text)?.maxPlayers, max, text);
+  }
+  assert.equal(labels.playerCount('최대 8명 중 20명'), null);
+});
+
+test('Korean avatar navigation recognizes the native labels shown in the editor menus', () => {
+  const cases = {
+    clothing: ['복장'], accessories: ['장신구'], idle: ['빈둥대기'],
+    front: ['전면'], back: ['후면'], jackets: ['재킷'], 'dresses & skirts': ['원피스 및 치마'],
+    'left legs': ['왼 다리'], 'right legs': ['오른 다리'], scale: ['배율'],
+    'recently added': ['새로 추가된 아이템'], recent: ['최근 장착']
+  };
+  for (const [expected, names] of Object.entries(cases)) for (const name of names) {
+    assert.equal(labels.classify('avatar', name), expected, name);
+    assert.equal(labels.classify('avatar', name.normalize('NFD')), expected, `${name} (decomposed Hangul)`);
+    assert.equal(labels.classify('avatar', `${name} 시뮬레이터`), '', `${name}: exact menu label only`);
+  }
+});
+
+test('Japanese native headings and controls preserve scope, server counts and private empty-state distinctions', () => {
+  for (const [group, text, key] of [
+    ['home', 'お気に入り（１２）すべて表示 →', 'favorites'], ['home', 'あなたへのおすすめ', 'recommended'],
+    ['home', '注目のゲーム', 'standout'], ['home', 'おすすめのバーチャル空間', 'recommended'],
+    ['profile', '装備中', 'wearing'], ['profile', 'バーチャル空間', 'experiences'],
+    ['profile', 'フレンド（200）', 'friends'], ['profile', 'コミュニティ', 'communities'], ['profile', 'コレクション', 'collections'],
+    ['store', 'サブスクリプション', 'subscriptions'], ['store', 'パス', 'passes'], ['store', '開発者製品', 'products'],
+    ['avatar', '服装メニュー', 'clothing'], ['avatar', 'クラシックTシャツ', 'classic t-shirts'], ['avatar', '顔', 'face']
+  ]) assert.equal(labels.classify(group, text), key, text);
+  for (const [kind, text] of [
+    ['settings', '設定'], ['about', '概要'], ['creations', '作品'], ['chat', 'チャット'], ['seeAll', 'すべて表示'],
+    ['more', 'もっと表示'], ['noBio', '自己紹介はまだありません。'], ['followers', 'フォロワー12人'],
+    ['tryOn', '試着'], ['join', '参加'], ['livePlayers', 'プレイ中'], ['loadMore', 'さらに読み込む'],
+    ['sortBy', '並び順：'], ['excludeFull', '満員のサーバーを除外'], ['emptyServers', 'プライベートサーバーがありません。'],
+    ['publicEmptyServers', '公開サーバーが見つかりません。'], ['createPrivate', 'プライベートサーバーを作成'], ['emptyStore', 'パスはありません。']
+  ]) assert.equal(labels.matches(kind, text), true, text);
+  assert.equal(labels.matches('publicEmptyServers', 'プライベートサーバーがありません。'), false);
+  for (const title of ['おすすめのゲームシミュレーター', 'お気に入りのゲームで遊ぼう']) assert.equal(labels.classify('home', title), '');
+  assert.equal(labels.matches('chat', 'チャットシミュレーター'), false);
+  assert.equal(labels.previewMode('2Dに切り替え'), '2');
+  assert.equal(labels.previewMode('3Dで表示'), '3');
+  for (const [text, playing, max] of [['8/20人', 8, 20], ['最大20人中8人', 8, 20], ['8人（最大20人）', 8, 20], ['1,234人', 1234, null]]) {
+    assert.equal(labels.playerCount(text)?.playing, playing, text);
+    assert.equal(labels.playerCount(text)?.maxPlayers, max, text);
+  }
+  assert.equal(labels.playerCount('最大8人中20人'), null);
 });
 
 test('Indonesian native sections, controls, preview modes and player counts are recognized', () => {

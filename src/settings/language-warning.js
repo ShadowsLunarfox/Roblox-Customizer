@@ -28,7 +28,7 @@
     }
     const fallback = globalThis.RobloxCustomizerCompatibility?.fallback();
     dialog.querySelector('#rc-language-warning-message').textContent = i18n.t(fallback
-      ? 'Your Roblox language ({language}) is not supported. Only image backgrounds and custom colors remain active; all other features are disabled to preserve the Roblox interface.'
+      ? 'Your Roblox language ({language}) is not supported. Only image backgrounds, custom colors, and custom fonts remain active; all other features are disabled to preserve the Roblox interface.'
       : 'Your Roblox language ({language}) is not supported by Roblox Customizer. Some features may not work correctly.', { language });
     if (fallback) dialog.querySelector('button').textContent = i18n.t('Continue with fallback');
     i18n.localize(dialog);
@@ -46,7 +46,7 @@
       <div class="rc-language-warning-icon" aria-hidden="true">!</div>
       <h2 id="rc-language-warning-title">Unsupported Roblox language</h2>
       <p id="rc-language-warning-message"></p>
-      <p id="rc-language-warning-advice">For the best experience, switch Roblox's language to English, Simplified Chinese, Traditional Chinese, or Indonesian.</p>
+      <p id="rc-language-warning-advice">For the best experience, switch Roblox's language to English, Simplified Chinese, Traditional Chinese, Indonesian, Japanese, Thai, or Korean.</p>
       <div class="rc-language-warning-actions">
         <a href="/my/account#!/info">Open Roblox language settings</a>
         <button type="button" autofocus>Continue anyway</button>

@@ -46,13 +46,13 @@
     </td>
     <td width="50%">
       <h3>🎨 Appearance</h3>
-      Adjustable glass blur and opacity, plus experimental text, background, and accent colors.
+      Adjustable glass blur and opacity, local font files, plus experimental text, background, and accent colors.
     </td>
   </tr>
   <tr>
     <td>
       <h3>🏠 Personalized Home</h3>
-      Greetings, a clock, up to three friend rows, pinned games and folders, and recommendation controls.
+      Greetings, a clock, up to three friend rows, pinned games and folders, and recommendation controls. Hide the Home banner or choose its avatar, name, greeting, time, date, and most-played card separately.
     </td>
     <td>
       <h3>⏱️ Local playtime</h3>
@@ -99,13 +99,21 @@ No build step is needed to install. Keep the extension folder in a permanent loc
 ## 🚀 Quick start
 
 - Choose a background and adjust its fit, dimming, blur, and opacity in **Appearance**. Changes save automatically.
+- In **Appearance → Website font**, choose a TTF, OTF, WOFF, or WOFF2 file (up to 32 MB) to replace Roblox text fonts. Preview it, toggle it off, or restore the default font. Missing characters use fallback fonts.
 - Click **Pin Game** on a game page, choose a folder, and confirm. Manage folders from **Pinned Games** on Home.
+- Turn off **Enable Pinned Games** in **Settings → Pinned Games** to disable the Home section and pin buttons on game pages. View your saved games and folders in this settings category, even while the feature is disabled.
 - Open a game's **Servers** tab, set your filters, and click **Search**.
 - Use **Backup and restore** to export your settings, backgrounds, pins, and playtime. Import replaces existing extension data.
 
 ## 🌐 Language support
 
-Full features require Roblox's language to be **English, Simplified Chinese, Traditional Chinese, or Indonesian**. Other languages use fallback mode: only image/GIF backgrounds and custom colors remain available, while Roblox's native layout is preserved.
+Full features require Roblox's language to be **English, Simplified Chinese, Traditional Chinese, Indonesian, Japanese, Thai, or Korean**. Other languages use fallback mode: image/GIF backgrounds, custom colors, and custom fonts remain available, while Roblox's native layout is preserved.
+
+Choose **日本語** under **Language & data → Extension language**, or use Automatic with Roblox set to Japanese. Japanese pages with `/ja/` or `/ja-jp/` paths are supported.
+
+Choose **ไทย** for Thai, or use Automatic with Roblox set to Thai. Thai pages with `/th/` or `/th-th/` paths are supported.
+
+Choose **한국어** for Korean, or use Automatic with Roblox set to Korean. Korean pages with `/ko/` or `/ko-kr/` paths are supported.
 
 Switch Roblox's language to restore all features. Changing only the extension's interface language does not leave fallback mode.
 

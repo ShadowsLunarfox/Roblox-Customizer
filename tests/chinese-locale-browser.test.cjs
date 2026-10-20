@@ -23,7 +23,22 @@ const locales = {
     settings: 'Pengaturan', public: 'Server Lainnya', sort: 'Urutkan Berdasarkan', exclude: 'Kecualikan Server Penuh', more: 'Muat Lebih Banyak',
     configure: 'Konfigurasi', join: 'Gabung', passes: 'Pass', products: 'Produk Developer', subscriptions: 'Langganan', active: 'Aktif',
     avatar: ['Terbaru', 'Avatar', 'Tubuh', 'Pakaian', 'Aksesori', 'Animasi'], hair: 'Rambut', preview: 'Beralih ke 2D', tryOn: 'Coba Pakai',
-    profile: ['Saat Ini Memakai', 'Pengalaman Virtual', 'Teman', 'Komunitas', 'Lencana', 'Koleksi', 'Favorit'], about: 'Tentang', creations: 'Kreasi' }
+    profile: ['Saat Ini Memakai', 'Pengalaman Virtual', 'Teman', 'Komunitas', 'Lencana', 'Koleksi', 'Favorit'], about: 'Tentang', creations: 'Kreasi' },
+  'ja-jp': { favorites: 'お気に入り', standout: '注目のゲーム', recommended: 'あなたへのおすすめ', lower: 'おすすめのゲーム',
+    settings: '設定', public: 'その他のサーバー', sort: '並び順', exclude: '満員のサーバーを除外', more: 'さらに読み込む',
+    configure: '設定', join: '参加', passes: 'パス', products: '開発者製品', subscriptions: 'サブスクリプション', active: 'プレイ中',
+    avatar: ['最近', 'アバター', 'ボディ', '服装', 'アクセサリー', 'アニメーション'], hair: '髪', preview: '2Dに切り替え', tryOn: '試着',
+    profile: ['装備中', 'バーチャル空間', 'フレンド', 'コミュニティ', 'バッジ', 'コレクション', 'お気に入り'], about: '概要', creations: '作品' },
+  'th-th': { favorites: 'รายการโปรด', standout: 'เกมที่โดดเด่น', recommended: 'แนะนำสำหรับคุณ', lower: 'เกมที่แนะนำ',
+    settings: 'การตั้งค่า', public: 'เซิร์ฟเวอร์อื่น', sort: 'เรียงตาม', exclude: 'ยกเว้นเซิร์ฟเวอร์ที่เต็ม', more: 'โหลดเพิ่มเติม',
+    configure: 'กำหนดค่า', join: 'เข้าร่วม', passes: 'พาส', products: 'ผลิตภัณฑ์ผู้พัฒนา', subscriptions: 'การสมัครสมาชิก', active: 'กำลังเล่น',
+    avatar: ['ล่าสุด', 'อวาตาร์', 'ร่างกาย', 'เสื้อผ้า', 'เครื่องประดับ', 'แอนิเมชัน'], hair: 'ผม', preview: 'เปลี่ยนเป็น 2D', tryOn: 'ลองสวมใส่',
+    profile: ['สวมอยู่ตอนนี้', 'ประสบการณ์', 'เพื่อน', 'ชุมชน', 'เหรียญตรา', 'คอลเลกชัน', 'รายการโปรด'], about: 'เกี่ยวกับ', creations: 'ผลงาน' },
+  'ko-kr': { favorites: '즐겨찾기', standout: '주목할 게임', recommended: '이런 건 어떠세요', lower: '이런 건 어떠세요',
+    settings: '설정', public: '다른 서버', sort: '정렬 기준', exclude: '가득 찬 서버 제외', more: '더 불러오기',
+    configure: '설정', join: '참가', passes: '패스', products: '개발자 상품', subscriptions: '구독', active: '플레이 중',
+    avatar: ['최근', '아바타', '신체', '복장', '장신구', '애니메이션'], hair: '헤어', preview: '2D로 전환', tryOn: '착용해 보기',
+    profile: ['현재 장착 중', '체험', '친구', '커뮤니티', '배지', '컬렉션', '즐겨찾기'], about: '소개', creations: '창작물' }
 };
 const setup = `
   const listeners=[];window.privateRequests=[];window.nativeJoins=0;window.nativeClicks=0;
@@ -57,8 +72,8 @@ function html(route, locale) {
   return `<!doctype html><html lang="${locale}" class="dark-theme"><head><meta charset="utf-8"><meta name="locale-data" data-language-code="${locale.replace('-', '_')}"><style>body{font:16px/1.5 Arial;margin:20px;background:#24252c;color:white}main{max-width:1000px;margin:auto}img{width:100px;height:100px}button{padding:8px}a{color:inherit}h2{font-size:22px}#settings-popover-menu{position:fixed;right:0;top:0}#settings-popover-menu a{display:block;padding:12px}#chat-root{position:fixed;right:0;bottom:0;width:270px}.react-chat-root section{height:180px;border-radius:12px;background:#30343b}#settings-container>aside{width:220px}#plain-settings{margin-left:240px}.ng-hide{display:none!important}</style>${styles.map(file => `<link rel="stylesheet" href="/${file}">`).join('')}</head><body><header><span id="nav-robux-amount">${locale === 'id-id' ? '12500' : '1.25' + (locale === 'zh-cn' ? '万' : '萬')}</span></header><ul role="menu" id="settings-popover-menu"><li><a href="/my/account">${l.settings}</a></li></ul>${content}<div id="chat-root" class="react-chat-root"><section id="native-chat" aria-label="聊天"><button>聊天</button><input data-testid="chat-search-input" placeholder="${locale === 'zh-cn' ? '搜索好友' : '搜尋好友'}"></section></div><div hidden id="native-hidden">隐藏内容</div></body></html>`;
 }
 
-test('Chinese and Indonesian native sections, controls and live locale updates work with all content scripts',
-  { skip: !process.env.CHROME_BIN, timeout: 60000 }, async t => {
+test('Localized native sections, controls and live locale updates work with all content scripts',
+  { skip: !process.env.CHROME_BIN, timeout: 90000 }, async t => {
     const files = new Set([...styles, ...scripts, 'icons/icon-48.png']);
     const server = http.createServer((request, response) => {
       const url = new URL(request.url, 'http://localhost'); const file = url.pathname.slice(1);
@@ -74,12 +89,15 @@ test('Chinese and Indonesian native sections, controls and live locale updates w
     await browser.send('Page.addScriptToEvaluateOnNewDocument', { source: setup });
     for (const file of scripts) await browser.send('Page.addScriptToEvaluateOnNewDocument', { source: fs.readFileSync(path.join(workspace, file), 'utf8') + '\n//# sourceURL=' + file });
     for (const locale of Object.keys(locales)) for (const route of ['/home', '/games/4623386862/Piggy', '/my/avatar', '/catalog/123/Item', '/users/123/profile', '/my/account#!/info']) {
-      const target = new URL((locale === 'id-id' ? '/id' : '') + route, `http://127.0.0.1:${server.address().port}`); target.searchParams.set('locale', locale);
+      const target = new URL((locale === 'id-id' ? '/id' : locale === 'ja-jp' ? '/ja' : locale === 'th-th' ? '/th' : locale === 'ko-kr' ? '/ko' : '') + route, `http://127.0.0.1:${server.address().port}`); target.searchParams.set('locale', locale);
       await browser.send('Page.navigate', { url: target.href }); await waitForDocument(browser, 'main', target.href);
       await browser.waitFor("!!document.querySelector('#native-chat[data-rc-chat-panel]') && !!document.querySelector('header .rc-robux-equivalent')");
       assert.equal(await browser.evaluate("document.querySelector('#native-hidden').checkVisibility()"), false);
       assert.equal(await browser.evaluate(`document.querySelector('header .rc-robux-equivalent').textContent.includes('${locale === 'id-id' ? '124,75' : '124.75'}')`), true, 'Localized Robux converts to the correct amount');
       if (locale === 'id-id') assert.equal(await browser.evaluate("RobloxCustomizerI18n.locale()==='id' && RobloxCustomizerCompatibility.enabled() && !document.querySelector('#rc-language-warning-dialog')"), true, 'Indonesian enables full features automatically');
+      if (locale === 'ja-jp') assert.equal(await browser.evaluate("RobloxCustomizerI18n.locale()==='ja' && RobloxCustomizerCompatibility.enabled() && !document.querySelector('#rc-language-warning-dialog')"), true, 'Japanese enables full features automatically');
+      if (locale === 'th-th') assert.equal(await browser.evaluate("RobloxCustomizerI18n.locale()==='th' && RobloxCustomizerCompatibility.enabled() && !document.querySelector('#rc-language-warning-dialog')"), true, 'Thai enables full features automatically');
+      if (locale === 'ko-kr') assert.equal(await browser.evaluate("RobloxCustomizerI18n.locale()==='ko' && RobloxCustomizerCompatibility.enabled() && !document.querySelector('#rc-language-warning-dialog')"), true, 'Korean enables full features automatically');
       if (route === '/home') {
         await browser.waitFor("document.querySelector('#lower').dataset.rcRecommendedSection==='lower'");
         assert.deepEqual(await browser.evaluate("['favorites','recommended','lower','continue'].map(id=>document.getElementById(id).checkVisibility())"), [false, false, true, true]);

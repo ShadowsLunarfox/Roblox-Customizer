@@ -29,6 +29,7 @@
   let loadedRoute = '';
   let toastTimer = 0;
   let storageVersion = 0;
+  const enabled = () => !document.documentElement?.hasAttribute('data-rc-hide-pinned-games');
 
   function request(action, data = {}) {
     return new Promise((resolve, reject) => {
@@ -81,7 +82,7 @@
 
   function togglePin() {
     const context = gameContext();
-    if (!context || busy || !ready) return;
+    if (!enabled() || !context || busy || !ready) return;
     const existing = pinned(context);
     if (existing) { updatePin(context, existing); return; }
     pinPromptPlaceId = context.placeId;
@@ -97,6 +98,7 @@
   }
 
   async function updatePin(context, existing) {
+    if (!enabled()) return;
     busy = true;
     const version = storageVersion;
     queueSync();
@@ -136,7 +138,7 @@
   async function changeGameFolder() {
     const context = gameContext();
     const select = pinFolderControl?.querySelector('select');
-    if (!context || !select || context.placeId !== gameFolderPlaceId || busy || !ready) return;
+    if (!enabled() || !context || !select || context.placeId !== gameFolderPlaceId || busy || !ready) return;
     const previous = gameFolder;
     gameFolder = select.value;
     const existing = pinned(context);
@@ -215,7 +217,7 @@
   }
 
   function syncPin() {
-    const context = gameContext();
+    const context = enabled() ? gameContext() : null;
     const favorite = context?.page.querySelector('#toggle-game-favorite');
     const favoriteAnchor = favorite?.closest('.game-favorite-button-container') || favorite?.closest('li');
     const row = context?.page.querySelector('.favorite-follow-vote-share');
@@ -290,7 +292,7 @@
     remove.textContent = '×'; remove.title = 'Unpin game';
     remove.setAttribute('aria-label', `Unpin ${game.name}`);
     remove.addEventListener('click', async () => {
-      if (remove.disabled) return;
+      if (!enabled() || remove.disabled) return;
       remove.disabled = true;
       const version = storageVersion;
       try {
@@ -319,7 +321,7 @@
   }
 
   async function changeFolders(action, data) {
-    if (homeBusy) return null;
+    if (!enabled() || homeBusy) return null;
     homeBusy = true;
     const version = storageVersion;
     queueSync();
@@ -417,7 +419,7 @@
     const home = HOME_PATH.test(routePath())
       ? document.querySelector('#HomeContainer, .home-container, [data-testid="home-page"]') : null;
     const friends = home?.querySelector('.friend-carousel-container');
-    if (!friends?.parentElement || !ready) {
+    if (!friends?.parentElement || !ready || document.documentElement?.hasAttribute('data-rc-hide-pinned-games')) {
       homeSection?.remove(); homeSection = null; rendered = ''; editingFolder = null;
       return;
     }
@@ -472,7 +474,7 @@
   function sync() {
     syncPin();
     syncHome();
-    const route = HOME_PATH.test(routePath()) || GAME_PATH.test(routePath()) ? routePath() : '';
+    const route = enabled() && (HOME_PATH.test(routePath()) || GAME_PATH.test(routePath())) ? routePath() : '';
     if (route !== loadedRoute) {
       loadedRoute = route;
       if (route) {
@@ -530,6 +532,7 @@
     ready = true; queueSync();
   }).catch(() => { ready = true; queueSync(); });
   document.addEventListener('rc-pinned-game-launch-error', () => notify('Could not join this game. Open its page and try again.'));
+  document.addEventListener('rc-pinned-games-visibility-changed', queueSync);
   addEventListener('popstate', queueSync);
   addEventListener('hashchange', queueSync);
   globalThis.RobloxCustomizerRuntime?.onResume(queueSync);

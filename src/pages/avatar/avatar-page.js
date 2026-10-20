@@ -168,11 +168,10 @@
   }
 
   function categoryPopup(control) {
-    // Recently Added and Characters can be top-level tabs or popup options.
-    const label = categoryLabel(control);
-    if (MAIN_CATEGORY_LABELS.has(label) && !SUBCATEGORY_LABELS.has(label)) return null;
+    // Recent menus repeat top-level category names as shortcuts. Their menu
+    // scope, rather than their label, distinguishes them from the main tabs.
     const menu = control.closest(CATEGORY_MENU_SELECTORS);
-    if (menu) return menu;
+    if (menu && menu !== markedCategories) return menu;
     const categoryMenu = control.closest('.avatar-category-menu');
     if (categoryMenu && categoryMenu !== markedCategories
       && /^(absolute|fixed)$/.test(getComputedStyle(categoryMenu).position)) {

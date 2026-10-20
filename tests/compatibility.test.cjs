@@ -43,7 +43,7 @@ test('Native enhancements wait for Roblox metadata instead of trusting an early 
 });
 
 test('Supported locales start deferred features once and fresh installations do not write flags', async () => {
-  for (const metadata of ['en-US', 'zh_CN', 'zh-Hant-HK', 'id', 'id-ID', 'id_id']) {
+  for (const metadata of ['en-US', 'zh_CN', 'zh-Hant-HK', 'id', 'id-ID', 'id_id', 'ja', 'ja-JP', 'ja_jp', 'th', 'th-TH', 'th_th', 'ko', 'ko-KR', 'ko_kr']) {
     const env = environment();
     let started = 0;
     env.api.runFeature(() => started++);
@@ -57,18 +57,32 @@ test('Supported locales start deferred features once and fresh installations do 
   }
 });
 
+test('Newly supported pages clear a previous unsupported-language flag after an extension upgrade', async () => {
+  for (const language of ['ja-JP', 'th-TH', 'ko-KR']) {
+    const env = environment({ metadata: language, saved: { robloxCustomizerUnsupportedLanguage: language } });
+    let started = 0;
+    env.api.runFeature(() => started++);
+    env.complete();
+    await env.settle();
+    assert.equal(env.api.enabled(), true);
+    assert.equal(env.saved.robloxCustomizerUnsupportedLanguage, undefined);
+    assert.equal(env.reloads, 0);
+    assert.equal(started, 1);
+  }
+});
+
 test('Crossing the support boundary saves pending work and reloads once to clear native UI changes', async () => {
   const env = environment({ metadata: 'en' });
   let savedBeforeReload = false;
   env.api.onBeforeReload(async () => { savedBeforeReload = true; });
-  env.metadata('ja');
-  env.metadata('ja');
+  env.metadata('fr-FR');
+  env.metadata('fr-FR');
   await env.settle();
   assert.equal(savedBeforeReload, true);
   assert.equal(env.api.reloading(), true);
   assert.equal(env.api.enabled(), false);
   assert.equal(env.reloads, 1);
-  assert.equal(env.saved.robloxCustomizerUnsupportedLanguage, 'ja');
+  assert.equal(env.saved.robloxCustomizerUnsupportedLanguage, 'fr-FR');
 });
 
 test('Returning to a supported language clears fallback tracking without starting stale page hooks', async () => {

@@ -29,21 +29,24 @@ test('UI language follows Roblox metadata, Chinese script/region tags, and brows
     [{ lang: 'en', metadata: 'zh_tw' }, 'zh-TW'], [{ lang: 'zh-Hant-HK' }, 'zh-TW'],
     [{ lang: 'zh-Hans-SG' }, 'zh-CN'], [{ lang: 'zh-CN' }, 'zh-CN'],
     [{ lang: 'zh-MO' }, 'zh-TW'], [{ browser: 'zh-TW' }, 'zh-TW'], [{ lang: 'fr', browser: 'zh-CN' }, 'en'],
-    [{ lang: 'en', metadata: 'id_id' }, 'id'], [{ lang: 'id-ID' }, 'id'], [{ browser: 'id' }, 'id']
+    [{ lang: 'en', metadata: 'id_id' }, 'id'], [{ lang: 'id-ID' }, 'id'], [{ browser: 'id' }, 'id'],
+    [{ lang: 'en', metadata: 'ja_jp' }, 'ja'], [{ lang: 'ja-JP' }, 'ja'], [{ browser: 'ja' }, 'ja'],
+    [{ lang: 'en', metadata: 'th_th' }, 'th'], [{ lang: 'th-TH' }, 'th'], [{ browser: 'th' }, 'th'],
+    [{ lang: 'en', metadata: 'ko_kr' }, 'ko'], [{ lang: 'ko-KR' }, 'ko'], [{ browser: 'ko' }, 'ko']
   ]) assert.equal(environment(options).api.locale(), expected);
 });
 
-test('Chinese and Indonesian UI catalogs cover every message and preserve placeholders', () => {
+test('Every supported UI catalog covers each message and preserves placeholders', () => {
   const { api, messages } = environment();
   const keys = new Set();
   for (const row of messages) {
-    assert.equal(row.length, 4); assert.equal(keys.has(row[0]), false, `Duplicate key: ${row[0]}`); keys.add(row[0]);
+    assert.equal(row.length, 7); assert.equal(keys.has(row[0]), false, `Duplicate key: ${row[0]}`); keys.add(row[0]);
     const placeholders = value => [...value.matchAll(/\{(\w+)\}/g)].map(match => match[1]).sort();
     for (const text of row.slice(1)) {
       assert.ok(text.trim()); assert.deepEqual(placeholders(text), placeholders(row[0]), row[0]);
     }
   }
-  for (const locale of ['en', 'zh-CN', 'zh-TW', 'id']) {
+  for (const locale of ['en', 'zh-CN', 'zh-TW', 'id', 'ja', 'th', 'ko']) {
     api.setLanguage(locale);
     assert.equal(api.t('An unknown error.'), 'An unknown error.');
     const name = '<img src=x onerror=alert(1)> $1';
@@ -62,13 +65,36 @@ test('Manual language selection survives late storage reads and can return to au
   api.setLanguage('invalid'); assert.equal(api.preference(), 'auto');
 });
 
-test('Manifest translations provide English, Chinese and Indonesian Chrome locales', () => {
+test('Manifest translations provide every supported Chrome locale', () => {
   const root = path.join(__dirname, '..');
   const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));
   assert.equal(manifest.default_locale, 'en');
   const references = [...JSON.stringify(manifest).matchAll(/__MSG_(\w+)__/g)].map(match => match[1]);
-  for (const locale of ['en', 'zh_CN', 'zh_TW', 'id']) {
+  for (const locale of ['en', 'zh_CN', 'zh_TW', 'id', 'ja', 'th', 'ko']) {
     const messages = JSON.parse(fs.readFileSync(path.join(root, '_locales', locale, 'messages.json'), 'utf8'));
     for (const key of references) assert.ok(messages[key]?.message?.trim(), `${locale}/${key}`);
+  }
+});
+
+test('Japanese, Thai and Korean legal documents cover every source section and generated documents are current', () => {
+  const root = path.join(__dirname, '..');
+  const content = JSON.parse(fs.readFileSync(path.join(root, 'src/legal/content.json'), 'utf8'));
+  assert.equal(content.locales.ja.name, '日本語');
+  assert.equal(content.locales.th.name, 'ไทย');
+  assert.equal(content.locales.ko.name, '한국어');
+  for (const locale of ['ja', 'th', 'ko']) for (const type of ['privacy', 'terms']) {
+    const translated = content.locales[locale][type];
+    assert.ok(translated.title && translated.intro);
+    assert.equal(translated.sections.length, content.locales.en[type].sections.length);
+    translated.sections.forEach((section, index) => {
+      assert.ok(section.heading);
+      for (const key of ['paragraphs', 'items']) {
+        assert.equal((section[key] || []).length, (content.locales.en[type].sections[index][key] || []).length);
+        for (const text of section[key] || []) assert.ok(text.trim());
+      }
+    });
+  }
+  for (const [file, expected] of Object.entries(require('../scripts/build-legal-docs.cjs').build())) {
+    assert.equal(fs.readFileSync(path.join(root, file), 'utf8'), expected, file);
   }
 });

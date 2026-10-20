@@ -3,7 +3,8 @@ const fs = require('node:fs');
 const http = require('node:http');
 const path = require('node:path');
 const { test } = require('node:test');
-const { isolatedChrome } = require('./helpers/chrome.cjs');
+const { isolatedChrome, waitForDocument } = require('./helpers/chrome.cjs');
+const testFont = require('./helpers/font.cjs');
 const animatedGif = require('./helpers/animated-gif.cjs');
 const animatedVideo = require('./helpers/animated-video.cjs');
 const workspace = path.resolve(__dirname, '..');
@@ -20,7 +21,7 @@ const setup = kind => `
   const raf=requestAnimationFrame.bind(window);window.requestAnimationFrame=callback=>{const name=owner();return raf(time=>measure(name,callback,[time]))};
   const timeout=setTimeout.bind(window);window.setTimeout=(callback,delay,...args)=>{if(typeof callback!=='function')return timeout(callback,delay,...args);const name=owner();return timeout(()=>measure(name,callback,args),delay)};
   const NativeObserver=MutationObserver;window.MutationObserver=class extends NativeObserver{constructor(callback){const name=owner();super((records,observer)=>measure(name,callback,[records,observer]))}};
-  const listeners=[];const preferences={source:'url',url:location.origin+'/animation.${kind === 'gif' ? 'gif' : 'mp4'}',urlType:'${kind === 'gif' ? 'image' : 'video'}',glassBlur:40,glassOpacity:51,clockShowSeconds:false,hideFavorites:true,hideStandoutGames:true,hideRecommendedUpper:true,hideRecommendedLower:false};
+  const listeners=[];const preferences={source:'url',url:location.origin+'/animation.${kind === 'gif' ? 'gif' : 'mp4'}',urlType:'${kind === 'gif' ? 'image' : 'video'}',glassBlur:40,glassOpacity:51,clockShowSeconds:false,hideFavorites:true,hideStandoutGames:true,hideRecommendedUpper:true,hideRecommendedLower:false,...${JSON.stringify(testFont && kind === 'video' ? { customFontEnabled: true, fontFileKey: 'test-font', fontFileName: 'Test.ttf' } : {})}};
   window.chrome={i18n:{getUILanguage:()=> 'en-US'},storage:{local:{async get(keys){return {robloxCustomizerTermsAccepted:true,customBackground:preferences,pinnedGames:[],pinnedGameFolders:[]}},async set(){},async remove(){}},onChanged:{addListener:fn=>listeners.push(fn)}},runtime:{lastError:null,getURL:file=>'/'+file,sendMessage(message,callback){queueMicrotask(()=>callback(message.type==='rc-home-user'?{id:1,name:'Player',displayName:'Player'}:message.type==='rc-playtime'?{ok:true,enabled:false,account:null,games:[],status:{kind:'disabled',checkedAt:0}}:{ok:true,games:[],folders:[]}))}}};
 `;
 
@@ -42,6 +43,8 @@ for (const kind of ['gif', 'video']) test(`${kind} background remains animated w
         response.end('started');return;
       }
       if (file === 'finish') { documentResponse.end('</div></section></main></body></html>');response.end('finished');return; }
+      if (file === 'seed') { response.setHeader('Content-Type','text/html');response.end('<html><body>Font setup</body></html>');return; }
+      if (file === 'test-font.ttf' && testFont) { response.setHeader('Content-Type','font/ttf');response.end(fs.readFileSync(testFont));return; }
       if (styles.includes(file)) { response.setHeader('Content-Type','text/css');response.end(fs.readFileSync(path.join(workspace,file)));return; }
       if (file.startsWith('icons/')) { response.setHeader('Content-Type','image/png');response.end(fs.readFileSync(path.join(workspace,file)));return; }
       if (file === 'animation.gif') { response.setHeader('Content-Type','image/gif');response.end(animatedGif());return; }
@@ -55,18 +58,24 @@ for (const kind of ['gif', 'video']) test(`${kind} background remains animated w
     await new Promise(resolve => server.listen(0,'127.0.0.1',resolve));
     t.after(() => {clearInterval(timer);return new Promise(resolve=>{server.closeAllConnections();server.close(resolve)})});
     const browser = await isolatedChrome(t,'background-loading');
+    const origin = `http://127.0.0.1:${server.address().port}`;
     await browser.send('Emulation.setFocusEmulationEnabled',{enabled:true});
     if (kind === 'video') {
       const base64 = await browser.evaluate(`(async()=>{const blob=await (${animatedVideo})();return btoa(String.fromCharCode(...new Uint8Array(await blob.arrayBuffer())))})()`);
       video = Buffer.from(base64, 'base64');
+      if (testFont) {
+        await browser.send('Page.navigate',{url:origin+'/seed'});
+        await waitForDocument(browser,'body',origin+'/seed');
+        await browser.evaluate(`(async()=>{const file=new File([await(await fetch('/test-font.ttf')).arrayBuffer()],'Test.ttf',{type:'font/ttf'});await new Promise((resolve,reject)=>{const request=indexedDB.open('roblox-customizer-media',1);request.onupgradeneeded=()=>request.result.createObjectStore('backgrounds');request.onerror=()=>reject(request.error);request.onsuccess=()=>{const db=request.result,transaction=db.transaction('backgrounds','readwrite');transaction.objectStore('backgrounds').put(file,'test-font');transaction.oncomplete=()=>{db.close();resolve()};transaction.onerror=()=>reject(transaction.error)}})})()`);
+      }
     }
     await browser.send('Emulation.setCPUThrottlingRate',{rate:4});
     await browser.send('Page.addScriptToEvaluateOnNewDocument',{source:setup(kind)});
     for(const file of scripts) await browser.send('Page.addScriptToEvaluateOnNewDocument',{source:fs.readFileSync(path.join(workspace,file),'utf8')+'\n//# sourceURL='+file});
-    const origin = `http://127.0.0.1:${server.address().port}`;
     await browser.send('Page.navigate',{url:origin+'/home'});
     await browser.waitFor(kind === 'gif' ? "document.querySelector('#rc-background-layer img')?.naturalWidth===2"
       : "document.querySelector('#rc-background-layer video')?.readyState>=2");
+    if (kind === 'video' && testFont) await browser.waitFor("document.documentElement.hasAttribute('data-rc-custom-font')");
     assert.equal(await browser.evaluate('document.readyState'),'loading');
     await browser.evaluate('window.originalMedia=document.querySelector(".rc-background-media");window.work={}');
     await fetch(origin+'/start');
