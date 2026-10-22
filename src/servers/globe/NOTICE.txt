@@ -1,0 +1,16 @@
+Server globe: local, simplified geographic data and projection engine.
+Natural Earth 5.1.2 countries (1:50m): public domain.
+https://www.naturalearthdata.com/about/terms-of-use/
+Simplification tolerance 0.035 degrees; coordinates rounded to 0.001 degrees.
+Map outlines are for server location selection, not precise boundary reference.
+d3-array 3.2.4 and d3-geo 3.1.1: ISC; licenses accompany these files.
+d3-array embeds internmap (InternMap/InternSet), also ISC; see LICENSE-internmap.txt.
+Rebuild: node scripts/build-server-globe.cjs --download
+
+Upstream inputs (SHA-256):
+3e458fc036ad0a66411f2c1e6cac49c5d7bfb81cb1123bc513b22511a2b7fdeb  https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_50m_admin_0_countries.geojson
+80aa70d0cd17dabddf6d056494ea17926a45a69da8b7850220aace331bad671d  https://cdn.jsdelivr.net/npm/d3-array@3.2.4/dist/d3-array.min.js
+23e574f1e8d4716d622bce45356a379b66a277162b145f5f147e4c8daefb73d2  https://cdn.jsdelivr.net/npm/d3-geo@3.1.1/dist/d3-geo.min.js
+3e6849627f74ff73c257a3ae1efb574015d94fc1035c05ec3c15805165efcbc4  https://cdn.jsdelivr.net/npm/d3-array@3.2.4/LICENSE
+3e3edc1224eec9c39cd26491a21304a62883c1e5b6a65c5283ccc7a6cc94baee  https://cdn.jsdelivr.net/npm/d3-geo@3.1.1/LICENSE
+9ea8903938dab5f12c4572d60725069bec2d1b0dc3bcc210b09bae946a5ebb1f  https://raw.githubusercontent.com/mbostock/internmap/v2.0.3/LICENSE

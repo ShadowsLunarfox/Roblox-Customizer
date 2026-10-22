@@ -204,6 +204,7 @@
     }, 'rc-server-clear'));
     dialog.append(heading, el('p', 'rc-server-history-note'), search, el('div', 'rc-server-dialog-list'), actions, confirmation);
     dialog.addEventListener('close', () => { dialog.remove(); dialog = null; dialogGame = null; if (opener?.isConnected) opener.focus(); });
+    globalThis.RobloxCustomizerDialogs?.dismissOnOutside(dialog);
     document.body.append(dialog); renderDialog(); dialog.showModal(); search.focus(); void load('refresh');
   }
   function render() { updateSettings(); syncPages(); renderDialog(); }

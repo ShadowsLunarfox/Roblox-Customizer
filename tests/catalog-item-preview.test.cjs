@@ -97,7 +97,7 @@ class Element {
   click() { if (!this.disabled) for (const callback of this.listeners.click || []) callback(); }
 }
 
-function nativeItem(id = CROWN, { threeD = false, supported = true, deferModeChanges = false, bundle = false } = {}) {
+function nativeItem(id = CROWN, { threeD = false, supported = true, deferModeChanges = false, bundle = false, animation = false } = {}) {
   const host = new Element('div', { class: 'clearfix' });
   const preview = new Element('div', { id: 'item-thumbnail-container-frontend',
     'data-target-id': String(id), 'data-is-bundle': String(bundle), 'data-show-3d-mode-button': String(supported) });
@@ -113,8 +113,17 @@ function nativeItem(id = CROWN, { threeD = false, supported = true, deferModeCha
   const report = new Element('div', { id: 'item-report-button-frontend' });
   host.append(preview, info, favorites, report);
   preview.append(surface); surface.append(holder, controls);
-  if (supported) controls.append(mode);
+  if (supported && !animation) controls.append(mode);
   controls.append(tryOn); info.append(title, buy);
+  let playback = null;
+  if (animation) {
+    const motion = new Element('span', {class:'thumbnail-animation-container'});
+    holder.append(motion);
+    if (threeD) motion.append(new Element('canvas'));
+    playback = new Element('button');
+    const icon = new Element('div', {class:'icon-bigstop'});playback.append(icon);controls.append(playback);
+    playback.addEventListener('click', () => icon.setAttribute('class', icon.getAttribute('class') === 'icon-bigstop' ? 'icon-bigplay' : 'icon-bigstop'));
+  }
   let modeClicks = 0;
   let tryOnClicks = 0;
   const pendingModeChanges = [];
@@ -129,8 +138,8 @@ function nativeItem(id = CROWN, { threeD = false, supported = true, deferModeCha
     else commit();
   });
   tryOn.addEventListener('click', () => { tryOnClicks++; });
-  if (threeD) holder.append(new Element('canvas'));
-  return { host, preview, holder, controls, mode, tryOn, info, title, buy, favorites, report,
+  if (threeD && !animation) holder.append(new Element('canvas'));
+  return { host, preview, holder, controls, mode, tryOn, info, title, buy, favorites, report, playback,
     commitModeChange() { assert.ok(pendingModeChanges.length); pendingModeChanges.shift()(); },
     get modeClicks() { return modeClicks; }, get tryOnClicks() { return tryOnClicks; } };
 }
@@ -191,7 +200,7 @@ function environment({ pathname = `/catalog/${CROWN}/8-Bit-Royal-Crown`, product
   return env;
 }
 
-test('catalog loads simultaneous views, replaces Try On with Refresh and keeps native purchase nodes', () => {
+test('catalog loads simultaneous views, adds Refresh and keeps native try-on and purchase nodes', () => {
   const env = environment();
   const { item } = env;
   assert.equal(env.panel.previousElementSibling, item.preview);
@@ -275,6 +284,57 @@ test('an already mounted 3D viewer is kept and 2D-only items retain their native
   assert.equal(flat.item.host.hasAttribute('data-rc-item-studio'), false);
   const search = environment({ pathname: '/catalog' });
   assert.equal(search.panel, null);
+});
+
+test('single animation assets retain their native player without requiring a mode button or thumbnail request', () => {
+  for (const id of [130836074181150,124765145869332,105381637724646]) {
+    const env = environment({pathname:`/catalog/${id}/Animation`,productId:id,animation:true,threeD:true});
+    const {item} = env, canvas = item.holder.querySelector('canvas');
+    assert.equal(item.host.getAttribute('data-rc-item-studio'),'animation');
+    assert.equal(item.preview.hasAttribute('data-rc-item-animation'),true);
+    assert.equal(item.preview.getAttribute('data-rc-item-mode'),'Animation preview');
+    assert.equal(item.info.hasAttribute('data-rc-item-info'),true);
+    assert.equal(canvas.hasAttribute('data-rc-item-renderer'),true);
+    assert.equal(env.panel,null);
+    assert.equal(env.requests.length,0);
+    assert.equal(item.preview.querySelector('#rc-catalog-item-3d-refresh'),null);
+    assert.equal(item.playback.getAttribute('aria-label'),'Pause animation');
+    item.playback.click();env.notify(item.playback);
+    assert.equal(item.playback.getAttribute('data-rc-item-animation-label'),'Play animation');
+    assert.equal(item.playback.getAttribute('aria-label'),'Play animation');
+    assert.equal(item.holder.querySelector('canvas'),canvas);
+    assert.equal(item.modeClicks,0);
+    assert.equal(item.tryOnClicks,0);
+    env.navigate('/home');
+    assert.equal(item.host.hasAttribute('data-rc-item-studio'),false);
+    assert.equal(item.preview.hasAttribute('data-rc-item-animation'),false);
+    assert.equal(item.playback.hasAttribute('data-rc-item-animation-label'),false);
+    assert.equal(item.playback.hasAttribute('aria-label'),false);
+    assert.equal(canvas.hasAttribute('data-rc-item-renderer'),false);
+  }
+});
+
+test('animation loading and native rerenders keep the layout while navigation rejects stale static responses', () => {
+  const env = environment();
+  const oldRequest = env.requests[0];
+  const id = 105381637724646;
+  env.navigate(`/catalog/${id}/Animation`);
+  const item = nativeItem(id,{animation:true});
+  env.item.host.remove();env.content.append(item.host);env.notify(env.content,[item.host]);
+  assert.equal(item.host.getAttribute('data-rc-item-studio'),'animation','The motion container is sufficient before a canvas loads');
+  oldRequest.callback({state:'Completed',imageUrl:IMAGE_URL});
+  assert.equal(env.panel,null);
+  assert.equal(env.requests.length,1);
+  const motion=item.holder.querySelector('.thumbnail-animation-container'),canvas=new Element('canvas');
+  motion.append(canvas);env.notify(motion,[canvas]);
+  assert.equal(canvas.hasAttribute('data-rc-item-renderer'),true);
+  item.playback.setAttribute('aria-label','Native playback label');env.notify(item.playback);
+  item.controls.remove();env.notify(item.preview,[],[item.controls]);
+  assert.equal(item.host.getAttribute('data-rc-item-studio'),'animation');
+  item.preview.append(item.controls);env.notify(item.preview,[item.controls]);
+  assert.equal(item.playback.getAttribute('aria-label'),'Native playback label');
+  env.navigate('/home');
+  assert.equal(item.playback.getAttribute('aria-label'),'Native playback label','Native accessible labels survive cleanup');
 });
 
 test('loading native controls preserves both preview panels and temporarily disables 3D Refresh', () => {

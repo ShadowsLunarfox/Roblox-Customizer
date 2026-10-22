@@ -67,11 +67,19 @@ html[data-rc-frost-page="avatar"] [data-rc-avatar-studio] > #rc-avatar-2d:where(
 
 html[data-rc-frost-page="avatar"] [data-rc-avatar-studio] > [data-rc-avatar-item-column]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   grid-column: 1 / -1;
+  order: 4;
+}
+
+html[data-rc-frost-page="avatar"] [data-rc-avatar-studio] > #rc-avatar-enhancements:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  grid-column: 1 / -1;
   order: 3;
+  width: 100%;
+  min-width: 0;
+  margin: 0 !important;
 }
 
 html[data-rc-frost-page="avatar"] [data-rc-avatar-studio] > :not(
-  [data-rc-avatar-view-column], [data-rc-avatar-item-column], #rc-avatar-2d
+  [data-rc-avatar-view-column], [data-rc-avatar-item-column], #rc-avatar-2d, #rc-avatar-enhancements
 ):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   grid-column: 1 / -1;
   order: 0;
@@ -208,6 +216,8 @@ html[data-rc-ui-active] #rc-avatar-2d:where(:not([data-rc-features-disabled], [d
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  min-height: 32px;
   gap: 12px;
 }
 
@@ -217,7 +227,14 @@ html[data-rc-ui-active] #rc-avatar-2d:where(:not([data-rc-features-disabled], [d
   line-height: 1.3;
 }
 
-#rc-avatar-2d .rc-avatar-refresh:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+#rc-avatar-2d .rc-avatar-preview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-inline-start: auto;
+}
+
+#rc-avatar-2d :is(.rc-avatar-refresh, .rc-avatar-diagnostics-open):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   min-height: 32px;
   padding: 5px 12px;
   border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 18%);
@@ -229,7 +246,7 @@ html[data-rc-ui-active] #rc-avatar-2d:where(:not([data-rc-features-disabled], [d
   cursor: pointer;
 }
 
-#rc-avatar-2d .rc-avatar-refresh:hover:not(:disabled):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+#rc-avatar-2d :is(.rc-avatar-refresh, .rc-avatar-diagnostics-open):hover:not(:disabled):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background: rgb(var(--rc-foreground-rgb, 255 255 255) / 18%);
 }
 
@@ -273,7 +290,54 @@ html[data-rc-frost-page="avatar"] [data-rc-avatar-body-controls]:where(:not([dat
   max-width: 100% !important;
   min-width: 0;
   order: 0;
-  margin: 0 0 16px !important;
+  margin: 0 !important;
+  padding: 14px !important;
+  border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 14%) !important;
+  border-radius: 11px !important;
+  background: var(--rc-inset-bg, rgb(128 128 128 / 6%)) !important;
+  color: var(--rc-text, inherit);
+}
+
+html[data-rc-frost-page="avatar"] [data-rc-avatar-body-controls] :is(div, section):has(input[type="range"]):where(:not([data-rc-avatar-body-controls], [data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html[data-rc-frost-page="avatar"] [data-rc-avatar-body-controls] :is(h2, h3, h4):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Native labeled sliders can share two columns without moving their controls. */
+html[data-rc-frost-page="avatar"] [data-rc-avatar-body-controls] :is(div, section):has(> label > input[type="range"]):has(> label:nth-of-type(2)):not([hidden], .ng-hide, .hidden):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 12px 24px;
+  margin-top: 14px;
+}
+
+html[data-rc-frost-page="avatar"] [data-rc-avatar-body-controls] label:has(input[type="range"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  min-width: 0;
+  margin: 0;
+  color: var(--rc-text-secondary, inherit);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+html[data-rc-frost-page="avatar"] [data-rc-avatar-body-controls] input[type="range"]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  width: 100%;
+  margin: 8px 0 0;
+  accent-color: var(--rc-accent, #335fff);
+}
+
+@media (max-width: 520px) {
+  html[data-rc-frost-page="avatar"] [data-rc-avatar-body-controls] :is(div, section):has(> label > input[type="range"]):has(> label:nth-of-type(2)):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 html[data-rc-frost-page="avatar"] [data-rc-avatar-item-column]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {

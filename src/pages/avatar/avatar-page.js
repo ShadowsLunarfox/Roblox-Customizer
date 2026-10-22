@@ -93,6 +93,7 @@
   let waitingForUpdatedImage = false;
   let imageBeforeChange = '';
   let last3DClickAt = 0;
+  let waitingForNative3D = false;
   const tried3D = new WeakSet();
 
   const onAvatarPage = () => AVATAR_PATH.test(routePath());
@@ -433,7 +434,10 @@
     let layout = null;
     let view = null;
     let inventory = null;
-    const inventoryTarget = items || markedCategories;
+    // A native inventory refresh can temporarily remove both its categories
+    // and item cards. Keep the existing columns while their mount still exists.
+    const inventoryTarget = items || markedCategories
+      || (itemColumn?.isConnected && root.contains(itemColumn) ? itemColumn : null);
     if (inventoryTarget) {
       for (let parent = compareHost?.parentElement; parent && root.contains(parent); parent = parent.parentElement) {
         if (!parent.contains(inventoryTarget)) continue;
@@ -579,11 +583,13 @@
     const aside = document.createElement('aside');
     aside.id = 'rc-avatar-2d';
     aside.setAttribute('aria-label', '2D avatar preview');
-    aside.innerHTML = '<div class="rc-avatar-2d-heading"><h2>2D Preview</h2>'
-      + '<button type="button" class="rc-avatar-refresh">Refresh</button></div>'
+    aside.innerHTML = '<div class="rc-avatar-2d-heading"><h2>2D Preview</h2><div class="rc-avatar-preview-actions">'
+      + '<button type="button" class="rc-avatar-refresh">Refresh</button></div></div>'
       + '<div class="rc-avatar-image-wrap"><img alt="Your current avatar in 2D" hidden></div>'
       + '<p class="rc-avatar-status" role="status">Loading 2D preview...</p>';
     aside.querySelector('.rc-avatar-refresh').addEventListener('click', () => refresh2D());
+    const diagnostics = globalThis.RobloxCustomizerAvatarDiagnostics?.button();
+    if (diagnostics) aside.querySelector('.rc-avatar-preview-actions').append(diagnostics);
     return aside;
   }
 
@@ -652,8 +658,14 @@
   }
 
   function enableNative3D(root, preview) {
-    if (tried3D.has(preview) || preview.querySelector('canvas')
-      || Date.now() - last3DClickAt < 15_000) return;
+    if (preview.querySelector('canvas')) {
+      if (waitingForNative3D) globalThis.RobloxCustomizerAvatarDiagnostics?.native3D('canvas-ready');
+      waitingForNative3D = false; return true;
+    }
+    // The native switch can finish in a later task and replace the editor.
+    // Keep its first enhanced layout gated while that renderer is starting.
+    if (waitingForNative3D || tried3D.has(preview)
+      || Date.now() - last3DClickAt < 15_000) return !waitingForNative3D;
     const scopes = [preview, preview.parentElement, preview.parentElement?.parentElement]
       .filter(node => node && root.contains(node));
     let button = null;
@@ -666,12 +678,15 @@
       });
       if (button) break;
     }
-    if (!button) return;
+    if (!button) return true;
     tried3D.add(preview);
+    waitingForNative3D = true;
     if (button.getAttribute('aria-pressed') !== 'true' && !button.classList.contains('active')) {
       last3DClickAt = Date.now();
+      globalThis.RobloxCustomizerAvatarDiagnostics?.native3D('requested');
       button.click();
-    }
+    } else globalThis.RobloxCustomizerAvatarDiagnostics?.native3D('already-active');
+    return !!preview.querySelector('canvas');
   }
 
   function clearPage() {
@@ -681,6 +696,8 @@
     ++requestSequence;
     waitingForUpdatedImage = false;
     imageBeforeChange = '';
+    waitingForNative3D = false;
+    last3DClickAt = 0;
     restoreBodyControls();
     panel?.remove();
     compareHost?.removeAttribute('data-rc-avatar-compare');
@@ -735,9 +752,9 @@
       return;
     }
     const root = pageRoot();
-    if (!root) return;
+    if (!root) { globalThis.RobloxCustomizerStartup?.avatarReady(null, 'native-page-missing'); return; }
     const preview = findPreview(root);
-    if (!preview?.parentElement) return;
+    if (!preview?.parentElement) { globalThis.RobloxCustomizerStartup?.avatarReady(null, 'native-preview-missing'); return; }
     if (markedPage && markedPage !== root) {
       markedPage.removeAttribute('data-rc-avatar-page');
       markedPage.style.removeProperty('--rc-avatar-workspace-width');
@@ -776,11 +793,13 @@
     } else if (panel.parentElement !== host || panel.previousElementSibling !== preview) {
       preview.after(panel);
     }
-    if (studio && viewColumn && itemColumn && markedMainRow && panel.parentElement === studio) {
-      globalThis.RobloxCustomizerStartup?.avatarReady();
-    }
+    const nativePreviewReady = enableNative3D(root, preview);
+    globalThis.RobloxCustomizerStartup?.avatarReady(
+      studio && viewColumn && itemColumn && panel.parentElement === studio
+        ? { page: root, studio, view: viewColumn, inventory: itemColumn, preview,
+          categories: markedCategories, row: markedMainRow, controls: markedMainControls, panel, nativePreviewReady }
+        : null, 'studio-not-arranged');
     if (!panel.querySelector('img').src && !panel.querySelector('.rc-avatar-refresh').disabled) refresh2D();
-    enableNative3D(root, preview);
   }
 
   function queueSync() {

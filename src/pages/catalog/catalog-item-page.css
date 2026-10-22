@@ -275,6 +275,10 @@ html[data-rc-frost-page="catalog"] #content :is(
 ) .item-card-price:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin-top: auto !important;
   padding-top: 5px;
+  height: auto !important;
+  min-height: 1.4em;
+  overflow: visible;
+  white-space: normal;
   font-size: 13px;
   line-height: 1.4;
 }
@@ -392,6 +396,55 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   box-shadow: 0 6px 18px rgb(0 0 0 / 20%) !important;
 }
 
+/* Bundle type/ownership labels are siblings of ItemCard, so frost the whole tile. */
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content #item-list-container-included-items
+.item-list-item-card:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  padding: 8px;
+  border: 1px solid var(--color-stroke-default, rgb(var(--rc-foreground-rgb, 255 255 255) / 16%)) !important;
+  border-radius: 14px;
+  background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 12%) !important;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content #item-list-container-included-items
+.item-list-item-card .item-card-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+html[data-rc-frost-page="catalog"] #content #item-list-container-included-items
+.item-card-name:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+html[data-rc-frost-page="catalog"] #content #item-list-container-included-items
+.item-list-item-card > :is(.text-label, .item-owned):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  flex: 0 0 auto;
+  min-width: 0;
+  margin-top: 4px;
+  padding: 0 1px 2px;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="catalog"] #content #item-list-container-included-items
+.item-list-item-card:is(:hover, :focus-within):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  border-color: rgb(var(--rc-foreground-rgb, 255 255 255) / 30%) !important;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 20%) !important;
+}
+
 html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   #item-container, #item-details, #item-details-container, .item-details-container,
   #resellers, #resellers-container, .resellers-container,
@@ -487,8 +540,138 @@ html[data-rc-ui-active][data-rc-frost-page="catalog"] #content :is(
   width: 100% !important;
 }
 
-[data-rc-item-native-2d-toggle]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
-[data-rc-item-native-try-on]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: none !important; }
+/* Single animations have one native player, with product information beside it.
+   Keep the actual React canvas, motion and camera controls in their own mount. */
+[data-rc-item-studio="animation"] > [data-rc-item-info]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+[data-rc-item-studio="animation"] > #rc-animation-user-preview:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+[data-rc-item-studio="animation"]:has(> #rc-animation-user-preview) > [data-rc-item-info]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  grid-column: 1 / -1;
+  grid-row: auto;
+}
+
+[data-rc-item-animation]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before {
+  padding-inline-end: 0;
+  overflow-wrap: anywhere;
+}
+
+[data-rc-item-animation] .item-details-thumbnail-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: auto;
+}
+
+[data-rc-item-animation] .thumbnail-holder:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  position: relative;
+  flex: none;
+  width: min(100%, 480px) !important;
+  height: auto !important;
+  margin-inline: auto !important;
+  aspect-ratio: 1;
+  background: transparent !important;
+}
+
+[data-rc-item-animation] :is(.thumbnail-animation-container, .thumbnail-loading, .thumbnail-placeholder):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  background: transparent !important;
+}
+
+[data-rc-item-animation] canvas:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  background: transparent !important;
+}
+
+[data-rc-item-animation] .thumbnail-ui-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  position: static !important;
+  width: 100% !important;
+  height: auto !important;
+  margin-top: 12px;
+}
+
+[data-rc-item-animation] .inner-thumbnail-ui-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  position: static !important;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center !important;
+  gap: 8px;
+  height: auto !important;
+}
+
+[data-rc-item-animation] .inner-thumbnail-ui-container > :where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  position: static !important;
+  float: none !important;
+  min-width: 0;
+  max-width: 100%;
+}
+
+[data-rc-item-animation] .thumbnail-button-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 !important;
+}
+
+[data-rc-item-animation] .thumbnail-button-container button:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: auto !important;
+  min-height: 36px;
+  max-width: 100%;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 7px 10px !important;
+  border: 1px solid var(--rc-control-border);
+  border-radius: 8px;
+  background: var(--rc-control-bg);
+  color: var(--rc-text);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: normal;
+  cursor: pointer;
+}
+
+[data-rc-item-animation-label]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after {
+  content: attr(data-rc-item-animation-label);
+  overflow-wrap: anywhere;
+}
+
+[data-rc-item-animation-label] :is(.icon-bigstop, .icon-bigplay):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  flex: none;
+  transform: scale(.65);
+  margin: -5px;
+}
+
+[data-rc-item-animation] .thumbnail-button-container button:hover:not(:disabled):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  background: var(--rc-control-hover);
+}
+
+[data-rc-item-animation] .thumbnail-button-container button:focus-visible:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  outline: 2px solid var(--rc-focus);
+  outline-offset: 2px;
+}
+
+[data-rc-item-animation] [hidden]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: none !important; }
+
+@media (max-width: 800px) {
+  [data-rc-item-studio="animation"]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { grid-template-columns: minmax(0, 1fr); }
+  [data-rc-item-studio="animation"] > [data-rc-item-info]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { grid-column: 1; grid-row: auto; }
+  [data-rc-item-studio="animation"] > #rc-animation-user-preview:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { grid-column: 1; grid-row: auto; }
+}
+
+[data-rc-item-native-2d-toggle]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: none !important; }
 
 #rc-catalog-item-3d-refresh:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: absolute;

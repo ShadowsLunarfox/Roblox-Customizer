@@ -1,0 +1,59 @@
+#rc-extension-warning-dialog {
+  position: fixed;
+  inset: 0;
+  box-sizing: border-box;
+  width: min(620px, calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 26px;
+  overflow: hidden;
+  border: 1px solid #b58326;
+  border-radius: 16px;
+  background: var(--rc-surface, #1c1d24);
+  color: var(--rc-text, #f4f6fb);
+  box-shadow: 0 24px 80px rgb(0 0 0 / 40%);
+  font: 14px/1.6 system-ui, sans-serif;
+  overflow-wrap: anywhere;
+}
+#rc-extension-warning-dialog[open] { display: flex; flex-direction: column; }
+#rc-extension-warning-dialog::backdrop { background: rgb(0 0 0 / 48%); }
+#rc-extension-warning-dialog h2 { flex-shrink: 0; margin: 0 0 14px; color: inherit; font-size: 22px; line-height: 1.35; }
+#rc-extension-warning-dialog .rc-extension-warning-content {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding-right: 6px;
+}
+#rc-extension-warning-dialog p { margin: 12px 0; color: var(--rc-text-secondary, #c3cad6); }
+#rc-extension-warning-dialog p:first-child { margin-top: 0; }
+#rc-extension-warning-dialog p:last-child { margin-bottom: 0; }
+#rc-extension-warning-dialog strong { color: var(--rc-text, #f4f6fb); }
+#rc-extension-warning-dialog ul { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 18px; padding: 0; list-style: none; }
+#rc-extension-warning-dialog li {
+  padding: 5px 11px;
+  border: 1px solid var(--rc-control-border, #727c90);
+  border-radius: 8px;
+  background: var(--rc-control-bg, #292b35);
+  color: inherit;
+  font-weight: 600;
+}
+#rc-extension-warning-dialog .rc-extension-warning-actions { display: flex; flex-shrink: 0; justify-content: flex-end; margin-top: 22px; }
+#rc-extension-warning-dialog button {
+  min-width: 0;
+  min-height: 42px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--rc-accent, #335fff);
+  color: var(--rc-accent-text, #fff);
+  font: 600 14px/1.4 system-ui, sans-serif;
+  cursor: pointer;
+}
+#rc-extension-warning-dialog button:hover { background: var(--rc-accent-hover, #244de0); }
+#rc-extension-warning-dialog button:focus-visible { outline: 2px solid var(--rc-focus, #aacaff); outline-offset: 3px; }
+#rc-extension-warning-dialog .rc-extension-warning-content:focus-visible { outline: 2px solid var(--rc-focus, #aacaff); outline-offset: 2px; border-radius: 4px; }
+@media (max-width: 420px) {
+  #rc-extension-warning-dialog { padding: 20px; }
+  #rc-extension-warning-dialog button { width: 100%; }
+}

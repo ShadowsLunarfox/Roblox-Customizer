@@ -3,7 +3,7 @@
 
 [English](TERMS.md) · [简体中文](TERMS.zh-CN.md) · [繁體中文](TERMS.zh-TW.md) · Bahasa Indonesia · [日本語](TERMS.ja.md) · [ไทย](TERMS.th.md) · [한국어](TERMS.ko.md)
 
-Terakhir diperbarui: 2026-10-20<br>
+Terakhir diperbarui: 2026-10-22<br>
 Penerbit: Lunarfox 月狐
 
 Ketentuan ini menjelaskan penggunaan Roblox Customizer yang disediakan oleh penerbit yang disebutkan di atas. Baca bersama Kebijakan Privasi. Gunakan ekstensi hanya jika Anda dapat menyetujui ketentuan ini menurut hukum yang berlaku; dapatkan izin orang tua atau wali bila diperlukan.
@@ -35,6 +35,27 @@ Data ekstensi tersimpan berada dalam profil browser Anda dan bukan cadangan clou
 ## Lisensi sumber terbuka
 
 Perangkat lunak ekstensi dilisensikan berdasarkan GNU General Public License versi 3, sebagaimana tercantum dalam file LICENSE repositori. Hak Anda untuk menjalankan, menyalin, mengubah, dan mendistribusikan ulang perangkat lunak diatur oleh lisensi tersebut. Ketentuan ini tidak membatasi atau menggantikan hak tersebut. Konten pihak ketiga tetap tunduk pada hak dan lisensinya sendiri.
+
+## Pustaka perangkat lunak pihak ketiga dan kegunaannya
+
+Rilis ini menyertakan 10 pustaka runtime pihak ketiga yang berbeda, termasuk dependensi tidak langsung yang tertanam dalam pustaka lain. Pustaka yang digunakan beberapa fitur dihitung sekali. Alat build/pengujian dan kumpulan data referensi tidak dihitung.
+
+Setiap pustaka tetap tunduk pada lisensi dan pemberitahuan hak ciptanya sendiri. Daftar ini tidak menggantikan lisensi atau kewajiban distribusi kode sumber yang berlaku. Kode sumber terkait RoAvatar Renderer saat ini disertakan di third_party/roavatar-renderer-1.9.12-source.tar.gz; menyebut nama pustaka dalam dokumen ini tidak menggantikan penyediaan kode sumber tersebut.
+
+Data referensi dicantumkan terpisah: Natural Earth 5.1.2 menyediakan batas negara domain publik; RoAvatar menyediakan rig dasar R15 dan mesh komposit berlisensi GPLv3; data Studio API yang diterbitkan Roblox menyediakan kategori properti dan nama enum. React dan React DOM merupakan dependensi kode sumber renderer hulu dan pemberitahuan MIT-nya tetap disertakan; keduanya tidak digunakan sebagai kerangka antarmuka ekstensi ini atau dihitung sebagai pustaka runtime di sini.
+
+Asal dan berkas lisensi tersedia dalam [pemberitahuan dependensi pratinjau animasi](src/assets/animation-preview/vendor/README.md), [pemberitahuan dekoder sumber daya](src/assets/vendor/README.md), dan [pemberitahuan globe](src/servers/globe/NOTICE.txt).
+
+- RoAvatar Renderer 1.9.12 (GPL-3.0-only): Membaca model avatar dan animasi untuk pratinjau opsional pada avatar Anda.
+- Three.js 0.185.1 (MIT): Merender adegan 3D, mesh, pencahayaan, dan kamera dengan WebGL.
+- N8AO 2.0.1 (CC0-1.0): Menyediakan dukungan oklusi ambien dan bayangan pada renderer avatar.
+- postprocessing 6.39.4 (Zlib): Menyediakan efek pascapemrosesan pada renderer avatar.
+- fflate 0.8.3 (MIT): Mendekode data sumber daya terkompresi yang digunakan renderer avatar.
+- fzstd 0.1.1 (MIT): Mendekode model/sumber daya Roblox berkompresi Zstandard pada penjelajah sumber daya dan renderer avatar.
+- Google Draco (Apache-2.0): Mendekode geometri mesh 3D terkompresi menggunakan dekoder yang disertakan RoAvatar Renderer.
+- d3-geo 3.1.1 (ISC): Memproyeksikan batas negara dan garis koordinat globe untuk pemilihan lokasi server.
+- d3-array 3.2.4 (ISC): Menyediakan operasi angka dan array untuk mesin proyeksi globe.
+- InternMap / InternSet (internmap) (ISC): Menyediakan koleksi berkunci yang tertanam dalam d3-array; dependensi tidak langsung mesin globe.
 
 ## Jaminan dan tanggung jawab
 

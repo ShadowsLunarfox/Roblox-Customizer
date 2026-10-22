@@ -3,7 +3,7 @@
 
 English · [简体中文](PRIVACY.zh-CN.md) · [繁體中文](PRIVACY.zh-TW.md) · [Bahasa Indonesia](PRIVACY.id.md) · [日本語](PRIVACY.ja.md) · [ไทย](PRIVACY.th.md) · [한국어](PRIVACY.ko.md)
 
-Last updated: 2026-10-20<br>
+Last updated: 2026-10-22<br>
 Publisher: Lunarfox 月狐
 
 This policy explains how Roblox Customizer handles information. It covers this browser extension, not Roblox, the browser, or third-party services, which have their own policies.
@@ -22,6 +22,11 @@ Information is used to provide the features you see in the extension:
 - Recent servers: Roblox user IDs, game/universe/place IDs, server instance IDs, game names, and last-observed timestamps for recent-server history.
 - Roblox content: page URLs and content, profile, avatar, friends, inventory, badge, game, server, and social-link information needed for page styling and tools. Existing account, message, and transaction pages may be restyled locally; their contents are not uploaded to the publisher. The extension does not read your browsing history on unrelated websites.
 - Temporary or cached information: public social posts and thumbnails, exchange rates, API responses, and server-country estimates.
+- Game notes: private text you enter, the game page ID and name, and the time of the last edit. Notes are saved only in extension-local browser storage, shared across Roblox accounts in that browser, and are not posted to Roblox or sent to the publisher. Settings backups include notes; importing replaces them and Reset All deletes them.
+- Streamer mode stores your visibility preferences locally, including a small Roblox-site localStorage cache for early page loading. It hides supported Robux balances, friend lists, messages and notifications in the website; it does not delete them or change their Roblox privacy settings.
+- Item tools load item IDs, creator names, creation/update dates and available sales or quantity fields from Roblox. Resource files are loaded on demand into temporary memory for inspection or local download, up to 32 MB. They are not executed or sent to the publisher. Opening a Creator Store or resource link contacts Roblox.
+- Animation bundle pages and individual animation or emote item pages show the original animation player beside an optional preview on your own avatar. Selecting ?Preview on my avatar? reads your currently equipped avatar and the requested animation resources from Roblox into temporary memory. Rendering runs locally in the extension. This preview does not change your equipped items or save an outfit; model and resource data are not sent to the publisher.
+- Extension conflict notices: known Roblox extension markers on the current page are checked locally. Identifiers of extensions whose notices you dismiss are remembered only in extension-local storage to avoid repeating the same notice. The extension does not read an installed-extension inventory, disable or change other extensions, or send this information to the publisher or third parties.
 
 ## Local storage and playtime
 
@@ -35,17 +40,41 @@ The extension does not ask for your Roblox password. Authenticated Roblox API ca
 
 Selected font files also use IndexedDB on the Roblox site origin where they were selected. A small font-selection cache uses that site's localStorage; it contains settings and a file identifier, not font bytes.
 
+Avatar tools load your signed-in user ID, current body colors, equipped assets and Roblox adjustment rules. Color and accessory previews remain in memory. Selecting Apply sends the selected body-color changes or accessory transform to Roblox using your existing session; the extension rechecks the account and current wearables before submitting. Reset All does not undo changes already applied to your Roblox avatar.
+
 ## Network requests and third parties
 
 Requests are made when the relevant feature runs. The services below receive the requested identifiers or resources and ordinary connection information, such as your network IP address and request headers. They may keep their own logs under their policies. Roblox account credentials are not sent to the non-Roblox APIs listed here.
 
 - Roblox APIs and image services: account and user IDs, game/place/universe IDs, badge/item IDs, server IDs, and related queries to load information, thumbnails, presence, and server details. Roblox handles its own website and account activity separately.
-- ipwho.is: a Roblox game server's public IP address for an estimated server country. This is a lookup of the game server, not a request to locate your device; the service still sees the connection IP used to make the request.
+- ipwho.is: a Roblox game server's public IP address for its estimated country, city, and geographic coordinates. This is a lookup of the game server, not a request to locate your device; the service still sees the connection IP used to make the request.
 - Rolimons (www.rolimons.com): the requested game/place ID for public game statistics. Opening a player or server analytics link sends that destination's identifiers to Rolimons.
 - FxEmbed (api.fxtwitter.com) and X image hosts (pbs.twimg.com and mosaic.fxtwitter.com): the public X handle linked on a Roblox page, plus post/image references, to display public posts and media.
 - YouTube (www.youtube.com) and its image host (i.ytimg.com): public channel handles or IDs and video/image IDs to show recent videos and thumbnails. Feed requests do not send YouTube login credentials.
 - jsDelivr (cdn.jsdelivr.net) and the currency API mirror (latest.currency-api.pages.dev): requests for public USD exchange-rate data. Your Roblox balance and playtime history are not sent to these rate services.
 - A saved remote background URL: the background host receives a request for that file when it loads. Local background files require no such request. Links to support or other sites contact those sites only when you open them.
+- These tools contact catalog.roblox.com, economy.roblox.com, assetdelivery.roblox.com, contentdelivery.roblox.com, avatar.roblox.com and Roblox asset hosts under rbxcdn.com. Asset CDN downloads omit Roblox account credentials. Resource permissions and available data are determined by Roblox.
+
+## Third-party software libraries and their purposes
+
+This release packages 10 distinct third-party runtime libraries, including indirect dependencies embedded in other libraries. A library used by several features is counted once. Build/test tools and reference datasets are not included in this count.
+
+These libraries run from the extension package for local rendering, resource decoding and globe calculations. The extension does not integrate their maintainers’ telemetry or data-collection services. Features can still request avatar, animation, resource or server data from Roblox and other services as described under Network requests and third parties; local rendering does not mean that every feature works offline.
+
+Reference data is listed separately from software libraries: Natural Earth 5.1.2 supplies public-domain country boundaries; RoAvatar supplies the GPLv3-licensed base R15 rig and compositing meshes; Roblox’s published Studio API data supplies property categories and enum names. React and React DOM are dependencies of the upstream renderer source and their MIT notices are retained; they are not used as this extension’s interface framework or counted as runtime libraries here.
+
+See the [animation preview dependency notices](src/assets/animation-preview/vendor/README.md), [resource decoder notice](src/assets/vendor/README.md), and [globe notices](src/servers/globe/NOTICE.txt) for provenance and accompanying license files.
+
+- RoAvatar Renderer 1.9.12 (GPL-3.0-only): Reads avatar models and animation resources for the optional preview on your avatar.
+- Three.js 0.185.1 (MIT): Renders the 3D scene, meshes, lighting and camera with WebGL.
+- N8AO 2.0.1 (CC0-1.0): Provides ambient-occlusion and shading support within the avatar renderer.
+- postprocessing 6.39.4 (Zlib): Provides rendering effects within the avatar renderer.
+- fflate 0.8.3 (MIT): Decodes compressed resource data used by the avatar renderer.
+- fzstd 0.1.1 (MIT): Decodes Zstandard-compressed Roblox model/resource data in the resource explorer and avatar renderer.
+- Google Draco (Apache-2.0): Decodes compressed 3D mesh geometry using the decoder shipped with RoAvatar Renderer.
+- d3-geo 3.1.1 (ISC): Projects country boundaries and globe graticules for server location selection.
+- d3-array 3.2.4 (ISC): Provides numeric and array operations used by the globe projection engine.
+- InternMap / InternSet (internmap) (ISC): Provides keyed collections embedded in d3-array; an indirect dependency of the globe engine.
 
 ## Publisher access and use
 

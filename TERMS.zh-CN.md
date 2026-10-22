@@ -3,7 +3,7 @@
 
 [English](TERMS.md) · 简体中文 · [繁體中文](TERMS.zh-TW.md) · [Bahasa Indonesia](TERMS.id.md) · [日本語](TERMS.ja.md) · [ไทย](TERMS.th.md) · [한국어](TERMS.ko.md)
 
-最后更新: 2026-10-20<br>
+最后更新: 2026-10-22<br>
 发布者: Lunarfox 月狐
 
 这些条款说明如何使用由上述发布者提供的 Roblox Customizer，请结合隐私政策阅读。仅在适用法律允许你同意这些条款时使用扩展；如有要求，请取得家长或监护人的许可。
@@ -35,6 +35,27 @@ Roblox Customizer 是用于 Roblox 外观自定义及便利工具的独立浏览
 ## 开源许可证
 
 扩展软件采用仓库 LICENSE 文件所载的 GNU 通用公共许可证第 3 版。运行、复制、修改及再分发软件的权利由该许可证规定；这些条款不限制或取代这些权利。第三方内容仍适用各自权利和许可证。
+
+## 第三方软件库与用途
+
+本版本打包了 10 个不同的第三方运行库，包含其他库内部集成的间接依赖。同一个库即使用于多个功能，也只计算一次；构建、测试工具和参考数据集不计入这个数量。
+
+各库仍适用其自身的许可证和版权声明。本清单不能替代许可证原文或适用的源码分发要求。目前 RoAvatar Renderer 的对应源码随包附带于 third_party/roavatar-renderer-1.9.12-source.tar.gz；仅在这些文件中写出库名，不能代替提供对应源码。
+
+参考数据与软件库分开列明：Natural Earth 5.1.2 提供公有领域的国家边界；RoAvatar 提供遵循 GPLv3 的基础 R15 骨架和合成网格；Roblox 公开的 Studio API 数据提供属性分类与枚举名称。React 和 React DOM 是上游渲染器源码的依赖，随包保留其 MIT 声明；它们未用作本扩展的界面框架，不计入这里的运行库数量。
+
+来源和随包许可证见[动画预览依赖说明](src/assets/animation-preview/vendor/README.md)、[资源解码器说明](src/assets/vendor/README.md)及[地球组件说明](src/servers/globe/NOTICE.txt)。
+
+- RoAvatar Renderer 1.9.12 (GPL-3.0-only): 读取模型和动画资源，用于可选的“在我的模型上预览”功能。
+- Three.js 0.185.1 (MIT): 通过 WebGL 绘制三维场景、网格、灯光和相机。
+- N8AO 2.0.1 (CC0-1.0): 为模型渲染器提供环境光遮蔽与阴影效果支持。
+- postprocessing 6.39.4 (Zlib): 为模型渲染器提供画面后处理效果。
+- fflate 0.8.3 (MIT): 解码模型渲染器使用的压缩资源数据。
+- fzstd 0.1.1 (MIT): 在资源浏览器和模型渲染器中解码 Zstandard 压缩的 Roblox 模型与资源。
+- Google Draco (Apache-2.0): 使用随 RoAvatar Renderer 分发的解码器解码压缩的三维网格。
+- d3-geo 3.1.1 (ISC): 绘制国家边界和地球经纬网，用于选择服务器位置。
+- d3-array 3.2.4 (ISC): 提供地球投影引擎使用的数值与数组运算。
+- InternMap / InternSet (internmap) (ISC): 提供集成于 d3-array 内部的键值集合，是地球引擎的间接依赖。
 
 ## 保证与责任
 

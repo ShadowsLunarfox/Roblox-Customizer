@@ -1,0 +1,146 @@
+{
+  "repository": "steinann/RoAvatar",
+  "revision": "263775de79d82a5d009a2538a1d04d1f530d41e0",
+  "files": [
+    {
+      "id": "117612227055721",
+      "file": "RigR15.rbxm",
+      "source": "public/assets/RigR15.rbxm",
+      "bytes": 29172,
+      "sha256": "1ced4dc9e7a927a3b23a455376d2c4254529fd4221bcf03b3447342597aab65b"
+    },
+    {
+      "id": "128898737887110",
+      "file": "rbxasset/avatar/compositing/R15CompositTorsoBase.mesh",
+      "source": "public/assets/rbxasset/avatar/compositing/R15CompositTorsoBase.mesh",
+      "bytes": 9049,
+      "sha256": "d2f0a5051c3ed995c943856f50a6c03617886c33f7adfe25d5e642df4b9b9754"
+    },
+    {
+      "id": "130403245999873",
+      "file": "rbxasset/avatar/compositing/R15CompositRightArmBase.mesh",
+      "source": "public/assets/rbxasset/avatar/compositing/R15CompositRightArmBase.mesh",
+      "bytes": 18937,
+      "sha256": "7f9c5d05f775f17e045aa932104c14db76637878b9d7180229f9bd9c659a4743"
+    },
+    {
+      "id": "122438986243654",
+      "file": "rbxasset/avatar/compositing/R15CompositLeftArmBase.mesh",
+      "source": "public/assets/rbxasset/avatar/compositing/R15CompositLeftArmBase.mesh",
+      "bytes": 18937,
+      "sha256": "7461a4b26713a88e9ab7ef25a7b7f562d32941656e2f70479537d02874bb2cdc"
+    },
+    {
+      "id": "73352601509228",
+      "file": "rbxasset/avatar/compositing/CompositTShirt.mesh",
+      "source": "public/assets/rbxasset/avatar/compositing/CompositTShirt.mesh",
+      "bytes": 193,
+      "sha256": "6654b72dd12b2999f4c47a0e182484d60d3bb91d8d8c54924e6096d7e1a70fa6"
+    },
+    {
+      "id": "110815013780474",
+      "file": "rbxasset/avatar/compositing/CompositTorsoBase.mesh",
+      "source": "public/assets/rbxasset/avatar/compositing/CompositTorsoBase.mesh",
+      "bytes": 28921,
+      "sha256": "ff48a9b99b802910417927c6dee3c15a68a00c1629ca733adcc1eb39df3598ec"
+    },
+    {
+      "id": "99918409598660",
+      "file": "rbxasset/avatar/compositing/CompositShirtTemplate.mesh",
+      "source": "public/assets/rbxasset/avatar/compositing/CompositShirtTemplate.mesh",
+      "bytes": 43201,
+      "sha256": "dd873e606791f8834df8527c6851490ba74d258d1a20acb2db194ff64675f185"
+    },
+    {
+      "id": "107252470435894",
+      "file": "rbxasset/avatar/compositing/CompositRightLegBase.mesh",
+      "source": "public/assets/rbxasset/avatar/compositing/CompositRightLegBase.mesh",
+      "bytes": 28585,
+      "sha256": "e0e66edc263ab9f7ef1131aca91367c724d5aed29c04fffc8669b2233918ed37"
+    },
+    {
+      "id": "86285571969113",
+      "file": "rbxasset/avatar/compositing/CompositRightArmBase.mesh",
+      "source": "public/assets/rbxasset/avatar/compositing/CompositRightArmBase.mesh",
+      "bytes": 28585,
+      "sha256": "a3cbd38aae61fecd901030e41ffe55d0f08983132157b0973445b05f78724167"
+    },
+    {
+      "id": "86988649991001",
+      "file": "rbxasset/avatar/compositing/CompositQuad.mesh",
+      "source": "public/assets/rbxasset/avatar/compositing/CompositQuad.mesh",
+      "bytes": 193,
+      "sha256": "6152344cf2210343cfaccc3e438fd402b40d323855ee330f33a48fe92e43af33"
+    },
+    {
+      "id": "108749124518615",
+      "file": "rbxasset/avatar/compositing/CompositPantsTemplate.mesh",
+      "source": "public/assets/rbxasset/avatar/compositing/CompositPantsTemplate.mesh",
+      "bytes": 43201,
+      "sha256": "d49df7563135c334a11843806018c468d00b98f60cf7517ea4712adadcc5831d"
+    },
+    {
+      "id": "126843307192697",
+      "file": "rbxasset/avatar/compositing/CompositLeftLegBase.mesh",
+      "source": "public/assets/rbxasset/avatar/compositing/CompositLeftLegBase.mesh",
+      "bytes": 28921,
+      "sha256": "e41aaa2b60619daf31dba1a2688c349ed2d212ef4605f9b9e7affc77d771356e"
+    },
+    {
+      "id": "124757651657333",
+      "file": "rbxasset/avatar/compositing/CompositLeftArmBase.mesh",
+      "source": "public/assets/rbxasset/avatar/compositing/CompositLeftArmBase.mesh",
+      "bytes": 28921,
+      "sha256": "8da4dd4e1d265fe7a9e3a1a1244a716ea0589e197a191069a90215334f52538c"
+    },
+    {
+      "id": "99832238544592",
+      "file": "rbxasset/avatar/compositing/CompositFullAtlasOverlayTexture.mesh",
+      "source": "public/assets/rbxasset/avatar/compositing/CompositFullAtlasOverlayTexture.mesh",
+      "bytes": 193,
+      "sha256": "42387caf97173d139b0420c72e5c77501da1e5c47ac81f8ab0621bb5765a06c8"
+    },
+    {
+      "id": "82745085603378",
+      "file": "rbxasset/avatar/compositing/CompositFullAtlasBaseTexture.mesh",
+      "source": "public/assets/rbxasset/avatar/compositing/CompositFullAtlasBaseTexture.mesh",
+      "bytes": 193,
+      "sha256": "7f9de5169ec785e73d80a5d03866dbaddeebddfb2745d6f38761887ebc147b77"
+    },
+    {
+      "id": "90442767118712",
+      "file": "rbxasset/avatar/compositing/CompositExtraSlot4.mesh",
+      "source": "public/assets/rbxasset/avatar/compositing/CompositExtraSlot4.mesh",
+      "bytes": 817,
+      "sha256": "9026301503a6571be4060a3920da649d6a9b1cabfcfc3c0809663eb207d5f3ab"
+    },
+    {
+      "id": "114465125672717",
+      "file": "rbxasset/avatar/compositing/CompositExtraSlot3.mesh",
+      "source": "public/assets/rbxasset/avatar/compositing/CompositExtraSlot3.mesh",
+      "bytes": 817,
+      "sha256": "61dbbda0944f612350682562340055bcbe5b8004ed028929154ce95da7299769"
+    },
+    {
+      "id": "111697299800137",
+      "file": "rbxasset/avatar/compositing/CompositExtraSlot2.mesh",
+      "source": "public/assets/rbxasset/avatar/compositing/CompositExtraSlot2.mesh",
+      "bytes": 817,
+      "sha256": "61b73386d67d4f9b97bd4c920278efcaf41da123e8eb25507c03bd3db96ebb21"
+    },
+    {
+      "id": "92101687933174",
+      "file": "rbxasset/avatar/compositing/CompositExtraSlot1.mesh",
+      "source": "public/assets/rbxasset/avatar/compositing/CompositExtraSlot1.mesh",
+      "bytes": 817,
+      "sha256": "ecac9821ab14df8ed697f3b25a79040dcaffd58df36afada42b507132a9816b6"
+    },
+    {
+      "id": "115275146529093",
+      "file": "rbxasset/avatar/compositing/CompositExtraSlot0.mesh",
+      "source": "public/assets/rbxasset/avatar/compositing/CompositExtraSlot0.mesh",
+      "bytes": 817,
+      "sha256": "d49a6c4733b1f95242958d0df6489c5eea5872a0c7e181c54c93d74324439d51"
+    }
+  ]
+}

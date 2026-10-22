@@ -7,7 +7,7 @@ const { isolatedChrome, waitForDocument } = require('./helpers/chrome.cjs');
 const workspace = path.resolve(__dirname, '..');
 const manifest = JSON.parse(fs.readFileSync(path.join(workspace, 'manifest.json'), 'utf8'));
 const styles = [...new Set(manifest.content_scripts.flatMap(entry => entry.css || []))];
-const scripts = ['src/shared/runtime.js', 'src/shared/native-labels.js', 'src/shared/i18n.js', 'src/shared/startup.js',
+const scripts = ['src/shared/dialogs.js', 'src/shared/runtime.js', 'src/shared/native-labels.js', 'src/shared/i18n.js', 'src/shared/startup.js',
   'src/settings/settings.js', 'src/playtime/playtime-core.js', 'src/playtime/playtime.js'];
 function fixture(pathname = '/home') {
   const placeId = Number(pathname.match(/^\/games\/(\d+)(?:\/|$)/)?.[1]);
@@ -216,8 +216,8 @@ test('Game header balances title, media, native actions and a full-width playtim
             `${theme}/${width}/${locale}: heading boxes start at the same height`);
           assert.ok(state.labels.every(label=>Math.abs(label.text.y-state.labels[0].text.y)<1),
             `${theme}/${width}/${locale}: heading text stays level despite Roblox's native heading padding`);
-          assert.ok(Math.abs(state.hint.y-state.values[0].box.y)<1,
-            `${theme}/${width}/${locale}: the left note starts level with the right value`);
+          assert.equal(await browser.evaluate("document.querySelector('#rc-playtime-game-page .rc-playtime-hint').hidden"),true,
+            `${theme}/${width}/${locale}: routine guidance does not add a row to the compact strip`);
           assert.ok(state.values.every(value=>Math.abs(value.box.y-state.values[0].box.y)<1),
             `${theme}/${width}/${locale}: values share a baseline`);
         }else assert.ok(state.labels[0].box.y<state.labels[1].box.y&&state.labels[1].box.y<state.labels[2].box.y,

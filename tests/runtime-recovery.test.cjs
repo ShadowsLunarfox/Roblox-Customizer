@@ -22,20 +22,78 @@ function clock() {
   };
 }
 
-function environment() {
+function environment({ frames = false } = {}) {
   const time = clock();
   const events = new Map();
   const requests = [];
   const warnings = [];
+  const inbound = [];
+  const location = { origin:'https://www.roblox.com', pathname:'/catalog/123/Item', search:'?private=ignored', hash:'#ignored' };
   const addEventListener = (name, callback) => events.set(name, callback);
   const document = { hidden: false, addEventListener };
-  const chrome = { runtime: { lastError: null, sendMessage(message, callback) { requests.push({ message, callback }); } } };
-  const context = vm.createContext({ ...time, document, chrome, addEventListener,
+  const chrome = { runtime: { id:'ext', lastError: null, onMessage:{addListener:listener=>inbound.push(listener)}, sendMessage(message, callback) { requests.push({ message, callback }); } } };
+  const frameQueue = new Map();
+  let frameId = 0;
+  const context = vm.createContext({ ...time, document, chrome, location, addEventListener,
+    ...(frames ? { requestAnimationFrame(callback) { frameQueue.set(++frameId, callback); return frameId; } } : {}),
     console: { warn: (...args) => warnings.push(args) } });
   vm.runInContext(source, context);
-  return { ...time, document, chrome, requests, warnings, runtime: context.RobloxCustomizerRuntime,
+  return { ...time, document, chrome, requests, warnings, inbound, location, runtime: context.RobloxCustomizerRuntime,
+    frame() { const batch = [...frameQueue.values()]; frameQueue.clear(); batch.forEach(callback => callback()); time.flush(); },
+    get frames() { return frameQueue.size; },
     dispatch: name => events.get(name)() };
 }
+
+test('optional DOM work shares a frame budget, coalesces requests, and gives each feature a turn', () => {
+  const env = environment({ frames: true });
+  const calls = [];
+  let created = 0;
+  const task = name => function* () {
+    created++;
+    for (let i = 0; i < 4; i++) { calls.push(name); env.elapse(2); yield; }
+  };
+  env.runtime.queueWork('cards', task('cards'));
+  env.runtime.queueWork('cards', task('duplicate'));
+  env.runtime.queueWork('chat', task('chat'));
+  assert.deepEqual(calls, [], 'Queuing does not block the native mutation/paint phase');
+  assert.equal(env.frames, 1);
+  env.frame();
+  assert.deepEqual(calls, ['cards', 'chat'], 'Both features share four milliseconds, rather than taking a separate frame budget');
+  while (env.frames) env.frame();
+  assert.equal(created, 2);
+  assert.deepEqual(calls, ['cards', 'chat', 'cards', 'chat', 'cards', 'chat', 'cards', 'chat']);
+  assert.equal(env.timers.size, 0, 'An empty queue installs no idle polling loop');
+});
+
+test('media resumes before queued page features and hidden tabs defer optional DOM scans', () => {
+  const env = environment({ frames: true });
+  const calls = [];
+  env.runtime.onResume(() => calls.push('page'));
+  env.runtime.onResume(() => calls.push('media'), { priority: 'media' });
+  env.document.hidden = true;
+  env.runtime.queueWork('hidden', function* () { calls.push('scan'); });
+  assert.equal(env.frames, 0);
+  env.document.hidden = false;
+  env.dispatch('visibilitychange');
+  env.flush();
+  assert.deepEqual(calls, ['media']);
+  env.frame();
+  assert.deepEqual(calls, ['media', 'scan', 'page']);
+  assert.equal(env.timers.size, 0);
+});
+
+test('a cancelled resume listener and a failing queued task do not block other features', () => {
+  const env = environment({ frames: true });
+  let calls = 0;
+  const remove = env.runtime.onResume(() => calls++);
+  env.dispatch('focus');env.flush();remove();
+  env.runtime.queueWork('failure', function* () { throw Error('Detached component'); });
+  env.runtime.queueWork('next', function* () { calls++; });
+  env.frame();
+  assert.equal(calls, 1);
+  assert.equal(env.warnings.length, 1);
+  assert.equal(env.frames, 0);
+});
 
 test('stalled worker messages settle once and another request can succeed', async () => {
   const env = environment();
@@ -77,6 +135,48 @@ test('large inventories have a longer deadline and successful responses cancel i
   env.requests[0].callback({ items: [] });
   assert.equal((await request).items.length, 0);
   assert.equal(env.timers.size, 0);
+});
+
+test('item reads recover from a closed port with bounded retries and settle their UI once', async () => {
+  const env = environment(), replies = [];
+  const request = env.runtime.sendMessage({ type: 'rc-asset-tools', action: 'details', assetId: 456 }, value => replies.push(value));
+  const close = index => {
+    env.chrome.runtime.lastError = { message: 'The message port closed before a response was received.' };
+    env.requests[index].callback();env.chrome.runtime.lastError = null;
+  };
+  close(0);env.elapse(120);env.flush();assert.equal(env.requests.length,2);
+  close(1);env.elapse(350);env.flush();assert.equal(env.requests.length,3);
+  env.requests[2].callback({ id:456, created:'2025-06-07' });
+  assert.equal((await request).id,456);assert.equal(replies.length,1);assert.equal(env.timers.size,0);
+  env.requests[0].callback({ id:123 });assert.equal(replies.length,1,'An obsolete attempt cannot overwrite the current response');
+});
+
+test('item retries stop after navigation and never replay avatar mutations', async () => {
+  const env = environment();
+  const message = { type:'rc-asset-tools', action:'details', assetId:456 };
+  const request = env.runtime.sendMessage(message);
+  for(let index=0;index<3;index++){
+    env.chrome.runtime.lastError={message:'The message port closed before a response was received.'};
+    env.requests[index].callback();env.chrome.runtime.lastError=null;
+    env.elapse(index?350:120);env.flush();
+  }
+  assert.match((await request).error,/port closed/);assert.equal(env.requests.length,3);assert.equal(env.timers.size,0);
+  const edit=env.runtime.sendMessage({type:'rc-avatar-tools',action:'colors',userId:123});
+  env.chrome.runtime.lastError={message:'The message port closed before a response was received.'};env.requests[3].callback();env.chrome.runtime.lastError=null;
+  assert.match((await edit).error,/port closed/);env.elapse(1000);env.flush();assert.equal(env.requests.length,4,'A write is never retried');
+  const changed=env.runtime.sendMessage(message);
+  env.chrome.runtime.lastError={message:'The message port closed before a response was received.'};env.requests[4].callback();env.chrome.runtime.lastError=null;
+  env.location.pathname='/catalog/789/New';env.elapse(120);env.flush();
+  assert.equal((await changed).code,'page-changed');assert.equal(env.requests.length,5);assert.equal(env.timers.size,0);
+});
+
+test('the document reports its current SPA path only to its own worker and excludes query strings and fragments', () => {
+  const env=environment(), replies=[];
+  env.inbound[0]({type:'rc-current-page-context'},{id:'other'},value=>replies.push(value));
+  assert.equal(replies.length,0);
+  env.location.pathname='/ja/catalog/456/New';
+  env.inbound[0]({type:'rc-current-page-context'},{id:'ext'},value=>replies.push(value));
+  assert.deepEqual(JSON.parse(JSON.stringify(replies)),[{origin:'https://www.roblox.com',pathname:'/ja/catalog/456/New'}]);
 });
 
 test('restoration expires suspended requests before resynchronizing visible features', async () => {

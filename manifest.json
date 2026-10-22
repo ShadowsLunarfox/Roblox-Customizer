@@ -43,7 +43,13 @@
     "https://www.youtube.com/*",
     "https://i.ytimg.com/*",
     "https://cdn.jsdelivr.net/*",
-    "https://latest.currency-api.pages.dev/*"
+    "https://latest.currency-api.pages.dev/*",
+    "https://catalog.roblox.com/*",
+    "https://economy.roblox.com/*",
+    "https://assetdelivery.roblox.com/*",
+    "https://contentdelivery.roblox.com/v1/bytes/*",
+    "https://avatar.roblox.com/*",
+    "https://*.rbxcdn.com/*"
   ],
   "background": {
     "service_worker": "src/background/service-worker-bundle.js"
@@ -52,7 +58,10 @@
     {
       "resources": [
         "icons/icon-48.png",
-        "icons/icon-128.png"
+        "icons/icon-128.png",
+        "src/servers/globe/geo-engine.mjs",
+        "src/servers/globe/countries.mjs",
+        "src/assets/animation-preview/renderer.html"
       ],
       "matches": [
         "https://www.roblox.com/*",
@@ -64,6 +73,21 @@
     {
       "matches": [
         "https://www.roblox.com/*",
+        "https://roblox.com/*"
+      ],
+      "css": ["src/shared/startup.css"],
+      "js": [
+        "src/shared/routes.js",
+        "src/shared/compatibility.js",
+        "src/shared/dialogs.js",
+        "src/shared/avatar-diagnostics.js",
+        "src/shared/startup.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://www.roblox.com/*",
         "https://roblox.com/*",
         "https://create.roblox.com/*"
       ],
@@ -72,6 +96,7 @@
         "src/shared/compatibility.js",
         "src/shared/runtime.js",
         "src/shared/native-labels.js",
+        "src/privacy/streamer-mode.js",
         "src/shared/i18n.js",
         "src/shared/fonts.js",
         "src/currency/robux-currency-core.js",
@@ -80,7 +105,8 @@
       "css": [
         "src/shared/theme.css",
         "src/shared/fonts.css",
-        "src/currency/robux-currency.css"
+        "src/currency/robux-currency.css",
+        "src/privacy/streamer-mode.css"
       ],
       "all_frames": true,
       "run_at": "document_start"
@@ -102,9 +128,9 @@
         "https://roblox.com/*"
       ],
       "css": [
-        "src/shared/startup.css",
         "src/home/friends.css",
         "src/settings/settings.css",
+        "src/settings/extension-warning.css",
         "src/servers/server-history.css",
         "src/pages/games/game-page.css",
         "src/pages/games/game-store.css",
@@ -123,20 +149,26 @@
         "src/pages/robux/robux-page.css",
         "src/pages/community/community-directory.css",
         "src/pages/profile/profile-page.css",
+        "src/pages/profile/profile-edit.css",
         "src/pages/avatar/avatar-page.css",
         "src/home/pinned-games.css",
-        "src/playtime/playtime.css"
+        "src/notes/game-notes.css",
+        "src/playtime/playtime.css",
+        "src/servers/server-globe.css",
+        "src/assets/tools.css",
+        "src/assets/animation-bundle.css"
       ],
       "js": [
         "src/shared/routes.js",
         "src/shared/compatibility.js",
-        "src/shared/startup.js",
         "src/home/friends.js",
+        "src/notes/game-notes-core.js",
         "src/settings/backup-core.js",
         "src/servers/server-history-core.js",
         "src/servers/server-history.js",
         "src/settings/terms-acceptance.js",
         "src/settings/language-warning.js",
+        "src/settings/extension-warning.js",
         "src/settings/settings.js",
         "src/shared/frosted-ui.js",
         "src/pages/account/account-settings-page.js",
@@ -147,7 +179,17 @@
         "src/home/pinned-games-core.js",
         "src/home/pinned-games.js",
         "src/playtime/playtime-core.js",
-        "src/playtime/playtime.js"
+        "src/playtime/playtime.js",
+        "src/notes/game-notes.js",
+        "src/assets/vendor/fzstd-0.1.1.js",
+        "src/assets/model-reader.js",
+        "src/assets/asset-core.js",
+        "src/assets/tools-ui.js",
+        "src/assets/model-schema.js",
+        "src/assets/resource-explorer.js",
+        "src/assets/asset-tools.js",
+        "src/assets/avatar-tools.js",
+        "src/assets/animation-bundle.js"
       ],
       "run_at": "document_start"
     },
@@ -159,6 +201,7 @@
       "js": [
         "src/shared/routes.js",
         "src/shared/compatibility.js",
+        "src/servers/server-globe.js",
         "src/pages/games/game-page.js"
       ],
       "run_at": "document_start"
@@ -174,6 +217,24 @@
         "src/shared/routes.js",
         "src/shared/compatibility.js",
         "src/pages/account/messages-page.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://create.roblox.com/store/asset/*"
+      ],
+      "js": [
+        "src/assets/vendor/fzstd-0.1.1.js",
+        "src/assets/model-reader.js",
+        "src/assets/asset-core.js",
+        "src/assets/tools-ui.js",
+        "src/assets/model-schema.js",
+        "src/assets/resource-explorer.js",
+        "src/assets/asset-tools.js"
+      ],
+      "css": [
+        "src/assets/tools.css"
       ],
       "run_at": "document_start"
     }

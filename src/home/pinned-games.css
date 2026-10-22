@@ -1,23 +1,23 @@
 /* Preserve native styling while features are disabled for the page language. */
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+#game-detail-page .favorite-follow-vote-share:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 4px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: 12px 8px;
   width: 100%;
   min-width: 0;
   padding-inline: 0;
   container: rc-game-actions / inline-size;
 }
+#game-detail-page .favorite-follow-vote-share:not(:has(> .rc-game-pin-control)):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before,
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after {
+#game-detail-page .favorite-follow-vote-share:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before,
+#game-detail-page .favorite-follow-vote-share:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after {
   display: none;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > li:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+#game-detail-page .favorite-follow-vote-share > li:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: relative;
   top: auto;
   bottom: auto;
@@ -27,7 +27,7 @@
   margin: 0;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .rc-game-pin-control:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+#game-detail-page .favorite-follow-vote-share > .rc-game-pin-control:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   order: 0;
   display: flex;
   flex: 0 0 auto;
@@ -43,7 +43,8 @@
   flex-direction: column;
   justify-content: center;
   gap: 4px;
-  min-width: 56px;
+  width: 100%;
+  min-width: 0;
   padding: 0;
   border: 0;
   background: transparent;
@@ -53,7 +54,7 @@
 }
 
 #rc-pin-game svg:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { width: 28px; height: 28px; }
-#rc-pin-game .icon-label:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { font-size: 12px; line-height: 16px; white-space: nowrap; }
+#rc-pin-game .icon-label:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { font-size: 12px; line-height: 16px; white-space: normal; overflow-wrap: anywhere; }
 #rc-pin-game[aria-pressed="true"]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { color: var(--rc-focus, #8bc4ff); }
 #rc-pin-game:disabled:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { opacity: .55; cursor: wait; }
 
@@ -74,6 +75,18 @@
   color-scheme: var(--rc-color-scheme, dark);
 }
 #game-detail-page .rc-game-pin-folder label:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin: 0; font-size: 14px; line-height: 20px; color: inherit; }
+#game-detail-page #rc-game-pin-folder-fields:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { display: grid; gap: 6px; min-width: 0; }
+#game-detail-page .rc-game-pin-folder[data-saved="true"]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { margin-bottom: 0; padding: 8px 10px; }
+#game-detail-page .rc-game-pin-folder[data-saved="true"] #rc-game-pin-folder-fields:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { padding-top: 8px; }
+#game-detail-page .rc-game-pin-folder-toggle:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  display: flex; align-items: center; gap: 8px; width: 100%; min-width: 0; min-height: 28px; padding: 0;
+  border: 0; background: transparent; color: inherit; font: inherit; font-size: 13px; text-align: start; cursor: pointer;
+}
+#game-detail-page .rc-game-pin-folder-toggle svg:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { width: 18px; height: 18px; flex: none; opacity: .75; }
+#game-detail-page .rc-game-pin-folder-name:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#game-detail-page .rc-game-pin-folder-chevron:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { width: 7px; height: 7px; margin: 0 3px 3px; flex: none; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
+#game-detail-page .rc-game-pin-folder-toggle[aria-expanded="true"] .rc-game-pin-folder-chevron:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { transform: rotate(225deg); margin-bottom: -3px; }
+#game-detail-page .rc-game-pin-folder-toggle:focus-visible:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { outline: 2px solid var(--rc-focus); outline-offset: 3px; border-radius: 4px; }
 #rc-pin-game-folder:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   width: 100%;
@@ -138,44 +151,46 @@
 #game-detail-page .rc-game-pin-standalone #rc-pin-game .icon-label:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { font-size: 14px; line-height: 20px; }
 
 /* Keep the native buttons in place while replacing their float-based layout. */
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
+#game-detail-page .favorite-follow-vote-share
   > :is(.game-favorite-button-container, .game-follow-button-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex: 0 0 56px;
-  width: 56px;
-  min-width: 56px;
-  max-width: 56px;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
   overflow: visible;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
+#game-detail-page .favorite-follow-vote-share
   :is(.game-favorite-button-container, .game-follow-button-container) .tooltip-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: block;
   width: 100%;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .game-favorite-button-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { order: 1; }
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .game-follow-button-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { order: 2; }
+#game-detail-page .favorite-follow-vote-share > .game-favorite-button-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { order: 1; }
+#game-detail-page .favorite-follow-vote-share > .game-follow-button-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { order: 2; }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
+#game-detail-page .favorite-follow-vote-share
   :is(.favorite-button, .follow-button):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  width: 56px;
+  width: 100%;
   max-width: none;
   text-align: center;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
+#game-detail-page .favorite-follow-vote-share
   :is(.favorite-button, .follow-button) > :is(a, button):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  width: 100%;
+  min-width: 0;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
+#game-detail-page .favorite-follow-vote-share
   :is(.icon-favorite, .icon-follow-game, .icon-notifications-bell):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   flex: none;
   width: 28px;
@@ -184,33 +199,36 @@
   padding: 0;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .icon-label:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+#game-detail-page .favorite-follow-vote-share .icon-label:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   margin: 0;
   padding: 0;
   display: block;
   font-size: 12px;
   line-height: 16px;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  max-width: 100%;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .voting-panel:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+#game-detail-page .favorite-follow-vote-share > .voting-panel:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   order: 3;
+  grid-column: 1 / -1;
   flex: 1 1 110px;
   width: auto;
-  min-width: 80px;
-  max-width: 110px;
+  min-width: 0;
+  max-width: none;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .users-vote:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+#game-detail-page .favorite-follow-vote-share .users-vote:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: 28px auto;
-  gap: 4px 0;
+  grid-template-columns: 28px minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: 8px;
   height: auto;
   padding: 0;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .users-vote :is(.upvote, .downvote):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+#game-detail-page .favorite-follow-vote-share .users-vote :is(.upvote, .downvote):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: static;
   display: flex;
   align-items: center;
@@ -222,10 +240,10 @@
   margin: 0;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .users-vote .upvote:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { grid-area: 1 / 1; }
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .users-vote .downvote:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { grid-area: 1 / 2; justify-content: flex-end; }
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .users-vote .vote-details:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
-  grid-area: 2 / 1 / auto / -1;
+#game-detail-page .favorite-follow-vote-share .users-vote .upvote:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { grid-area: 1 / 1; }
+#game-detail-page .favorite-follow-vote-share .users-vote .downvote:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { grid-area: 1 / 3; justify-content: flex-end; }
+#game-detail-page .favorite-follow-vote-share .users-vote .vote-details:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  grid-area: 1 / 2;
   display: grid;
   position: static !important;
   grid-template-rows: 3px minmax(16px, auto);
@@ -235,7 +253,7 @@
   min-width: 0;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .vote-details .vote-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+#game-detail-page .favorite-follow-vote-share .vote-details .vote-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: relative !important;
   inset: auto !important;
   grid-row: 1;
@@ -244,7 +262,7 @@
   margin: 0 !important;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .vote-numbers:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+#game-detail-page .favorite-follow-vote-share .vote-numbers:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid;
   position: static !important;
   grid-row: 2;
@@ -258,10 +276,10 @@
   line-height: 16px;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .vote-numbers:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before,
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .vote-numbers:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after { display: none; }
+#game-detail-page .favorite-follow-vote-share .vote-numbers:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before,
+#game-detail-page .favorite-follow-vote-share .vote-numbers:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after { display: none; }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
+#game-detail-page .favorite-follow-vote-share
   .vote-numbers :is(.count-left, .count-right, .vote-text):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   float: none;
   min-width: 0;
@@ -271,8 +289,9 @@
   white-space: nowrap;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .social-media-share:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+#game-detail-page .favorite-follow-vote-share > .social-media-share:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   order: 4;
+  grid-column: 1 / -1;
   flex: 0 0 32px;
   width: 32px;
   min-width: 32px;
@@ -280,7 +299,7 @@
   height: auto;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .share-game-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+#game-detail-page .favorite-follow-vote-share .share-game-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   position: relative;
   top: auto;
   right: auto;
@@ -289,44 +308,8 @@
   width: 100%;
 }
 
-#game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .social-media-share:empty:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+#game-detail-page .favorite-follow-vote-share > .social-media-share:empty:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: none;
-}
-
-/* A game sidebar can be narrow even on a wide desktop monitor. */
-@container rc-game-actions (max-width: 340px) {
-  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
-    > :is(.game-favorite-button-container, .game-follow-button-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
-    flex-basis: 48px;
-    width: 48px;
-    min-width: 48px;
-    max-width: 48px;
-  }
-  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
-    :is(.favorite-button, .follow-button):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { width: 48px; }
-  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .icon-label:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { font-size: 11px; }
-  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .social-media-share:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
-    flex-basis: 28px;
-    width: 28px;
-    min-width: 28px;
-    max-width: 28px;
-  }
-}
-
-@container rc-game-actions (max-width: 280px) {
-  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
-    > :is(.game-favorite-button-container, .game-follow-button-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
-    flex-basis: 40px;
-    width: 40px;
-    min-width: 40px;
-    max-width: 40px;
-  }
-  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
-    :is(.favorite-button, .follow-button):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { width: 40px; }
-  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) .icon-label:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
-  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control)
-    .vote-numbers :is(.count-left, .count-right, .vote-text):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { font-size: 10px; }
-  #game-detail-page .favorite-follow-vote-share:has(> .rc-game-pin-control) > .voting-panel:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { min-width: 72px; }
 }
 
 #rc-pinned-games:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {

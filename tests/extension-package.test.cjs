@@ -31,6 +31,16 @@ test('Manifest assets exist and declared JavaScript parses from the unpacked pac
   }
 });
 
+test('The first top-level document-start entry gates native UI before heavier enhancements', () => {
+  const first = manifest.content_scripts[0];
+  assert.equal(first.run_at, 'document_start');
+  assert.notEqual(first.all_frames, true);
+  assert.deepEqual(first.css, ['src/shared/startup.css']);
+  assert.deepEqual(first.js, ['src/shared/routes.js', 'src/shared/compatibility.js',
+    'src/shared/dialogs.js', 'src/shared/avatar-diagnostics.js', 'src/shared/startup.js']);
+  assert.equal(manifest.content_scripts.flatMap(entry => entry.js || []).filter(file => file === 'src/shared/startup.js').length, 1);
+});
+
 test('Service worker is bundled from current sources without startup script imports', () => {
   const workerURL = new URL(manifest.background.service_worker, extensionURL);
   const source = fs.readFileSync(assetFile(workerURL), 'utf8');

@@ -301,6 +301,10 @@
       const country = server.serverLocation?.countryCode || server.location?.countryCode || server.countryCode;
       if (typeof country === 'string' && /^[a-z]{2}$/i.test(country)) metrics.countryCode = country.toUpperCase();
       if (Number.isSafeInteger(server.playing) && server.playing >= 0) metrics.playing = server.playing;
+      if (Number.isSafeInteger(server.maxPlayers) && server.maxPlayers > 0) metrics.maxPlayers = server.maxPlayers;
+      if (typeof server.fps === 'number' && Number.isFinite(server.fps) && server.fps >= 0 && server.fps <= 1000) metrics.fps = server.fps;
+      if (Number.isSafeInteger(server.languageMatchCount) && server.languageMatchCount >= 0) metrics.languageMatchCount = server.languageMatchCount;
+      for (const key of ['serverLocation', 'serverStartedAt']) if (server[key] != null) metrics[key] = server[key];
       return metrics;
     });
   }
@@ -311,6 +315,18 @@
       && props.ping > 0 && props.ping <= 10_000) next['data-rc-ping'] = Math.round(props.ping);
     const playing = props.playing ?? props.currentPlayersCount;
     if (Number.isSafeInteger(playing) && playing >= 0) next['data-rc-playing'] = playing;
+    if (Number.isSafeInteger(props.maxPlayers) && props.maxPlayers > 0) next['data-rc-max-players'] = props.maxPlayers;
+    if (typeof props.fps === 'number' && Number.isFinite(props.fps) && props.fps >= 0 && props.fps <= 1000) next['data-rc-server-fps'] = props.fps;
+    if (Number.isSafeInteger(props.languageMatchCount) && props.languageMatchCount >= 0
+      && (!Number.isSafeInteger(playing) || props.languageMatchCount <= playing)) next['data-rc-language-match-count'] = props.languageMatchCount;
+    const serverLocation = props.serverLocation || props.location;
+    if (typeof serverLocation?.city === 'string') next['data-rc-server-city'] = serverLocation.city.slice(0, 100);
+    if (typeof serverLocation?.latitude === 'number' && Math.abs(serverLocation.latitude) <= 90) next['data-rc-server-latitude'] = serverLocation.latitude;
+    if (typeof serverLocation?.longitude === 'number' && Math.abs(serverLocation.longitude) <= 180) next['data-rc-server-longitude'] = serverLocation.longitude;
+    // A random UUID and the time we first see a server do not reveal its age.
+    if (typeof props.serverStartedAt === 'number' && props.serverStartedAt > 0 && props.serverStartedAt <= Date.now()) {
+      next['data-rc-server-started-at'] = props.serverStartedAt;
+    }
     if (/^(?:Low|Medium|High)$/i.test(props.pingSignalLevel || '')) next['data-rc-ping-level'] = props.pingSignalLevel.toLowerCase();
     const country = props.serverLocation?.countryCode || props.location?.countryCode || props.countryCode;
     if (typeof country === 'string' && /^[a-z]{2}$/i.test(country)) next['data-country-code'] = country.toUpperCase();

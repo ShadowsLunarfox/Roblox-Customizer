@@ -1,0 +1,40 @@
+#rc-game-notes:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  box-sizing: border-box; grid-column: 1 / -1; flex: 0 0 100%; min-width: 0; width: 100%;
+  margin: 12px 0; padding: 10px 14px; border-radius: 12px;
+  border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 14%);
+  background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, .62));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  color: var(--rc-text, #f4f6fb); color-scheme: var(--rc-color-scheme, dark);
+  font: inherit; font-size: 14px; line-height: 1.5;
+}
+#game-detail-page .game-main-content > #rc-game-notes { margin: 0; }
+#rc-game-notes * { box-sizing: border-box; }
+#rc-game-notes .rc-game-notes-header { display: flex; align-items: center; gap: 12px; min-width: 0; }
+#rc-game-notes h2 { flex: 0 1 auto; margin: 0; padding: 0; color: inherit; font: inherit; font-size: 14px; font-weight: 700; overflow-wrap: anywhere; }
+#rc-game-notes .rc-game-notes-toggle { flex: 0 0 auto; margin-inline-start: auto; min-height: 36px; padding: 6px 10px; font-size: 12px; }
+#rc-game-notes p { margin: 10px 0 0; }
+#rc-game-notes .rc-game-notes-hint, #rc-game-notes-status, #rc-game-notes-count { color: var(--rc-text-secondary); font-size: 12px; }
+#rc-game-notes .rc-game-notes-preview { flex: 1 1 0; min-width: 0; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--rc-text-secondary); font-size: 13px; }
+#rc-game-notes form { margin-top: 12px; }
+#rc-game-notes label { display: block; margin-bottom: 8px; color: inherit; font-weight: 600; }
+#rc-game-notes textarea { display: block; width: 100%; min-height: 130px; max-height: 500px; resize: vertical;
+  padding: 12px; border: 1px solid var(--rc-control-border); border-radius: 10px;
+  font: inherit; line-height: 1.6; color: var(--rc-text); background: var(--rc-inset-bg); }
+#rc-game-notes textarea::placeholder { color: var(--rc-text-muted); opacity: 1; }
+#rc-game-notes .rc-game-notes-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+#rc-game-notes .rc-game-notes-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+#rc-game-notes button { min-height: 40px; padding: 8px 12px; border-radius: 9px; border: 1px solid var(--rc-control-border);
+  color: var(--rc-text); background: var(--rc-control-bg); font: inherit; cursor: pointer; }
+#rc-game-notes button:hover:not(:disabled) { background: var(--rc-control-hover); }
+#rc-game-notes .rc-game-notes-save { color: var(--rc-accent-text, #fff); background: var(--rc-accent, #335fff); }
+#rc-game-notes .rc-game-notes-delete { color: var(--rc-error); }
+#rc-game-notes :is(button, textarea):focus-visible { outline: 2px solid var(--rc-focus); outline-offset: 3px; }
+#rc-game-notes :disabled { opacity: .55; cursor: default; }
+#rc-game-notes [hidden], #rc-game-notes:where([data-rc-features-disabled] *) { display: none !important; }
+#rc-game-notes-status[data-error="true"] { color: var(--rc-error); }
+@media (max-width: 480px) {
+  #rc-game-notes { padding: 10px 12px; }
+  #rc-game-notes .rc-game-notes-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+  #rc-game-notes .rc-game-notes-toggle { grid-column: 2; grid-row: 1; }
+  #rc-game-notes .rc-game-notes-preview { grid-column: 1 / -1; }
+}

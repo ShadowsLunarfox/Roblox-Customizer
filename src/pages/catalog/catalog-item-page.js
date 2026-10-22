@@ -16,7 +16,7 @@
     { selector: '#resellers', kind: 'resellers' }
   ];
   const OBSERVER_OPTIONS = { childList: true, subtree: true, characterData: true,
-    attributes: true, attributeFilter: ['data-target-id', 'data-is-bundle', 'data-show-3d-mode-button', 'disabled', 'data-rc-frost-page', 'aria-label', 'title'] };
+    attributes: true, attributeFilter: ['data-target-id', 'data-is-bundle', 'data-is-animation-bundle', 'data-show-3d-mode-button', 'disabled', 'data-rc-frost-page', 'aria-label', 'title', 'class'] };
   let assetId = 0;
   let itemType = 'Asset';
   let preview = null;
@@ -30,6 +30,8 @@
   let refresh3DTimer = 0;
   let tryOnControls = [];
   let rendererPath = [];
+  let animationPlayback = null;
+  let animationPlaybackAria = null;
   let requestSequence = 0;
   let retryTimer = 0;
   let requested = false;
@@ -83,6 +85,8 @@
     const origin = detailsInfo.getBoundingClientRect();
     const first = detailsRows[0].getBoundingClientRect();
     let bottom = detailsRows.at(-1).getBoundingClientRect().bottom;
+    const enhancements = detailsInfo.querySelector('#rc-asset-tools.rc-asset-native');
+    if (enhancements) bottom = Math.max(bottom, enhancements.getBoundingClientRect().bottom);
     if (detailsFavorites?.isConnected) {
       const parent = detailsFavorites.parentElement;
       const host = parent.getBoundingClientRect();
@@ -265,7 +269,7 @@
     return aside;
   }
 
-  function sync3DControls(modeButton) {
+  function syncTryOnControls() {
     const controls = [...preview.querySelectorAll(CONTROL_SELECTORS)]
       .filter(control => /^(?:try on|take off)$/i.test(modeLabel(control))
         || globalThis.RobloxCustomizerNativeLabels?.matches('tryOn', modeLabel(control)));
@@ -274,6 +278,10 @@
     }
     for (const control of controls) control.setAttribute('data-rc-item-native-try-on', '');
     tryOnControls = controls;
+  }
+
+  function sync3DControls(modeButton) {
+    syncTryOnControls();
     if (!refresh3DButton) {
       const button = document.createElement('button');
       button.id = 'rc-catalog-item-3d-refresh';
@@ -416,6 +424,8 @@
     studio?.removeAttribute('data-rc-item-studio');
     preview?.removeAttribute('data-rc-item-3d');
     preview?.removeAttribute('data-rc-item-mode');
+    preview?.removeAttribute('data-rc-item-animation');
+    clearAnimationPlayback();
     info?.removeAttribute('data-rc-item-info');
     modeToggle?.removeAttribute('data-rc-item-native-2d-toggle');
     for (const node of rendererPath) node.removeAttribute('data-rc-item-renderer');
@@ -427,6 +437,51 @@
     assetId = 0;
     requested = false;
     tried3D = new WeakSet();
+  }
+
+  function clearAnimationPlayback() {
+    animationPlayback?.removeAttribute('data-rc-item-animation-label');
+    if (animationPlaybackAria !== null && animationPlayback?.getAttribute('aria-label') === animationPlaybackAria) {
+      animationPlayback.removeAttribute('aria-label');
+    }
+    animationPlayback = null;
+    animationPlaybackAria = null;
+  }
+
+  function syncAnimatedAsset(nextId, nextType, nextPreview) {
+    const host = nextPreview.parentElement;
+    const nextInfo = host?.querySelector(INFO_SELECTORS);
+    if (!host || !nextInfo || nextInfo.parentElement !== host || !matchesItemMount(nextInfo, nextId, nextType)) {
+      if (preview) clearPage();
+      return;
+    }
+    if (preview && (assetId !== nextId || itemType !== nextType || preview !== nextPreview || studio !== host
+      || !preview.hasAttribute('data-rc-item-animation'))) clearPage();
+    assetId = nextId;
+    itemType = nextType;
+    studio = mark(studio, host, 'data-rc-item-studio');
+    if (studio.getAttribute('data-rc-item-studio') !== 'animation') studio.setAttribute('data-rc-item-studio', 'animation');
+    preview = mark(preview, nextPreview, 'data-rc-item-3d');
+    preview.setAttribute('data-rc-item-animation', '');
+    info = mark(info, nextInfo, 'data-rc-item-info');
+    const translate = text => globalThis.RobloxCustomizerI18n?.t(text) || text;
+    const heading = translate('Animation preview');
+    if (preview.getAttribute('data-rc-item-mode') !== heading) preview.setAttribute('data-rc-item-mode', heading);
+    syncTryOnControls();
+    const playback = preview.querySelector('.icon-bigstop, .icon-bigplay')?.closest('button') || null;
+    if (animationPlayback !== playback) {
+      clearAnimationPlayback();
+      animationPlayback = playback;
+    }
+    if (playback) {
+      const label = translate(playback.querySelector('.icon-bigstop') ? 'Pause animation' : 'Play animation');
+      if (playback.getAttribute('data-rc-item-animation-label') !== label) playback.setAttribute('data-rc-item-animation-label', label);
+      if (!playback.hasAttribute('aria-label') || playback.getAttribute('aria-label') === animationPlaybackAria) {
+        if (playback.getAttribute('aria-label') !== label) playback.setAttribute('aria-label', label);
+        animationPlaybackAria = label;
+      }
+    }
+    sizeRenderer();
   }
 
   function sync() {
@@ -443,6 +498,19 @@
     // Wait for Roblox to replace the previous item's React mount after navigation.
     if (!matchesItemMount(nextPreview, nextId, nextType)) {
       if (preview) clearPage();
+      return;
+    }
+    // Animation packs have a native motion player rather than a 2D/3D switch.
+    // Their independent avatar animation preview owns this layout.
+    if (nextPreview.getAttribute('data-is-animation-bundle') === 'true') {
+      if (preview) clearPage();
+      return;
+    }
+    // Individual animation assets and emotes expose a motion container, but
+    // intentionally have no 2D/3D mode button, including before the canvas loads.
+    if (nextType === 'Asset' && (nextPreview.querySelector('.thumbnail-animation-container')
+      || preview === nextPreview && assetId === nextId && preview.hasAttribute('data-rc-item-animation'))) {
+      syncAnimatedAsset(nextId, nextType, nextPreview);
       return;
     }
     const button = findModeButton(nextPreview);
@@ -466,7 +534,8 @@
       if (preview && (preview !== nextPreview || assetId !== nextId || itemType !== nextType || studio !== host)) clearPage();
       return;
     }
-    if (preview && (assetId !== nextId || itemType !== nextType || preview !== nextPreview || studio !== host)) clearPage();
+    if (preview && (assetId !== nextId || itemType !== nextType || preview !== nextPreview || studio !== host
+      || preview.hasAttribute('data-rc-item-animation'))) clearPage();
     assetId = nextId;
     itemType = nextType;
     studio = mark(studio, host, 'data-rc-item-studio');
@@ -523,10 +592,18 @@
       if (preview || marketRoot || detailsInfo) queueSync();
       return;
     }
+    const motionPreview = document.querySelector(PREVIEW_SELECTORS);
+    const nativeBundle = motionPreview?.getAttribute('data-is-animation-bundle') === 'true';
     if (records.some(record => {
       const target = record.target.nodeType === Node.ELEMENT_NODE
         ? record.target : record.target.parentElement;
       if (target === document.documentElement && record.attributeName === 'data-rc-frost-page') return true;
+      // The bundle adapter owns its animation controls. Orbit/loading mutations
+      // inside that preview cannot change the catalog details or market layout.
+      if (nativeBundle && motionPreview.contains(target)
+        && !(target === motionPreview && ['data-target-id', 'data-is-bundle', 'data-is-animation-bundle'].includes(record.attributeName))) return false;
+      if (nativeBundle && record.type === 'attributes' && record.attributeName === 'class'
+        && !detailsInfo?.contains(target) && !marketRoot?.contains(target)) return false;
       if (target?.closest('#rc-catalog-item-2d, #rc-catalog-item-3d-refresh, #rc-catalog-item-3d-status, #rc-catalog-item-specs, .highcharts-container')) return false;
       return !preview || !preview.isConnected || !isCurrentItem(assetId)
         || preview.contains(target) || info?.contains(target) || studio === target
@@ -542,6 +619,7 @@
   observer.observe(document, OBSERVER_OPTIONS);
   addEventListener('popstate', queueSync);
   addEventListener('hashchange', queueSync);
+  globalThis.RobloxCustomizerI18n?.onChange(queueSync);
   globalThis.RobloxCustomizerRuntime?.onResume(queueSync);
   addEventListener('load', queueSync, { once: true });
   document.addEventListener('DOMContentLoaded', queueSync, { once: true });

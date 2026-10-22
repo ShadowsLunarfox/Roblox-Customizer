@@ -58,6 +58,7 @@ html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search
 
 html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .search-container .input-group:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: flex;
+  align-items: center;
   gap: 10px;
   width: 100%;
 }
@@ -68,12 +69,16 @@ html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search
 }
 
 html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) .search-container .input-group-btn:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  position: static;
+  inset: auto;
+  display: flex;
   flex: none;
   width: auto;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="community-search"] #GroupSearchField:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
+  float: none;
   width: 100% !important;
   height: 44px;
   padding: 10px 40px 10px 12px !important;
@@ -85,10 +90,16 @@ html[data-rc-ui-active][data-rc-frost-page="community-search"] #GroupSearchField
 }
 
 html[data-rc-ui-active][data-rc-frost-page="community-search"] #GroupSearchButton:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  /* Native .input-addon-btn is absolutely positioned over the field's left edge. */
+  position: static;
+  inset: auto;
   display: grid;
   place-items: center;
+  flex: none;
+  box-sizing: border-box;
   width: 44px;
   height: 44px;
+  margin: 0;
   padding: 0;
   border-radius: 10px !important;
   background-color: rgb(var(--rc-glass-color, 20 22 28) / max(0.35, var(--rc-surface-opacity-floor, 0))) !important;
@@ -116,8 +127,8 @@ html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search
 }
 
 /* Float-clearing helpers cannot become items in the new flex and grid layouts. */
-html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(.container-header, .group-results, .item-carousel-scroll-wrapper):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before,
-html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(.container-header, .group-results, .item-carousel-scroll-wrapper):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after {
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(.container-header, .group-results, .item-carousel-scroll-wrapper, .search-container .input-group):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before,
+html[data-rc-ui-active][data-rc-frost-page="community-search"] :is(#group-search-web-app, #group-search-container) :is(.container-header, .group-results, .item-carousel-scroll-wrapper, .search-container .input-group):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::after {
   content: none !important;
   display: none !important;
 }

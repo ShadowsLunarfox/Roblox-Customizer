@@ -1,0 +1,5 @@
+/* Match the embedding frame's scheme so Chromium keeps its document backdrop transparent. */
+html{color-scheme:normal}
+html,body,#viewport{width:100%;height:100%;margin:0;overflow:hidden;background:transparent}
+#viewport>div{width:100%!important;height:100%!important}
+canvas{display:block;width:100%!important;height:100%!important;touch-action:none;outline:none;background:transparent}

@@ -1,6 +1,7 @@
 if (typeof importScripts === 'function') {
-  importScripts('../shared/routes.js', '../currency/robux-currency-core.js', 'robux-currency-background.js',
+  importScripts('../shared/routes.js', 'page-context.js', '../assets/vendor/fzstd-0.1.1.js', '../assets/model-reader.js', '../assets/asset-core.js', 'asset-tools-background.js', 'animation-preview-background.js', '../currency/robux-currency-core.js', 'robux-currency-background.js',
     '../home/pinned-games-core.js', 'pinned-games-background.js',
+    '../notes/game-notes-core.js', 'game-notes-background.js',
     '../servers/server-history-core.js', '../playtime/playtime-core.js', 'playtime-background.js', 'server-history-background.js',
     '../settings/backup-core.js', 'backup-background.js');
 }
@@ -31,12 +32,16 @@ const rolimonsGameCache = new Map();
 const youtubeFeedCache = new Map();
 const publicServerCountryCache = new Map();
 const publicServerStatusCache = new Map();
+const publicServerMetadataCache = new Map();
+const publicServerJoinCache = new Map();
+const publicServerJoinWaiters = [];
+let activePublicServerJoins = 0;
 const publicAddressCountryCache = new Map();
 let joinHeaderReady;
 
-async function readResponse(url, options, consume) {
+async function readResponse(url, options, consume, duration = 15_000) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15_000);
+  const timeout = setTimeout(() => controller.abort(), duration);
   try {
     // Keep the deadline armed while reading the body too: receiving response
     // headers alone does not mean that JSON, HTML, or an image has loaded.
@@ -553,11 +558,62 @@ function serverCountryCode(server) {
   return typeof code === 'string' && /^[A-Z]{2}$/i.test(code) ? code.toUpperCase() : '';
 }
 
-async function getPublicServerStatuses(placeId, serverIds, shortIds = []) {
+function serverExtraMetrics(server) {
+  const details = {};
+  if (typeof server?.fps === 'number' && Number.isFinite(server.fps) && server.fps >= 0 && server.fps <= 1000) details.fps = server.fps;
+  if (Number.isSafeInteger(server?.languageMatchCount) && server.languageMatchCount >= 0
+    && (!Number.isSafeInteger(server.playing) || server.languageMatchCount <= server.playing)) details.languageMatchCount = server.languageMatchCount;
+  return details;
+}
+
+async function getPublicServerMetadata(placeId, serverIds, scope) {
+  const key = `${placeId}:${scope}`;
+  let entry = publicServerMetadataCache.get(key);
+  if (!entry || Date.now() - entry.at >= 90_000) {
+    entry = { at: Date.now(), servers: new Map(), cursor: '', pages: 0, done: false, retryAfter: 0, pending: Promise.resolve() };
+    if (publicServerMetadataCache.size >= 20) publicServerMetadataCache.delete(publicServerMetadataCache.keys().next().value);
+    publicServerMetadataCache.set(key, entry);
+  }
+  // Serialize cursors across tabs and resume an inventory only when another
+  // visible batch needs it. Never preload the whole game's server population.
+  entry.pending = entry.pending.catch(() => {}).then(async () => {
+    const deadline = Date.now() + 8_000;
+    while (!entry.done && entry.pages < 10 && Date.now() < deadline && Date.now() >= entry.retryAfter
+      && serverIds.some(id => !entry.servers.has(id))) {
+      const url = new URL(`https://games.roblox.com/v2/games/${placeId}/servers/Public`);
+      url.searchParams.set('limit', '100');
+      url.searchParams.set('orderBy', 'OccupancyAsc');
+      if (entry.cursor) url.searchParams.set('cursor', entry.cursor);
+      let result;
+      try {
+        result = await readResponse(url.href, { credentials: 'include' }, response => {
+          if (!response.ok) throw new Error('Server language information is unavailable.');
+          return response.json();
+        }, Math.min(4_000, deadline - Date.now()));
+      } catch {
+        entry.retryAfter = Date.now() + 30_000;
+        break;
+      }
+      entry.pages++;
+      if (!Array.isArray(result?.data)) { entry.done = true; break; }
+      for (const server of result.data) if (typeof server?.id === 'string') {
+        entry.servers.set(server.id.toLowerCase(), serverExtraMetrics(server));
+      }
+      const next = typeof result.nextPageCursor === 'string' ? result.nextPageCursor : '';
+      entry.done = !next || next === entry.cursor;
+      entry.cursor = next;
+    }
+  });
+  await entry.pending;
+  return entry.servers;
+}
+
+async function getPublicServerStatuses(placeId, serverIds, shortIds = [], metadataScope = '') {
   const wanted = new Set(serverIds);
   const servers = new Map();
   const shortMatches = new Map(shortIds.map(id => [id, new Map()]));
-  const cached = publicServerStatusCache.get(placeId);
+  const cacheKey = `${placeId}:${metadataScope}`;
+  const cached = publicServerStatusCache.get(cacheKey);
   const cachedServers = cached && Date.now() - cached.fetchedAt < 90_000 ? cached.servers : null;
   const inventory = new Map();
   let cursor = '';
@@ -575,7 +631,9 @@ async function getPublicServerStatuses(placeId, serverIds, shortIds = []) {
     for (const server of result.data) {
       const id = typeof server?.id === 'string' ? server.id.toLowerCase() : '';
       if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id)) continue;
-      const details = { id, ping: serverPing(server), countryCode: serverCountryCode(server) };
+      const details = { id, ping: serverPing(server), countryCode: serverCountryCode(server), ...serverExtraMetrics(server) };
+      if (Number.isSafeInteger(server.playing) && server.playing >= 0) details.playing = server.playing;
+      if (Number.isSafeInteger(server.maxPlayers) && server.maxPlayers > 0) details.maxPlayers = server.maxPlayers;
       inventory.set(id, details);
       if (wanted.has(id)) {
         servers.set(id, details);
@@ -586,7 +644,7 @@ async function getPublicServerStatuses(placeId, serverIds, shortIds = []) {
     if (!cursor) {
       if (!cachedServers) {
         if (publicServerStatusCache.size >= 20) publicServerStatusCache.delete(publicServerStatusCache.keys().next().value);
-        publicServerStatusCache.set(placeId, { fetchedAt: Date.now(), servers: [...inventory.values()] });
+        publicServerStatusCache.set(cacheKey, { fetchedAt: Date.now(), servers: [...inventory.values()] });
       }
       break;
     }
@@ -599,6 +657,12 @@ async function getPublicServerStatuses(placeId, serverIds, shortIds = []) {
     const details = candidates.values().next().value;
     matches.push({ shortId, id: details.id });
     servers.set(details.id, details);
+  }
+  if (metadataScope && servers.size) {
+    try {
+      const extra = await getPublicServerMetadata(placeId, [...servers.keys()], metadataScope);
+      for (const [id, details] of servers) servers.set(id, { ...details, ...extra.get(id) });
+    } catch { /* Numeric ping and FPS from v1 remain usable if v2 is unavailable. */ }
   }
   return { servers: [...servers.values()], matches };
 }
@@ -643,30 +707,71 @@ async function enableJoinRequestHeader() {
   return joinHeaderReady;
 }
 
-async function getPublicServerCountry(placeId, serverId) {
-  const cached = publicServerCountryCache.get(serverId);
-  if (cached && Date.now() - cached.fetchedAt < 60 * 60_000) {
-    return { countryCode: cached.countryCode, estimated: true };
-  }
-  await enableJoinRequestHeader();
-  const join = await fetch('https://gamejoin.roblox.com/v1/join-game-instance', {
-    method: 'POST', credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ placeId, gameId: serverId }),
-    signal: AbortSignal.timeout(10_000)
-  });
-  if (!join.ok) throw new Error('Roblox could not locate this server.');
-  const result = await join.json();
-  const address = result?.joinScript?.UdmuxEndpoints?.[0]?.Address
-    ?? result?.joinScript?.MachineAddress;
-  const ip = publicIpv4(address);
-  if (!ip) throw new Error(result?.status === 22
-    ? 'This server is full.' : 'Roblox did not provide a server address.');
+async function getPublicServerJoinInfo(placeId, serverId) {
+  const key = `${placeId}:${serverId}`;
+  const cached = publicServerJoinCache.get(key);
+  if (cached && (cached.pending || Date.now() - cached.at < 5 * 60_000)) return cached.promise;
+  if (publicServerJoinWaiters.length >= 100) throw new Error('Server details are busy.');
+  const promise = (async () => {
+    if (activePublicServerJoins >= 2) await new Promise(resolve => publicServerJoinWaiters.push(resolve));
+    else activePublicServerJoins++;
+    try {
+      await enableJoinRequestHeader();
+      return await readResponse('https://gamejoin.roblox.com/v1/join-game-instance', {
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ placeId, gameId: serverId })
+      }, async response => {
+        if (!response.ok) throw new Error('Roblox could not locate this server.');
+        const result = await response.json();
+        const script = result?.joinScript;
+        const gameId = script?.GameId ?? script?.gameId;
+        const returnedPlaceId = script?.PlaceId ?? script?.placeId;
+        if (gameId != null && String(gameId).toLowerCase() !== serverId
+          || returnedPlaceId != null && returnedPlaceId !== placeId) throw new Error('Roblox returned a different server.');
+        const version = script?.PlaceVersion ?? script?.placeVersion;
+        const address = script?.UdmuxEndpoints?.[0]?.Address ?? script?.udmuxEndpoints?.[0]?.address
+          ?? script?.MachineAddress ?? script?.machineAddress;
+        // Keep only public connection metadata. Tickets and other join data
+        // never leave this response callback or enter caches/content scripts.
+        return { ip: publicIpv4(address),
+          ...(Number.isSafeInteger(version) && version > 0 ? { placeVersion: version } : {}) };
+      });
+    } finally {
+      const next = publicServerJoinWaiters.shift();
+      if (next) next();
+      else activePublicServerJoins--;
+    }
+  })();
+  if (publicServerJoinCache.size >= 300) publicServerJoinCache.delete(publicServerJoinCache.keys().next().value);
+  const entry = { at: Date.now(), promise, pending: true };
+  publicServerJoinCache.set(key, entry);
+  try { const result = await promise; entry.pending = false; entry.at = Date.now(); return result; }
+  catch (error) { if (publicServerJoinCache.get(key)?.promise === promise) publicServerJoinCache.delete(key); throw error; }
+}
 
+async function getPublicServerCountry(placeId, serverId, includeLocation = true) {
+  const info = await getPublicServerJoinInfo(placeId, serverId);
+  const metadata = info.placeVersion ? { placeVersion: info.placeVersion } : {};
+  if (!includeLocation) return metadata;
+  const cached = publicServerCountryCache.get(serverId);
+  if (cached && Date.now() - cached.fetchedAt < 60 * 60_000) return { ...cached, ...metadata, estimated: true };
+  try {
+    return { ...await lookupPublicServerLocation(info.ip, serverId), ...metadata };
+  } catch (error) {
+    // Version information is still useful if the optional geolocation service
+    // fails or Roblox supplies a version without a public connection address.
+    if (metadata.placeVersion) return { ...metadata, countryError: error.message };
+    throw error;
+  }
+}
+
+async function lookupPublicServerLocation(ip, serverId) {
+  if (!ip) throw new Error('Roblox did not provide a server address.');
   const cachedAddress = publicAddressCountryCache.get(ip);
   if (cachedAddress && Date.now() - cachedAddress.fetchedAt < 24 * 60 * 60_000) {
     publicServerCountryCache.set(serverId, cachedAddress);
-    return { countryCode: cachedAddress.countryCode, estimated: true };
+    return { ...cachedAddress, estimated: true };
   }
 
   const lookup = await fetch(`https://ipwho.is/${ip}`, {
@@ -679,10 +784,13 @@ async function getPublicServerCountry(placeId, serverId) {
   const countryCode = location?.success === true && typeof location.country_code === 'string'
     && /^[A-Z]{2}$/i.test(location.country_code) ? location.country_code.toUpperCase() : '';
   if (!countryCode) throw new Error('Country lookup is unavailable.');
-  const cacheEntry = { countryCode, fetchedAt: Date.now() };
+  const cacheEntry = { countryCode, fetchedAt: Date.now(),
+    city: typeof location.city === 'string' ? location.city.trim().slice(0, 100) : '',
+    latitude: typeof location.latitude === 'number' && Math.abs(location.latitude) <= 90 ? location.latitude : null,
+    longitude: typeof location.longitude === 'number' && Math.abs(location.longitude) <= 180 ? location.longitude : null };
   publicAddressCountryCache.set(ip, cacheEntry);
   publicServerCountryCache.set(serverId, cacheEntry);
-  return { countryCode, estimated: true };
+  return { ...cacheEntry, estimated: true };
 }
 
 async function getGameXLink(placeId, hintedUniverseId) {
@@ -1065,7 +1173,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       || !serverIds.every(id => typeof id === 'string'
         && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))) return;
     getPublicServerStatuses(placeId, [...new Set(serverIds.map(id => id.toLowerCase()))],
-      [...new Set(shortIds.map(id => id.toLowerCase()))])
+      [...new Set(shortIds.map(id => id.toLowerCase()))], message.includeMetadata === true
+        ? `${Number.isSafeInteger(message.userId) && message.userId > 0 ? message.userId : 0}:${typeof message.languageCode === 'string' && /^[a-z]{2,3}$/i.test(message.languageCode) ? message.languageCode.toLowerCase() : 'unknown'}` : '')
       .then(sendResponse)
       .catch(error => sendResponse({ error: error.message || 'Server status unavailable' }));
   } else if (message.type === PUBLIC_SERVER_COUNTRY_QUERY) {
@@ -1075,7 +1184,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (!Number.isSafeInteger(placeId) || placeId <= 0 || sourcePlaceId !== placeId
       || typeof serverId !== 'string'
       || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(serverId)) return;
-    getPublicServerCountry(placeId, serverId.toLowerCase())
+    getPublicServerCountry(placeId, serverId.toLowerCase(), message.includeLocation !== false)
       .then(sendResponse)
       .catch(error => sendResponse({ error: error.message || 'Country lookup unavailable.' }));
   } else if (message.type === ROBLOX_GAME_DATA_QUERY) {
@@ -1098,8 +1207,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const sourceItemType = sourceItem?.[1].toLowerCase() === 'bundles' ? 'Bundle' : 'Asset';
     const assetId = message.assetId;
     const itemType = message.itemType ?? 'Asset';
-    if (!Number.isSafeInteger(assetId) || assetId <= 0 || assetId !== sourceAssetId
-      || itemType !== sourceItemType) return;
+    if (!Number.isSafeInteger(assetId) || assetId <= 0 || !['Asset', 'Bundle'].includes(itemType)) return;
+    if (assetId !== sourceAssetId || itemType !== sourceItemType) {
+      const pageContext = globalThis.RobloxCustomizerPageContext;
+      if (!pageContext?.canResolve(sender)) return;
+      void pageContext.resolve(sender).then(current => {
+        const match = current && routePath(current.pathname).match(/^\/(catalog|bundles)\/(\d+)(?:\/|$)/i);
+        const type = match?.[1].toLowerCase() === 'bundles' ? 'Bundle' : 'Asset';
+        if (!match || Number(match[2]) !== assetId || type !== itemType) {
+          sendResponse({ error: 'This request does not match the current item page.', code: 'page-changed' });
+          return;
+        }
+        return getCatalogItem2D(assetId, itemType).then(sendResponse);
+      }).catch(() => sendResponse({ error: 'Item preview unavailable.' }));
+      return true;
+    }
     getCatalogItem2D(assetId, itemType)
       .then(sendResponse)
       .catch(() => sendResponse({ error: 'Item preview unavailable.' }));

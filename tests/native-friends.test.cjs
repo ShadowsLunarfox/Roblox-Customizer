@@ -169,7 +169,8 @@ test('native server data exposes player counts and ping without replacing Join a
   }
   const list = react.createElement(ServerList, {
     headerTitle: 'Public Servers', loadMoreGameInstances() {},
-    gameInstances: [{ id, playing: 0, ping: 87 }],
+    gameInstances: [{ id, playing: 0, maxPlayers:20, ping: 87,
+      serverLocation:{city:'Singapore',latitude:1.35,longitude:103.8},serverStartedAt:Date.now()-60000 }],
   });
   const card = list.type(list.props);
   assert.equal(card.props.playing, 0);
@@ -177,6 +178,10 @@ test('native server data exposes player counts and ping without replacing Join a
   assert.equal(button.props['data-rc-instance-id'], id);
   assert.equal(button.props['data-rc-playing'], 0);
   assert.equal(button.props['data-rc-ping'], 87);
+  assert.equal(button.props['data-rc-max-players'],20);
+  assert.equal(button.props['data-rc-server-city'],'Singapore');
+  assert.equal(button.props['data-rc-server-latitude'],1.35);
+  assert.ok(button.props['data-rc-server-started-at']>0);
   assert.strictEqual(button.props.onClick, join);
 });
 
@@ -193,6 +198,7 @@ test('server player counts are exposed even when Roblox has no ping value', () =
   const button = card.type(card.props);
   assert.equal(button.props['data-rc-playing'], 12);
   assert.equal(button.props['data-rc-ping'], undefined);
+  assert.equal(button.props['data-rc-server-started-at'],undefined,'Missing start times are never guessed from a UUID');
 });
 
 test('current private cards expose their numeric ID without replacing native children or callbacks', () => {

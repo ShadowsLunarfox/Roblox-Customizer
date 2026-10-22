@@ -101,6 +101,7 @@
       if (!saving) finish(false);
     });
     dialog.addEventListener('close', () => { if (dialog === current && !saving) finish(false); });
+    globalThis.RobloxCustomizerDialogs?.dismissOnOutside(dialog);
     dialog.addEventListener('keydown', event => {
       if (event.key === 'Escape') {
         event.preventDefault();

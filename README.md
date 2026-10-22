@@ -62,7 +62,7 @@
   <tr>
     <td>
       <h3>🎮 Game tools</h3>
-      Badge and gamepass details, private-server cards, and public-server filters for country, latency, ping, and player count.
+      Badge and gamepass details and private-server cards. Combine player ranges, not-full, country/city and ping filters with connection sorting, shuffle, random join and preferred-city fallback. Rotate and zoom an interactive globe, click a country, or search country names to select a region. Geographic assets ship locally and load when expanded. Locations and counts use loaded servers; age sorting requires verified start times.
     </td>
     <td>
       <h3>💬 Social feeds</h3>
@@ -73,7 +73,25 @@
 
 **💱 Robux estimates:** Approximate currency equivalents on Roblox and Creator Hub; checkout prices may differ.
 
+**📝 Game notes:** Add private reminders or strategies in the Game notes panel on a game page. Notes save automatically and can be edited or deleted, with up to 5,000 characters per game page. They stay in this browser, are shared across your Roblox accounts, and are not posted to Roblox. Settings backups include notes, imports replace them, and Reset All deletes them.
+
+Server filters apply only to the current page and reset on refresh or navigation. Selections are not written to local storage or settings backups.
+
+Globe dragging uses a canvas preview with cached map coordinates; releasing restores the detailed, selectable SVG boundaries. City markers are reused, sidebar updates wait until dragging ends, and unchanged filter updates leave the globe idle.
+
+Public server cards also show performance relative to 60 server FPS, Roblox-reported language matches, and the place version running on that server when those fields are available. Language matches use the Roblox website language, independently of the extension UI language, and do not confirm what players actually speak. Place versions reuse the server connection request used for country lookup; version-only requests skip IP geolocation when the country is already known. Supplemental join requests are cached, deduplicated and limited to two at a time. Unavailable fields stay hidden, and the original Join action is preserved.
+
 **↩️ Recent servers:** Each game's Servers tab shows its own recent-server list, including visits to that game's subplaces. Rejoin, check availability, or clear just that game's list. Each of the 10 most recently used accounts retains up to 6 servers per game; a new entry replaces that game's oldest. Settings show all lists grouped by game under **Home page → Recent servers**, with recording controlled separately from playtime.
+
+**Streamer mode:** In **Settings → Privacy**, enable Streamer mode and choose whether to hide Robux balances, friends, and messages/notifications. It masks supported website elements and remembers your choices, including on refresh.
+
+**Animation previews:** Animation bundles, individual catalog animations, and emotes show the native motion player beside an optional preview on your avatar. Select **Preview on my avatar** to load your current avatar and play the selected animation while keeping its accessories. Bundle action selection and native play/pause controls stay synchronized; individual movement animations use their actual type, and emotes play directly on the avatar. Reset the camera or reload the avatar when needed. The preview uses an R15 rig, runs locally at up to 30 FPS, pauses off-screen/in background tabs, and does not equip items or save outfits. The renderer, its licenses, and corresponding source are packaged locally; see [dependency notices](src/assets/animation-preview/vendor/README.md).
+
+**Item tools:** Item IDs, available dates, and reported sales/quantity fields extend the original item details on catalog, bundle, library, and Creator Store asset pages. Existing fields stay in place and are not duplicated; Copy ID appears beside the ID. Use Roblox's original preview and try-on controls, or the compact detail actions for Creator Store, refresh, and export. The resource explorer has an object tree and read-only property pane, model/property filters, reference navigation, copy controls, and a text viewer. It reads XML, JSON, and RBXM files, including LZ4 and Zstandard compression, and previews supported image/audio/video files. File loading is limited to 32 MB, with at most 5,000 model instances and 128 MB of expanded binary chunks. Text previews show up to 131,072 characters; copy and text export retain the available full value. Unsupported property types are identified individually. Files are never executed, and access permissions follow Roblox.
+
+The explorer UI and model reader are independently implemented. Zstandard decoding uses [fzstd 0.1.1](https://github.com/101arrowz/fzstd) under its [MIT license](src/assets/vendor/fzstd.LICENSE). Property categories and enum names are bundled from Roblox's published Studio API data; `node scripts/build-model-schema.cjs` refreshes that reference data. No BTRoblox application code or icon sprites are included.
+
+**Avatar tools:** On **My avatar**, expand **Avatar tools** for six full RGB body colors and position, rotation, and scale controls for supported equipped accessories. Limits come from Roblox. Preview edits stay local until you select **Apply colors** or **Apply accessory**, which changes your signed-in Roblox avatar. Refresh the page to update Roblox's native preview. This tool preserves other worn items and does not purchase items.
 
 ## 📦 Installation
 
@@ -98,7 +116,7 @@ No build step is needed to install. Keep the extension folder in a permanent loc
 
 ## 🚀 Quick start
 
-- Choose a background and adjust its fit, dimming, blur, and opacity in **Appearance**. Changes save automatically.
+- Choose a background and adjust its fit, dimming, blur, and opacity in **Appearance**. Changes save automatically. On returning to a tab, animated wallpapers resume before optional page updates, which run in small batches. Saved files are reused during recovery, and stalled videos recover without reloading the page.
 - In **Appearance → Website font**, choose a TTF, OTF, WOFF, or WOFF2 file (up to 32 MB) to replace Roblox text fonts. Preview it, toggle it off, or restore the default font. Missing characters use fallback fonts.
 - Click **Pin Game** on a game page, choose a folder, and confirm. Manage folders from **Pinned Games** on Home.
 - Turn off **Enable Pinned Games** in **Settings → Pinned Games** to disable the Home section and pin buttons on game pages. View your saved games and folders in this settings category, even while the feature is disabled.
@@ -118,6 +136,8 @@ Choose **한국어** for Korean, or use Automatic with Roblox set to Korean. Kor
 Switch Roblox's language to restore all features. Changing only the extension's interface language does not leave fallback mode.
 
 ## 💾 Data and limitations
+
+Known Roblox extensions such as BTRoblox, RoPro, RoGold and RoSeal can trigger an advisory when their page markers or recognized extension-resource URLs are detected. The notice explains how broad changes to the Roblox interface can interact with other extensions, causing duplicated controls, overlapping elements or display/loading problems. Users can keep using multiple extensions together; adjusting overlapping features is optional troubleshooting if problems occur. Select **Got it, continue using Roblox** to dismiss it; acknowledged extensions do not trigger the same notice again, while a newly detected extension can. Detection stays local and is not a complete list of installed extensions. Other extensions are not disabled or changed.
 
 Preferences, backgrounds, pinned games, and playtime history are stored locally in your browser. Playtime is estimated from Roblox presence while the browser runs; past sessions and time while the browser is closed cannot be recovered.
 

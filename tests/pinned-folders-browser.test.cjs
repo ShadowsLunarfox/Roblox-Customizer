@@ -249,6 +249,10 @@ test('Pin Game opens a glass folder prompt before saving and moves existing pins
     const storedGame = id => browser.evaluate(`JSON.parse(localStorage.getItem('pinnedGames')).find(game=>game.placeId===${id}) || null`);
     const change = async value => {
       await browser.waitFor("!!document.querySelector('#rc-pin-game-folder') && !document.querySelector('.rc-game-pin-folder').hidden && !document.querySelector('#rc-pin-game-folder').disabled");
+      if (await browser.evaluate("document.querySelector('#rc-game-pin-folder-fields').hidden")) {
+        await browser.click('.rc-game-pin-folder-toggle');
+        await browser.waitFor("!document.querySelector('#rc-game-pin-folder-fields').hidden");
+      }
       await browser.evaluate(`(()=>{const select=document.querySelector('#rc-pin-game-folder');select.focus();select.value=${JSON.stringify(value)};select.dispatchEvent(new Event('change',{bubbles:true}))})()`);
     };
     const waitFolder = async value => browser.waitFor(`document.querySelector('#rc-pin-game-folder')?.value===${JSON.stringify(value)} && !document.querySelector('#rc-pin-game-folder').disabled`);
@@ -309,6 +313,7 @@ test('Pin Game opens a glass folder prompt before saving and moves existing pins
       await browser.click('#rc-confirm-pin-game');
       await browser.waitFor("document.querySelector('#rc-pin-game').getAttribute('aria-pressed')==='true' && !document.querySelector('#rc-pin-game').disabled");
       assert.equal((await storedGame(61)).folderId, 'projects');
+      assert.equal(await browser.evaluate("document.querySelector('#rc-game-pin-folder-fields').hidden"), true, 'A saved pin starts with a compact folder disclosure');
       await change('together');
       await browser.waitFor("JSON.parse(localStorage.getItem('pinnedGames')).find(game=>game.placeId===61)?.folderId==='together'");
       await waitFolder('together');

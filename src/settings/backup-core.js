@@ -4,7 +4,7 @@
   const VERSION = 1;
   const MAX_BYTES = 256 * 1024 * 1024;
   const KEYS = Object.freeze(['customBackground', 'robuxCurrency', 'pinnedGames',
-    'pinnedGameFolders', 'playtimeTrackingEnabled', 'rcPlaytimeHistory']);
+    'pinnedGameFolders', 'playtimeTrackingEnabled', 'rcPlaytimeHistory', 'rcGameNotes']);
   const fail = () => { throw new Error('Invalid backup file. No data was imported.'); };
   const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
   const count = value => Number.isSafeInteger(value) && value >= 0;
@@ -33,7 +33,7 @@
       if (key in settings && (!Number.isFinite(settings[key]) || settings[key] < min || settings[key] > max)) fail();
     }
     for (const [key, item] of Object.entries(settings)) {
-      if (/^(?:hide|show|disable|clockShow|clockHour)|^(?:experimentalCustomColors|customFontEnabled)$/.test(key)
+      if (/^(?:hide|show|disable|clockShow|clockHour|streamer)|^(?:experimentalCustomColors|customFontEnabled)$/.test(key)
         && key !== 'hiddenRecommendedGames' && typeof item !== 'boolean') fail();
       if (/^custom(?:Text|Background|Accent)Color$/.test(key) && !/^#[0-9a-f]{6}$/i.test(item)) fail();
       if (['url','fileKey','fileName','fontFileKey','fontFileName','greetingMorning','greetingAfternoon','greetingEvening'].includes(key)
@@ -55,8 +55,9 @@
   }
   function data(value) {
     jsonValue(value);
-    if (!object(value) || KEYS.some(key => !Object.hasOwn(value, key))
-      || Object.keys(value).some(key => !KEYS.includes(key))) fail();
+    // Notes were added to version 1 backups later; older files contain no notes.
+    if (!object(value) || KEYS.some(key => key !== 'rcGameNotes' && !Object.hasOwn(value, key))
+      || Object.keys(value).some(key => !KEYS.includes(key) && key !== 'rcServerLocation')) fail();
     if (typeof value.playtimeTrackingEnabled !== 'boolean' || !object(value.robuxCurrency)
       || typeof value.robuxCurrency.enabled !== 'boolean'
       || !root.RobloxCustomizerCurrencyCore.CURRENCIES.includes(value.robuxCurrency.currency)) fail();
@@ -79,10 +80,14 @@
     // A backup is history, never permission to continue an old timing sample.
     cleanHistory.active = null;
     cleanHistory.status = { kind: value.playtimeTrackingEnabled ? 'idle' : 'disabled', checkedAt: 0 };
+    let notes;
+    try { notes = value.rcGameNotes === undefined ? root.RobloxCustomizerGameNotes.normalize(null)
+      : root.RobloxCustomizerGameNotes.validate(value.rcGameNotes); } catch { fail(); }
+    // Ignore legacy saved server selections; filters now exist only on the page.
     return { customBackground: background(value.customBackground),
       robuxCurrency: root.RobloxCustomizerCurrencyCore.normalizeSettings(value.robuxCurrency),
       pinnedGames: pins.games, pinnedGameFolders: pins.folders,
-      playtimeTrackingEnabled: value.playtimeTrackingEnabled, rcPlaytimeHistory: cleanHistory };
+      playtimeTrackingEnabled: value.playtimeTrackingEnabled, rcPlaytimeHistory: cleanHistory, rcGameNotes: notes };
   }
   function snapshot(saved) {
     const pins = root.RobloxCustomizerPinnedGames.state(saved.pinnedGames, saved.pinnedGameFolders);
@@ -91,7 +96,8 @@
       pinnedGames: pins.games,
       pinnedGameFolders: pins.folders,
       playtimeTrackingEnabled: saved.playtimeTrackingEnabled !== false,
-      rcPlaytimeHistory: root.RobloxCustomizerPlaytime.normalize(saved.rcPlaytimeHistory) });
+      rcPlaytimeHistory: root.RobloxCustomizerPlaytime.normalize(saved.rcPlaytimeHistory),
+      rcGameNotes: root.RobloxCustomizerGameNotes.normalize(saved.rcGameNotes) });
   }
   function validate(value) {
     if (!object(value) || value.format !== FORMAT) fail();

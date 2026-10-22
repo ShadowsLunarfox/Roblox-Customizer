@@ -80,6 +80,7 @@
       closeWarning();
     });
     warning.querySelector('button').addEventListener('click', closeWarning);
+    globalThis.RobloxCustomizerDialogs?.dismissOnOutside(warning);
     document.body.append(warning);
     updateWarning();
     warning.showModal();

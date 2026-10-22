@@ -12,6 +12,439 @@
 })(globalThis);
 ;
 
+// src/background/page-context.js
+/* A content-script context can retain its initial URL after history.pushState. */
+(() => {
+  'use strict';
+  const canResolve = sender => sender.id === chrome.runtime.id && (sender.frameId ?? 0) === 0
+    && Number.isInteger(sender.tab?.id) && typeof chrome.tabs?.sendMessage === 'function';
+  async function resolve(sender) {
+    if (!canResolve(sender)) return null;
+    try {
+      const original = new URL(sender.url);
+      if (original.protocol !== 'https:' || !['www.roblox.com', 'roblox.com', 'create.roblox.com'].includes(original.hostname)) return null;
+      const options = { frameId: 0, ...(sender.documentId ? { documentId: sender.documentId } : {}) };
+      const current = await chrome.tabs.sendMessage(sender.tab.id, { type: 'rc-current-page-context' }, options);
+      if (current?.origin !== original.origin || typeof current.pathname !== 'string'
+        || !current.pathname.startsWith('/') || current.pathname.length > 4096) return null;
+      const url = new URL(current.pathname, original.origin);
+      return url.origin === original.origin && !url.search && !url.hash ? url : null;
+    } catch { return null; }
+  }
+  globalThis.RobloxCustomizerPageContext = Object.freeze({ canResolve, resolve });
+})();
+;
+
+// src/assets/vendor/fzstd-0.1.1.js
+!function(f){typeof module!='undefined'&&typeof exports=='object'?module.exports=f():typeof define!='undefined'&&define.amd?define(['fzstd',f]):(typeof self!='undefined'?self:this).fzstd=f()}(function(){var _e={};"use strict";var r=ArrayBuffer,t=Uint8Array,e=Uint16Array,n=Int16Array,a=Uint32Array,s=Int32Array,i=function(r,e,n){if(t.prototype.slice)return t.prototype.slice.call(r,e,n);(null==e||e<0)&&(e=0),(null==n||n>r.length)&&(n=r.length);var a=new t(n-e);return a.set(r.subarray(e,n)),a},o=function(r,e,n,a){if(t.prototype.fill)return t.prototype.fill.call(r,e,n,a);for((null==n||n<0)&&(n=0),(null==a||a>r.length)&&(a=r.length);n<a;++n)r[n]=e;return r},u=function(r,e,n,a){if(t.prototype.copyWithin)return t.prototype.copyWithin.call(r,e,n,a);for((null==n||n<0)&&(n=0),(null==a||a>r.length)&&(a=r.length);n<a;)r[e++]=r[n++]};_e.ZstdErrorCode={InvalidData:0,WindowSizeTooLarge:1,InvalidBlockType:2,FSEAccuracyTooHigh:3,DistanceTooFarBack:4,UnexpectedEOF:5};var h=["invalid zstd data","window size too large (>2046MB)","invalid block type","FSE accuracy too high","match distance too far back","unexpected EOF"],f=function(r,t,e){var n=Error(t||h[r]);if(n.code=r,Error.captureStackTrace&&Error.captureStackTrace(n,f),!e)throw n;return n},l=function(r,t,e){for(var n=0,a=0;n<e;++n)a|=r[t++]<<(n<<3);return a},v=function(r,t){return(r[t]|r[t+1]<<8|r[t+2]<<16|r[t+3]<<24)>>>0},c=function(r,e){var n=r[0]|r[1]<<8|r[2]<<16;if(3126568==n&&253==r[3]){var a=r[4],i=a>>5&1,o=a>>2&1,u=3&a,h=a>>6;8&a&&f(0);var c=6-i,b=3==u?4:u,y=l(r,c,b),p=h?1<<h:i,w=l(r,c+=b,p)+(1==h&&256),g=w;if(!i){var d=1<<10+(r[5]>>3);g=d+(d>>3)*(7&r[5])}g>2145386496&&f(1);var m=new t((1==e?w||g:e?0:g)+12);return m[0]=1,m[4]=4,m[8]=8,{b:c+p,y:0,l:0,d:y,w:e&&1!=e?e:m.subarray(12),e:g,o:new s(m.buffer,0,3),u:w,c:o,m:Math.min(131072,g)}}if(25481893==(n>>4|r[3]<<20))return v(r,4)+8;f(0)},b=function(r){for(var t=0;1<<t<=r;++t);return t-1},y=function(a,s,i){var o=4+(s<<3),u=5+(15&a[s]);u>i&&f(3);for(var h=1<<u,l=h,v=-1,c=-1,y=-1,p=h,w=new r(512+(h<<2)),g=new n(w,0,256),d=new e(w,0,256),m=new e(w,512,h),z=512+(h<<1),E=new t(w,z,h),k=new t(w,z+h);v<255&&l>0;){var A=b(l+1),T=o>>3,x=(1<<A+1)-1,F=(a[T]|a[T+1]<<8|a[T+2]<<16)>>(7&o)&x,S=(1<<A)-1,B=x-l-1,I=F&S;if(I<B?(o+=A,F=I):(o+=A+1,F>S&&(F-=B)),g[++v]=--F,-1==F?(l+=F,E[--p]=v):l-=F,!F)do{var U=o>>3;c=(a[U]|a[U+1]<<8)>>(7&o)&3,o+=2,v+=c}while(3==c)}(v>255||l)&&f(0);for(var D=0,M=(h>>1)+(h>>3)+3,W=h-1,O=0;O<=v;++O){var j=g[O];if(j<1)d[O]=-j;else for(y=0;y<j;++y){E[D]=O;do{D=D+M&W}while(D>=p)}}for(D&&f(0),y=0;y<h;++y){var C=d[E[y]]++,H=k[y]=u-b(C);m[y]=(C<<H)-h}return[o+7>>3,{b:u,s:E,n:k,t:m}]},p=function(r,n){var a=0,s=-1,i=new t(292),u=r[n],h=i.subarray(0,256),l=i.subarray(256,268),v=new e(i.buffer,268);if(u<128){var c=y(r,n+1,6),p=c[1],w=c[0]<<3,g=r[n+=u];g||f(0);for(var d=0,m=0,z=p.b,E=z,k=(++n<<3)-8+b(g);!((k-=z)<w);){var A=k>>3;if(h[++s]=p.s[d+=(r[A]|r[A+1]<<8)>>(7&k)&(1<<z)-1],(k-=E)<w)break;h[++s]=p.s[m+=(r[A=k>>3]|r[A+1]<<8)>>(7&k)&(1<<E)-1],z=p.n[d],d=p.t[d],E=p.n[m],m=p.t[m]}++s>255&&f(0)}else{for(s=u-127;a<s;a+=2){var T=r[++n];h[a]=T>>4,h[a+1]=15&T}++n}var x=0;for(a=0;a<s;++a)(I=h[a])>11&&f(0),x+=I&&1<<I-1;var F=b(x)+1,S=1<<F,B=S-x;for(B&B-1&&f(0),h[s++]=b(B)+1,a=0;a<s;++a){var I;++l[h[a]=(I=h[a])&&F+1-I]}var U=new t(S<<1),D=U.subarray(0,S),M=U.subarray(S);for(v[F]=0,a=F;a>0;--a){var W=v[a];o(M,a,W,v[a-1]=W+l[a]*(1<<F-a))}for(v[0]!=S&&f(0),a=0;a<s;++a){var O=h[a];if(O){var j=v[O];o(D,a,j,v[O]=j+(1<<F-O))}}return[n,{n:M,b:F,s:D}]},w=y(new t([81,16,99,140,49,198,24,99,12,33,196,24,99,102,102,134,70,146,4]),0,6)[1],g=y(new t([33,20,196,24,99,140,33,132,16,66,8,33,132,16,66,8,33,68,68,68,68,68,68,68,68,36,9]),0,6)[1],d=y(new t([32,132,16,66,102,70,68,68,68,68,36,73,2]),0,5)[1],m=function(r,t){for(var e=r.length,n=new s(e),a=0;a<e;++a)n[a]=t,t+=1<<r[a];return n},z=new t(new s([0,0,0,0,16843009,50528770,134678020,202050057,269422093]).buffer,0,36),E=m(z,0),k=new t(new s([0,0,0,0,0,0,0,0,16843009,50528770,117769220,185207048,252579084,16]).buffer,0,53),A=m(k,3),T=function(r,t,e){var n=r.length,a=t.length,s=r[n-1],i=(1<<e.b)-1,o=-e.b;s||f(0);for(var u=0,h=e.b,l=(n<<3)-8+b(s)-h,v=-1;l>o&&v<a;){var c=l>>3;t[++v]=e.s[u=(u<<h|(r[c]|r[c+1]<<8|r[c+2]<<16)>>(7&l))&i],l-=h=e.n[u]}l==o&&v+1==a||f(0)},x=function(r,t,e){var n=6,a=t.length+3>>2,s=a<<1,i=a+s;T(r.subarray(n,n+=r[0]|r[1]<<8),t.subarray(0,a),e),T(r.subarray(n,n+=r[2]|r[3]<<8),t.subarray(a,s),e),T(r.subarray(n,n+=r[4]|r[5]<<8),t.subarray(s,i),e),T(r.subarray(n),t.subarray(i),e)},F=function(r,n,a){var s,u=n.b,h=r[u],l=h>>1&3;n.l=1&h;var v=h>>3|r[u+1]<<5|r[u+2]<<13,c=(u+=3)+v;if(1==l){if(u>=r.length)return;return n.b=u+1,a?(o(a,r[u],n.y,n.y+=v),a):o(new t(v),r[u])}if(!(c>r.length)){if(0==l)return n.b=c,a?(a.set(r.subarray(u,c),n.y),n.y+=v,a):i(r,u,c);if(2==l){var m=r[u],F=3&m,S=m>>2&3,B=m>>4,I=0,U=0;F<2?1&S?B|=r[++u]<<4|(2&S&&r[++u]<<12):B=m>>3:(U=S,S<2?(B|=(63&r[++u])<<4,I=r[u]>>6|r[++u]<<2):2==S?(B|=r[++u]<<4|(3&r[++u])<<12,I=r[u]>>2|r[++u]<<6):(B|=r[++u]<<4|(63&r[++u])<<12,I=r[u]>>6|r[++u]<<2|r[++u]<<10)),++u;var D=a?a.subarray(n.y,n.y+n.m):new t(n.m),M=D.length-B;if(0==F)D.set(r.subarray(u,u+=B),M);else if(1==F)o(D,r[u++],M);else{var W=n.h;if(2==F){var O=p(r,u);I+=u-(u=O[0]),n.h=W=O[1]}else W||f(0);(U?x:T)(r.subarray(u,u+=I),D.subarray(M),W)}var j=r[u++];if(j){255==j?j=32512+(r[u++]|r[u++]<<8):j>127&&(j=j-128<<8|r[u++]);var C=r[u++];3&C&&f(0);for(var H=[g,d,w],L=2;L>-1;--L){var Z=C>>2+(L<<1)&3;if(1==Z){var q=new t([0,0,r[u++]]);H[L]={s:q.subarray(2,3),n:q.subarray(0,1),t:new e(q.buffer,0,1),b:0}}else 2==Z?(u=(s=y(r,u,9-(1&L)))[0],H[L]=s[1]):3==Z&&(n.t||f(0),H[L]=n.t[L])}var G=n.t=H,J=G[0],K=G[1],N=G[2],P=r[c-1];P||f(0);var Q=(c<<3)-8+b(P)-N.b,R=Q>>3,V=0,X=(r[R]|r[R+1]<<8)>>(7&Q)&(1<<N.b)-1,Y=(r[R=(Q-=K.b)>>3]|r[R+1]<<8)>>(7&Q)&(1<<K.b)-1,$=(r[R=(Q-=J.b)>>3]|r[R+1]<<8)>>(7&Q)&(1<<J.b)-1;for(++j;--j;){var _=N.s[X],rr=N.n[X],tr=J.s[$],er=J.n[$],nr=K.s[Y],ar=K.n[Y],sr=1<<nr,ir=sr+((r[R=(Q-=nr)>>3]|r[R+1]<<8|r[R+2]<<16|r[R+3]<<24)>>>(7&Q)&sr-1);R=(Q-=k[tr])>>3;var or=A[tr]+((r[R]|r[R+1]<<8|r[R+2]<<16)>>(7&Q)&(1<<k[tr])-1);R=(Q-=z[_])>>3;var ur=E[_]+((r[R]|r[R+1]<<8|r[R+2]<<16)>>(7&Q)&(1<<z[_])-1);if(R=(Q-=rr)>>3,X=N.t[X]+((r[R]|r[R+1]<<8)>>(7&Q)&(1<<rr)-1),R=(Q-=er)>>3,$=J.t[$]+((r[R]|r[R+1]<<8)>>(7&Q)&(1<<er)-1),R=(Q-=ar)>>3,Y=K.t[Y]+((r[R]|r[R+1]<<8)>>(7&Q)&(1<<ar)-1),ir>3)n.o[2]=n.o[1],n.o[1]=n.o[0],n.o[0]=ir-=3;else{var hr=ir-(0!=ur);hr?(ir=3==hr?n.o[0]-1:n.o[hr],hr>1&&(n.o[2]=n.o[1]),n.o[1]=n.o[0],n.o[0]=ir):ir=n.o[0]}for(L=0;L<ur;++L)D[V+L]=D[M+L];M+=ur;var fr=(V+=ur)-ir;if(fr<0){var lr=-fr,vr=n.e+fr;for(lr>or&&(lr=or),L=0;L<lr;++L)D[V+L]=n.w[vr+L];V+=lr,or-=lr,fr=0}for(L=0;L<or;++L)D[V+L]=D[fr+L];V+=or}if(V!=M)for(;M<D.length;)D[V++]=D[M++];else V=D.length;a?n.y+=V:D=i(D,0,V)}else if(a){if(n.y+=B,M)for(L=0;L<B;++L)D[L]=D[M+L]}else M&&(D=i(D,M));return n.b=c,D}f(2)}},S=function(r,e){if(1==r.length)return r[0];for(var n=new t(e),a=0,s=0;a<r.length;++a){var i=r[a];n.set(i,s),s+=i.length}return n};function B(r,t){for(var e=[],n=+!t,a=0,s=0;r.length;){var i=c(r,n||t);if("object"==typeof i){for(n?(t=null,i.w.length==i.u&&(e.push(t=i.w),s+=i.u)):(e.push(t),i.e=0);!i.l;){var o=F(r,i,t);o||f(5),t?i.e=i.y:(e.push(o),s+=o.length,u(i.w,0,o.length),i.w.set(o,i.w.length-o.length))}a=i.b+4*i.c}else a=i;r=r.subarray(a)}return S(e,s)}_e.decompress=B;var I=function(){function r(r){this.ondata=r,this.c=[],this.l=0,this.z=0}return r.prototype.push=function(r,e){if("number"==typeof this.s){var n=Math.min(r.length,this.s);r=r.subarray(n),this.s-=n}var a=r.length+this.l;if(!this.s){if(e){if(!a)return void this.ondata(new t(0),!0);a<5&&f(5)}else if(a<18)return this.c.push(r),void(this.l=a);if(this.l&&(this.c.push(r),r=S(this.c,a),this.c=[],this.l=0),"number"==typeof(this.s=c(r)))return this.push(r,e)}if("number"!=typeof this.s){if(a<(this.z||3))return e&&f(5),this.c.push(r),void(this.l=a);if(this.l&&(this.c.push(r),r=S(this.c,a),this.c=[],this.l=0),!this.z&&a<(this.z=2&r[this.s.b]?4:3+(r[this.s.b]>>3|r[this.s.b+1]<<5|r[this.s.b+2]<<13)))return e&&f(5),this.c.push(r),void(this.l=a);for(this.z=0;;){var s=F(r,this.s);if(!s){e&&f(5);var i=r.subarray(this.s.b);return this.s.b=0,this.c.push(i),void(this.l+=i.length)}if(this.ondata(s,!1),u(this.s.w,0,s.length),this.s.w.set(s,this.s.w.length-s.length),this.s.l){var o=r.subarray(this.s.b);return this.s=4*this.s.c,void this.push(o,e)}}}else e&&f(5)},r}();_e.Decompress=I;return _e})
+;
+
+// src/assets/model-reader.js
+/* Independent, bounded reader for Roblox binary model files.
+   Format references: github.com/rojo-rbx/rbx-dom/blob/master/docs/binary.md
+   Zstandard implementation: fzstd 0.1.1 (MIT), see vendor/fzstd.LICENSE. */
+(function(root){
+  'use strict';
+  const MAX_BYTES=32*1024*1024,MAX_EXPANDED=128*1024*1024,MAX_NODES=5000,MAX_PROPERTIES=128;
+  const zstd=root.fzstd||(typeof module==='object'&&module.exports?require('./vendor/fzstd-0.1.1.js'):null);
+  const utf8=new TextDecoder(),bad=message=>{throw Error(message||'Unsupported or damaged resource.');};
+  const types=['Unknown','string','bool','int','float','double','UDim','UDim2','Ray','Faces','Axes','BrickColor','Color3','Vector2','Vector3','Vector2int16','CFrame','Quaternion','Enum','Instance','Vector3int16','NumberSequence','ColorSequence','NumberRange','Rect','PhysicalProperties','Color3uint8','int64','SharedString','Bytecode','OptionalCFrame','UniqueId','Font','SecurityCapabilities','Content'];
+  function reader(bytes){
+    const view=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);let p=0;
+    const take=n=>{if(!Number.isSafeInteger(n)||n<0||p+n>bytes.length)bad();const result=bytes.subarray(p,p+n);p+=n;return result;};
+    const number=(size,method)=>{take(size);return view[method](p-size,true);};
+    return {get left(){return bytes.length-p;},take,u8:()=>number(1,'getUint8'),u16:()=>number(2,'getUint16'),i16:()=>number(2,'getInt16'),u32:()=>number(4,'getUint32'),f32:()=>number(4,'getFloat32'),f64:()=>number(8,'getFloat64'),
+      string(){return utf8.decode(take(this.u32()));},
+      uints(n,width=4){const b=take(n*width);return Array.from({length:n},(_,i)=>{let value=0n;for(let lane=0;lane<width;lane++)value=(value<<8n)|BigInt(b[lane*n+i]);return width===4?Number(value):value;});},
+      ints(n){return this.uints(n).map(v=>(v>>>1)^-(v&1));},
+      refs(n){let sum=0;return this.ints(n).map(v=>sum+=v);},
+      floats(n){const temp=new DataView(new ArrayBuffer(4));return this.uints(n).map(v=>{temp.setUint32(0,(v>>>1)|(v<<31));return temp.getFloat32(0);});}
+    };
+  }
+  function count(r){const n=r.u32();if(n>MAX_NODES)bad('This model contains too many instances to explore.');return n;}
+  function lz4(input,size){
+    if(size<0||size>MAX_EXPANDED)bad('Resource is too large to explore.');const out=new Uint8Array(size);let p=0,q=0;
+    const length=n=>{if(n===15){let b;do{if(p>=input.length)bad();b=input[p++];n+=b;}while(b===255);}return n;};
+    while(p<input.length){const token=input[p++],literal=length(token>>>4);if(p+literal>input.length||q+literal>size)bad();out.set(input.subarray(p,p+literal),q);p+=literal;q+=literal;if(p===input.length)break;
+      if(p+2>input.length)bad();const distance=input[p++]|(input[p++]<<8),n=length(token&15)+4;if(!distance||distance>q||q+n>size)bad();for(let i=0;i<n;i++,q++)out[q]=out[q-distance];}
+    if(q!==size)bad();return out;
+  }
+  function decompressZstd(bytes,size){
+    // Validate the entire frame before a third-party decoder allocates its window.
+    const r=reader(bytes);if(r.u32()!==0xfd2fb528)bad();const flags=r.u8(),single=!!(flags&32),sizeFlag=flags>>>6;
+    if(flags&8)bad();let window=0;if(!single){const wd=r.u8(),base=2**(10+(wd>>>3));window=base*(1+(wd&7)/8);}
+    const dict=r.take([0,1,2,4][flags&3]);if(dict.some(v=>v!==0))bad('Unsupported or damaged resource.');
+    const fieldSize=sizeFlag?[0,2,4,8][sizeFlag]:single?1:0,b=r.take(fieldSize);let content=0n;
+    for(let i=b.length-1;i>=0;i--)content=(content<<8n)|BigInt(b[i]);if(fieldSize===2)content+=256n;
+    if(single)window=Number(content);if(window>MAX_EXPANDED||content>BigInt(MAX_EXPANDED))bad('Resource is too large to explore.');
+    if(fieldSize&&content!==BigInt(size))bad();
+    let last=false,blocks=0;while(!last){if(++blocks>65536)bad();const h=r.take(3),bits=h[0]|(h[1]<<8)|(h[2]<<16),type=(bits>>>1)&3,n=bits>>>3;last=!!(bits&1);if(type===3||n>131072)bad();r.take(type===1?1:n);}
+    if(flags&4)r.take(4);if(r.left)bad();if(!zstd)bad('This tool is unavailable.');
+    const out=new Uint8Array(size);let written=0;
+    const stream=new zstd.Decompress(chunk=>{if(written+chunk.length>size)bad('Resource is too large to explore.');out.set(chunk,written);written+=chunk.length;});
+    try{stream.push(bytes,true);}catch(error){if(/too large/.test(error.message))throw error;bad();}
+    if(written!==size)bad();return out;
+  }
+  const text=value=>typeof value==='bigint'?String(value):Array.isArray(value)?value.map(text).join(', '):value&&typeof value==='object'?Object.entries(value).map(([k,v])=>`${k}: ${text(v)}`).join('; '):typeof value==='number'&&Number.isFinite(value)?String(Number(value.toPrecision(8))):String(value??'');
+  function values(r,n,type,shared,depth=0){
+    if(depth>3)bad();const each=fn=>Array.from({length:n},fn),components=(names,float=true)=>{const lanes=names.map(()=>float?r.floats(n):r.ints(n));return each((_,i)=>Object.fromEntries(names.map((name,k)=>[name,lanes[k][i]])));};
+    switch(type){
+      case 1:return each(()=>r.string());
+      case 2:return each(()=>r.u8()!==0);
+      case 3:return r.ints(n);
+      case 4:return r.floats(n);
+      case 5:return each(()=>r.f64());
+      case 6:{const scales=r.floats(n),offsets=r.ints(n);return each((_,i)=>({Scale:scales[i],Offset:offsets[i]}));}
+      case 7:{const x=r.floats(n),y=r.floats(n),ox=r.ints(n),oy=r.ints(n);return each((_,i)=>({X:{Scale:x[i],Offset:ox[i]},Y:{Scale:y[i],Offset:oy[i]}}));}
+      case 8:return each(()=>({Origin:eachXYZ(()=>r.f32()),Direction:eachXYZ(()=>r.f32())}));
+      case 9:case 10:{const labels=type===9?['Right','Top','Back','Left','Bottom','Front']:['X','Y','Z'];return each(()=>{const bits=r.u8();return Object.fromEntries(labels.map((name,i)=>[name,!!(bits&(1<<i))]));});}
+      case 11:case 18:return r.uints(n);
+      case 12:return components(['R','G','B']);
+      case 13:return components(['X','Y']);
+      case 14:return components(['X','Y','Z']);
+      case 16:{const axes=[[1,0,0],[0,1,0],[0,0,1],[-1,0,0],[0,-1,0],[0,0,-1]],rotations=each(()=>{const key=r.u8();if(!key)return Array.from({length:9},()=>r.f32());const right=axes[Math.floor((key-1)/6)],up=axes[(key-1)%6];if(!right||!up||right.reduce((a,v,i)=>a+v*up[i],0)!==0)bad();const back=[right[1]*up[2]-right[2]*up[1],right[2]*up[0]-right[0]*up[2],right[0]*up[1]-right[1]*up[0]];return [0,1,2].flatMap(i=>[right[i],up[i],back[i]]);});const positions=components(['X','Y','Z']);return each((_,i)=>({Position:positions[i],Rotation:rotations[i]}));}
+      case 19:return r.refs(n).map(v=>v===-1?null:String(v));
+      case 20:return each(()=>eachXYZ(()=>r.i16()));
+      case 21:case 22:return each(()=>Array.from({length:count(r)},()=>{const Time=r.f32(),Value=type===21?r.f32():{R:r.f32(),G:r.f32(),B:r.f32()},Envelope=r.f32();return type===21?{Time,Value,Envelope}:{Time,Value};}));
+      case 23:return each(()=>({Min:r.f32(),Max:r.f32()}));
+      case 24:{const lanes=components(['MinX','MinY','MaxX','MaxY']);return lanes;}
+      case 25:return each(()=>{const flag=r.u8();if(flag===0||flag===2)return null;if(flag!==1&&flag!==3)bad();const keys=['Density','Friction','Elasticity','FrictionWeight','ElasticityWeight'];if(flag===3)keys.push('AcousticAbsorption');return Object.fromEntries(keys.map(k=>[k,r.f32()]));});
+      case 26:{const b=r.take(n*3);return each((_,i)=>({R:b[i]/255,G:b[n+i]/255,B:b[n*2+i]/255}));}
+      case 27:case 33:return r.uints(n,8).map(v=>String((v>>1n)^-(v&1n)));
+      case 28:return r.uints(n).map(i=>{if(i>=shared.length)bad();return shared[i];});
+      case 29:return each(()=>{const b=r.take(r.u32());return `[Bytecode: ${b.length} bytes]`;});
+      case 30:{const inner=r.u8(),items=values(r,n,inner,shared,depth+1);if(r.u8()!==2)bad();return items.map(v=>r.u8()?v:null);}
+      case 31:{const b=r.take(n*16);return each((_,i)=>Array.from({length:16},(_,j)=>b[j*n+i].toString(16).padStart(2,'0')).join(''));}
+      case 32:return each(()=>({Family:r.string(),Weight:r.u16(),Style:r.u8(),CachedFaceId:r.string()}));
+      case 34:{const sources=r.uints(n),uris=Array.from({length:count(r)},()=>r.string()),refs=r.refs(count(r));r.refs(count(r));let u=0,f=0;return sources.map(source=>{if(source===0)return '';if(source===1){if(u>=uris.length)bad();return uris[u++];}if(source===2){if(f>=refs.length)bad();return {Referent:String(refs[f++])};}bad();});}
+      default:return null;
+    }
+    function eachXYZ(fn){return Object.fromEntries(['X','Y','Z'].map(k=>[k,fn()]));}
+  }
+  function parse(bytes){
+    if(bytes.length>MAX_BYTES)bad('Resource exceeds the 32 MB preview limit.');if(bytes.length<32)bad();
+    const header=reader(bytes.subarray(16,24));header.u32();if(header.u32()>MAX_NODES)bad('This model contains too many instances to explore.');
+    const r=reader(bytes.subarray(32)),classes=new Map(),nodes=new Map(),parents=new Map(),props=[],shared=[],chunks=[],warnings=new Set();let expanded=0;
+    while(r.left){if(chunks.length>=1000)bad('Resource is too large to explore.');const kind=utf8.decode(r.take(4)),compressed=r.u32(),size=r.u32();r.u32();expanded+=size;if(expanded>MAX_EXPANDED)bad('Resource is too large to explore.');
+      const raw=r.take(compressed||size);chunks.push({kind:kind.replace(/\0/g,''),compressed,size});if(kind==='END\0')break;
+      const z=compressed&&raw[0]===0x28&&raw[1]===0xb5&&raw[2]===0x2f&&raw[3]===0xfd,c=reader(compressed?(z?decompressZstd(raw,size):lz4(raw,size)):raw);
+      if(kind==='INST'){const classId=c.u32(),className=c.string().slice(0,200);c.u8();const n=count(c);if(nodes.size+n>MAX_NODES||classes.has(classId))bad('This model contains too many instances to explore.');const refs=c.refs(n);classes.set(classId,refs);for(const ref of refs){if(nodes.has(ref))bad();nodes.set(ref,{id:String(ref),name:className,className,properties:[],propertyInfo:Object.create(null),children:[]});}}
+      else if(kind==='SSTR'){if(c.u32()!==0)bad();for(let i=0,n=count(c);i<n;i++){c.take(16);const b=c.take(c.u32()),value=utf8.decode(b);shared.push(value.includes('\0')||value.includes('\ufffd')?`[Binary: ${b.length} bytes]`:value);}}
+      else if(kind==='PRNT'){if(c.u8()!==0)bad();const n=count(c),children=c.refs(n),refs=c.refs(n);children.forEach((id,i)=>parents.set(id,refs[i]));}
+      else if(kind==='PROP')props.push(c);
+    }
+    for(const c of props){const refs=classes.get(c.u32()),name=c.string().slice(0,200),type=c.u8();if(!refs){warnings.add('Unknown instance class.');continue;}const data=values(c,refs.length,type,shared);
+      if(!data)warnings.add(`Unsupported property type ${type}.`);
+      refs.forEach((ref,i)=>{const node=nodes.get(ref);if(node.properties.length>=MAX_PROPERTIES){warnings.add('Some properties were omitted.');return;}const value=data?data[i]:`[Type ${type}: ${c.left} bytes]`,typeName=types[type]||`Type ${type}`,formatted=text(value).slice(0,131072);node.properties.push([name,formatted]);node.propertyInfo[name]={type:typeName,value,unsupported:!data};if(name==='Name'&&typeof value==='string')node.name=value.slice(0,2000);});
+    }
+    const roots=[];for(const [ref,node]of nodes){let p=parents.get(ref),depth=0;const seen=new Set([ref]);while(nodes.has(p)){if(seen.has(p)||++depth>128)bad('Invalid model hierarchy.');seen.add(p);p=parents.get(p);}const parent=nodes.get(parents.get(ref));node.parentId=parent?.id??null;if(parent)parent.children.push(node);else roots.push(node);}
+    // Resolve references only to text and IDs; the public result stays acyclic.
+    for(const node of nodes.values())for(const [name,info]of Object.entries(node.propertyInfo))if(info.type==='Instance'){info.referent=info.value;const target=info.value===null?null:nodes.get(Number(info.value));const pair=node.properties.find(p=>p[0]===name);pair[1]=target?target.name:info.value===null?'null':String(info.value);}
+    return {kind:'RBXM',extension:'rbxm',mime:'application/octet-stream',nodes:roots,partial:warnings.size>0,warnings:[...warnings],chunks};
+  }
+  const api=Object.freeze({parse,lz4,decompressZstd,format:text,types});root.RobloxCustomizerModelReader=api;
+  if(typeof module==='object'&&module.exports)module.exports=api;
+})(globalThis);
+;
+
+// src/assets/asset-core.js
+(function(root){
+  'use strict';
+  const MAX_BYTES=32*1024*1024, MAX_NODES=5000;
+  const fail=message=>{throw new Error(message||'Unsupported or damaged resource.');};
+  const id=value=>Number.isSafeInteger(Number(value))&&Number(value)>0?Number(value):0;
+  const decoder=new TextDecoder();
+  const cut=value=>String(value??'').slice(0,2000);
+  const models=root.RobloxCustomizerModelReader||(typeof module==='object'&&module.exports?require('./model-reader.js'):null);
+  const lz4=(input,size)=>{if(!models)fail('This tool is unavailable.');return models.lz4(input,size);};
+  const binary=bytes=>{if(!models)fail('This tool is unavailable.');return models.parse(bytes);};
+  function xml(text){
+    if(typeof DOMParser!=='function')fail('XML parsing is unavailable.');
+    if(/<!DOCTYPE|<!ENTITY/i.test(text))fail('Unsupported XML declarations.');
+    const doc=new DOMParser().parseFromString(text,'application/xml');if(doc.querySelector('parsererror'))fail();let count=0;
+    const item=(element,depth)=>{
+      if(++count>MAX_NODES||depth>128)fail('This model contains too many instances to explore.');
+      const properties=[...element.children].find(n=>n.tagName==='Properties');
+      const values=[],propertyInfo=Object.create(null);
+      for(const n of properties?[...properties.children].slice(0,128):[]){
+        const key=cut(n.getAttribute('name')||n.tagName),type=n.tagName,raw=n.textContent;let value=raw;
+        if(type==='bool')value=raw.trim()==='true';
+        else if(['int','float','double','token'].includes(type)&&Number.isFinite(Number(raw)))value=Number(raw);
+        else if(type==='Color3uint8'&&Number.isFinite(Number(raw))){const rgb=Number(raw);value={R:((rgb>>>16)&255)/255,G:((rgb>>>8)&255)/255,B:(rgb&255)/255};}
+        else if(['Vector2','Vector3','Color3','CoordinateFrame','UDim','UDim2','PhysicalProperties'].includes(type)&&n.children.length)value=Object.fromEntries([...n.children].map(c=>[c.tagName,Number.isFinite(Number(c.textContent))?Number(c.textContent):cut(c.textContent)]));
+        propertyInfo[key]={type:type==='CoordinateFrame'?'CFrame':type==='Ref'?'Instance':type==='token'?'Enum':type,value,...(type==='Ref'?{referent:raw.trim()==='null'?null:raw.trim()}:{})};
+        values.push([key,(typeof value==='object'?Object.entries(value).map(([k,v])=>`${k}: ${v}`).join('; '):String(value)).slice(0,131072)]);
+      }
+      const nodeId=element.getAttribute('referent')||`xml-${count}`;
+      return {id:nodeId,name:cut(values.find(([name])=>name==='Name')?.[1]||element.getAttribute('class')||element.tagName),
+        className:cut(element.getAttribute('class')||element.tagName),properties:values,propertyInfo,
+        children:[...element.children].filter(n=>n.tagName==='Item').map(n=>item(n,depth+1))};
+    };
+    const nodes=[...doc.documentElement.children].filter(n=>n.tagName==='Item').map(n=>item(n,0));
+    const model=doc.documentElement.tagName==='roblox';
+    return {kind:model?'RBXMX':'XML',extension:model?'rbxmx':'xml',mime:'application/xml',nodes:nodes.length?nodes:[{name:doc.documentElement.tagName,className:'XML',properties:[['Content',cut(text)]],children:[]}],partial:false};
+  }
+  function json(value){
+    let count=0;const build=(name,value,depth)=>{
+      if(++count>MAX_NODES||depth>64)fail('Resource is too large to explore.');
+      const object=value!==null&&typeof value==='object';
+      return {name,className:Array.isArray(value)?'Array':object?'Object':typeof value,properties:object?[]:[['Value',cut(value)]],
+        children:object?Object.entries(value).map(([key,item])=>build(key,item,depth+1)):[]};
+    };
+    return {kind:'JSON',extension:'json',mime:'application/json',nodes:[build('Resource',value,0)],partial:false};
+  }
+  function inspect(input){
+    const bytes=input instanceof Uint8Array?input:new Uint8Array(input);if(bytes.length>MAX_BYTES)fail('Resource exceeds the 32 MB preview limit.');
+    const start=decoder.decode(bytes.subarray(0,200)).trimStart();
+    if(start.startsWith('<roblox!'))return binary(bytes);
+    if(start.startsWith('<'))return xml(decoder.decode(bytes));
+    if(/^[{\[]/.test(start)){try{return json(JSON.parse(decoder.decode(bytes)));}catch(error){if(error.message.includes('too large'))throw error;}}
+    const prefix=Array.from(bytes.subarray(0,12));
+    const formats=[
+      [prefix[0]===137&&prefix[1]===80,'PNG','png','image/png'],
+      [prefix[0]===255&&prefix[1]===216,'JPEG','jpg','image/jpeg'],
+      [start.startsWith('GIF8'),'GIF','gif','image/gif'],
+      [start.startsWith('RIFF')&&decoder.decode(bytes.subarray(8,12))==='WEBP','WebP','webp','image/webp'],
+      [start.startsWith('OggS'),'Ogg','ogg','audio/ogg'],
+      [start.startsWith('ID3')||(prefix[0]===255&&(prefix[1]&224)===224),'MP3','mp3','audio/mpeg'],
+      [start.startsWith('RIFF')&&decoder.decode(bytes.subarray(8,12))==='WAVE','WAV','wav','audio/wav'],
+      [decoder.decode(bytes.subarray(4,8))==='ftyp','MP4','mp4','video/mp4']
+    ];
+    const format=formats.find(f=>f[0]);
+    return {kind:format?.[1]||'Binary',extension:format?.[2]||'bin',mime:format?.[3]||'application/octet-stream',
+      nodes:[{name:format?.[1]||'Binary resource',className:'File',properties:[['Size',`${bytes.length} bytes`]],children:[]}],partial:!format};
+  }
+  const colorKeys=['headColor3','torsoColor3','rightArmColor3','leftArmColor3','rightLegColor3','leftLegColor3'];
+  function colors(value){if(!value||typeof value!=='object'||Object.keys(value).some(k=>!colorKeys.includes(k)))fail('Invalid body colors.');
+    const result={};for(const [key,color]of Object.entries(value)){if(typeof color!=='string'||!/^#?[0-9a-f]{6}$/i.test(color))fail('Invalid body colors.');result[key]='#'+color.replace(/^#/,'').toUpperCase();}return result;}
+  function boundsFor(rules,typeId){
+    if(!rules?.accessoryRefinementTypes?.includes(typeId))return null;
+    const name=rules.wearableAssetTypes?.find(t=>t.id===typeId)?.name?.replace(/\s/g,'');
+    const lower=rules.accessoryRefinementLowerBounds?.[name],upper=rules.accessoryRefinementUpperBounds?.[name];if(!lower||!upper)return null;
+    const result={};for(const group of ['position','rotation','scale']){result[group]={};for(const axis of ['X','Y','Z']){
+      const key=Object.keys(lower[group]||{}).find(k=>k[0].toUpperCase()===axis),min=lower[group]?.[key],max=upper[group]?.[key];
+      if(!Number.isFinite(min)||!Number.isFinite(max)||min>max)return null;result[group][axis]={min,max};}}
+    return result;
+  }
+  function refinement(value,bounds){if(!value||!bounds)fail('This accessory cannot be adjusted.');const result={};
+    for(const group of ['position','rotation','scale']){result[group]={};for(const axis of ['X','Y','Z']){const number=value[group]?.[axis],limit=bounds[group][axis];
+      if(typeof number!=='number'||!Number.isFinite(number)||number<limit.min||number>limit.max)fail('Accessory values are outside Roblox limits.');result[group][axis]=number;}}return result;}
+  const api=Object.freeze({MAX_BYTES,MAX_NODES,id,inspect,lz4,colors,colorKeys,boundsFor,refinement});
+  root.RobloxCustomizerAssetCore=api;if(typeof module==='object'&&module.exports)module.exports=api;
+})(globalThis);
+;
+
+// src/background/asset-tools-background.js
+(function(root){
+  'use strict';
+  const core=root.RobloxCustomizerAssetCore;
+  let csrf='',mutation=Promise.resolve();
+  const metadataCache=new Map();
+  function senderURL(sender){try{const u=new URL(sender.url);return sender.id===chrome.runtime.id&&(sender.frameId??0)===0&&u.protocol==='https:'&&['www.roblox.com','roblox.com','create.roblox.com'].includes(u.hostname)?u:null;}catch{return null;}}
+  async function request(url,options={}){
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),options.raw?60000:20000);
+    try{
+      const response=await fetch(url,{credentials:'include',...options,signal:controller.signal});
+      if(options.method==='POST'&&response.status===403&&response.headers.get('x-csrf-token')){
+        const token=response.headers.get('x-csrf-token');csrf=token;
+        const retry=await fetch(url,{credentials:'include',...options,headers:{...options.headers,'x-csrf-token':token},signal:controller.signal});
+        return await finish(retry);
+      }
+      return await finish(response);
+    }finally{clearTimeout(timer);}
+    async function finish(response){
+      if(!response.ok){const error=new Error(response.status===401?'Sign in to Roblox to use this tool.':response.status===403?'Roblox did not allow access to this resource.':`Roblox request failed (${response.status}).`);error.status=response.status;throw error;}
+      return options.raw?readBytes(response):response.json();
+    }
+  }
+  async function readBytes(response){
+    if(Number(response.headers.get('content-length'))>core.MAX_BYTES){await response.body?.cancel().catch(()=>{});throw Error('Resource exceeds the 32 MB preview limit.');}
+    const reader=response.body.getReader(),chunks=[];let size=0;
+    try{while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>core.MAX_BYTES)throw Error('Resource exceeds the 32 MB preview limit.');chunks.push(value);}}
+    catch(error){await reader.cancel().catch(()=>{});throw error;}
+    const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}return bytes;
+  }
+  const post=(url,value)=>request(url,{method:'POST',headers:{'Content-Type':'application/json',...(csrf?{'x-csrf-token':csrf}:{})},body:JSON.stringify(value)});
+  async function details(assetId,itemType){
+    const key=`${itemType}:${assetId}`,cached=metadataCache.get(key);if(cached&&Date.now()-cached.time<60000)return cached.value;
+    const data=await request(itemType==='Bundle'?`https://catalog.roblox.com/v1/bundles/${assetId}/details`:`https://economy.roblox.com/v2/assets/${assetId}/details`);
+    const value={id:assetId,itemType,name:data.Name??data.name??String(assetId),description:data.Description??data.description??'',
+      created:data.Created??null,updated:data.Updated??null,creator:data.Creator?.Name??data.creator?.name??'',typeId:data.AssetTypeId??null,
+      sales:Number.isFinite(data.Sales)?data.Sales:null,supply:Number.isFinite(data.CollectiblesItemDetails?.TotalQuantity)?data.CollectiblesItemDetails.TotalQuantity:null,
+      remaining:data.IsLimitedUnique===true&&Number.isFinite(data.Remaining)?data.Remaining:null,
+      items:itemType==='Bundle'?(data.items||[]).filter(i=>i.type==='Asset'&&core.id(i.id)).map(i=>({id:i.id,name:i.name})):[]};
+    metadataCache.set(key,{value,time:Date.now()});if(metadataCache.size>100)metadataCache.delete(metadataCache.keys().next().value);return value;
+  }
+  function trustedCDN(value){try{const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password&&(u.hostname==='rbxcdn.com'||u.hostname.endsWith('.rbxcdn.com')||u.hostname==='contentdelivery.roblox.com'&&/^\/v1\/bytes\/sc\d+\/[a-f0-9]{32,64}$/.test(u.pathname))?u.href:null;}catch{return null;}}
+  async function content(assetId){
+    const result=await request(`https://assetdelivery.roblox.com/v2/assetId/${assetId}`);
+    const url=trustedCDN(result.locations?.[0]?.location);
+    if(!url)throw Error('Roblox did not provide downloadable content for this resource.');
+    // CDN requests never receive Roblox account credentials.
+    const bytes=await request(url,{raw:true,credentials:'omit',redirect:'error'});
+    let encoded='';for(let i=0;i<bytes.length;i+=0x6000)encoded+=String.fromCharCode(...bytes.subarray(i,i+0x6000));
+    return {base64:btoa(encoded),size:bytes.length};
+  }
+  async function avatar(){
+    const [current,rules,user]=await Promise.all([request('https://avatar.roblox.com/v2/avatar/avatar'),request('https://avatar.roblox.com/v1/avatar-rules',{credentials:'omit'}),request('https://users.roblox.com/v1/users/authenticated')]);
+    if(!Array.isArray(current.assets)||!current.bodyColor3s)throw Error('This avatar format is not supported by the editor.');
+    return {userId:user.id,bodyColors:core.colors(current.bodyColor3s),assets:current.assets.map(a=>({id:a.id,name:a.name,typeId:a.assetType?.id,meta:a.meta||{},bounds:core.boundsFor(rules,a.assetType?.id)}))};
+  }
+  async function editAvatar(message){
+    const user=await request('https://users.roblox.com/v1/users/authenticated');
+    if(!core.id(message.userId)||user.id!==message.userId)throw Error('Your Roblox account changed. Reload the editor.');
+    // Read again immediately before a write; preserve other wearables and metadata.
+    const current=await request('https://avatar.roblox.com/v2/avatar/avatar');
+    if(message.action==='colors'){
+      const patch=core.colors(message.colors),colors=core.colors(current.bodyColor3s);
+      if(core.colorKeys.some(key=>!colors[key]))throw Error('This avatar format is not supported by the editor.');
+      const result=await post('https://avatar.roblox.com/v2/avatar/set-body-colors',Object.fromEntries(Object.entries({...colors,...patch}).map(([key,value])=>[key,value.slice(1)])));
+      if(result.success===false)throw Error('Roblox could not apply the avatar changes.');
+    }else if(message.action==='accessory'){
+      const assets=current.assets;if(!Array.isArray(assets))throw Error('This avatar format is not supported by the editor.');
+      const target=assets.find(a=>a.id===message.assetId);if(!target)throw Error('The accessory is no longer equipped. Reload the editor.');
+      const rules=await request('https://avatar.roblox.com/v1/avatar-rules',{credentials:'omit'}),patch=core.refinement(message.values,core.boundsFor(rules,target.assetType?.id));
+      const wearing=assets.map(a=>({id:a.id,...(a.meta?{meta:a.meta}:{})}));
+      const item=wearing.find(a=>a.id===message.assetId);item.meta={...item.meta,...patch};
+      const result=await post('https://avatar.roblox.com/v2/avatar/set-wearing-assets',{assets:wearing});
+      if(result.success===false)throw Error('Roblox could not apply the avatar changes.');
+    }else throw Error('Invalid avatar action.');
+    return {ok:true};
+  }
+  function handle(message,sender,resolved=false){
+    const source=senderURL(sender);if(!source)return null;
+    const route=root.RobloxCustomizerRoutes?.pathname(source.pathname)||source.pathname;
+    if(message.type==='rc-asset-tools'){
+      if(message.itemType!==undefined&&!['Asset','Bundle'].includes(message.itemType))return null;
+      const match=route.match(/^\/(?:catalog|bundles|library)\/(\d+)(?:\/|$)/)||route.match(/^\/store\/asset\/(\d+)(?:\/|$)/);
+      const itemType=route.startsWith('/bundles/')?'Bundle':'Asset';
+      if(!match||core.id(message.assetId)!==Number(match[1])||message.itemType!==undefined&&message.itemType!==itemType){
+        if(!resolved&&['details','content'].includes(message.action)&&root.RobloxCustomizerPageContext?.canResolve(sender)){
+          return root.RobloxCustomizerPageContext.resolve(sender).then(current=>{
+            const result=current&&handle(message,{...sender,url:current.href},true);
+            if(!result)throw Error('This request does not match the current item page.');
+            return result;
+          });
+        }
+        return null;
+      }
+      if(message.action==='details')return details(message.assetId,itemType);
+      if(message.action==='content'&&itemType==='Asset')return content(message.assetId);
+      return null;
+    }
+    if(message.type==='rc-avatar-tools'&&/^\/my\/avatar(?:\/|$)/.test(route)){
+      if(message.action==='load')return avatar();
+      if(!['colors','accessory'].includes(message.action))return null;
+      if(message.action==='colors')core.colors(message.colors);
+      if(message.action==='accessory'&&!core.id(message.assetId))return null;
+      const work=mutation.then(()=>editAvatar(message));mutation=work.catch(()=>{});return work;
+    }
+    return null;
+  }
+  chrome.runtime.onMessage.addListener((message,sender,respond)=>{
+    if(!['rc-asset-tools','rc-avatar-tools'].includes(message?.type))return;
+    let result;try{result=handle(message,sender);}catch(error){respond({error:error.message});return;}
+    if(!result){respond({error:'This request does not match the current item page.',code:'page-changed'});return;}
+    Promise.resolve(result).then(respond,error=>respond({error:error.message||'This tool is unavailable.'}));return true;
+  });
+  root.RobloxCustomizerAssetToolsBackground=Object.freeze({handle,trustedCDN});
+})(globalThis);
+;
+
+// src/background/animation-preview-background.js
+(function(root){
+  'use strict';
+  const MAX_BYTES=32*1024*1024,ANIMATIONS=new Set([48,50,51,52,53,54,55]),ASSET_ANIMATIONS=new Set([...ANIMATIONS,61]);
+  const positive=n=>Number.isSafeInteger(Number(n))&&Number(n)>0;
+  let csrf='';
+  function context(message,sender){
+    try{
+      if(sender.id!==chrome.runtime.id||!(sender.frameId>0))return null;
+      const frame=new URL(sender.url),page=new URL(sender.tab?.url);
+      if(frame.protocol!=='chrome-extension:'||frame.hostname!==chrome.runtime.id||frame.pathname!=='/src/assets/animation-preview/renderer.html')return null;
+      if(page.protocol!=='https:'||!['www.roblox.com','roblox.com'].includes(page.hostname))return null;
+      const pathname=root.RobloxCustomizerRoutes?.pathname(page.pathname)||page.pathname;
+      const match=pathname.match(/^\/(bundles|catalog)\/(\d+)(?:\/|$)/),id=Number(match?.[2]);
+      const itemType=match?.[1]==='catalog'?'Asset':'Bundle',key=itemType==='Asset'?'assetId':'bundleId',other=itemType==='Asset'?'bundleId':'assetId';
+      return positive(id)&&id===message[key]&&message[other]===undefined&&frame.searchParams.getAll(key).length===1
+        &&Number(frame.searchParams.get(key))===id&&!frame.searchParams.has(other)?{id,itemType}:null;
+    }catch{return null;}
+  }
+  function allowedRequest(value,method='GET',body){
+    try{
+      const url=new URL(value);if(url.protocol!=='https:'||url.username||url.password||url.hash)return null;
+      const host=url.hostname,path=url.pathname;
+      if(method==='GET'){
+        if(host==='rbxcdn.com'||host.endsWith('.rbxcdn.com'))return {url:url.href,cdn:true};
+        if(host==='contentdelivery.roblox.com'&&/^\/v1\/bytes\/sc\d+\/[a-f0-9]{32,64}$/.test(path))return {url:url.href,cdn:true};
+        if(host==='assetdelivery.roblox.com'&&(/^\/v2\/asset\/?$/.test(path)&&positive(url.searchParams.get('id'))||/^\/v2\/assetId\/\d+$/.test(path)))return {url:url.href};
+        if(host==='economy.roblox.com'&&/^\/v2\/assets\/\d+\/details$/.test(path))return {url:url.href};
+        if(host==='avatar.roblox.com'&&path==='/v1/avatar-rules')return {url:url.href};
+      }
+      if(method==='POST'&&typeof body==='string'&&body.length<65536){
+        const data=JSON.parse(body);
+        if(host==='catalog.roblox.com'&&path==='/v1/catalog/items/details'&&Array.isArray(data.items)&&data.items.length<=100
+          &&data.items.every(item=>positive(item.id)&&item.itemType==='Asset'))return {url:url.href,json:true};
+        if(host==='develop.roblox.com'&&path==='/v1/assets/latest-versions'&&Array.isArray(data.assetIds)&&data.assetIds.length<=100
+          &&data.assetIds.every(positive))return {url:url.href,json:true};
+      }
+    }catch{}
+    return null;
+  }
+  async function request(url,options={}){
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),60000);
+    try{
+      const init={credentials:'include',redirect:'error',...options,signal:controller.signal};
+      let response=await fetch(url,init);
+      if(options.method==='POST'&&response.status===403&&response.headers.get('x-csrf-token')){
+        csrf=response.headers.get('x-csrf-token');await response.body?.cancel().catch(()=>{});
+        response=await fetch(url,{...init,headers:{...init.headers,'x-csrf-token':csrf}});
+      }
+      if(Number(response.headers.get('content-length'))>MAX_BYTES){await response.body?.cancel().catch(()=>{});throw Error('Resource exceeds the 32 MB preview limit.');}
+      const reader=response.body?.getReader(),chunks=[];let size=0;
+      if(reader)try{while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>MAX_BYTES)throw Error('Resource exceeds the 32 MB preview limit.');chunks.push(value);}}
+      catch(error){await reader.cancel().catch(()=>{});throw error;}
+      const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}
+      return {status:response.status,bytes,mime:response.headers.get('content-type')||'application/octet-stream'};
+    }finally{clearTimeout(timer);}
+  }
+  async function json(url){const result=await request(url);if(result.status===401)throw Error('Sign in to Roblox to use this tool.');if(result.status!==200)throw Error('Could not load the avatar preview. Try again.');return JSON.parse(new TextDecoder().decode(result.bytes));}
+  async function load(id,itemType){
+    const user=await json('https://users.roblox.com/v1/users/authenticated');if(!positive(user.id))throw Error('Sign in to Roblox to use this tool.');
+    const [avatar,details]=await Promise.all([
+      json('https://avatar.roblox.com/v4/avatar?selectionTypes=0&selectionTypes=1&selectionTypes=2&selectionTypes=3&selectionTypes=4&selectionTypes=5&selectionTypes=6'),
+      json(itemType==='Asset'?`https://economy.roblox.com/v2/assets/${id}/details`:`https://catalog.roblox.com/v1/bundles/${id}/details`)
+    ]);
+    const current=await json('https://users.roblox.com/v1/users/authenticated');if(current.id!==user.id)throw Error('Your Roblox account changed. Reload the editor.');
+    if(itemType==='Asset'){
+      if(details.AssetId!==id||!ASSET_ANIMATIONS.has(details.AssetTypeId))throw Error('This item has no supported animations.');
+      return {userId:user.id,avatar,animations:[{id,assetType:details.AssetTypeId,name:String(details.Name||'').slice(0,500)}]};
+    }
+    const animations=(details.items||[]).filter(item=>item.type==='Asset'&&positive(item.id)&&ANIMATIONS.has(item.assetType)).slice(0,50)
+      .map(item=>({id:item.id,assetType:item.assetType,name:String(item.name||'').slice(0,500)}));
+    if(!animations.length)throw Error('This bundle has no supported animations.');
+    return {userId:user.id,avatar,animations};
+  }
+  async function handle(message,sender){
+    const source=context(message,sender);if(!source)return null;
+    if(message.action==='load')return load(source.id,source.itemType);
+    if(message.action!=='fetch')return null;
+    const method=message.method||'GET',rule=allowedRequest(message.url,method,message.body);if(!rule)throw Error('This preview request is not supported.');
+    const headers={};for(const [name,value]of Object.entries(message.headers||{}))if(/^(?:accept|roblox-assetformat)$/i.test(name)&&typeof value==='string'&&value.length<200)headers[name]=value;
+    if(rule.json){headers['content-type']='application/json';if(csrf)headers['x-csrf-token']=csrf;}
+    const result=await request(rule.url,{method,credentials:rule.cdn?'omit':'include',headers,...(rule.json?{body:message.body}:{})});
+    let text='';for(let i=0;i<result.bytes.length;i+=0x6000)text+=String.fromCharCode(...result.bytes.subarray(i,i+0x6000));
+    return {status:result.status,mime:result.mime,base64:btoa(text)};
+  }
+  chrome.runtime.onMessage.addListener((message,sender,respond)=>{
+    if(message?.type!=='rc-animation-preview')return;
+    if(!context(message,sender))return;
+    handle(message,sender).then(respond,error=>respond({error:error.message||'Could not load the avatar preview. Try again.'}));return true;
+  });
+  root.RobloxCustomizerAnimationPreviewBackground=Object.freeze({handle,allowedRequest,context});
+})(globalThis);
+;
+
 // src/currency/robux-currency-core.js
 /* Shared, independent conversion logic. Prices are reference purchase prices per 500 Robux. */
 (function (root) {
@@ -417,6 +850,88 @@
       task = () => editFolders(message, home ? 0 : placeId);
     } else return;
     serial(task).then(sendResponse, () => sendResponse({ ok: false, error: 'Could not update pinned games. Please try again.' }));
+    return true;
+  });
+})();
+;
+
+// src/notes/game-notes-core.js
+(function (root) {
+  'use strict';
+  const STORAGE_KEY = 'rcGameNotes';
+  const MAX_LENGTH = 5000;
+  const MAX_NOTES = 500;
+  const validId = value => Number.isSafeInteger(value) && value > 0;
+  const validTime = value => Number.isSafeInteger(value) && value >= 0 && value <= 8640000000000000;
+  const validNote = note => note && validId(note.placeId) && typeof note.name === 'string'
+    && note.name.length <= 200 && typeof note.text === 'string' && !!note.text.trim()
+    && note.text.length <= MAX_LENGTH && validTime(note.updatedAt);
+
+  function normalize(value) {
+    const notes = [], ids = new Set();
+    for (const note of value?.version === 1 && Array.isArray(value.notes) ? value.notes : []) {
+      if (!validNote(note) || ids.has(note.placeId) || notes.length >= MAX_NOTES) continue;
+      notes.push({ placeId: note.placeId, name: note.name, text: note.text, updatedAt: note.updatedAt });
+      ids.add(note.placeId);
+    }
+    return { version: 1, notes };
+  }
+  function validate(value) {
+    if (!value || value.version !== 1 || !Array.isArray(value.notes) || value.notes.length > MAX_NOTES
+      || value.notes.some(note => !validNote(note))) throw new Error('Invalid game notes.');
+    const clean = normalize(value);
+    if (clean.notes.length !== value.notes.length) throw new Error('Invalid game notes.');
+    return clean;
+  }
+  function find(value, placeId) {
+    return value.notes.find(note => note.placeId === placeId) || null;
+  }
+  function update(value, context, text, now = Date.now()) {
+    if (!validId(context?.placeId) || typeof text !== 'string' || text.length > MAX_LENGTH
+      || !validTime(now)) throw new Error('Invalid game note.');
+    const state = normalize(value);
+    const previous = find(state, context.placeId);
+    state.notes = state.notes.filter(note => note.placeId !== context.placeId);
+    if (text.trim()) {
+      if (!previous && state.notes.length >= MAX_NOTES) throw new Error('notes-limit');
+      state.notes.push({ placeId: context.placeId,
+        name: typeof context.name === 'string' ? context.name.trim().slice(0, 200) : '', text, updatedAt: now });
+    }
+    return state;
+  }
+  const api = Object.freeze({ STORAGE_KEY, MAX_LENGTH, MAX_NOTES, validId, normalize, validate, find, update });
+  root.RobloxCustomizerGameNotes = api;
+  if (typeof module === 'object' && module.exports) module.exports = api;
+})(globalThis);
+;
+
+// src/background/game-notes-background.js
+(() => {
+  'use strict';
+  const core = globalThis.RobloxCustomizerGameNotes;
+  let queue = Promise.resolve();
+  function serial(task) {
+    const result = queue.then(task);
+    queue = result.catch(() => {});
+    return result;
+  }
+  globalThis.RobloxCustomizerGameNotesBackground = Object.freeze({ withStorageLock: serial });
+  chrome.runtime.onMessage.addListener((message, sender, respond) => {
+    if (message?.type !== 'rc-game-notes') return;
+    let url;
+    try { url = new URL(sender.url); } catch { return; }
+    if (sender.id !== chrome.runtime.id || url.protocol !== 'https:'
+      || !['www.roblox.com', 'roblox.com'].includes(url.hostname) || (sender.frameId ?? 0) !== 0) return;
+    // A pending edit can be flushed after SPA navigation has already changed
+    // the sender URL. Use its captured place ID, never the new page's ID.
+    const result = serial(async () => {
+      if (message.action !== 'save') throw new Error('Invalid game note action.');
+      const saved = await chrome.storage.local.get(core.STORAGE_KEY);
+      const state = core.update(saved[core.STORAGE_KEY], message.context, message.text);
+      await chrome.storage.local.set({ [core.STORAGE_KEY]: state });
+      return { ok: true, note: core.find(state, message.context.placeId) };
+    });
+    result.then(respond, error => respond({ ok: false, error: error.message === 'notes-limit' ? 'notes-limit' : 'save-failed' }));
     return true;
   });
 })();
@@ -881,7 +1396,7 @@
   const VERSION = 1;
   const MAX_BYTES = 256 * 1024 * 1024;
   const KEYS = Object.freeze(['customBackground', 'robuxCurrency', 'pinnedGames',
-    'pinnedGameFolders', 'playtimeTrackingEnabled', 'rcPlaytimeHistory']);
+    'pinnedGameFolders', 'playtimeTrackingEnabled', 'rcPlaytimeHistory', 'rcGameNotes']);
   const fail = () => { throw new Error('Invalid backup file. No data was imported.'); };
   const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
   const count = value => Number.isSafeInteger(value) && value >= 0;
@@ -910,7 +1425,7 @@
       if (key in settings && (!Number.isFinite(settings[key]) || settings[key] < min || settings[key] > max)) fail();
     }
     for (const [key, item] of Object.entries(settings)) {
-      if (/^(?:hide|show|disable|clockShow|clockHour)|^(?:experimentalCustomColors|customFontEnabled)$/.test(key)
+      if (/^(?:hide|show|disable|clockShow|clockHour|streamer)|^(?:experimentalCustomColors|customFontEnabled)$/.test(key)
         && key !== 'hiddenRecommendedGames' && typeof item !== 'boolean') fail();
       if (/^custom(?:Text|Background|Accent)Color$/.test(key) && !/^#[0-9a-f]{6}$/i.test(item)) fail();
       if (['url','fileKey','fileName','fontFileKey','fontFileName','greetingMorning','greetingAfternoon','greetingEvening'].includes(key)
@@ -932,8 +1447,9 @@
   }
   function data(value) {
     jsonValue(value);
-    if (!object(value) || KEYS.some(key => !Object.hasOwn(value, key))
-      || Object.keys(value).some(key => !KEYS.includes(key))) fail();
+    // Notes were added to version 1 backups later; older files contain no notes.
+    if (!object(value) || KEYS.some(key => key !== 'rcGameNotes' && !Object.hasOwn(value, key))
+      || Object.keys(value).some(key => !KEYS.includes(key) && key !== 'rcServerLocation')) fail();
     if (typeof value.playtimeTrackingEnabled !== 'boolean' || !object(value.robuxCurrency)
       || typeof value.robuxCurrency.enabled !== 'boolean'
       || !root.RobloxCustomizerCurrencyCore.CURRENCIES.includes(value.robuxCurrency.currency)) fail();
@@ -956,10 +1472,14 @@
     // A backup is history, never permission to continue an old timing sample.
     cleanHistory.active = null;
     cleanHistory.status = { kind: value.playtimeTrackingEnabled ? 'idle' : 'disabled', checkedAt: 0 };
+    let notes;
+    try { notes = value.rcGameNotes === undefined ? root.RobloxCustomizerGameNotes.normalize(null)
+      : root.RobloxCustomizerGameNotes.validate(value.rcGameNotes); } catch { fail(); }
+    // Ignore legacy saved server selections; filters now exist only on the page.
     return { customBackground: background(value.customBackground),
       robuxCurrency: root.RobloxCustomizerCurrencyCore.normalizeSettings(value.robuxCurrency),
       pinnedGames: pins.games, pinnedGameFolders: pins.folders,
-      playtimeTrackingEnabled: value.playtimeTrackingEnabled, rcPlaytimeHistory: cleanHistory };
+      playtimeTrackingEnabled: value.playtimeTrackingEnabled, rcPlaytimeHistory: cleanHistory, rcGameNotes: notes };
   }
   function snapshot(saved) {
     const pins = root.RobloxCustomizerPinnedGames.state(saved.pinnedGames, saved.pinnedGameFolders);
@@ -968,7 +1488,8 @@
       pinnedGames: pins.games,
       pinnedGameFolders: pins.folders,
       playtimeTrackingEnabled: saved.playtimeTrackingEnabled !== false,
-      rcPlaytimeHistory: root.RobloxCustomizerPlaytime.normalize(saved.rcPlaytimeHistory) });
+      rcPlaytimeHistory: root.RobloxCustomizerPlaytime.normalize(saved.rcPlaytimeHistory),
+      rcGameNotes: root.RobloxCustomizerGameNotes.normalize(saved.rcGameNotes) });
   }
   function validate(value) {
     if (!object(value) || value.format !== FORMAT) fail();
@@ -1015,7 +1536,8 @@
     // Share both mutation queues: an in-flight presence poll or pin refresh
     // must finish before the snapshot/restore, never overwrite restored data.
     const result = queue.then(() => globalThis.RobloxCustomizerPinnedGamesBackground.withStorageLock(() =>
-      globalThis.RobloxCustomizerPlaytimeBackground.withStorageLock(async () => {
+      globalThis.RobloxCustomizerPlaytimeBackground.withStorageLock(() =>
+      globalThis.RobloxCustomizerGameNotesBackground.withStorageLock(async () => {
         if (message.action === 'export') {
           const saved = await chrome.storage.local.get(core.KEYS);
           return { ok: true, data: core.snapshot(saved), extensionVersion: chrome.runtime.getManifest().version };
@@ -1039,7 +1561,7 @@
           return { ok: true };
         }
         return { ok: false, error: 'Invalid backup action.' };
-      })));
+      }))));
     queue = result.catch(() => {});
     result.then(respond, error => respond({ ok: false, rejected: true,
       error: error.message || 'Could not access backup data.' }));
@@ -1075,12 +1597,16 @@ const rolimonsGameCache = new Map();
 const youtubeFeedCache = new Map();
 const publicServerCountryCache = new Map();
 const publicServerStatusCache = new Map();
+const publicServerMetadataCache = new Map();
+const publicServerJoinCache = new Map();
+const publicServerJoinWaiters = [];
+let activePublicServerJoins = 0;
 const publicAddressCountryCache = new Map();
 let joinHeaderReady;
 
-async function readResponse(url, options, consume) {
+async function readResponse(url, options, consume, duration = 15_000) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15_000);
+  const timeout = setTimeout(() => controller.abort(), duration);
   try {
     // Keep the deadline armed while reading the body too: receiving response
     // headers alone does not mean that JSON, HTML, or an image has loaded.
@@ -1597,11 +2123,62 @@ function serverCountryCode(server) {
   return typeof code === 'string' && /^[A-Z]{2}$/i.test(code) ? code.toUpperCase() : '';
 }
 
-async function getPublicServerStatuses(placeId, serverIds, shortIds = []) {
+function serverExtraMetrics(server) {
+  const details = {};
+  if (typeof server?.fps === 'number' && Number.isFinite(server.fps) && server.fps >= 0 && server.fps <= 1000) details.fps = server.fps;
+  if (Number.isSafeInteger(server?.languageMatchCount) && server.languageMatchCount >= 0
+    && (!Number.isSafeInteger(server.playing) || server.languageMatchCount <= server.playing)) details.languageMatchCount = server.languageMatchCount;
+  return details;
+}
+
+async function getPublicServerMetadata(placeId, serverIds, scope) {
+  const key = `${placeId}:${scope}`;
+  let entry = publicServerMetadataCache.get(key);
+  if (!entry || Date.now() - entry.at >= 90_000) {
+    entry = { at: Date.now(), servers: new Map(), cursor: '', pages: 0, done: false, retryAfter: 0, pending: Promise.resolve() };
+    if (publicServerMetadataCache.size >= 20) publicServerMetadataCache.delete(publicServerMetadataCache.keys().next().value);
+    publicServerMetadataCache.set(key, entry);
+  }
+  // Serialize cursors across tabs and resume an inventory only when another
+  // visible batch needs it. Never preload the whole game's server population.
+  entry.pending = entry.pending.catch(() => {}).then(async () => {
+    const deadline = Date.now() + 8_000;
+    while (!entry.done && entry.pages < 10 && Date.now() < deadline && Date.now() >= entry.retryAfter
+      && serverIds.some(id => !entry.servers.has(id))) {
+      const url = new URL(`https://games.roblox.com/v2/games/${placeId}/servers/Public`);
+      url.searchParams.set('limit', '100');
+      url.searchParams.set('orderBy', 'OccupancyAsc');
+      if (entry.cursor) url.searchParams.set('cursor', entry.cursor);
+      let result;
+      try {
+        result = await readResponse(url.href, { credentials: 'include' }, response => {
+          if (!response.ok) throw new Error('Server language information is unavailable.');
+          return response.json();
+        }, Math.min(4_000, deadline - Date.now()));
+      } catch {
+        entry.retryAfter = Date.now() + 30_000;
+        break;
+      }
+      entry.pages++;
+      if (!Array.isArray(result?.data)) { entry.done = true; break; }
+      for (const server of result.data) if (typeof server?.id === 'string') {
+        entry.servers.set(server.id.toLowerCase(), serverExtraMetrics(server));
+      }
+      const next = typeof result.nextPageCursor === 'string' ? result.nextPageCursor : '';
+      entry.done = !next || next === entry.cursor;
+      entry.cursor = next;
+    }
+  });
+  await entry.pending;
+  return entry.servers;
+}
+
+async function getPublicServerStatuses(placeId, serverIds, shortIds = [], metadataScope = '') {
   const wanted = new Set(serverIds);
   const servers = new Map();
   const shortMatches = new Map(shortIds.map(id => [id, new Map()]));
-  const cached = publicServerStatusCache.get(placeId);
+  const cacheKey = `${placeId}:${metadataScope}`;
+  const cached = publicServerStatusCache.get(cacheKey);
   const cachedServers = cached && Date.now() - cached.fetchedAt < 90_000 ? cached.servers : null;
   const inventory = new Map();
   let cursor = '';
@@ -1619,7 +2196,9 @@ async function getPublicServerStatuses(placeId, serverIds, shortIds = []) {
     for (const server of result.data) {
       const id = typeof server?.id === 'string' ? server.id.toLowerCase() : '';
       if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id)) continue;
-      const details = { id, ping: serverPing(server), countryCode: serverCountryCode(server) };
+      const details = { id, ping: serverPing(server), countryCode: serverCountryCode(server), ...serverExtraMetrics(server) };
+      if (Number.isSafeInteger(server.playing) && server.playing >= 0) details.playing = server.playing;
+      if (Number.isSafeInteger(server.maxPlayers) && server.maxPlayers > 0) details.maxPlayers = server.maxPlayers;
       inventory.set(id, details);
       if (wanted.has(id)) {
         servers.set(id, details);
@@ -1630,7 +2209,7 @@ async function getPublicServerStatuses(placeId, serverIds, shortIds = []) {
     if (!cursor) {
       if (!cachedServers) {
         if (publicServerStatusCache.size >= 20) publicServerStatusCache.delete(publicServerStatusCache.keys().next().value);
-        publicServerStatusCache.set(placeId, { fetchedAt: Date.now(), servers: [...inventory.values()] });
+        publicServerStatusCache.set(cacheKey, { fetchedAt: Date.now(), servers: [...inventory.values()] });
       }
       break;
     }
@@ -1643,6 +2222,12 @@ async function getPublicServerStatuses(placeId, serverIds, shortIds = []) {
     const details = candidates.values().next().value;
     matches.push({ shortId, id: details.id });
     servers.set(details.id, details);
+  }
+  if (metadataScope && servers.size) {
+    try {
+      const extra = await getPublicServerMetadata(placeId, [...servers.keys()], metadataScope);
+      for (const [id, details] of servers) servers.set(id, { ...details, ...extra.get(id) });
+    } catch { /* Numeric ping and FPS from v1 remain usable if v2 is unavailable. */ }
   }
   return { servers: [...servers.values()], matches };
 }
@@ -1687,30 +2272,71 @@ async function enableJoinRequestHeader() {
   return joinHeaderReady;
 }
 
-async function getPublicServerCountry(placeId, serverId) {
-  const cached = publicServerCountryCache.get(serverId);
-  if (cached && Date.now() - cached.fetchedAt < 60 * 60_000) {
-    return { countryCode: cached.countryCode, estimated: true };
-  }
-  await enableJoinRequestHeader();
-  const join = await fetch('https://gamejoin.roblox.com/v1/join-game-instance', {
-    method: 'POST', credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ placeId, gameId: serverId }),
-    signal: AbortSignal.timeout(10_000)
-  });
-  if (!join.ok) throw new Error('Roblox could not locate this server.');
-  const result = await join.json();
-  const address = result?.joinScript?.UdmuxEndpoints?.[0]?.Address
-    ?? result?.joinScript?.MachineAddress;
-  const ip = publicIpv4(address);
-  if (!ip) throw new Error(result?.status === 22
-    ? 'This server is full.' : 'Roblox did not provide a server address.');
+async function getPublicServerJoinInfo(placeId, serverId) {
+  const key = `${placeId}:${serverId}`;
+  const cached = publicServerJoinCache.get(key);
+  if (cached && (cached.pending || Date.now() - cached.at < 5 * 60_000)) return cached.promise;
+  if (publicServerJoinWaiters.length >= 100) throw new Error('Server details are busy.');
+  const promise = (async () => {
+    if (activePublicServerJoins >= 2) await new Promise(resolve => publicServerJoinWaiters.push(resolve));
+    else activePublicServerJoins++;
+    try {
+      await enableJoinRequestHeader();
+      return await readResponse('https://gamejoin.roblox.com/v1/join-game-instance', {
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ placeId, gameId: serverId })
+      }, async response => {
+        if (!response.ok) throw new Error('Roblox could not locate this server.');
+        const result = await response.json();
+        const script = result?.joinScript;
+        const gameId = script?.GameId ?? script?.gameId;
+        const returnedPlaceId = script?.PlaceId ?? script?.placeId;
+        if (gameId != null && String(gameId).toLowerCase() !== serverId
+          || returnedPlaceId != null && returnedPlaceId !== placeId) throw new Error('Roblox returned a different server.');
+        const version = script?.PlaceVersion ?? script?.placeVersion;
+        const address = script?.UdmuxEndpoints?.[0]?.Address ?? script?.udmuxEndpoints?.[0]?.address
+          ?? script?.MachineAddress ?? script?.machineAddress;
+        // Keep only public connection metadata. Tickets and other join data
+        // never leave this response callback or enter caches/content scripts.
+        return { ip: publicIpv4(address),
+          ...(Number.isSafeInteger(version) && version > 0 ? { placeVersion: version } : {}) };
+      });
+    } finally {
+      const next = publicServerJoinWaiters.shift();
+      if (next) next();
+      else activePublicServerJoins--;
+    }
+  })();
+  if (publicServerJoinCache.size >= 300) publicServerJoinCache.delete(publicServerJoinCache.keys().next().value);
+  const entry = { at: Date.now(), promise, pending: true };
+  publicServerJoinCache.set(key, entry);
+  try { const result = await promise; entry.pending = false; entry.at = Date.now(); return result; }
+  catch (error) { if (publicServerJoinCache.get(key)?.promise === promise) publicServerJoinCache.delete(key); throw error; }
+}
 
+async function getPublicServerCountry(placeId, serverId, includeLocation = true) {
+  const info = await getPublicServerJoinInfo(placeId, serverId);
+  const metadata = info.placeVersion ? { placeVersion: info.placeVersion } : {};
+  if (!includeLocation) return metadata;
+  const cached = publicServerCountryCache.get(serverId);
+  if (cached && Date.now() - cached.fetchedAt < 60 * 60_000) return { ...cached, ...metadata, estimated: true };
+  try {
+    return { ...await lookupPublicServerLocation(info.ip, serverId), ...metadata };
+  } catch (error) {
+    // Version information is still useful if the optional geolocation service
+    // fails or Roblox supplies a version without a public connection address.
+    if (metadata.placeVersion) return { ...metadata, countryError: error.message };
+    throw error;
+  }
+}
+
+async function lookupPublicServerLocation(ip, serverId) {
+  if (!ip) throw new Error('Roblox did not provide a server address.');
   const cachedAddress = publicAddressCountryCache.get(ip);
   if (cachedAddress && Date.now() - cachedAddress.fetchedAt < 24 * 60 * 60_000) {
     publicServerCountryCache.set(serverId, cachedAddress);
-    return { countryCode: cachedAddress.countryCode, estimated: true };
+    return { ...cachedAddress, estimated: true };
   }
 
   const lookup = await fetch(`https://ipwho.is/${ip}`, {
@@ -1723,10 +2349,13 @@ async function getPublicServerCountry(placeId, serverId) {
   const countryCode = location?.success === true && typeof location.country_code === 'string'
     && /^[A-Z]{2}$/i.test(location.country_code) ? location.country_code.toUpperCase() : '';
   if (!countryCode) throw new Error('Country lookup is unavailable.');
-  const cacheEntry = { countryCode, fetchedAt: Date.now() };
+  const cacheEntry = { countryCode, fetchedAt: Date.now(),
+    city: typeof location.city === 'string' ? location.city.trim().slice(0, 100) : '',
+    latitude: typeof location.latitude === 'number' && Math.abs(location.latitude) <= 90 ? location.latitude : null,
+    longitude: typeof location.longitude === 'number' && Math.abs(location.longitude) <= 180 ? location.longitude : null };
   publicAddressCountryCache.set(ip, cacheEntry);
   publicServerCountryCache.set(serverId, cacheEntry);
-  return { countryCode, estimated: true };
+  return { ...cacheEntry, estimated: true };
 }
 
 async function getGameXLink(placeId, hintedUniverseId) {
@@ -2109,7 +2738,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       || !serverIds.every(id => typeof id === 'string'
         && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))) return;
     getPublicServerStatuses(placeId, [...new Set(serverIds.map(id => id.toLowerCase()))],
-      [...new Set(shortIds.map(id => id.toLowerCase()))])
+      [...new Set(shortIds.map(id => id.toLowerCase()))], message.includeMetadata === true
+        ? `${Number.isSafeInteger(message.userId) && message.userId > 0 ? message.userId : 0}:${typeof message.languageCode === 'string' && /^[a-z]{2,3}$/i.test(message.languageCode) ? message.languageCode.toLowerCase() : 'unknown'}` : '')
       .then(sendResponse)
       .catch(error => sendResponse({ error: error.message || 'Server status unavailable' }));
   } else if (message.type === PUBLIC_SERVER_COUNTRY_QUERY) {
@@ -2119,7 +2749,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (!Number.isSafeInteger(placeId) || placeId <= 0 || sourcePlaceId !== placeId
       || typeof serverId !== 'string'
       || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(serverId)) return;
-    getPublicServerCountry(placeId, serverId.toLowerCase())
+    getPublicServerCountry(placeId, serverId.toLowerCase(), message.includeLocation !== false)
       .then(sendResponse)
       .catch(error => sendResponse({ error: error.message || 'Country lookup unavailable.' }));
   } else if (message.type === ROBLOX_GAME_DATA_QUERY) {
@@ -2142,8 +2772,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const sourceItemType = sourceItem?.[1].toLowerCase() === 'bundles' ? 'Bundle' : 'Asset';
     const assetId = message.assetId;
     const itemType = message.itemType ?? 'Asset';
-    if (!Number.isSafeInteger(assetId) || assetId <= 0 || assetId !== sourceAssetId
-      || itemType !== sourceItemType) return;
+    if (!Number.isSafeInteger(assetId) || assetId <= 0 || !['Asset', 'Bundle'].includes(itemType)) return;
+    if (assetId !== sourceAssetId || itemType !== sourceItemType) {
+      const pageContext = globalThis.RobloxCustomizerPageContext;
+      if (!pageContext?.canResolve(sender)) return;
+      void pageContext.resolve(sender).then(current => {
+        const match = current && routePath(current.pathname).match(/^\/(catalog|bundles)\/(\d+)(?:\/|$)/i);
+        const type = match?.[1].toLowerCase() === 'bundles' ? 'Bundle' : 'Asset';
+        if (!match || Number(match[2]) !== assetId || type !== itemType) {
+          sendResponse({ error: 'This request does not match the current item page.', code: 'page-changed' });
+          return;
+        }
+        return getCatalogItem2D(assetId, itemType).then(sendResponse);
+      }).catch(() => sendResponse({ error: 'Item preview unavailable.' }));
+      return true;
+    }
     getCatalogItem2D(assetId, itemType)
       .then(sendResponse)
       .catch(() => sendResponse({ error: 'Item preview unavailable.' }));

@@ -9,7 +9,8 @@ const workspace = path.resolve(__dirname, '..');
 const manifest = JSON.parse(fs.readFileSync(path.join(workspace, 'manifest.json'), 'utf8'));
 const entries = manifest.content_scripts.filter(entry => entry.world !== 'MAIN');
 const scripts = [...new Set(entries.flatMap(entry => entry.js || [])),
-  'src/background/pinned-games-background.js','src/background/playtime-background.js','src/background/backup-background.js'];
+  'src/background/pinned-games-background.js','src/background/playtime-background.js',
+  'src/background/game-notes-background.js','src/background/backup-background.js'];
 const styles = [...new Set(entries.flatMap(entry => entry.css || []))];
 const game = {universeId:456,placeId:789,name:'Private game',iconUrl:'',totalMs:123456,sessions:2,
   firstPlayedAt:1800000000000,lastPlayedAt:1800000123456,metadataCheckedAt:1800000000000};
@@ -18,6 +19,8 @@ const initial = {robloxCustomizerTermsAccepted:true,customBackground:{source:'no
   hideFavorites:true,showGameXFeed:false,hiddenRecommendedGames:[{placeId:'100',name:'Hidden game'}],greetingMorning:'Hello player'},
   robuxCurrency:{enabled:false,currency:'CNY'},pinnedGames:[{universeId:456,placeId:789,name:'Private game',iconUrl:'',updatedAt:123,folderId:'favorites'}],
   pinnedGameFolders:[{id:'favorites',name:'我的游戏'}],playtimeTrackingEnabled:false,
+  rcServerLocation:{country:'SG',city:'Singapore',locationMode:'nearest',latitude:1.35,longitude:103.8},
+  rcGameNotes:{version:1,notes:[{placeId:789,name:'Private game',text:'私人攻略\n第二行',updatedAt:12345}]},
   rcPlaytimeHistory:{version:1,currentUserId:123,active:null,status:{kind:'disabled',checkedAt:0},
     accounts:[{userId:123,name:'Player',displayName:'Player',games:[game]}, {userId:321,name:'Other',displayName:'另一个账号',games:[{...game,totalMs:98765}]}]},
   robuxCurrencyRates:{fixture:'cache should stay local'}};
@@ -87,7 +90,8 @@ test('Settings backup previews account ownership before restoring data and media
     assert.ok(downloaded,'Export produces a downloadable JSON file');
     const backupPath=path.join(files,downloaded);
     const backup=JSON.parse(fs.readFileSync(backupPath,'utf8'));
-    assert.deepEqual(Object.keys(backup.data).sort(),['customBackground','pinnedGameFolders','pinnedGames','playtimeTrackingEnabled','rcPlaytimeHistory','robuxCurrency'].sort());
+    assert.deepEqual(Object.keys(backup.data).sort(),['customBackground','pinnedGameFolders','pinnedGames','playtimeTrackingEnabled','rcPlaytimeHistory','robuxCurrency','rcGameNotes'].sort());
+    assert.equal(backup.data.rcGameNotes.notes[0].text, '私人攻略\n第二行');
     assert.equal(backup.data.customBackground.glassBlur,29);
     assert.equal(backup.data.customBackground._writer,undefined);
     assert.equal(backup.data.rcPlaytimeHistory.accounts.length,2);
@@ -96,17 +100,20 @@ test('Settings backup previews account ownership before restoring data and media
     const originalKey=backup.data.customBackground.fileKey;
     const originalFontKey=backup.data.customBackground.fontFileKey;
     if(testFont)assert.deepEqual(Buffer.from(backup.font.base64,'base64'),fs.readFileSync(testFont));
-    await browser.evaluate("chrome.storage.local.set({customBackground:{source:'none',uiLanguage:'en',glassBlur:4,clockShowSeconds:false},pinnedGames:[],pinnedGameFolders:[],robuxCurrency:{enabled:true,currency:'USD'},rcPlaytimeHistory:RobloxCustomizerPlaytime.normalize(null),playtimeTrackingEnabled:true})");
+    await browser.evaluate("chrome.storage.local.set({customBackground:{source:'none',uiLanguage:'en',glassBlur:4,clockShowSeconds:false},pinnedGames:[],pinnedGameFolders:[],robuxCurrency:{enabled:true,currency:'USD'},rcPlaytimeHistory:RobloxCustomizerPlaytime.normalize(null),playtimeTrackingEnabled:true,rcGameNotes:{version:1,notes:[]}})");
     const beforeImport=await browser.evaluate('JSON.stringify(saved)');
     await upload('#rc-import-file',backupPath);
     await browser.waitFor("!!document.querySelector('#rc-import-preview')");
     assert.equal(await browser.evaluate("document.querySelector('#rc-import-preview-counts').textContent.includes('2 Roblox accounts')"),true);
+    assert.equal(await browser.evaluate("document.querySelector('#rc-import-preview-notes').textContent.includes('1 game notes')"),true);
     assert.equal(await browser.evaluate("document.querySelector('#rc-import-preview-accounts').textContent.includes('ID 123')"),true);
     assert.equal(await browser.evaluate("document.querySelector('#rc-import-preview-accounts').textContent.includes('ID 321')"),true);
     assert.equal(await browser.evaluate("document.querySelector('#rc-import-preview').textContent.includes('the records remain stored')"),true);
     assert.equal(await browser.evaluate('JSON.stringify(saved)'),beforeImport,'Choosing a file only previews it');
-    await browser.click('#rc-import-preview-cancel');
-    assert.equal(await browser.evaluate('JSON.stringify(saved)'),beforeImport,'Cancel keeps current data');
+    await browser.clickAt({ x: 5, y: 5 });
+    await browser.waitFor("!document.querySelector('#rc-import-preview')");
+    assert.equal(await browser.evaluate('JSON.stringify(saved)'),beforeImport,'Outside dismissal cancels the import and keeps current data');
+    assert.equal(await browser.evaluate("!!document.querySelector('#rc-settings-overlay')"),true,'Dismissing the import keeps settings open');
     await upload('#rc-import-file',backupPath);
     await browser.waitFor("!!document.querySelector('#rc-import-preview')");
     await browser.click('#rc-import-preview-confirm');
@@ -120,7 +127,8 @@ test('Settings backup previews account ownership before restoring data and media
       assert.notEqual(restored.customBackground.fontFileKey,originalFontKey,'The font is restored under a fresh key');
     }
     assert.deepEqual({...restored.customBackground,fileKey:originalKey,...(testFont?{fontFileKey:originalFontKey}:{})},backup.data.customBackground,'All appearance and homepage preferences round trip');
-    for(const key of ['pinnedGames','pinnedGameFolders','robuxCurrency','playtimeTrackingEnabled','rcPlaytimeHistory']) assert.deepEqual(restored[key],backup.data[key],key);
+    for(const key of ['pinnedGames','pinnedGameFolders','robuxCurrency','playtimeTrackingEnabled','rcPlaytimeHistory','rcGameNotes']) assert.deepEqual(restored[key],backup.data[key],key);
+    assert.equal(Object.hasOwn(restored,'rcServerLocation'),false);
     assert.equal(await browser.evaluate("document.getElementById('rc-glass-blur').value"),'29');
     assert.equal(await browser.evaluate("document.getElementById('rc-currency-select').value"),'CNY');
     assert.equal(await browser.evaluate("document.getElementById('rc-greeting-morning').value"),'Hello player');
@@ -187,8 +195,10 @@ test('Settings backup previews account ownership before restoring data and media
     const beforeReset=await browser.evaluate('JSON.stringify(saved)');
     await browser.click('#rc-reset-all');
     await browser.waitFor("document.querySelector('[role=alertdialog]')?.textContent.includes('无法撤销')");
-    await browser.click('#rc-reset-cancel');
-    assert.equal(await browser.evaluate('JSON.stringify(saved)'),beforeReset,'Cancel keeps all saved data');
+    await browser.clickAt({ x: 5, y: 5 });
+    await browser.waitFor("!document.querySelector('#rc-reset-confirmation')");
+    assert.equal(await browser.evaluate('JSON.stringify(saved)'),beforeReset,'Outside dismissal cancels the reset and keeps all saved data');
+    assert.equal(await browser.evaluate("!!document.querySelector('#rc-settings-overlay')"),true,'Dismissing the reset keeps settings open');
     await browser.click('#rc-reset-all');
     await browser.click('#rc-reset-confirm');
     let resetReady=false;
@@ -198,7 +208,7 @@ test('Settings backup previews account ownership before restoring data and media
       if(resetReady)break;
       await pause(50);
     }
-    assert.equal(resetReady,true,'Confirmed reset clears user data and keeps only terms acceptance');
+    assert.equal(resetReady,true,'Confirmed reset clears user data and keeps only terms acceptance: '+await browser.evaluate("JSON.stringify({saved,status:document.querySelector('#rc-settings-status')?.textContent,overlay:!!document.querySelector('#rc-settings-overlay')})"));
     assert.deepEqual(await mediaKeys(),[],'Uploaded background files are erased');
     assert.equal(await browser.evaluate("document.documentElement.hasAttribute('data-rc-background-active')"),false);
     assert.deepEqual(browser.errors,[]);

@@ -26,8 +26,10 @@
   const panels = new Set();
   const discoveryRoots = new Set([document]);
   const dirtyPanels = new Set();
+  const changes = [];
   let hostCache = new WeakMap();
   let timer = 0;
+  let iterator = null;
 
   function isHost(node) {
     if (node.matches(NATIVE_HOST) || node.hasAttribute('data-rc-chat-host')) return true;
@@ -168,10 +170,12 @@
     return notice;
   }
 
-  function syncPanelSurfaces(panel) {
+  function* syncPanelSurfaces(panel) {
     const panelWidth = panel.getBoundingClientRect().width;
-    for (const child of panel.children) markSurface(child, panel);
+    for (const child of panel.children) { yield; markSurface(child, panel); }
     for (const node of panel.querySelectorAll(SURFACE_SELECTOR)) {
+      yield;
+      if (!panel.isConnected) return;
       if (!owns(panel, node) || node.hasAttribute('data-rc-chat-panel')) continue;
       const style = getComputedStyle(node);
       const scrollable = ['auto', 'scroll'].includes(style.overflowY);
@@ -191,17 +195,19 @@
     if (notice) {
       for (let node = notice; node && node !== panel; node = node.parentElement) markSurface(node, panel, true);
       for (const node of notice.querySelectorAll(SURFACE_SELECTOR)) {
+        yield;
         if (node.getBoundingClientRect().width >= panelWidth * .6) markSurface(node, panel, true);
       }
     }
     for (const input of panel.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]), textarea, [contenteditable="true"]')) {
+      yield;
       if (owns(panel, input) && !input.closest(PROTECTED_CONTENT) && !input.hasAttribute('data-rc-chat-input')) {
         input.setAttribute('data-rc-chat-input', '');
       }
     }
   }
 
-  function discover(root) {
+  function* discover(root) {
     if (root instanceof Element && root.closest(NON_CHAT)) return;
     // Prune card subtrees before visiting their many divs and spans. A game
     // named Chat is not a chat launcher, including while Home is streaming.
@@ -211,10 +217,9 @@
         return node.matches(DISCOVERY_SELECTOR) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
       }
     });
-    const nodes = [];
-    if (root instanceof Element) nodes.push(root);
-    for (let node = walker.nextNode(); node; node = walker.nextNode()) nodes.push(node);
-    for (const node of nodes) {
+    for (let node = root instanceof Element ? root : walker.nextNode(); node; node = walker.nextNode()) {
+      yield;
+      if (!node.isConnected) continue;
       let panel = null;
       if (isHost(node)) {
         if (!node.hasAttribute('data-rc-chat-host')) node.setAttribute('data-rc-chat-host', '');
@@ -245,21 +250,22 @@
     }
   }
 
-  function syncPanels() {
-    timer = 0;
+  function* syncPanels() {
     hostCache = new WeakMap();
     const roots = new Set(discoveryRoots);
     discoveryRoots.clear();
     for (const root of roots) {
+      yield;
       if (root !== document && !root.isConnected) continue;
       // A React update can add both a wrapper and its children in one batch.
       // Discover each subtree once rather than repeatedly scanning it.
       if (root !== document && roots.has(document)) continue;
       let ancestor = root.parentElement;
       while (ancestor && !roots.has(ancestor)) ancestor = ancestor.parentElement;
-      if (!ancestor) discover(root);
+      if (!ancestor) yield* discover(root);
     }
     for (const panel of panels) {
+      yield;
       // Keep the styling while hidden, loading, or between animation frames.
       // Only retire a window after React actually removes it from the page.
       if (panel.isConnected && !isHost(panel)) continue;
@@ -267,7 +273,7 @@
         panel.setAttribute('data-rc-chat-host', '');
         // A wrapper that held one conversation can become a shared host when
         // another opens. Give its existing children their own layers too.
-        discover(panel);
+        yield* discover(panel);
       }
       panels.delete(panel);
       dirtyPanels.delete(panel);
@@ -280,18 +286,15 @@
         node.removeAttribute('data-rc-chat-scroll');
       }
     }
-    for (const panel of dirtyPanels) syncPanelSurfaces(panel);
+    const dirty = [...dirtyPanels];
     dirtyPanels.clear();
+    for (const panel of dirty) if (panel.isConnected) yield* syncPanelSurfaces(panel);
   }
 
-  function queueSync(root) {
-    if (root === document || root instanceof Element) discoveryRoots.add(root);
-    if (!timer) timer = setTimeout(syncPanels, 16);
-  }
-
-  new MutationObserver(records => {
+  function* processChanges(records) {
     let changed = false;
     for (const record of records) {
+      yield;
       const target = record.target instanceof Element ? record.target : record.target.parentElement;
       if (target?.closest(NON_CHAT)) continue;
       const panel = target?.closest('[data-rc-chat-panel]');
@@ -308,13 +311,46 @@
         changed = true;
       }
       for (const node of record.addedNodes || []) {
+        yield;
         if (!(node instanceof Element) || node.closest(NON_CHAT)) continue;
         discoveryRoots.add(node);
         changed = true;
       }
       if (record.removedNodes?.length) changed = true;
     }
-    if (changed) queueSync();
+    return changed;
+  }
+
+  function* updatePanels() {
+    while (changes.length || discoveryRoots.size || dirtyPanels.size) {
+      let changed = discoveryRoots.size > 0 || dirtyPanels.size > 0;
+      while (changes.length) changed = (yield* processChanges(changes.shift())) || changed;
+      if (changed) yield* syncPanels();
+    }
+  }
+
+  function flushPanels() {
+    timer = 0;
+    iterator ||= updatePanels();
+    const start = performance.now();
+    while (performance.now() - start < 4) {
+      if (iterator.next().done) { iterator = null; return; }
+    }
+    timer = setTimeout(flushPanels, 16);
+  }
+
+  function queueSync(root) {
+    if (root === document || root instanceof Element) discoveryRoots.add(root);
+    if (globalThis.RobloxCustomizerRuntime?.queueWork) {
+      globalThis.RobloxCustomizerRuntime.queueWork('chat-surfaces', updatePanels);
+    } else if (!timer) timer = setTimeout(flushPanels, 16);
+  }
+
+  new MutationObserver(records => {
+    // Observers run before paint. Only retain the batch here; classification,
+    // discovery and surface updates yield between nodes after a rendered frame.
+    changes.push(records);
+    queueSync();
   }).observe(document, {
     childList: true, characterData: true, subtree: true, attributes: true,
     attributeFilter: ['class', 'id', 'placeholder', 'aria-label', 'title', 'style']

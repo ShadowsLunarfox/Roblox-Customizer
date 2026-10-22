@@ -113,7 +113,7 @@
       .replace(/(?:\s*(?:See All|View All|[\u203a>\u2192]))+\s*$/i, '');
     if (/^Currently Wearing$/i.test(label)) return 'wearing';
     if (/^Store$/i.test(label)) return 'store';
-    if (/^(?:Experiences|Creations)$/i.test(label)) return 'experiences';
+    if (/^(?:Games|Experiences|Creations)$/i.test(label)) return 'experiences';
     if (/^Favorites$/i.test(label)) return 'favorites';
     if (/^Collections$/i.test(label)) return 'collections';
     if (/^Friends(?:\s*\([\d,]+\))?$/i.test(label)) return 'friends';

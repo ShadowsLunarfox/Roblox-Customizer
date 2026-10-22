@@ -10,6 +10,20 @@ html[data-rc-ui-active]:is([data-rc-frost-page="game-search"], [data-rc-frost-pa
   background-color: transparent !important;
 }
 
+/* Back the entire result section, including gaps and the loading footer.
+   Only individual cards blur: a second full-feed filter is expensive on long lists. */
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
+  #games-search-page:not(:has(.top-search-results-page)):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 14px 8px;
+  border: 1px solid var(--rc-search-border);
+  border-radius: 18px;
+  background: rgb(var(--rc-glass-color) / var(--rc-panel-opacity)) !important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
 /* The first React child groups the player-search heading and text input. */
 html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .header-section:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
 html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app > div > div:first-child:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
@@ -45,6 +59,8 @@ html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .
 /* One glass surface per result, including the current wide game tiles. */
 html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
   .game-card-container:not(.invisible, [data-testid="sentinel-tile"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .top-search-results-page
+  :is([data-testid="sdui-game-tile"], [data-testid="sdui-tile"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
 html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app .player-search-card:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   box-sizing: border-box;
   min-width: 0;
@@ -65,6 +81,91 @@ html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
 
 html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
   :is(.game-card-info, .info-label):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) { color: var(--rc-text-secondary) !important; }
+
+/* Top search uses a featured card spanning two grid rows. Its creator,
+   description and play controls remain native and share the card's backing. */
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
+  .featured-grid-item-container :is(.game-card-name-info, .game-card-creator-name, .game-card-description-info):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  min-width: 0;
+  background: transparent !important;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
+  .featured-grid-item-container :is(.game-card-creator-name, .game-card-description-info, .creator-name-label):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  color: var(--rc-text-secondary) !important;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
+  .featured-grid-item-container .creator-name:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  color: var(--rc-link) !important;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
+  .featured-grid-item-container .game-card-name-info:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  gap: 8px;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
+  .featured-grid-item-container .game-card-name-info > div:first-child:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Inset wide results as well as classic tiles. Native wide thumbnails and
+   metadata otherwise retain the outer tile width and escape the card padding. */
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
+  .game-card-container:not(.invisible, [data-testid="sentinel-tile"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .top-search-results-page
+  :is([data-testid="sdui-game-tile"], [data-testid="sdui-tile"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  padding: 8px !important;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
+  .game-card-container :is(.featured-game-icon-container, .game-card-thumb-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .top-search-results-page
+  [data-testid="sdui-tile-image-container"]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  overflow: hidden;
+  border-radius: 10px !important;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
+  .hover-game-tile :is(.featured-game-container, .info-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  box-sizing: border-box;
+  min-width: 0;
+  max-height: none !important;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
+  .hover-game-tile .featured-game-icon-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 10px !important;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
+  .hover-game-tile .featured-game-icon-container :is(.brief-game-icon, img):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: inherit;
+  object-fit: cover;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
+  .hover-game-tile .info-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  width: 100%;
+  padding: 8px 2px 2px !important;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
+  .hover-game-tile .info-metadata-container:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  float: none !important;
+  width: 100% !important;
+  min-width: 0;
+  margin: 0 !important;
+}
 
 /* Classic square tiles need a flexible thumbnail inside their padded card. */
 html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
@@ -95,6 +196,82 @@ html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app
   white-space: normal;
   overflow: hidden;
   overflow-wrap: anywhere;
+}
+
+/* The combined search feed uses SDUI collections for People, Games and avatar
+   items. Each feed entry owns one section backing, including carousel variants;
+   the native grid/measurement nodes stay clear and retain their sizing logic. */
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .top-search-results-page
+  [data-sdui-feed-index] > div:has([data-testid="section-header"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--rc-search-border);
+  border-radius: 18px;
+  background: rgb(var(--rc-glass-color) / var(--rc-panel-opacity)) !important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* SDUI reserves explicit grid-row heights. Make the game card use that height
+   instead of letting its new padding extend beyond the measured cell. The
+   image can shrink within the card while titles, stats and Play keep their space. */
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .top-search-results-page
+  [data-testid^="sdui-grid-measure-"]:has(> [data-testid="sdui-game-tile"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  height: 100% !important;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .top-search-results-page
+  [data-testid="sdui-game-tile"]:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  height: 100%;
+  min-height: 0;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .top-search-results-page
+  :is(.sdui-game-tile-primary, .sdui-game-tile-primary [data-testid="sdui-tile-image-container"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  min-height: 0;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .top-search-results-page
+  :is([data-testid="sdui-tile-footer-content"], .sdui-game-tile-primary [data-sdui-text]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  flex-shrink: 0;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .top-search-results-page
+  [data-testid="sdui-tile-image-container"] :is(img, video):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  object-fit: cover;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .top-search-results-page
+  :is([data-testid="section-header"], [data-testid="sdui-collection-grid-v2-container"], [data-testid="sdui-collection-grid-v2"], [data-testid="sdui-tile-visual"], [data-testid="sdui-tile-bottom-content"], [data-testid="sdui-tile-footer-content"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  min-width: 0;
+  background: transparent !important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .top-search-results-page
+  .content-emphasis:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  color: var(--rc-text) !important;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .top-search-results-page
+  .content-default:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  color: var(--rc-text-secondary) !important;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .top-search-results-page
+  .content-muted:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  color: var(--rc-text-muted) !important;
+}
+
+/* Keep the native circular People thumbnails, overlay hit areas and their
+   independently clickable friend buttons. Only the outer tile is padded. */
+html[data-rc-ui-active][data-rc-frost-page="game-search"] #game-search-web-app .top-search-results-page
+  [data-testid="sdui-tile"] .foundation-web-button:is(.bg-action-subtle, .bg-action-standard):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  border-color: var(--rc-control-border);
+  background: var(--rc-control-bg) !important;
+  color: var(--rc-text) !important;
 }
 
 html[data-rc-ui-active][data-rc-frost-page="user-search"] #react-player-search-web-app

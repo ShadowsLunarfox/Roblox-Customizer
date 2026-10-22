@@ -5,6 +5,7 @@ const vm = require('node:vm');
 const { test } = require('node:test');
 require('../src/currency/robux-currency-core.js');
 require('../src/home/pinned-games-core.js');
+const gameNotes = require('../src/notes/game-notes-core.js');
 const playtime = require('../src/playtime/playtime-core.js');
 const backup = require('../src/settings/backup-core.js');
 const copy = value => JSON.parse(JSON.stringify(value));
@@ -21,6 +22,7 @@ function savedData() {
     clockShowDate:false,showHomeMostPlayed:true,showPinnedGames:false,_writer:'do-not-export'},
     robuxCurrency:{enabled:false,currency:'CNY'},pinnedGames:[{universeId:456,placeId:789,name:'Private game',folderId:'favorites',iconUrl:'',updatedAt:123}],
     pinnedGameFolders:[{id:'favorites',name:'我的游戏'}],rcPlaytimeHistory:history,playtimeTrackingEnabled:true,
+    rcGameNotes:gameNotes.update(null,{placeId:789,name:'Private game'},'私人攻略\n第二行',12345),
     robuxCurrencyRates:{doNotExport:true},'rc-youtube-cache':{doNotExport:true}};
 }
 const envelope = data => ({format:backup.FORMAT,version:backup.VERSION,createdAt:'2026-10-13T00:00:00.000Z',extensionVersion:'1.0',data,media:null});
@@ -34,6 +36,7 @@ test('backup includes every preference and account, preserves folder links, and 
   assert.equal(data.rcPlaytimeHistory.accounts[0].games[0].totalMs, 30000);
   assert.equal(data.pinnedGames[0].folderId, data.pinnedGameFolders[0].id);
   assert.equal(data.customBackground.showPinnedGames, false);
+  assert.equal(data.rcGameNotes.notes[0].text, '私人攻略\n第二行');
   assert.deepEqual(backup.validate(copy(envelope(data))).data, data);
   assert.equal(JSON.stringify(data).includes('live-session'), false);
   assert.equal(source.rcPlaytimeHistory.active.browserSessionId, 'live-session', 'Export does not stop live tracking');
@@ -50,6 +53,16 @@ test('backup includes every preference and account, preserves folder links, and 
   assert.deepEqual(defaults.pinnedGames, []);
   assert.equal(backup.validate(envelope(backup.snapshot({...source,playtimeTrackingEnabled:false}))).data.rcPlaytimeHistory.status.kind, 'disabled');
 });
+
+test('server selections are excluded from exports and discarded from legacy imports',()=>{
+  const location={country:'SG',city:'Singapore',locationMode:'nearest',latitude:1.35,longitude:103.8};
+  const data=backup.snapshot({...savedData(),rcServerLocation:location});
+  assert.equal(Object.hasOwn(data,'rcServerLocation'),false);
+  assert.equal(backup.KEYS.includes('rcServerLocation'),false);
+  const legacy=backup.validate(envelope({...copy(data),rcServerLocation:location}));
+  assert.equal(Object.hasOwn(legacy.data,'rcServerLocation'),false);
+  assert.deepEqual(legacy.data,data,'Old backups keep other data without restoring server selections');
+});
 test('backup validates the envelope, nested preferences, complete records and media before any restoration', () => {
   const good = envelope(backup.snapshot(savedData()));
   for (const corrupt of [b=>{b.format='other';},b=>{delete b.data.rcPlaytimeHistory;},b=>{b.data.rcPlaytimeHistory.version=2;},
@@ -58,10 +71,14 @@ test('backup validates the envelope, nested preferences, complete records and me
     b=>{b.data.playtimeTrackingEnabled='false';},b=>{b.data.customBackground.showHomeBanner='false';},
     b=>{b.data.customBackground.showHomeMostPlayed=1;},b=>{b.data.customBackground.showPinnedGames='false';},
     b=>{b.data.customBackground.source='url';b.data.customBackground.url='javascript:alert(1)';},
+    b=>{b.data.rcGameNotes.notes[0].text='x'.repeat(gameNotes.MAX_LENGTH+1);},
+    b=>{b.data.rcGameNotes.notes.push(b.data.rcGameNotes.notes[0]);},
     b=>{b.data.extra='not a setting';},b=>{b.data.customBackground=JSON.parse('{"__proto__":{"polluted":true}}');}]) {
     const value = copy(good); corrupt(value); assert.throws(()=>backup.validate(value), /Invalid backup/);
   }
   assert.throws(()=>backup.validate({...good,version:99}), /version is not supported/);
+  const legacy = copy(good); delete legacy.data.rcGameNotes;
+  assert.deepEqual(backup.validate(legacy).data.rcGameNotes, {version:1,notes:[]}, 'Older backups remain importable');
   const media = copy(good);
   media.data.customBackground = {source:'file',fileKey:'original-file',fileName:'wallpaper.png'};
   assert.throws(()=>backup.validate(media), /Invalid backup/);
@@ -101,7 +118,8 @@ function worker() {
       session:{async clear(){sessionClears++;}},onChanged:{addListener:fn=>changes.push(fn)}}};
   const context = vm.createContext({chrome,URL,crypto,Date,setTimeout,clearTimeout});
   for (const file of ['src/currency/robux-currency-core.js','src/home/pinned-games-core.js','src/background/pinned-games-background.js',
-    'src/playtime/playtime-core.js','src/background/playtime-background.js','src/settings/backup-core.js','src/background/backup-background.js']) {
+    'src/playtime/playtime-core.js','src/background/playtime-background.js',
+    'src/notes/game-notes-core.js','src/background/game-notes-background.js','src/settings/backup-core.js','src/background/backup-background.js']) {
     vm.runInContext(fs.readFileSync(path.resolve(__dirname,'..',file),'utf8'),context,{filename:file});
   }
   const sender = {id:'extension',url:'https://www.roblox.com/home',frameId:0};
@@ -154,6 +172,24 @@ test('restore waits for pending game and playtime writes, so old operations cann
   assert.deepEqual(w.state.rcPlaytimeHistory,data.rcPlaytimeHistory);
   assert.deepEqual(w.state.pinnedGames,data.pinnedGames);
 });
+test('import and reset wait for pending note writes before replacing or removing notes', async () => {
+  for (const action of ['import', 'reset']) {
+    const w = worker();
+    let finish;
+    const pending = w.context.RobloxCustomizerGameNotesBackground.withStorageLock(async () => {
+      await new Promise(resolve => { finish = resolve; });
+      w.state.rcGameNotes = gameNotes.update(null, {placeId:111,name:'Late'}, 'Late write');
+    });
+    const incoming = backup.snapshot(savedData());
+    const result = w.message(action, action === 'import' ? incoming : undefined);
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(w.writes, 0);
+    finish(); await pending;
+    assert.equal((await result).ok, true);
+    assert.deepEqual(w.state.rcGameNotes, action === 'import' ? incoming.rcGameNotes : undefined);
+  }
+});
+
 test('reset clears all extension storage after pending game and playtime writes', async () => {
   const w = worker();
   let finishPin, finishPoll;

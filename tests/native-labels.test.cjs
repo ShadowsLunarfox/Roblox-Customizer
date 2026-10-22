@@ -13,7 +13,8 @@ test('native section labels recognize English and both Chinese scripts without c
     ['profile', '好友（２００）查看全部 →', 'friends'], ['profile', '體驗', 'experiences'],
     ['profile', '目前穿戴', 'wearing'], ['profile', '社區', 'communities'], ['profile', '徽章', 'badges'],
     ['profile', '作品', 'experiences'], ['profile', '创作', 'experiences'], ['profile', '創作', 'experiences'],
-    ['profile', 'Creations', 'experiences'], ['profile', '收藏 ›', 'collections'],
+    ['profile', 'Creations', 'experiences'], ['profile', 'Games', 'experiences'],
+    ['profile', 'Games (1) See All →', 'experiences'], ['profile', '收藏 ›', 'collections'],
     ['profile', '收藏品', 'collections'], ['profile', '收藏集', 'collections'],
     ['profile', '收藏夹', 'favorites'], ['profile', '最愛', 'favorites'], ['home', '收藏', 'favorites'],
     ['store', '游戏通行证', 'passes'], ['store', '遊戲通行證', 'passes'],
@@ -26,6 +27,8 @@ test('native section labels recognize English and both Chinese scripts without c
     assert.equal(labels.classify('home', text), '', text);
   }
   assert.equal(labels.classify('unknown', '推荐'), '');
+  assert.equal(labels.classify('profile', 'Games Simulator'), '');
+  assert.equal(labels.classify('home', 'Games'), '');
 });
 
 test('Chinese native controls and empty states do not depend on English copy', () => {
@@ -66,6 +69,23 @@ test('Thai avatar filters recognize the native clothing, body, avatar and recent
     'left shoe': ['รองเท้าข้างซ้าย'], 'right shoe': ['รองเท้าข้างขวา'],
     'classic shirts': ['เสื้อเชิ้ตแบบคลาสสิก'], 'classic pants': ['กางเกงขายาวแบบคลาสสิก'],
     'classic t-shirts': ['เสื้อยืดแบบคลาสสิก'], fall: ['หล่น']
+  };
+  for (const [expected, names] of Object.entries(cases)) for (const name of names) {
+    assert.equal(labels.classify('avatar', name), expected, name);
+    assert.equal(labels.classify('avatar', name.normalize('NFKC')), expected, `${name} (NFKC)`);
+    assert.equal(labels.classify('avatar', `${name} Simulator`), '', `${name}: exact filter label only`);
+  }
+});
+
+test('Japanese avatar filters recognize the current short and alternate labels shown by Roblox', () => {
+  const cases = {
+    animations: ['アニメ', 'アニメーション'], expired: ['有効期限切れ'], body: ['ボディパーツ'],
+    'recently added': ['最近、追加されたもの'], 'currently wearing': ['最近の装備'],
+    'skin tone': ['スキンのトーン'], scale: ['拡大/縮小'], outerwear: ['上着'],
+    'dresses & skirts': ['ワンピース＆スカート'],
+    'left shoe': ['靴（左）'], 'right shoe': ['靴（右）'], classic: ['定番'],
+    'classic shirts': ['定番のシャツ'], 'classic pants': ['定番のズボン'],
+    'classic t-shirts': ['定番のTシャツ'], eyebrows: ['まゆげ'], emotes: ['リアクション']
   };
   for (const [expected, names] of Object.entries(cases)) for (const name of names) {
     assert.equal(labels.classify('avatar', name), expected, name);

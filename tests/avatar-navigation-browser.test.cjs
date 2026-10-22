@@ -7,7 +7,8 @@ const { isolatedChrome, waitForDocument } = require('./helpers/chrome.cjs');
 const workspace = path.resolve(__dirname, '..');
 const manifest = JSON.parse(fs.readFileSync(path.join(workspace, 'manifest.json'), 'utf8'));
 const styles = [...new Set(manifest.content_scripts.flatMap(entry => entry.css || []))];
-const scripts = ['src/shared/routes.js', 'src/shared/native-labels.js', 'src/pages/avatar/avatar-page.js'];
+const scripts = ['src/shared/routes.js', 'src/shared/native-labels.js', 'src/pages/avatar/avatar-page.js',
+  'src/assets/asset-core.js', 'src/assets/tools-ui.js', 'src/assets/avatar-tools.js'];
 const locales = {
   en: {
     main: ['Recently Worn', 'Accessories', 'Clothing', 'Body Parts', 'Animations', 'Expired', 'Recently Added', 'Characters'],
@@ -37,6 +38,20 @@ const locales = {
     recent: ['目前穿戴', '最近新增', '角色'],
     body: ['體型', '身高', '寬度', '頭部', '比例']
   },
+  ja: {
+    main: ['最近', 'アバター', 'ボディ', 'メイク', '服装', 'アクセサリ', '背景', 'アニメ'],
+    tabs: {recent:0,avatars:1,body:2,makeup:3,clothing:4,accessories:5,animations:7},
+    accessories: ['頭', '顔', '首', '肩', '前面', '背中', '腰', 'ギア'],
+    clothing: [['トップス', 'Tシャツ', 'シャツ', 'セーター'], ['上着', 'ジャケット'],
+      ['ボトムス', 'ズボン', '短パン', 'ワンピース＆スカート'], ['靴', '靴（左）', '靴（右）'],
+      ['定番', '定番のシャツ', '定番のズボン', '定番のTシャツ']],
+    animations: ['リアクション', '歩く', '走る', 'ジャンプ', '落下', '泳ぐ', '登る', '待機'],
+    recent: ['最近、追加されたもの', '最近の装備', 'アクセサリ', '服装', 'ボディパーツ', 'アニメ', 'キャラクター', '有効期限切れ'],
+    avatars: ['購入済み', '作品'],
+    bodyFilters: ['スキンのトーン', '頭', '拡大/縮小', '髪', '胴体', '左腕', '右腕', '左足', '右足'],
+    makeup: ['まゆげ', 'ルックス', '目', '唇', 'まつげ'],
+    body: ['体型', '身長', '幅', '頭', '比率']
+  },
   th: {
     main: ['ล่าสุด', 'ไอเท็มเสริม', 'เสื้อผ้า', 'ร่างกาย', 'แอนิเมชัน', 'อวาตาร์', 'การแต่งหน้า', 'พื้นหลัง'],
     accessories: ['ศีรษะ', 'ใบหน้า', 'คอ', 'ไหล่', 'ด้านหน้า', 'ด้านหลัง', 'เอว', 'อุปกรณ์'],
@@ -62,6 +77,7 @@ const locales = {
     body: ['신체 유형', '키', '너비', '머리', '비율']
   }
 };
+const tabsFor = locale => ({recent:0,accessories:1,clothing:2,body:3,animations:4,avatars:5,makeup:6,...locale.tabs});
 const escape = text => text.replaceAll('&', '&amp;');
 // Native row and link both carry handlers in some menus. Other options have
 // only a text label and a delegated row handler. Both must remain operable.
@@ -69,6 +85,8 @@ const action = (name, key, plain = false) => `<li data-native-key="${key}" ${pla
   ${plain ? `<span id="${key}">${escape(name)}</span>` : `<a id="${key}" href="#" ng-click="select()"><span>${escape(name)}</span></a>`}</li>`;
 function fixture(locale) {
   const l = locales[locale];
+  const tabs=tabsFor(l);
+  const menuByTab=Object.fromEntries(['accessories','clothing','animations',...(l.avatars?['avatars']:[]),...(l.bodyFilters?['body']:[]),...(l.makeup?['makeup']:[])].map(menu=>[`main-${tabs[menu]}`,menu==='body'?'body-filters':menu]));
   const previewHeight = locale === 'en' ? 220 : 300;
   const bodyControls = `<section id="body-controls"><h3>${l.body[0]}</h3><label class="native-body-toggle"><span>R6</span><input id="native-body-type" type="checkbox" checked><span>R15</span></label>
     <div id="native-body-scales">${l.body.slice(1).map((name,i)=>`<label>${name}<input id="native-scale-${i}" type="range" min="0" max="150" value="${i===3?0:100}"></label>`).join('')}</div></section>`;
@@ -102,7 +120,8 @@ function fixture(locale) {
     <ul id="animations" class="avatar-subcategories" hidden>${l.animations.map((name, i) => action(name, `animation-${i}`, i < 3 || locale === 'ko')).join('')}</ul>
     <ul id="recent" class="avatar-subcategories" hidden>${l.recent.map((name, i) => action(name, `recent-${i}`, true)).join('')}</ul>
     ${l.avatars ? `<ul id="avatars" class="avatar-subcategories" hidden>${l.avatars.map((name, i) => action(name, `avatar-${i}`, true)).join('')}</ul>` : ''}
-    ${l.bodyFilters ? `<ul id="body-filters" class="avatar-subcategories" hidden>${l.bodyFilters.map((name, i) => action(name, `body-filter-${i}`, true)).join('')}</ul>` : ''}</nav>
+    ${l.bodyFilters ? `<ul id="body-filters" class="avatar-subcategories" hidden>${l.bodyFilters.map((name, i) => action(name, `body-filter-${i}`, true)).join('')}</ul>` : ''}
+    ${l.makeup ? `<ul id="makeup" class="avatar-subcategories" hidden>${l.makeup.map((name, i) => action(name, `makeup-${i}`, true)).join('')}</ul>` : ''}</nav>
     <div class="avatar-items-container"><a id="inventory-card" class="avatar-item-card" href="/catalog/1/Head"><img src="/image.svg"><span>Head</span></a><p id="native-result">All items</p></div>${locale!=='en'&&locale!=='zh-tw'?bodyControls:''}</div></div>${locale==='en'?`<div id="native-body-footer">${bodyControls}</div>`:''}</main>
     <script>
       window.chrome={runtime:{lastError:null,sendMessage(message,callback){setTimeout(()=>callback({state:'Completed',imageUrl:location.origin+'/image.svg'}),0)}}};
@@ -122,7 +141,7 @@ function fixture(locale) {
         action.parentElement.querySelectorAll(':scope > .active').forEach(node=>node.classList.remove('active'));action.classList.add('active');
         if(key.startsWith('main-')){
           document.querySelectorAll('.avatar-subcategories').forEach(node=>node.hidden=true);
-          const menu=({'main-1':'accessories','main-2':'clothing','main-4':'animations',${l.avatars ? "'main-5':'avatars'," : ''}${l.bodyFilters ? "'main-3':'body-filters'," : ''}})[key]||'recent';
+          const menu=(${JSON.stringify(menuByTab)})[key]||'recent';
           document.getElementById(menu).hidden=false;
         }
         document.getElementById('native-result').textContent=key;
@@ -140,6 +159,8 @@ const layout = `(() => {
     unchanged:originalActions.every(node=>node.isConnected),
     controls:controls.map(node=>({id:node.id,...bounds(node),border:getComputedStyle(node).borderTopWidth,background:getComputedStyle(node).backgroundColor})),
     row:bounds(row),inventory:bounds(document.querySelector('.avatar-items-container')),body:bounds(originalBodyControls),
+    tools:bounds(document.querySelector('#rc-avatar-enhancements')),
+    previews:[...document.querySelectorAll('[data-rc-avatar-view-column],#rc-avatar-2d')].map(bounds),
     bodyUnchanged:originalBodyControls===document.getElementById('body-controls')&&originalBodyInputs.every(node=>node.isConnected),
     bodyMarkedAsFilter:!!originalBodyControls.querySelector('[data-rc-avatar-main-control], [data-rc-avatar-sub-control]'),
     menu:bounds([...document.querySelectorAll('.avatar-subcategories')].find(node=>node.checkVisibility())),
@@ -155,7 +176,7 @@ test('avatar filters stay aligned, localized, and native across menu changes and
   { skip: !process.env.CHROME_BIN }, async t => {
     const server = http.createServer((request, response) => {
       const url = new URL(request.url, 'http://localhost');
-      if (['/my/avatar', '/th/my/avatar', '/ko/my/avatar'].includes(url.pathname)) { response.setHeader('Content-Type', 'text/html; charset=utf-8');response.end(fixture(url.searchParams.get('locale') || 'en'));return; }
+      if (['/my/avatar', '/ja/my/avatar', '/th/my/avatar', '/ko/my/avatar'].includes(url.pathname)) { response.setHeader('Content-Type', 'text/html; charset=utf-8');response.end(fixture(url.searchParams.get('locale') || 'en'));return; }
       if (url.pathname === '/image.svg') { response.setHeader('Content-Type', 'image/svg+xml');response.end('<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect width="300" height="300" fill="#789"/></svg>');return; }
       const file = url.pathname.slice(1);
       if (![...styles, ...scripts].includes(file)) { response.writeHead(404);response.end();return; }
@@ -165,7 +186,8 @@ test('avatar filters stay aligned, localized, and native across menu changes and
     t.after(() => new Promise(resolve => server.close(resolve)));
     const browser = await isolatedChrome(t, 'avatar-navigation');
     for (const locale of Object.keys(locales)) {
-      const url = `http://127.0.0.1:${server.address().port}${['th','ko'].includes(locale)?'/'+locale:''}/my/avatar?locale=${locale}`;
+      const tabs=tabsFor(locales[locale]);
+      const url = `http://127.0.0.1:${server.address().port}${['ja','th','ko'].includes(locale)?'/'+locale:''}/my/avatar?locale=${locale}`;
       await browser.send('Page.navigate', { url });await waitForDocument(browser, '#main-row', url);
       await browser.waitFor("document.querySelectorAll('[data-rc-avatar-main-control]').length===8");
       await browser.waitFor("!!document.querySelector('[data-rc-avatar-body-controls]')");
@@ -215,10 +237,11 @@ test('avatar filters stay aligned, localized, and native across menu changes and
         assert.match(preview.icon, /url\(/, 'native control icons are preserved');
         assert.equal(preview.modelFilter, 'none');assert.equal(preview.cardFilter, 'none');
         assert.equal(preview.originalCanvas, true, 'native 3D model stays mounted');
-        const menus = [[1, 'accessories', 8, 'accessory-0'], [2, 'clothing', locales[locale].clothing.flat().length, 'clothing-0-2'],
-          [4, 'animations', 8, 'animation-1'], [0, 'recent', locales[locale].recent.length, 'recent-1']];
-        if (locales[locale].avatars) menus.push([5, 'avatars', locales[locale].avatars.length, 'avatar-1'],
-          [3, 'body-filters', locales[locale].bodyFilters.length, 'body-filter-0']);
+        const menus = [[tabs.accessories, 'accessories', 8, 'accessory-0'], [tabs.clothing, 'clothing', locales[locale].clothing.flat().length, 'clothing-0-2'],
+          [tabs.animations, 'animations', 8, 'animation-1'], [tabs.recent, 'recent', locales[locale].recent.length, 'recent-1']];
+        if (locales[locale].avatars) menus.push([tabs.avatars, 'avatars', locales[locale].avatars.length, 'avatar-1'],
+          [tabs.body, 'body-filters', locales[locale].bodyFilters.length, 'body-filter-0']);
+        if (locales[locale].makeup) menus.push([tabs.makeup, 'makeup', locales[locale].makeup.length, 'makeup-0']);
         for (const [tab, menu, count, key] of menus) {
           await browser.click(`#main-${tab}`);
           await browser.waitFor(`document.querySelector('#${menu}').checkVisibility()`);
@@ -232,6 +255,8 @@ test('avatar filters stay aligned, localized, and native across menu changes and
           assert.equal(state.inventoryMarked, false, `${label}: inventory titles are not filters`);
           assert.equal(state.bodyUnchanged,true,`${label}: native body controls remain mounted`);
           assert.equal(state.bodyMarkedAsFilter,false,`${label}: scale labels remain native labels`);
+          assert.ok(state.previews.every(preview=>preview.bottom<=state.tools.top),`${label}: avatar tools follow both model previews`);
+          assert.ok(state.tools.bottom<=state.row.top,`${label}: avatar tools precede the native filter row`);
           assert.ok(state.body.top>=state.menu.bottom,`${label}: the full filter menu is above the body controls`);
           assert.ok(state.inventory.top>=state.body.bottom,`${label}: body controls stay in the editor section above inventory`);
           assert.ok(state.inventory.top >= state.menu.bottom - 1, `${label}: inventory follows the filters`);
@@ -252,14 +277,14 @@ test('avatar filters stay aligned, localized, and native across menu changes and
           assert.equal(await browser.evaluate('nativeCalls.at(-1)'), key, `${label}: native filtering still fires`);
           assert.equal(await browser.evaluate(`getComputedStyle(document.querySelector('#${key}')).backgroundColor`), 'rgb(51, 95, 255)', `${label}: selected option is visible`);
           if (process.env.AVATAR_SCREENSHOT_DIR && theme === 'dark-theme' && width !== 700
-            && (['th','ko'].includes(locale) || locale === 'zh-tw' && menu === 'clothing')) {
+            && (['ja','th','ko'].includes(locale) || locale === 'zh-tw' && menu === 'clothing')) {
             const shot = await browser.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
             fs.writeFileSync(path.join(process.env.AVATAR_SCREENSHOT_DIR, `avatar-${locale}-${menu}-${width}.png`), Buffer.from(shot.data, 'base64'));
           }
         }
       }
       // A keyboard-generated native click must work, too.
-      await browser.click('#main-1');await browser.evaluate("document.querySelector('#accessory-2').focus()");
+      await browser.click(`#main-${tabs.accessories}`);await browser.evaluate("document.querySelector('#accessory-2').focus()");
       await browser.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 });
       await browser.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 });
       assert.equal(await browser.evaluate('nativeCalls.at(-1)'), 'accessory-2');

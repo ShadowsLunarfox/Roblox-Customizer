@@ -15,7 +15,7 @@ const titles = {
   'zh-TW': { terms: '服務條款', privacy: '隱私權政策' }
 };
 const policyURL = (type, language) => `https://github.com/ShadowsLunarfox/Roblox-Customizer/blob/main/${type === 'terms' ? 'TERMS' : 'PRIVACY'}${language === 'en' ? '' : '.' + language}.md`;
-const scripts = ['src/shared/compatibility.js', 'src/shared/runtime.js', 'src/shared/native-labels.js',
+const scripts = ['src/shared/dialogs.js', 'src/shared/compatibility.js', 'src/shared/runtime.js', 'src/shared/native-labels.js',
   'src/shared/i18n.js', 'src/shared/startup.js', 'src/settings/terms-acceptance.js', 'src/settings/language-warning.js', 'src/settings/settings.js'];
 const styles = ['src/shared/theme.css', 'src/settings/settings.css'];
 test('Settings and first-visit acceptance link to GitHub policies in all languages and fallback mode',
@@ -158,6 +158,12 @@ test('Settings and first-visit acceptance link to GitHub policies in all languag
     await browser.send('Input.dispatchKeyEvent', { type:'keyUp',key:'Escape',code:'Escape',windowsVirtualKeyCode:27 });
     await browser.waitFor("!document.querySelector('#rc-terms-dialog')");
     assert.equal(await browser.evaluate('readSavedTerms()===true'), false, 'Escape does not record acceptance');
+    await browser.evaluate('openCustomizer()');
+    await browser.waitFor("!!document.querySelector('#rc-terms-dialog:modal')");
+    await browser.clickAt({ x: 5, y: 5 });
+    await browser.waitFor("!document.querySelector('#rc-terms-dialog')");
+    assert.equal(await browser.evaluate('readSavedTerms()===true'), false, 'Outside dismissal does not record acceptance');
+    assert.equal(await browser.evaluate("!!document.querySelector('#rc-settings-overlay')"), false, 'Outside dismissal does not open settings');
     await browser.evaluate("RobloxCustomizerI18n.setLanguage('en');openCustomizer();failTermsWrite=true");
     await browser.waitFor("!!document.querySelector('#rc-terms-dialog:modal')");
     await browser.click('#rc-terms-accept');
@@ -191,7 +197,9 @@ test('Settings and first-visit acceptance link to GitHub policies in all languag
     assert.equal(await browser.evaluate("!!document.querySelector('#rc-settings-overlay')"), false, 'Accepting an automatic prompt leaves the user on Roblox');
     await browser.evaluate('openCustomizer()');await browser.waitFor("!!document.querySelector('#rc-language-warning-dialog:modal')");
     assert.equal(await browser.evaluate("!!document.querySelector('#rc-terms-dialog')"), false);
-    await browser.click('#rc-language-warning-dialog button');
+    await browser.clickAt({ x: 5, y: 5 });
+    await browser.waitFor("!document.querySelector('#rc-language-warning-dialog')");
+    assert.equal(await browser.evaluate("!!document.querySelector('#rc-settings-overlay')"),true,'Outside dismissal of the language warning keeps settings open');
     assert.equal(await browser.evaluate("document.querySelector('[data-rc-legal-document=privacy]').checkVisibility()"), true);
     // An existing language-change warning waits for onboarding without being marked as shown early.
     await browser.evaluate(`localStorage.setItem('terms-fixture',JSON.stringify({robloxCustomizerLanguageWarning:{opened:true,language:'en'}}))`);

@@ -125,7 +125,7 @@ test('v2 native latency categories and explicit countries survive list rendering
   function Card(){return native.card}
   function List(){return h(Card,{...props,ping:undefined})}
   const list=h(List,{headerTitle:'Servers',loadMoreGameInstances(){},gameInstances:[{
-    id:props.id,playing:2,pingSignalLevel:'High',serverLocation:{countryCode:'SG'}
+    id:props.id,playing:2,pingSignalLevel:'High',serverLocation:{countryCode:'SG'},fps:30,languageMatchCount:0
   }]});
   const element=list.type(list.props);const result=element.type(element.props);
   const host=nodes(result).find(node=>node.type==='div'&&node.props.className==='card-item');
@@ -133,6 +133,8 @@ test('v2 native latency categories and explicit countries survive list rendering
   assert.equal(host.props['data-rc-ping-level'],'high');
   assert.equal(host.props['data-country-code'],'SG');
   assert.equal(host.props['data-rc-playing'],2);
+  assert.equal(host.props['data-rc-server-fps'],30);
+  assert.equal(host.props['data-rc-language-match-count'],0);
 });
 test('direct rendering leaves unsupported routes, games, structures and server identities native',()=>{
   for(const pathname of ['/home','/games/893973440/Flee-the-Facility']){
@@ -148,7 +150,7 @@ test('direct rendering leaves unsupported routes, games, structures and server i
 test('mounted public cards recover metadata after hooks attach and follow the committed React branch',()=>{
   const listeners={};const attributes=new Map();
   const id='12345678-1234-1234-1234-123456789012';
-  const raw={id,playing:2,ping:54,pingSignalLevel:'Medium',serverLocation:{countryCode:'SG'}};
+  const raw={id,playing:2,ping:54,pingSignalLevel:'Medium',serverLocation:{countryCode:'SG'},fps:60,languageMatchCount:1};
   const root={stateNode:{}};root.stateNode.current=root;
   const list={memoizedProps:{gameInstances:[raw]},return:root};
   const cardFiber={memoizedProps:{...raw,gameServerStatus:'2 of 6',serverListType:'public'},return:list};
@@ -163,6 +165,8 @@ test('mounted public cards recover metadata after hooks attach and follow the co
   assert.equal(attributes.get('data-rc-instance-id'),id);
   assert.equal(attributes.get('data-rc-ping'),'54');
   assert.equal(attributes.get('data-country-code'),'SG');
+  assert.equal(attributes.get('data-rc-server-fps'),'60');
+  assert.equal(attributes.get('data-rc-language-match-count'),'1');
   const nextId='12345678-1234-1234-1234-123456789013';
   const nextRaw={id:nextId,playing:5,pingSignalLevel:'Low'};
   const nextRoot={stateNode:root.stateNode};root.stateNode.current=nextRoot;
@@ -174,4 +178,6 @@ test('mounted public cards recover metadata after hooks attach and follow the co
   assert.equal(attributes.get('data-rc-ping-level'),'low');
   assert.equal(attributes.has('data-rc-ping'),false,'Previous server ping cannot survive a native update');
   assert.equal(attributes.has('data-country-code'),false,'Previous country cannot survive a native update');
+  assert.equal(attributes.has('data-rc-server-fps'),false,'Previous server performance cannot survive a native update');
+  assert.equal(attributes.has('data-rc-language-match-count'),false,'Previous language matches cannot survive a native update');
 });

@@ -3,7 +3,7 @@
 
 [English](PRIVACY.md) · [简体中文](PRIVACY.zh-CN.md) · [繁體中文](PRIVACY.zh-TW.md) · Bahasa Indonesia · [日本語](PRIVACY.ja.md) · [ไทย](PRIVACY.th.md) · [한국어](PRIVACY.ko.md)
 
-Terakhir diperbarui: 2026-10-20<br>
+Terakhir diperbarui: 2026-10-22<br>
 Penerbit: Lunarfox 月狐
 
 Kebijakan ini menjelaskan cara Roblox Customizer menangani informasi. Kebijakan ini mencakup ekstensi browser ini, bukan Roblox, browser, atau layanan pihak ketiga yang memiliki kebijakan masing-masing.
@@ -22,6 +22,11 @@ Informasi digunakan untuk menyediakan fitur yang Anda lihat dalam ekstensi:
 - Server terbaru: ID pengguna Roblox, ID game/universe/place, ID instans server, nama game, dan waktu terakhir teramati untuk riwayat server terbaru.
 - Konten Roblox: URL dan isi halaman, serta informasi profil, avatar, teman, inventaris, lencana, game, server, dan tautan sosial yang diperlukan untuk tampilan dan alat halaman. Halaman akun, pesan, dan transaksi yang ada dapat diubah tampilannya secara lokal; isinya tidak diunggah ke penerbit. Ekstensi tidak membaca riwayat penjelajahan Anda di situs yang tidak terkait.
 - Informasi sementara atau dalam cache: postingan sosial publik dan thumbnail, kurs, respons API, dan perkiraan negara server.
+- Catatan game: teks pribadi yang Anda masukkan, ID dan nama halaman game, serta waktu pengeditan terakhir. Catatan hanya disimpan di penyimpanan lokal ekstensi dalam browser, digunakan bersama oleh akun Roblox di browser tersebut, dan tidak dipublikasikan ke Roblox atau dikirim ke penerbit. Cadangan pengaturan mencakup catatan; impor menggantinya dan Reset semua menghapusnya.
+- Mode streamer menyimpan preferensi visibilitas secara lokal, termasuk cache kecil di localStorage situs Roblox untuk menyembunyikan konten sejak awal pemuatan. Mode ini menyembunyikan saldo Robux, daftar teman, pesan dan notifikasi yang didukung di situs; tidak menghapusnya atau mengubah pengaturan privasi Roblox.
+- Alat item memuat ID item, nama kreator, tanggal pembuatan/pembaruan dan data penjualan atau jumlah yang tersedia dari Roblox. File sumber daya dimuat sesuai permintaan ke memori sementara untuk diperiksa atau diunduh secara lokal, hingga 32 MB. File tidak dijalankan atau dikirim ke penerbit. Membuka tautan Toko Kreator atau sumber daya menghubungi Roblox.
+- Halaman bundel animasi dan halaman item animasi atau emote individual menampilkan pemutar asli di samping pratinjau opsional pada avatar Anda. Memilih ?Pratinjau di avatar saya? membaca avatar yang sedang Anda kenakan dan sumber daya animasi yang diminta dari Roblox ke memori sementara. Perenderan berjalan lokal di ekstensi. Pratinjau ini tidak mengubah item yang dikenakan atau menyimpan pakaian; data model dan sumber daya tidak dikirim kepada penerbit.
+- Pemberitahuan konflik ekstensi: penanda ekstensi Roblox yang dikenal pada halaman saat ini diperiksa secara lokal. Pengenal ekstensi yang pemberitahuannya Anda tutup hanya disimpan di penyimpanan lokal ekstensi agar pemberitahuan yang sama tidak berulang. Ekstensi ini tidak membaca daftar ekstensi terpasang, menonaktifkan atau mengubah ekstensi lain, atau mengirim informasi ini kepada penerbit atau pihak ketiga.
 
 ## Penyimpanan lokal dan waktu bermain
 
@@ -35,17 +40,41 @@ Ekstensi tidak meminta kata sandi Roblox Anda. Panggilan API Roblox yang memerlu
 
 File font yang dipilih juga menggunakan IndexedDB pada origin situs Roblox tempat file dipilih. Cache kecil untuk pilihan font menggunakan localStorage situs tersebut; isinya hanya pengaturan dan pengenal file, bukan data font.
 
+Alat avatar memuat ID pengguna yang masuk, warna tubuh, aset yang dipakai dan aturan penyesuaian Roblox. Pratinjau warna dan aksesori tetap di memori. Memilih Terapkan mengirim perubahan warna tubuh yang dipilih atau transformasi aksesori ke Roblox menggunakan sesi yang ada; ekstensi memeriksa ulang akun dan item yang dipakai sebelum mengirim. Atur Ulang Semua tidak membatalkan perubahan yang sudah diterapkan pada avatar Roblox.
+
 ## Permintaan jaringan dan pihak ketiga
 
 Permintaan dibuat saat fitur terkait berjalan. Layanan di bawah menerima pengenal atau sumber daya yang diminta serta informasi koneksi biasa, seperti alamat IP jaringan dan header permintaan. Mereka dapat menyimpan log sendiri berdasarkan kebijakan mereka. Kredensial akun Roblox tidak dikirim ke API non-Roblox yang tercantum di sini.
 
 - API dan layanan gambar Roblox: ID akun dan pengguna, ID game/place/universe, ID lencana/item, ID server, serta kueri terkait untuk memuat informasi, thumbnail, status, dan detail server. Roblox menangani aktivitas situs dan akun miliknya secara terpisah.
-- ipwho.is: alamat IP publik server game Roblox untuk memperkirakan negara server. Ini adalah pencarian lokasi server game, bukan permintaan untuk menemukan perangkat Anda; layanan tetap melihat IP koneksi yang digunakan untuk membuat permintaan.
+- ipwho.is: alamat IP publik server game Roblox untuk memperkirakan negara, kota, dan koordinat geografis server. Ini adalah pencarian lokasi server game, bukan permintaan untuk menemukan perangkat Anda; layanan tetap melihat IP koneksi yang digunakan untuk membuat permintaan.
 - Rolimons (www.rolimons.com): ID game/place yang diminta untuk statistik game publik. Membuka tautan analisis pemain atau server mengirimkan pengenal tujuan tersebut ke Rolimons.
 - FxEmbed (api.fxtwitter.com) dan host gambar X (pbs.twimg.com dan mosaic.fxtwitter.com): nama akun X publik yang ditautkan pada halaman Roblox, serta referensi postingan/gambar, untuk menampilkan postingan dan media publik.
 - YouTube (www.youtube.com) dan host gambarnya (i.ytimg.com): nama atau ID channel publik dan ID video/gambar untuk menampilkan video terbaru dan thumbnail. Permintaan feed tidak mengirim kredensial masuk YouTube.
 - jsDelivr (cdn.jsdelivr.net) dan mirror API mata uang (latest.currency-api.pages.dev): permintaan data kurs USD publik. Saldo Roblox dan riwayat waktu bermain Anda tidak dikirim ke layanan kurs ini.
 - URL latar belakang jarak jauh yang tersimpan: host latar belakang menerima permintaan file saat dimuat. File latar belakang lokal tidak memerlukan permintaan tersebut. Tautan bantuan atau situs lain menghubungi situs itu hanya saat Anda membukanya.
+- Alat ini menghubungi catalog.roblox.com, economy.roblox.com, assetdelivery.roblox.com, contentdelivery.roblox.com, avatar.roblox.com dan host aset Roblox di rbxcdn.com. Unduhan CDN aset tidak menyertakan kredensial akun Roblox. Izin sumber daya dan data yang tersedia ditentukan oleh Roblox.
+
+## Pustaka perangkat lunak pihak ketiga dan kegunaannya
+
+Rilis ini menyertakan 10 pustaka runtime pihak ketiga yang berbeda, termasuk dependensi tidak langsung yang tertanam dalam pustaka lain. Pustaka yang digunakan beberapa fitur dihitung sekali. Alat build/pengujian dan kumpulan data referensi tidak dihitung.
+
+Pustaka ini berjalan dari paket ekstensi untuk perenderan lokal, dekode sumber daya, dan perhitungan globe. Ekstensi tidak mengintegrasikan layanan telemetri atau pengumpulan data milik pengelolanya. Fitur tetap dapat meminta data avatar, animasi, sumber daya, atau server dari Roblox dan layanan lain sebagaimana dijelaskan dalam Permintaan jaringan dan pihak ketiga; perenderan lokal tidak berarti semua fitur bekerja secara offline.
+
+Data referensi dicantumkan terpisah: Natural Earth 5.1.2 menyediakan batas negara domain publik; RoAvatar menyediakan rig dasar R15 dan mesh komposit berlisensi GPLv3; data Studio API yang diterbitkan Roblox menyediakan kategori properti dan nama enum. React dan React DOM merupakan dependensi kode sumber renderer hulu dan pemberitahuan MIT-nya tetap disertakan; keduanya tidak digunakan sebagai kerangka antarmuka ekstensi ini atau dihitung sebagai pustaka runtime di sini.
+
+Asal dan berkas lisensi tersedia dalam [pemberitahuan dependensi pratinjau animasi](src/assets/animation-preview/vendor/README.md), [pemberitahuan dekoder sumber daya](src/assets/vendor/README.md), dan [pemberitahuan globe](src/servers/globe/NOTICE.txt).
+
+- RoAvatar Renderer 1.9.12 (GPL-3.0-only): Membaca model avatar dan animasi untuk pratinjau opsional pada avatar Anda.
+- Three.js 0.185.1 (MIT): Merender adegan 3D, mesh, pencahayaan, dan kamera dengan WebGL.
+- N8AO 2.0.1 (CC0-1.0): Menyediakan dukungan oklusi ambien dan bayangan pada renderer avatar.
+- postprocessing 6.39.4 (Zlib): Menyediakan efek pascapemrosesan pada renderer avatar.
+- fflate 0.8.3 (MIT): Mendekode data sumber daya terkompresi yang digunakan renderer avatar.
+- fzstd 0.1.1 (MIT): Mendekode model/sumber daya Roblox berkompresi Zstandard pada penjelajah sumber daya dan renderer avatar.
+- Google Draco (Apache-2.0): Mendekode geometri mesh 3D terkompresi menggunakan dekoder yang disertakan RoAvatar Renderer.
+- d3-geo 3.1.1 (ISC): Memproyeksikan batas negara dan garis koordinat globe untuk pemilihan lokasi server.
+- d3-array 3.2.4 (ISC): Menyediakan operasi angka dan array untuk mesin proyeksi globe.
+- InternMap / InternSet (internmap) (ISC): Menyediakan koleksi berkunci yang tertanam dalam d3-array; dependensi tidak langsung mesin globe.
 
 ## Akses dan penggunaan oleh penerbit
 

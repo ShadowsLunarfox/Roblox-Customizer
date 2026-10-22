@@ -35,6 +35,7 @@
     source: 'none', url: '', urlType: 'auto', fileKey: '', fileName: '',
     fit: 'cover', dim: 20, glassBlur: 18, glassOpacity: 62, uiLanguage: 'auto',
     disableTransparency: false, disableBlur: false,
+    streamerMode: false, streamerHideRobux: true, streamerHideFriends: true, streamerHideMessages: true,
     customFontEnabled: false, fontFileKey: '', fontFileName: '',
     experimentalCustomColors: false,
     customTextColor: '#f4f6fb', customBackgroundColor: '#14161c', customAccentColor: '#335fff',
@@ -56,11 +57,19 @@
   let activeSettingsCategory = 'appearance';
   let lastFocus = null;
   let menuQueued = false;
+  let nativeSettingsAnchor = null;
+  let nativeSettingsClone = null;
   let backgroundError = '';
   let backgroundPending = false;
+  let backgroundLoading = false;
+  let backgroundPlayback = null;
+  let backgroundSuspended = document.hidden;
+  let backgroundRecoveries = 0;
   let homeSyncQueued = false;
   let homeCardsIterator = null;
   let homeCardsTimer = 0;
+  let homeCardsRoot = null;
+  let homeCardsDirty = false;
   const hiddenHomeSections = new Map();
   let homeGreetingUser = null;
   let homeGreetingRequest = null;
@@ -113,6 +122,8 @@
     if (!['auto', 'en', 'zh-CN', 'zh-TW', 'id', 'ja', 'th', 'ko'].includes(saved.uiLanguage)) saved.uiLanguage = 'auto';
     saved.disableTransparency = saved.disableTransparency === true;
     saved.disableBlur = saved.disableBlur === true;
+    saved.streamerMode = saved.streamerMode === true;
+    for (const key of ['streamerHideRobux','streamerHideFriends','streamerHideMessages']) saved[key] = saved[key] !== false;
     saved.experimentalCustomColors = saved.experimentalCustomColors === true;
     for (const control of HOME_BANNER) saved[control.key] = saved[control.key] !== false;
     saved.showPinnedGames = saved.showPinnedGames !== false;
@@ -136,6 +147,7 @@
       : /^\/game-pass\/\d+(?:\/|$)/i.test(path) ? 'game-pass'
       : /^\/badges\/\d+(?:\/|$)/i.test(path) ? 'badge'
       : /^\/private-server\/configure(?:\/\d+)?\/?$/i.test(path) ? 'private-server-configure'
+      : /^\/users\/profile\/edit\/?$/i.test(path) ? 'profile-edit'
       : /^\/users\/\d+\/profile(?:\/|$)/i.test(path) ? 'profile'
       : /^\/plus(?:\/|$)/i.test(path) ? 'plus'
       : /^\/my\/messages(?:\/|$)/i.test(path) ? 'messages'
@@ -519,9 +531,11 @@
   }
 
   function syncHomeContent() {
-    if (!enhancementsEnabled()) { homeCardsIterator = null; applyHomeSectionVisibility(); return; }
+    if (!enhancementsEnabled()) { homeCardsIterator = null; homeCardsDirty = false; applyHomeSectionVisibility(); return; }
     if (!/^\/home\/?$/i.test(routePath())) {
       homeCardsIterator = null;
+      homeCardsDirty = false;
+      homeCardsRoot = null;
       applyHomeSectionVisibility();
       document.getElementById('rc-home-greeting')?.remove();
       clearTimeout(homeGreetingTickTimer);
@@ -540,8 +554,25 @@
     const cardSelector = '.game-card-container, .game-card, .hover-game-tile, .game-tile, .grid-item-container, [data-testid="game-card"], [data-testid="game-tile"]';
     const gameSelector = `a[href*="/games/"], ${cardSelector}`;
     markHomeSections(home, cardSelector, gameSelector);
-    homeCardsIterator = syncHomeCards(home, cardSelector);
-    if (!homeCardsTimer) homeCardsTimer = setTimeout(flushHomeCards, 0);
+    // Finish the current pass when another native batch arrives, then catch up
+    // once. Restarting it on every mutation repeatedly scans the same cards.
+    if (homeCardsRoot !== home) { homeCardsIterator = null; homeCardsRoot = home; }
+    homeCardsDirty = !!homeCardsIterator;
+    if (!homeCardsIterator) homeCardsIterator = syncHomeCards(home, cardSelector);
+    if (globalThis.RobloxCustomizerRuntime?.queueWork) {
+      globalThis.RobloxCustomizerRuntime.queueWork('home-cards', processHomeCards);
+    } else if (!homeCardsTimer) homeCardsTimer = setTimeout(flushHomeCards, 0);
+  }
+
+  function* processHomeCards() {
+    while (homeCardsIterator) {
+      if (homeCardsIterator.next().done) {
+        homeCardsIterator = homeCardsDirty && homeCardsRoot?.isConnected
+          ? syncHomeCards(homeCardsRoot) : null;
+        homeCardsDirty = false;
+      }
+      yield;
+    }
   }
 
   function flushHomeCards() {
@@ -550,12 +581,16 @@
     // Yield between cards so GIF decoding, video and native page rendering
     // can continue even on a slow device during a large Home update.
     while (homeCardsIterator && performance.now() - start < 6) {
-      if (homeCardsIterator.next().done) homeCardsIterator = null;
+      if (homeCardsIterator.next().done) {
+        homeCardsIterator = homeCardsDirty && homeCardsRoot?.isConnected
+          ? syncHomeCards(homeCardsRoot) : null;
+        homeCardsDirty = false;
+      }
     }
     if (homeCardsIterator) homeCardsTimer = setTimeout(flushHomeCards, 0);
   }
 
-  function* syncHomeCards(home, cardSelector) {
+  function* syncHomeCards(home, cardSelector = '.game-card-container, .game-card, .hover-game-tile, .game-tile, .grid-item-container, [data-testid="game-card"], [data-testid="game-tile"]') {
     const hiddenIds = new Set(hiddenRecommendedGames().map(game => game.placeId));
     const recommendedCards = new Set();
     for (const link of home.querySelectorAll('a[href*="/games/"]')) {
@@ -638,7 +673,6 @@
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
       updateHomeGreeting();
-      resumeBackgroundVideo();
     }
   });
   function scheduleHomeGreetingTick() {
@@ -786,17 +820,136 @@
     document.dispatchEvent(new Event('rc-home-banner-preferences-changed'));
   }
 
-  function resumeBackgroundVideo() {
-    if (document.hidden) return;
-    const video = backgroundLayer?.querySelector('video.rc-background-media');
-    if (video?.isConnected && (video.paused || video.ended)) video.play().catch(() => {});
+  function currentBackgroundPlayback(playback) {
+    return playback && backgroundPlayback === playback
+      && playback.generation === applyGeneration && playback.media.isConnected;
   }
 
-  async function applyBackground() {
+  function stopBackgroundWatch(playback) {
+    if (!playback) return;
+    clearTimeout(playback.timer);
+    playback.timer = 0;
+    if (playback.frameRequest !== null) {
+      playback.media.cancelVideoFrameCallback?.(playback.frameRequest);
+      playback.frameRequest = null;
+    }
+  }
+
+  function playBackgroundVideo(video) {
+    video.muted = true;
+    if (video.paused || video.ended) video.play().catch(() => {});
+  }
+
+  function recoverBackgroundPlayback(playback) {
+    if (!currentBackgroundPlayback(playback) || document.hidden || backgroundLoading) return;
+    stopBackgroundWatch(playback);
+    if (backgroundRecoveries >= 2) {
+      backgroundError = 'Could not load this background. Check the file or URL.';
+      if (modal) setStatus(backgroundError, true);
+      return;
+    }
+    backgroundRecoveries++;
+    // Rebuild only the wallpaper's decoder and Blob URL, leaving the page and
+    // its unsaved input intact. Failed resources have a bounded retry budget.
+    void applyBackground({ recovery: true });
+  }
+
+  function watchBackgroundVideo(playback) {
+    if (!currentBackgroundPlayback(playback) || document.hidden || playback.type !== 'video') return;
+    const video = playback.media;
+    if (playback.frameRequest === null && typeof video.requestVideoFrameCallback === 'function') {
+      playback.frameRequest = video.requestVideoFrameCallback(() => {
+        playback.frameRequest = null;
+        if (!currentBackgroundPlayback(playback) || document.hidden) return;
+        playback.lastProgress = Date.now();
+        playback.progressed = true;
+      });
+    }
+    if (playback.timer) return;
+    const scheduledAt = performance.now();
+    playback.timer = setTimeout(() => {
+      playback.timer = 0;
+      if (!currentBackgroundPlayback(playback) || document.hidden) return;
+      if (performance.now() - scheduledAt > 3500) {
+        // A blocked main thread delays both the timer and frame callbacks.
+        // Give playback another sample instead of adding a decoder rebuild to
+        // the same busy frame and spending a recovery on a healthy video.
+        playback.lastProgress = Date.now();
+        playback.healthyChecks = 0;
+      }
+      if (typeof video.requestVideoFrameCallback !== 'function' && video.currentTime !== playback.lastTime) {
+        playback.lastProgress = Date.now();
+        playback.progressed = true;
+      }
+      playback.lastTime = video.currentTime;
+      if (Date.now() - playback.lastProgress >= 8000) {
+        recoverBackgroundPlayback(playback);
+        return;
+      }
+      if (playback.progressed) {
+        playback.progressed = false;
+        if (++playback.healthyChecks >= 3) backgroundRecoveries = 0;
+      } else playback.healthyChecks = 0;
+      playBackgroundVideo(video);
+      watchBackgroundVideo(playback);
+    }, 2000);
+  }
+
+  function suspendBackgroundMedia() {
+    backgroundSuspended = true;
+    stopBackgroundWatch(backgroundPlayback);
+    if (backgroundPlayback?.type === 'video') backgroundPlayback.media.pause();
+  }
+
+  function resumeBackgroundMedia() {
+    if (document.hidden || backgroundLoading) return;
+    const playback = backgroundPlayback;
+    if (!currentBackgroundPlayback(playback)) {
+      if (settings.source !== 'none' && document.body) void applyBackground();
+      return;
+    }
+    if (backgroundSuspended) {
+      backgroundSuspended = false;
+      backgroundRecoveries = 0;
+      playback.lastProgress = Date.now();
+      playback.lastTime = playback.media.currentTime;
+      playback.healthyChecks = 0;
+      // Images have no play() or frame-progress API. A fresh image/Blob URL
+      // restarts GIF decoding after a real tab suspension or BFCache restore.
+      if (playback.type === 'image') {
+        void applyBackground({ recovery: true });
+        return;
+      }
+    }
+    if (playback.type === 'video') {
+      playBackgroundVideo(playback.media);
+      watchBackgroundVideo(playback);
+    }
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) suspendBackgroundMedia();
+    else resumeBackgroundMedia();
+  });
+  document.addEventListener('freeze', suspendBackgroundMedia);
+  document.addEventListener('resume', resumeBackgroundMedia);
+  addEventListener('pagehide', suspendBackgroundMedia);
+  for (const event of ['pageshow', 'focus', 'online', 'popstate', 'hashchange']) {
+    addEventListener(event, resumeBackgroundMedia);
+  }
+
+  async function applyBackground({ recovery = false } = {}) {
     const generation = ++applyGeneration;
+    backgroundLoading = true;
+    stopBackgroundWatch(backgroundPlayback);
+    if (!recovery) {
+      backgroundRecoveries = 0;
+      backgroundSuspended = document.hidden;
+    }
     const layer = ensureLayer();
     if (!layer) {
       backgroundPending = true;
+      backgroundLoading = false;
       return;
     }
     backgroundPending = false;
@@ -804,11 +957,14 @@
     let source = '';
     let type = 'image';
     let objectUrl = null;
+    let sourceFile = null;
 
     try {
       if (settings.source === 'file') {
-        const file = await readFile(settings.fileKey);
+        const file = recovery && backgroundPlayback?.fileKey === settings.fileKey
+          ? backgroundPlayback.file : await readFile(settings.fileKey);
         if (!file) throw new Error('Saved file is unavailable. Choose it again.');
+        sourceFile = file;
         objectUrl = URL.createObjectURL(file);
         source = objectUrl;
         type = mediaTypeForFile(file);
@@ -827,6 +983,7 @@
       if (objectUrl) URL.revokeObjectURL(objectUrl);
       return;
     }
+    backgroundLoading = false;
 
     if (!enhancementsEnabled() && type === 'video') {
       source = '';
@@ -834,6 +991,12 @@
       objectUrl = null;
     }
 
+    if (backgroundPlayback?.type === 'video') {
+      backgroundPlayback.media.pause();
+      backgroundPlayback.media.removeAttribute('src');
+      backgroundPlayback.media.load();
+    }
+    backgroundPlayback = null;
     layer.replaceChildren();
     if (activeObjectUrl) URL.revokeObjectURL(activeObjectUrl);
     activeObjectUrl = objectUrl;
@@ -852,6 +1015,7 @@
       media.setAttribute('disablepictureinpicture', '');
     } else {
       media.alt = '';
+      media.decoding = 'async';
     }
     // Set autoplay and muted state before assigning the source during restore.
     media.src = source;
@@ -859,11 +1023,12 @@
       if (generation !== applyGeneration) return;
       backgroundError = 'Could not load this background. Check the file or URL.';
       if (modal) setStatus(backgroundError, true);
+      if (type === 'video') recoverBackgroundPlayback(backgroundPlayback);
     });
     media.addEventListener(type === 'video' ? 'loadeddata' : 'load', () => {
       if (generation === applyGeneration) {
         backgroundError = '';
-        if (type === 'video') resumeBackgroundVideo();
+        if (type === 'video') resumeBackgroundMedia();
       }
     }, { once: true });
 
@@ -872,7 +1037,11 @@
     layer.style.setProperty('--rc-background-fit', settings.fit);
     layer.style.setProperty('--rc-background-dim', String(settings.dim / 100));
     layer.append(media, shade);
-    if (type === 'video') resumeBackgroundVideo();
+    backgroundPlayback = { media, type, generation, file: sourceFile, fileKey: settings.fileKey,
+      timer: 0, frameRequest: null,
+      lastProgress: Date.now(), lastTime: media.currentTime, progressed: false, healthyChecks: 0 };
+    if (document.hidden) suspendBackgroundMedia();
+    else resumeBackgroundMedia();
   }
 
   function findSettingsMenu() {
@@ -881,10 +1050,13 @@
   }
 
   function findNativeSettingsItem() {
-    const candidates = document.querySelectorAll(
-      'a[href*="/my/account"], a[href*="/settings"], [role="menuitem"], button'
-    );
-    for (const item of candidates) {
+    const selector = 'a[href*="/my/account"], a[href*="/settings"], [role="menuitem"], button';
+    function* candidates() {
+      const menu = findSettingsMenu();
+      if (menu) yield* menu.querySelectorAll(selector);
+      yield* document.querySelectorAll(selector);
+    }
+    for (const item of candidates()) {
       if (item.closest('#rc-settings-overlay, .rc-settings-menu-entry')) continue;
       const label = (item.textContent || '').trim().replace(/\s+/g, ' ');
       const accountLink = item.matches('a[href*="/my/account"]');
@@ -923,6 +1095,10 @@
   function syncMenu() {
     document.getElementById('rc-settings-launcher')?.remove();
     if (enhancementsEnabled()) markHeaderMenus();
+    // Native menus usually survive a SPA update. Keep their connected clone
+    // without scanning hundreds of card buttons or forcing a new layout read.
+    if (nativeSettingsAnchor?.isConnected && nativeSettingsClone?.isConnected
+      && nativeSettingsClone.parentElement === (nativeSettingsAnchor.closest('li') || nativeSettingsAnchor).parentElement) return;
 
     const nativeItem = findNativeSettingsItem();
     if (nativeItem) {
@@ -953,6 +1129,8 @@
         if (entry.tagName === 'BUTTON') entry.type = 'button';
         else entry.setAttribute('tabindex', '0');
         row.after(addedRow);
+        nativeSettingsAnchor = nativeItem;
+        nativeSettingsClone = addedRow;
         return;
       }
     }
@@ -1116,6 +1294,7 @@
   }
 
   function applyCurrentSettings(previous) {
+    globalThis.RobloxCustomizerStreamer?.apply(settings);
     void globalThis.RobloxCustomizerFonts?.apply(settings);
     refreshFontControls();
     pendingAppearance = null;
@@ -1296,6 +1475,9 @@
     try {
       await Promise.all([mediaTask, fontTask]);
       if (!await (persistTimer ? flushSettingsSave() : saveQueue)) return;
+      if (await globalThis.RobloxCustomizerGameNotesUI?.flush() === false) {
+        throw new Error('Could not save note. Your text is kept. Try again.');
+      }
       const core = globalThis.RobloxCustomizerBackup;
       const result = await backupRequest('export');
       let media = null;
@@ -1358,6 +1540,7 @@
         <h3 id="rc-import-preview-title">Review backup before importing</h3>
         <p>This backup contains your extension appearance, Home and social settings, currency preference, pinned games and folders, and playtime histories.</p>
         <p id="rc-import-preview-counts"></p>
+        <p id="rc-import-preview-notes"></p>
         <p id="rc-import-preview-media"></p>
         <p id="rc-import-preview-font" hidden></p>
         <p>Playtime stays with the original Roblox accounts listed below. If you sign in to a different account, this history will not appear as that account's Home playtime after the next account check; the records remain stored.</p>
@@ -1378,6 +1561,9 @@
       'This file has {games} pinned games, {folders} folders, and {records} playtime records across {accounts} Roblox accounts.',
       { games: backup.data.pinnedGames.length, folders: backup.data.pinnedGameFolders.length,
         records, accounts: accounts.length });
+    preview.querySelector('#rc-import-preview-notes').textContent = t(
+      '{count} game notes are included. Import replaces saved notes, including when the backup contains none.',
+      { count: backup.data.rcGameNotes?.notes.length || 0 });
     preview.querySelector('#rc-import-preview-media').textContent = t(backup.media
       ? 'An uploaded background image or video is included.'
       : backup.data.customBackground.source === 'url'
@@ -1409,7 +1595,7 @@
       preview.remove();
       modal.querySelector('#rc-import-backup')?.focus();
     };
-    preview.addEventListener('click', event => { if (event.target === preview) cancel(); });
+    globalThis.RobloxCustomizerDialogs?.dismissOnOutside(preview, cancel);
     preview.querySelector('#rc-import-preview-cancel').addEventListener('click', cancel);
     preview.querySelector('#rc-import-preview-confirm').addEventListener('click', () => { void importBackup(backup); });
     preview.addEventListener('keydown', event => {
@@ -1485,8 +1671,12 @@
       }
       const oldKey = settings.fileKey;
       const oldFontKey = settings.fontFileKey;
+      if (await globalThis.RobloxCustomizerGameNotesUI?.flush() === false) {
+        throw new Error('Could not save note. Your text is kept. Try again.');
+      }
       submitted = true;
       await backupRequest('import', { data: backup.data });
+      globalThis.RobloxCustomizerGameNotesUI?.discardDrafts();
       imported = true;
       settings = currentSettings(backup.data.customBackground);
       settingsChanged = true;
@@ -1531,10 +1721,11 @@
       persistTimer = 0;
       pendingAppearance = null;
       await saveQueue;
+      globalThis.RobloxCustomizerGameNotesUI?.discardDrafts();
       await clearFiles();
       await backupRequest('reset');
       pendingFileDeletes.clear();
-      for (const key of ['roblox-customizer-visuals-v1', 'roblox-customizer-friend-rows', 'roblox-customizer-font-v1']) {
+      for (const key of ['roblox-customizer-visuals-v1', 'roblox-customizer-friend-rows', 'roblox-customizer-font-v1', 'roblox-customizer-streamer-v1']) {
         try { localStorage.removeItem(key); } catch { /* These are optional page caches. */ }
       }
       location.reload();
@@ -1556,6 +1747,7 @@
         <h3 id="rc-reset-title">Reset all extension data?</h3>
         <p id="rc-reset-warning">This permanently deletes all settings, uploaded backgrounds, pinned games and folders, and playtime history for every account in this browser. This cannot be undone.</p>
         <p>Recent servers for all accounts are also deleted.</p>
+        <p>Saved game notes are also deleted.</p>
         <div class="rc-reset-confirmation-actions">
           <button type="button" id="rc-reset-cancel" class="rc-button rc-button-secondary">Cancel</button>
           <button type="button" id="rc-reset-confirm" class="rc-button rc-button-danger">Reset All</button>
@@ -1567,7 +1759,7 @@
       warning.remove();
       modal.querySelector('#rc-reset-all')?.focus();
     };
-    warning.addEventListener('click', event => { if (event.target === warning) cancel(); });
+    globalThis.RobloxCustomizerDialogs?.dismissOnOutside(warning, cancel);
     warning.querySelector('#rc-reset-cancel').addEventListener('click', cancel);
     warning.querySelector('#rc-reset-confirm').addEventListener('click', () => { void resetAll(); });
     warning.addEventListener('keydown', event => {
@@ -1597,6 +1789,7 @@
       { id: 'home', title: 'Home page', nodes: ['.rc-settings-home', '#rc-playtime-settings', '#rc-server-history-settings'] },
       { id: 'pinned-games', title: 'Pinned Games', nodes: ['.rc-settings-pinned-games'] },
       { id: 'social', title: 'Social', nodes: ['.rc-settings-social'] },
+      { id: 'privacy', title: 'Privacy', nodes: ['#rc-streamer-settings'] },
       { id: 'currency', title: 'Currency', nodes: ['#rc-currency-settings'] },
       { id: 'data', title: 'Language & data', nodes: ['.rc-settings-language', '.rc-settings-backup'] }
     ];
@@ -1715,6 +1908,7 @@
           </select>
         </div>
         <div id="rc-currency-settings" class="rc-settings-currency"></div>
+        <div id="rc-streamer-settings"></div>
         <label class="rc-source-label rc-default-source"><input type="radio" name="rc-source" value="none"> Roblox default background</label>
         <div class="rc-settings-field">
           <label class="rc-source-label"><input type="radio" name="rc-source" value="file"> Local file</label>
@@ -1859,6 +2053,7 @@
         <section class="rc-settings-backup" aria-labelledby="rc-backup-title">
           <h3 id="rc-backup-title">Backup and restore</h3>
           <p class="rc-settings-hint">Recent servers are not included in full backups.</p>
+          <p class="rc-settings-hint">Game notes are included in backups and replaced when importing.</p>
           <p class="rc-settings-hint">Backups include extension appearance, language, Home and social settings, currency preference, pinned games and folders, hidden recommendations, and playtime for every recorded Roblox account. A saved background file or URL is included when present.</p>
           <p class="rc-settings-hint">Import replaces the backed-up settings, pinned games, folders, and playtime histories in this browser; it does not merge them. Playtime remains linked to its original Roblox account and does not become the current account's playtime. Roblox account data, Robux, purchases, and game progress are not included.</p>
           <p class="rc-settings-hint">Only Roblox Customizer JSON backups up to 256 MB can be imported. Live playtime samples and exchange-rate or social-feed caches are not included.</p>
@@ -1887,6 +2082,9 @@
         </footer>
       </div>`;
     document.body.append(modal);
+    globalThis.RobloxCustomizerStreamer?.mountSettings(modal.querySelector('#rc-streamer-settings'), {
+      get: () => settings, onChange: patch => changeSettings({ ...settings, ...patch }, true)
+    });
     updateLegalLinks();
     if (enhancementsEnabled()) {
       globalThis.RobloxCustomizerCurrency?.mountSettings(modal.querySelector('#rc-currency-settings'));
@@ -2064,7 +2262,7 @@
     modal.querySelector('#rc-close').addEventListener('click', closeModal);
     modal.querySelector('#rc-done').addEventListener('click', closeModal);
     modal.querySelector('#rc-reset-all').addEventListener('click', confirmResetAll);
-    modal.addEventListener('click', event => { if (event.target === modal) closeModal(); });
+    globalThis.RobloxCustomizerDialogs?.dismissOnOutside(modal, closeModal);
     modal.addEventListener('keydown', event => {
       if (event.key === 'Escape') { event.preventDefault(); closeModal(); }
       if (event.key !== 'Tab') return;
@@ -2165,7 +2363,8 @@
         || homeSectionKind(target.textContent));
     const nodes = [...record.addedNodes, ...record.removedNodes];
     if (nodes.length && nodes.every(node => node instanceof Element
-      && (node.matches(FLOATING_UI_SELECTOR) || node.matches('.rc-hide-recommended-game') && node.isConnected))) return false;
+      && (node.matches(FLOATING_UI_SELECTOR) || node.matches('.rc-robux-equivalent')
+        || node.matches('.rc-hide-recommended-game') && node.isConnected))) return false;
     if (target?.closest(HOME_CONTENT_SELECTOR)) return true;
     return nodes.some(node => node instanceof Element
       && (node.matches(HOME_CONTENT_SELECTOR) || node.querySelector(HOME_CONTENT_SELECTOR)));
@@ -2190,32 +2389,66 @@
     });
   }
   let observedHomePath = routePath();
+  const pageChanges = [];
+  let pageChangesTimer = 0;
+  let pageChangesIterator = null;
+  function* processPageChanges() {
+    let homeDirty = false;
+    let menuDirty = false;
+    let routeDirty = false;
+    while (pageChanges.length) {
+      const records = pageChanges.shift();
+      const routeChanged = observedHomePath !== routePath();
+      observedHomePath = routePath();
+      homeDirty ||= routeChanged;
+      menuDirty ||= routeChanged;
+      for (const record of records) {
+        yield;
+        if (record.target instanceof Element && record.target.closest('#rc-home-greeting')) continue;
+        if (record.attributeName === 'style' && !hiddenHomeSections.has(record.target)) continue;
+        homeDirty ||= homeContentMutation(record);
+        if (record.type === 'childList' || record.type === 'attributes' && record.attributeName !== 'style') {
+          menuDirty ||= settingsMenuMutation(record);
+          routeDirty = true;
+        }
+      }
+    }
+    if (homeDirty) queueHomeSync();
+    if (menuDirty) queueMenuSync();
+    if (routeDirty) syncFrostPage();
+  }
+
+  function flushPageChanges() {
+    pageChangesTimer = 0;
+    pageChangesIterator ||= processPageChanges();
+    const start = performance.now();
+    while (performance.now() - start < 4) {
+      if (pageChangesIterator.next().done) { pageChangesIterator = null; return; }
+    }
+    pageChangesTimer = setTimeout(flushPageChanges, 16);
+  }
+
   new MutationObserver(records => {
-    if (document.body && (backgroundPending || backgroundLayer && !backgroundLayer.isConnected)) {
+    if (!backgroundLoading && document.body && (backgroundPending || backgroundLayer && !backgroundLayer.isConnected)) {
       void applyBackground();
     }
-    const outsideGreeting = records.filter(record =>
-      !(record.target instanceof Element && record.target.closest('#rc-home-greeting'))
-      && (record.attributeName !== 'style' || hiddenHomeSections.has(record.target)));
-    const routeChanged = observedHomePath !== routePath();
-    observedHomePath = routePath();
-    if (routeChanged || outsideGreeting.some(homeContentMutation)) queueHomeSync();
-    if (outsideGreeting.some(record => record.type === 'childList'
-      || record.type === 'attributes' && record.attributeName !== 'style')) {
-      if (routeChanged || outsideGreeting.some(settingsMenuMutation)) queueMenuSync();
-      syncFrostPage();
-    }
+    pageChanges.push(records);
+    if (globalThis.RobloxCustomizerRuntime?.queueWork) {
+      globalThis.RobloxCustomizerRuntime.queueWork('page-changes', processPageChanges);
+    } else if (!pageChangesTimer) pageChangesTimer = setTimeout(flushPageChanges, 16);
   }).observe(document, { childList: true, subtree: true, characterData: true, characterDataOldValue: true,
     attributes: true, attributeOldValue: true, attributeFilter: ['aria-label', 'style'] });
   queueMenuSync();
 
   globalThis.RobloxCustomizerRuntime?.onResume(() => {
+    if (!document.getElementById('rc-background-layer')) void applyBackground();
+    else resumeBackgroundMedia();
+  }, { priority: 'media' });
+  globalThis.RobloxCustomizerRuntime?.onResume(() => {
     syncFrostPage();
     queueHomeSync();
     queueMenuSync();
     scheduleHomeGreetingTick();
-    if (!document.getElementById('rc-background-layer')) void applyBackground();
-    else resumeBackgroundVideo();
   });
   globalThis.RobloxCustomizerI18n?.onChange(updateHomeGreeting);
   document.addEventListener('rc-home-banner-content-changed', updateHomeGreeting);

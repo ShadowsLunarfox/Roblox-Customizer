@@ -5,10 +5,18 @@ const root = path.resolve(__dirname, '..');
 const output = path.join(root, 'src/background/service-worker-bundle.js');
 const sources = [
   'src/shared/routes.js',
+  'src/background/page-context.js',
+  'src/assets/vendor/fzstd-0.1.1.js',
+  'src/assets/model-reader.js',
+  'src/assets/asset-core.js',
+  'src/background/asset-tools-background.js',
+  'src/background/animation-preview-background.js',
   'src/currency/robux-currency-core.js',
   'src/background/robux-currency-background.js',
   'src/home/pinned-games-core.js',
   'src/background/pinned-games-background.js',
+  'src/notes/game-notes-core.js',
+  'src/background/game-notes-background.js',
   'src/servers/server-history-core.js',
   'src/playtime/playtime-core.js',
   'src/background/playtime-background.js',

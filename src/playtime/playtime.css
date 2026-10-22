@@ -33,7 +33,7 @@
 /* The game header footer gives both stats room without extending the action column. */
 .game-main-content > #rc-playtime-game-page:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid; grid-template-columns: minmax(120px, 1fr) minmax(0, 2fr);
-  align-items: start; gap: 24px; padding: 16px 20px;
+  align-items: start; gap: 16px; padding: 10px 14px; border-radius: 12px;
 }
 .game-main-content > #rc-playtime-game-page .rc-playtime-intro:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   display: grid; align-content: start; gap: 6px; min-width: 0;

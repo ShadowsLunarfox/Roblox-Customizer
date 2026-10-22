@@ -15,11 +15,111 @@ html[data-rc-hide-home-clock][data-rc-hide-home-date] #rc-home-greeting .rc-home
 html[data-rc-hide-home-display-name][data-rc-hide-home-greeting] #rc-home-greeting .rc-home-greeting-title {
   display: none !important;
 }
-/* Preserve geometry while the first avatar frame is being restyled. */
-html[data-rc-avatar-boot="pending"] :is(#content, #avatar-container, #avatar-editor, .avatar-editor-container):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
-html[data-rc-avatar-boot="pending"] :is(#content, #avatar-container, #avatar-editor, .avatar-editor-container) *:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+/* Keep native layout and canvas initialization running behind the gate. */
+html[data-rc-avatar-boot="pending"] :is(#content, #container-main, main, [role="main"], #avatar-container, #avatar-editor, .avatar-container, .avatar-editor-container, [data-testid="avatar-editor"]),
+html[data-rc-avatar-boot="pending"] :is(#content, #container-main, main, [role="main"], #avatar-container, #avatar-editor, .avatar-container, .avatar-editor-container, [data-testid="avatar-editor"]) * {
   visibility: hidden !important;
   pointer-events: none !important;
+}
+
+#rc-avatar-loading {
+  display: none;
+}
+html[data-rc-avatar-boot="pending"] #rc-avatar-loading {
+  position: fixed;
+  z-index: 10;
+  inset: 96px 24px auto;
+  display: block;
+  box-sizing: border-box;
+  width: fit-content;
+  max-width: min(560px, calc(100% - 48px));
+  margin-inline: auto;
+  padding: 18px 22px;
+  border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 18%);
+  border-radius: 14px;
+  background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, .8));
+  backdrop-filter: blur(var(--rc-glass-blur, 18px));
+  color: var(--rc-text, #f4f6fb);
+  font: 14px/1.5 system-ui, sans-serif;
+}
+#rc-avatar-loading > span::before {
+  content: '';
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-inline-end: 10px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  vertical-align: -3px;
+  animation: rc-avatar-loading-spin 1s linear infinite;
+}
+#rc-avatar-loading p { margin: 12px 0; color: var(--rc-text-secondary, #c3cad6); }
+#rc-avatar-loading button {
+  padding: 7px 12px;
+  border: 1px solid var(--rc-control-border, #727c90);
+  border-radius: 8px;
+  background: var(--rc-control-bg, #292b35);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+#rc-avatar-loading button:hover { background: var(--rc-control-hover, #383d49); }
+#rc-avatar-loading button:focus-visible { outline: 2px solid var(--rc-focus, #aacaff); outline-offset: 3px; }
+#rc-avatar-loading [hidden] { display: none !important; }
+#rc-avatar-loading .rc-avatar-diagnostics-open { margin-inline-start: 12px; }
+
+#rc-avatar-diagnostics {
+  box-sizing: border-box;
+  width: min(720px, calc(100vw - 32px));
+  max-height: calc(100dvh - 48px);
+  padding: 22px;
+  border: 1px solid var(--rc-control-border, #727c90);
+  border-radius: 16px;
+  background: rgb(var(--rc-glass-color, 20 22 28) / max(.92, var(--rc-surface-opacity-floor, 0)));
+  color: var(--rc-text, #f4f6fb);
+  font: 14px/1.5 system-ui, sans-serif;
+  overflow: auto;
+}
+#rc-avatar-diagnostics[open] { display: flex; flex-direction: column; gap: 12px; }
+#rc-avatar-diagnostics::backdrop { background: rgb(0 0 0 / 48%); }
+#rc-avatar-diagnostics :is(h2, p) { margin: 0; color: inherit; }
+#rc-avatar-diagnostics h2 { font-size: 20px; }
+#rc-avatar-diagnostics code { font-size: 12px; overflow-wrap: anywhere; }
+#rc-avatar-diagnostics textarea {
+  box-sizing: border-box;
+  flex: 1 1 320px;
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  border: 1px solid var(--rc-control-border, #727c90);
+  border-radius: 9px;
+  background: var(--rc-control-bg, #292b35);
+  color: inherit;
+  font: 12px/1.5 monospace;
+  white-space: pre;
+  resize: vertical;
+}
+#rc-avatar-diagnostics .rc-avatar-diagnostics-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+#rc-avatar-diagnostics button {
+  min-height: 34px;
+  padding: 6px 12px;
+  border: 1px solid var(--rc-control-border, #727c90);
+  border-radius: 8px;
+  background: var(--rc-control-bg, #292b35);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+#rc-avatar-diagnostics button:hover { background: var(--rc-control-hover, #383d49); }
+#rc-avatar-diagnostics :is(button, textarea):focus-visible {
+  outline: 2px solid var(--rc-focus, #aacaff);
+  outline-offset: 2px;
+}
+#rc-avatar-diagnostics .rc-avatar-diagnostics-status:empty { display: none; }
+@keyframes rc-avatar-loading-spin { to { transform: rotate(1turn); } }
+@media (prefers-reduced-motion: reduce) {
+  #rc-avatar-loading > span::before { animation: none; }
 }
 
 /* Layout corrections take effect in the same frame, without native transitions. */

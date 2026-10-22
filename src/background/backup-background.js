@@ -11,7 +11,8 @@
     // Share both mutation queues: an in-flight presence poll or pin refresh
     // must finish before the snapshot/restore, never overwrite restored data.
     const result = queue.then(() => globalThis.RobloxCustomizerPinnedGamesBackground.withStorageLock(() =>
-      globalThis.RobloxCustomizerPlaytimeBackground.withStorageLock(async () => {
+      globalThis.RobloxCustomizerPlaytimeBackground.withStorageLock(() =>
+      globalThis.RobloxCustomizerGameNotesBackground.withStorageLock(async () => {
         if (message.action === 'export') {
           const saved = await chrome.storage.local.get(core.KEYS);
           return { ok: true, data: core.snapshot(saved), extensionVersion: chrome.runtime.getManifest().version };
@@ -35,7 +36,7 @@
           return { ok: true };
         }
         return { ok: false, error: 'Invalid backup action.' };
-      })));
+      }))));
     queue = result.catch(() => {});
     result.then(respond, error => respond({ ok: false, rejected: true,
       error: error.message || 'Could not access backup data.' }));

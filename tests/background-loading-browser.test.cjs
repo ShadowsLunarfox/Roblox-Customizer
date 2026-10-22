@@ -11,8 +11,9 @@ const workspace = path.resolve(__dirname, '..');
 const entries = JSON.parse(fs.readFileSync(path.join(workspace, 'manifest.json'), 'utf8')).content_scripts;
 const scripts = [...new Set(entries.filter(entry => entry.world !== 'MAIN').flatMap(entry => entry.js || []))];
 const styles = [...new Set(entries.flatMap(entry => entry.css || []))];
-const loadingFeatures = ['src/settings/settings.js', 'src/shared/frosted-ui.js', 'src/shared/i18n.js',
+const loadingFeatures = ['src/shared/runtime.js', 'src/settings/settings.js', 'src/shared/frosted-ui.js', 'src/shared/i18n.js',
   'src/currency/robux-currency.js'];
+const cards = (start, count) => Array.from({length:count}, (_, i) => '<div class="grid-item-container hover-game-tile"><div class="game-card-container"><a href="https://www.roblox.com/games/'+(start+i+100)+'/Game"><div class="featured-game-icon-container"><img src="/thumbnail.svg"></div><div class="info-container"><h3 class="game-card-name">Game '+(start+i)+'</h3><div class="game-card-info"><span>95%</span><span>100 Players</span></div></div></a></div></div>').join('');
 
 const setup = kind => `
   window.work={};
@@ -36,12 +37,12 @@ for (const kind of ['gif', 'video']) test(`${kind} background remains animated w
       if (file === 'start') {
         timer = setInterval(() => {
           if (nextCard === 500) { clearInterval(timer); return; }
-          let chunk = '';
-          for (let i = 0; i < 25; i++, nextCard++) chunk += '<div class="grid-item-container hover-game-tile"><div class="game-card-container"><a href="https://www.roblox.com/games/'+(nextCard+100)+'/Game"><div class="featured-game-icon-container"><img src="/thumbnail.svg"></div><div class="info-container"><h3 class="game-card-name">Game '+nextCard+'</h3><div class="game-card-info"><span>95%</span><span>100 Players</span></div></div></a></div></div>';
-          documentResponse.write(chunk);
+          documentResponse.write(cards(nextCard,25));
+          nextCard += 25;
         }, 50);
         response.end('started');return;
       }
+      if (file === 'burst') { documentResponse.write(cards(500,500)); response.end('added'); return; }
       if (file === 'finish') { documentResponse.end('</div></section></main></body></html>');response.end('finished');return; }
       if (file === 'seed') { response.setHeader('Content-Type','text/html');response.end('<html><body>Font setup</body></html>');return; }
       if (file === 'test-font.ttf' && testFont) { response.setHeader('Content-Type','font/ttf');response.end(fs.readFileSync(testFont));return; }
@@ -87,11 +88,22 @@ for (const kind of ['gif', 'video']) test(`${kind} background remains animated w
     }
     await browser.waitFor("document.querySelectorAll('#grid .game-card-container').length===500");
     await browser.waitFor("document.querySelectorAll('#grid .rc-hide-recommended-game').length===500");
+    // Add another 500 cards in one burst, matching a large native component
+    // mount rather than only testing the parser's small progressive batches.
+    await fetch(origin+'/burst');
+    const burstFrames = new Set();
+    for(let i=0;i<10 && burstFrames.size<2;i++) {
+      burstFrames.add((await browser.send('Page.captureScreenshot',{format:'png',clip:{x:2,y:2,width:8,height:8,scale:1}})).data);
+      // Avoid sampling exactly at the fixture GIF's 80 ms frame period.
+      await browser.evaluate(`new Promise(resolve=>setTimeout(resolve,${[37,91,53,113,67][i%5]}))`);
+    }
+    await browser.waitFor("document.querySelectorAll('#grid .rc-hide-recommended-game').length===1000");
     const work = await browser.evaluate('work');
     t.diagnostic(JSON.stringify(Object.fromEntries(loadingFeatures.map(source => [source, {
       calls: work[source]?.calls, max: Math.round(work[source]?.max || 0), callback: work[source]?.callback
     }]))));
     assert.ok(frames.size>1,'Background frames change before the document finishes loading');
+    assert.ok(burstFrames.size>1,'Wallpaper frames keep advancing during a large native mount');
     assert.equal(await browser.evaluate('document.readyState'),'loading');
     assert.equal(await browser.evaluate('document.querySelector(".rc-background-media")===originalMedia'),true);
     for (const source of loadingFeatures) {
@@ -100,6 +112,6 @@ for (const kind of ['gif', 'video']) test(`${kind} background remains animated w
     if (kind === 'video') assert.equal(await browser.evaluate('originalMedia.paused'), false);
     await fetch(origin+'/finish');
     await browser.waitFor('document.readyState===\'complete\'');
-    await browser.waitFor("document.querySelectorAll('#grid .rc-hide-recommended-game').length===500");
+    await browser.waitFor("document.querySelectorAll('#grid .rc-hide-recommended-game').length===1000");
     assert.deepEqual(browser.errors,[]);
   });

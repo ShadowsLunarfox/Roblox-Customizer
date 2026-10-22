@@ -40,6 +40,7 @@
   let publicStatusFetchedAt = 0;
   let publicStatusRetryAfter = 0;
   let publicStatusPlaceId = 0;
+  let publicStatusScope = '';
   const privateVisibleCounts = new WeakMap();
   let recommendationSource = null;
   let recommendationMarkup = '';
@@ -63,9 +64,17 @@
   const publicCountryQueue = [];
   let activePublicCountryRequests = 0;
   const PUBLIC_SERVER_PAGE_SIZE = 8;
-  const publicServerFilter = {
-    country: 'all', minLatency: '', maxPing: '', minPlayers: '', maxPlayers: '', playerSort: 'default'
-  };
+  const publicServerFilterDefaults = Object.freeze({
+    country: 'all', city: 'all', locationMode: 'exact', latitude: null, longitude: null,
+    minLatency: '', maxPing: '', minPlayers: '', maxPlayers: '', playerSort: 'default', excludeFull: false
+  });
+  const publicServerFilter = { ...publicServerFilterDefaults };
+  const publicShuffleRanks = new WeakMap();
+  function resetServerLocation() {
+    Object.assign(publicServerFilter, { country: 'all', city: 'all', locationMode: 'exact', latitude: null, longitude: null });
+  }
+  // Server filters are page-only. Remove the selection saved by older versions.
+  try { chrome.storage?.local?.remove?.(['rcServerLocation'])?.catch?.(() => {}); } catch { /* Best-effort legacy cleanup. */ }
   const publicServerBrowsers = new WeakMap();
   const rolimonsPageData = new WeakMap();
   const robloxGamePageData = new WeakMap();
@@ -948,6 +957,12 @@
     const countryState = locationLookup ? publicCountries.get(locationLookup.id) : null;
     const code = details?.countryCode || countryState?.countryCode;
     const countryPending = countryState?.pending === true || locationLookup?.pending === true;
+    const fps = details?.fps;
+    const hasFps = typeof fps === 'number' && Number.isFinite(fps) && fps >= 0 && fps <= 1000;
+    const languageCount = details?.languageMatchCount;
+    const hasLanguage = Number.isSafeInteger(languageCount) && languageCount >= 0 && !!robloxServerLanguage();
+    const version = details?.placeVersion ?? countryState?.placeVersion;
+    const hasVersion = Number.isSafeInteger(version) && version > 0;
     let countryName = '';
     if (typeof code === 'string' && /^[A-Z]{2}$/i.test(code)) {
       try {
@@ -955,7 +970,7 @@
           { type: 'region' }).of(code.toUpperCase()) || '';
       } catch { countryName = code.toUpperCase(); }
     }
-    if (!validPing && !nativeLevel && !countryName && !countryPending && !locationLookup) {
+    if (!validPing && !nativeLevel && !countryName && !countryPending && !locationLookup && !hasFps && !hasLanguage && !hasVersion) {
       metrics?.remove();
       return;
     }
@@ -980,6 +995,18 @@
     else if (locationLookup) setText(latencyNode, locationLookup.unavailable || publicStatuses.has(locationLookup.id) || Date.now() < publicStatusRetryAfter
       ? 'Latency unavailable' : 'Checking latency...');
     const countryNode = metrics.querySelector('.rc-server-country');
+    const cityName = host.getAttribute('data-rc-server-city') || countryState?.city || '';
+    let cityNode = metrics.querySelector('.rc-server-city');
+    if (!cityNode && cityName) { cityNode = document.createElement('span'); cityNode.className = 'rc-server-city'; cityNode.dataset.rcI18nIgnore = ''; metrics.append(cityNode); }
+    if (cityNode) {
+      cityNode.hidden = !cityName;
+      const cityText = cityName ? (globalThis.RobloxCustomizerI18n?.t('City: {city}', { city: cityName }) || `City: ${cityName}`) : '';
+      if (cityNode.textContent !== cityText) cityNode.textContent = cityText;
+      if (countryState?.estimated) {
+        const hint = 'Estimated from the server address; Roblox routing may differ.';
+        cityNode.title = globalThis.RobloxCustomizerI18n?.t(hint) || hint;
+      }
+    }
     countryNode.hidden = !countryName && !countryPending && !locationLookup;
     if (countryName) {
       setText(countryNode, `${countryState?.estimated && !details?.countryCode
@@ -997,30 +1024,69 @@
       countryNode.removeAttribute('title');
     }
     metrics.querySelector('.rc-server-locate')?.remove();
+    const locale = globalThis.RobloxCustomizerI18n?.locale() || 'en';
+    const format = value => new Intl.NumberFormat(locale).format(value);
+    const supplemental = (className, value, hint) => {
+      let node = metrics.querySelector(`.${className}`);
+      if (value === null) { node?.remove(); return; }
+      if (!node) { node = document.createElement('span'); node.className = className; node.dataset.rcI18nIgnore = ''; metrics.append(node); }
+      if (node.textContent !== value) node.textContent = value;
+      const title = globalThis.RobloxCustomizerI18n?.t(hint) || hint;
+      if (node.title !== title) node.title = title;
+    };
+    const t = (source, values) => globalThis.RobloxCustomizerI18n?.t(source, values)
+      || source.replace(/\{(\w+)\}/g, (_, key) => values[key]);
+    supplemental('rc-server-performance', hasFps ? t('Server performance: {value}%', { value: format(Math.round(Math.min(fps, 60) / 60 * 100)) }) : null,
+      'Server FPS relative to 60 FPS. This is not CPU usage or your display frame rate.');
+    let language = robloxServerLanguage();
+    try { language = new Intl.DisplayNames([locale], { type: 'language' }).of(language) || language; } catch { /* Keep the language code. */ }
+    supplemental('rc-server-language', hasLanguage ? t('{count} {language} language matches', { count: format(languageCount), language }) : null,
+      'Language matches reported by Roblox for your Roblox language setting; this does not verify what players speak.');
+    supplemental('rc-server-version', hasVersion ? t('Place version: {value}', { value: format(version) }) : null,
+      'The published place version running on this server, not the Roblox client version.');
   }
 
-  function queuePublicServerCountry(placeId, id) {
-    if (!id || publicCountries.has(id)) return;
-    publicCountries.set(id, { pending: true });
-    publicCountryQueue.push({ placeId, id });
+  function robloxServerLanguage() {
+    const raw = document.querySelector('meta[name="locale-data"]')?.getAttribute('data-language-code')
+      || document.documentElement.lang || '';
+    const language = raw.replaceAll('_', '-').split('-')[0].toLowerCase();
+    return /^[a-z]{2,3}$/.test(language) ? language : '';
+  }
+
+  function queuePublicServerCountry(placeId, id, includeLocation = true, card = null) {
+    const previous = publicCountries.get(id);
+    if (!id || previous?.pending || previous && (!includeLocation || previous.locationRequested)) return;
+    publicCountries.set(id, { ...previous, pending: true, locationRequested: includeLocation });
+    publicCountryQueue.push({ placeId, id, includeLocation, card, scope: publicStatusScope });
     processPublicCountryQueue();
   }
 
   function processPublicCountryQueue() {
-    while (activePublicCountryRequests < 2 && publicCountryQueue.length) {
+    while (!document.hidden && activePublicCountryRequests < 2 && publicCountryQueue.length) {
       const request = publicCountryQueue.shift();
-      if (request.placeId !== publicStatusPlaceId) continue;
+      if (request.placeId !== publicStatusPlaceId || request.scope !== publicStatusScope) continue;
+      if (!request.includeLocation && request.card && (!request.card.isConnected
+        || request.card.hasAttribute('data-rc-server-page-hidden') || request.card.hasAttribute('data-rc-server-filtered'))) {
+        publicCountries.delete(request.id);
+        continue;
+      }
       activePublicCountryRequests += 1;
       sendMessage({ type: 'rc-public-server-country',
-        placeId: request.placeId, serverId: request.id }, response => {
+        placeId: request.placeId, serverId: request.id, includeLocation: request.includeLocation }, response => {
         activePublicCountryRequests -= 1;
-        if (publicStatusPlaceId === request.placeId) {
+        if (publicStatusPlaceId === request.placeId && publicStatusScope === request.scope) {
           const error = chrome.runtime.lastError?.message || response?.error;
           const countryCode = response?.countryCode;
-          publicCountries.set(request.id, !error && typeof countryCode === 'string'
+          const previous = publicCountries.get(request.id);
+          const metadata = Number.isSafeInteger(response?.placeVersion) && response.placeVersion > 0
+            ? { placeVersion: response.placeVersion } : {};
+          publicCountries.set(request.id, { ...previous, ...metadata, pending: false,
+            ...(!error && typeof countryCode === 'string'
             && /^[A-Z]{2}$/i.test(countryCode)
-            ? { countryCode: countryCode.toUpperCase(), estimated: true }
-            : { error: error || 'Country unavailable.' });
+            ? { countryCode: countryCode.toUpperCase(), estimated: true,
+              city: typeof response.city === 'string' ? response.city.slice(0, 100) : '',
+              latitude: response.latitude, longitude: response.longitude }
+            : { error: error || response?.countryError || 'Country unavailable.' }) });
           schedule();
         }
         processPublicCountryQueue();
@@ -1046,11 +1112,20 @@
       || card.querySelector('[data-country-code]')?.getAttribute('data-country-code') || '';
     const pingLevel = card.getAttribute('data-rc-ping-level')
       || card.querySelector('[data-rc-ping-level]')?.getAttribute('data-rc-ping-level') || '';
+    const numberAttribute = name => {
+      const value = card.getAttribute(name) ?? card.querySelector(`[${name}]`)?.getAttribute(name);
+      const number = value !== null && value !== undefined && value !== '' ? Number(value) : NaN;
+      if (!Number.isFinite(number) || number < 0) return null;
+      return name === 'data-rc-server-fps' ? number <= 1000 ? number : null : Number.isSafeInteger(number) ? number : null;
+    };
     return {
       ping: (pingValue || labelledPing) && Number.isFinite(ping) && ping > 0 && ping <= 10_000
         ? Math.round(ping) : null,
       countryCode: /^[A-Z]{2}$/i.test(countryCode) ? countryCode.toUpperCase() : '',
-      pingLevel: /^(?:low|medium|high)$/i.test(pingLevel) ? pingLevel.toLowerCase() : ''
+      pingLevel: /^(?:low|medium|high)$/i.test(pingLevel) ? pingLevel.toLowerCase() : '',
+      fps: numberAttribute('data-rc-server-fps'),
+      languageMatchCount: numberAttribute('data-rc-language-match-count'),
+      placeVersion: numberAttribute('data-rc-place-version')
     };
   }
 
@@ -1059,7 +1134,10 @@
     return {
       ping: native.ping ?? details?.ping,
       pingLevel: native.pingLevel || details?.pingLevel,
-      countryCode: details?.countryCode || native.countryCode
+      countryCode: details?.countryCode || native.countryCode,
+      fps: native.fps ?? details?.fps,
+      languageMatchCount: native.languageMatchCount ?? details?.languageMatchCount,
+      placeVersion: native.placeVersion ?? details?.placeVersion
     };
   }
 
@@ -1139,6 +1217,36 @@
     return count && Number.isSafeInteger(value) && value >= 0 ? value : null;
   }
 
+  function publicServerCapacity(card) {
+    const raw = card.getAttribute('data-rc-max-players') || card.getAttribute('data-max-players')
+      || card.querySelector('[data-rc-max-players]')?.getAttribute('data-rc-max-players');
+    const value = Number(raw);
+    if (raw && Number.isSafeInteger(value) && value > 0) return value;
+    const text = card.querySelector('.game-server-status, .server-player-count')?.textContent || card.textContent;
+    const parsed = globalThis.RobloxCustomizerNativeLabels?.playerCount(text);
+    if (parsed?.maxPlayers > 0) return parsed.maxPlayers;
+    const max = text.match(/\b[\d,]+\s*(?:of|\/)\s*([\d,]+)\b/i)?.[1];
+    return max ? Number(max.replaceAll(',', '')) : null;
+  }
+
+  function publicServerStartedAt(card) {
+    const raw = card.getAttribute('data-rc-server-started-at') || card.getAttribute('data-server-started-at');
+    const value = Number(raw);
+    return raw && Number.isFinite(value) && value > 0 && value <= Date.now() ? value : null;
+  }
+
+  function serverDistance(card) {
+    const { latitude, longitude } = publicServerFilter;
+    const lat = Number(card.dataset.rcServerLatitude), lon = Number(card.dataset.rcServerLongitude);
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)
+      || !card.dataset.rcServerLatitude || !card.dataset.rcServerLongitude
+      || !Number.isFinite(lat) || !Number.isFinite(lon)) return Infinity;
+    const radians = value => value * Math.PI / 180;
+    const a = Math.sin(radians(lat - latitude) / 2) ** 2 + Math.cos(radians(latitude))
+      * Math.cos(radians(lat)) * Math.sin(radians(lon - longitude) / 2) ** 2;
+    return 6371 * 2 * Math.asin(Math.sqrt(Math.min(1, a)));
+  }
+
   function publicServerFilterBound(key) {
     const value = Number(publicServerFilter[key]);
     return publicServerFilter[key] !== '' && Number.isFinite(value) && value >= 0 ? value : null;
@@ -1156,15 +1264,38 @@
         || publicServerFilter.country === 'unknown' && card.dataset.rcServerCountryState === 'unknown'
         || card.dataset.rcServerCountry === publicServerFilter.country;
       const players = publicServerPlayerCount(card);
-      return countryMatch
+      const capacity = publicServerCapacity(card);
+      const prefer = publicServerFilter.locationMode === 'nearest' && publicServerFilter.city !== 'all';
+      return (prefer || countryMatch && (publicServerFilter.city === 'all' || card.dataset.rcServerCity === publicServerFilter.city))
+        && (!publicServerFilter.excludeFull || players !== null && capacity !== null && players < capacity)
         && (minLatency === null || hasPing && ping >= minLatency)
         && (maxPing === null || hasPing && ping <= maxPing)
         && (minPlayers === null || players !== null && players >= minPlayers)
         && (maxPlayers === null || players !== null && players <= maxPlayers);
     });
-    if (publicServerFilter.playerSort !== 'default') {
+    if (publicServerFilter.playerSort !== 'default' || publicServerFilter.locationMode === 'nearest' && publicServerFilter.city !== 'all') {
       const direction = publicServerFilter.playerSort === 'asc' ? 1 : -1;
       matching.sort((a, b) => {
+        if (publicServerFilter.locationMode === 'nearest' && publicServerFilter.city !== 'all') {
+          const inCity = card => card.dataset.rcServerCity === publicServerFilter.city
+            && (publicServerFilter.country === 'all' || card.dataset.rcServerCountry === publicServerFilter.country);
+          const firstCity = inCity(a), secondCity = inCity(b);
+          if (firstCity !== secondCity) return firstCity ? -1 : 1;
+          const distance = serverDistance(a) - serverDistance(b);
+          if (distance && !Number.isNaN(distance)) return distance;
+        }
+        if (publicServerFilter.playerSort === 'random') {
+          for (const card of [a, b]) if (!publicShuffleRanks.has(card)) publicShuffleRanks.set(card, Math.random());
+          return publicShuffleRanks.get(a) - publicShuffleRanks.get(b);
+        }
+        if (['ping', 'newest', 'oldest'].includes(publicServerFilter.playerSort)) {
+          const value = card => publicServerFilter.playerSort === 'ping'
+            ? Number(card.dataset.rcServerPing) || null : publicServerStartedAt(card);
+          const first = value(a), second = value(b);
+          if (first === null || second === null) return first === second ? 0 : first === null ? 1 : -1;
+          return (first - second) * (publicServerFilter.playerSort === 'newest' ? -1 : 1);
+        }
+        if (publicServerFilter.playerSort === 'default') return 0;
         const first = publicServerPlayerCount(a);
         const second = publicServerPlayerCount(b);
         if (first === null || second === null) return first === second ? 0 : first === null ? 1 : -1;
@@ -1204,6 +1335,7 @@
   }
 
   function sortNativePublicServers(container, order) {
+    if (!['default', 'asc', 'desc'].includes(order)) return false;
     const select = [...container.querySelectorAll('select[data-rc-native-server-sort]')]
       .find(node => !node.closest(NON_PUBLIC_SERVER_SECTION_SELECTOR));
     if (!select) return false;
@@ -1221,6 +1353,16 @@
     else select.value = option.value;
     select.dispatchEvent(new Event('change', { bubbles: true }));
     return true;
+  }
+
+  function excludeNativeFullServers(container, checked) {
+    const control = container.querySelector('[data-rc-native-server-exclude]');
+    if (!control || control.checked === checked) return;
+    const setter = typeof HTMLInputElement === 'function'
+      && Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'checked')?.set;
+    if (setter) setter.call(control, checked); else control.checked = checked;
+    control.dispatchEvent(new Event('click', { bubbles: true }));
+    control.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
   function waitForPublicServerBatch(container, button, signal = null, waitForCards = false) {
@@ -1298,9 +1440,10 @@
         || maxPlayers !== null && (players === null || players > maxPlayers)) return false;
       const ping = Number(card.dataset.rcServerPing);
       if (ping > 0 && (minLatency !== null && ping < minLatency || maxPing !== null && ping > maxPing)) return false;
-      if (publicServerFilter.country !== 'all' && publicServerFilter.country !== 'unknown'
+      if (publicServerFilter.locationMode !== 'nearest' && publicServerFilter.country !== 'all' && publicServerFilter.country !== 'unknown'
         && card.dataset.rcServerCountry && card.dataset.rcServerCountry !== publicServerFilter.country) return false;
-      return publicServerFilter.country !== 'all' && card.dataset.rcServerCountryState === 'pending'
+      return (publicServerFilter.country !== 'all' || publicServerFilter.city !== 'all')
+          && (card.dataset.rcServerCountryState === 'pending' || card.dataset.rcServerLocationPending === 'true')
         || (minLatency !== null || maxPing !== null) && !(ping > 0)
           && !!publicServerIdFromCard(card) && publicStatusRequest;
     });
@@ -1327,7 +1470,7 @@
       const observer = new MutationObserver(check);
       observer.observe(container, { childList: true, characterData: true, subtree: true, attributes: true,
         attributeFilter: ['disabled', 'aria-disabled', 'data-rc-server-ping', 'data-rc-server-country',
-          'data-rc-server-country-state', 'data-rc-playing', 'data-playing', 'data-player-count'] });
+          'data-rc-server-country-state', 'data-rc-server-location-pending', 'data-rc-playing', 'data-playing', 'data-player-count'] });
       signal.addEventListener('abort', cancel, { once: true });
       timeout = setTimeout(() => finish('timeout'), 20_000);
       check();
@@ -1360,11 +1503,14 @@
       if (sorted === 'timeout') { state.message = 'Could not sort the servers. Try Search again.'; return; }
       syncPublicServerStatuses();
       const version = state.version;
+      let scannedBatches = 0;
+      const broadSort = ['ping','random','newest','oldest'].includes(publicServerFilter.playerSort)
+        || publicServerFilter.locationMode === 'nearest' && publicServerFilter.city !== 'all';
       while (current() && state.version === version) {
         syncPublicServerStatuses();
         const cards = publicServerCards(container);
         const matching = filteredPublicServerCards(cards);
-        if (matching.length) {
+        if (matching.length && (!broadSort || !publicServerLoadMore(container) || scannedBatches >= 5)) {
           state.message = `Found ${matching.length} matching ${matching.length === 1 ? 'server' : 'servers'}.`;
           return;
         }
@@ -1383,6 +1529,7 @@
         }
         const button = publicServerLoadMore(container);
         if (!button) { state.message = 'No public servers match all your filters.'; return; }
+        if (scannedBatches >= 20) { state.message = 'Search limit reached. Select Search again to check more servers.'; return; }
         if (button.disabled || button.getAttribute('aria-disabled') === 'true') {
           const ready = await waitForPublicServerSearchDetails(container, signal, () => {
             const next = publicServerLoadMore(container);
@@ -1395,6 +1542,7 @@
         state.message = `Searching beyond ${cards.length} loaded public servers...`;
         syncPublicServerFilters(page, container, cards);
         const loaded = await waitForPublicServerBatch(container, button, signal);
+        scannedBatches++;
         if (!current() || loaded === 'cancelled') return;
         if (loaded === 'timeout') { state.message = 'Could not load more servers. Try Search again.'; return; }
       }
@@ -1468,19 +1616,70 @@
   function createPublicServerFilters(page, container) {
     const toolbar = document.createElement('div');
     toolbar.className = 'rc-public-server-filters';
+    const header = document.createElement('div');
+    header.className = 'rc-public-server-filter-header';
+    const title = document.createElement('strong'); title.textContent = 'Server filters';
+    const disclosure = document.createElement('button'); disclosure.type = 'button';
+    disclosure.className = 'rc-public-server-filter-toggle'; disclosure.textContent = 'Filter options';
+    disclosure.setAttribute('aria-expanded', 'false');
+    const fields = document.createElement('div'); fields.className = 'rc-public-server-filter-fields';
+    fields.id = 'rc-public-server-filter-fields'; fields.hidden = true;
+    disclosure.setAttribute('aria-controls', fields.id);
+    disclosure.addEventListener('click', () => {
+      fields.hidden = !fields.hidden; disclosure.setAttribute('aria-expanded', String(!fields.hidden));
+      schedule();
+    });
+    header.append(title); toolbar.append(header);
+    const presets = document.createElement('div'); presets.className = 'rc-public-server-presets';
+    for (const [key, text] of [['default','Default order'], ['asc','Fewest players first'],
+      ['not-full','Not full'], ['ping','Best connection'], ['random','Random shuffle']]) {
+      const button = document.createElement('button'); button.type = 'button'; button.textContent = text;
+      button.dataset.rcServerPreset = key; button.setAttribute('aria-pressed', 'false');
+      button.addEventListener('click', () => {
+        if (key === 'not-full') {
+          publicServerFilter.excludeFull = !publicServerFilter.excludeFull;
+          excludeNativeFullServers(container, publicServerFilter.excludeFull);
+        }
+        else publicServerFilter.playerSort = key;
+        if (key === 'random') for (const card of publicServerCards(container)) publicShuffleRanks.set(card, Math.random());
+        publicServerBrowser(container); schedule();
+      });
+      presets.append(button);
+    }
+    header.append(presets, disclosure); toolbar.append(fields);
 
-    const addField = (labelText, control) => {
+    const addGroup = (key, title) => {
+      const group = document.createElement('fieldset');
+      group.className = `rc-public-server-filter-group rc-public-server-filter-group--${key}`;
+      const legend = document.createElement('legend'); legend.textContent = title;
+      const controls = document.createElement('div'); controls.className = 'rc-public-server-group-controls';
+      group.append(legend, controls); fields.append(group);
+      return controls;
+    };
+    const locationFields = addGroup('location', 'Server location');
+    const connectionFields = addGroup('connection', 'Connection');
+    const playerFields = addGroup('players', 'Players');
+    const sortFields = addGroup('sort', 'Order and availability');
+    const addField = (group, labelText, control) => {
       const label = document.createElement('label');
       const text = document.createElement('span');
       text.textContent = labelText;
       label.append(text, control);
-      toolbar.append(label);
+      group.append(label);
+      return label;
     };
 
     const country = document.createElement('select');
     country.setAttribute('data-rc-server-filter', 'country');
     country.setAttribute('aria-label', 'Filter servers by country');
-    addField('Country', country);
+    addField(locationFields, 'Country', country);
+    const city = document.createElement('select'); city.dataset.rcServerFilter = 'city';
+    addField(locationFields, 'City', city);
+    const locationMode = document.createElement('select'); locationMode.dataset.rcServerFilter = 'locationMode';
+    for (const [value, text] of [['exact','Only selected location'], ['nearest','Preferred city, then nearest']]) {
+      const option = document.createElement('option'); option.value = value; option.textContent = text; locationMode.append(option);
+    }
+    addField(locationFields, 'Location preference', locationMode);
 
     for (const [name, labelText] of [
       ['minLatency', 'Minimum latency'], ['maxPing', 'Maximum ping'],
@@ -1496,19 +1695,43 @@
       input.value = publicServerFilter[name];
       input.setAttribute('data-rc-server-filter', name);
       input.setAttribute('aria-label', players ? labelText : `${labelText} in milliseconds`);
-      addField(players ? labelText : `${labelText} (ms)`, input);
+      addField(players ? playerFields : connectionFields, players ? labelText : `${labelText} (ms)`, input);
     }
 
     const sort = document.createElement('select');
     sort.setAttribute('data-rc-server-filter', 'playerSort');
     for (const [value, text] of [['default', 'Default order'], ['asc', 'Fewest players first'],
-      ['desc', 'Most players first']]) {
+      ['desc', 'Most players first'], ['ping', 'Best connection'], ['random', 'Random shuffle'],
+      ['newest','Newest servers'], ['oldest','Oldest servers']]) {
       const option = document.createElement('option');
       option.value = value;
       option.textContent = text;
       sort.append(option);
     }
-    addField('Sort players', sort);
+    addField(sortFields, 'Sort servers', sort);
+    const full = document.createElement('input'); full.type = 'checkbox'; full.dataset.rcServerFilter = 'excludeFull';
+    full.setAttribute('role', 'switch');
+    addField(sortFields, 'Exclude full servers', full).classList.add('rc-public-server-availability');
+    const map = document.createElement('details'); map.className = 'rc-public-server-map';
+    const summary = document.createElement('summary');
+    const globeIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    globeIcon.setAttribute('viewBox', '0 0 24 24'); globeIcon.setAttribute('aria-hidden', 'true');
+    const globePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    globePath.setAttribute('d', 'M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18');
+    globeIcon.append(globePath);
+    const mapTitle = document.createElement('span'); mapTitle.textContent = 'Server globe';
+    summary.append(globeIcon, mapTitle);
+    const mapHint = document.createElement('p'); mapHint.textContent = 'Locations and counts are based on loaded servers. City locations are approximate.';
+    const mapCanvas = document.createElement('div'); mapCanvas.className = 'rc-public-server-map-canvas';
+    const cityList = document.createElement('div'); cityList.className = 'rc-public-server-city-list';
+    map.append(summary, mapHint, mapCanvas, cityList);
+    map.addEventListener('toggle', schedule);
+    const help = document.createElement('details'); help.className = 'rc-public-server-filter-help';
+    const helpSummary = document.createElement('summary'); helpSummary.textContent = 'About server data';
+    const hint = document.createElement('p'); hint.className = 'rc-public-server-filter-hint';
+    help.append(helpSummary, hint);
+    const tools = document.createElement('div'); tools.className = 'rc-public-server-filter-tools';
+    tools.append(map, help); fields.append(tools);
 
     const search = document.createElement('button');
     search.type = 'button';
@@ -1532,35 +1755,67 @@
     reset.className = 'rc-public-server-filter-reset';
     reset.textContent = 'Reset';
     reset.addEventListener('click', () => {
-      publicServerFilter.country = 'all';
+      resetServerLocation();
       publicServerFilter.minLatency = '';
       publicServerFilter.maxPing = '';
       publicServerFilter.minPlayers = '';
       publicServerFilter.maxPlayers = '';
       publicServerFilter.playerSort = 'default';
+      publicServerFilter.excludeFull = false;
+      excludeNativeFullServers(container, false);
       publicServerBrowser(container);
       sortNativePublicServers(container, 'default');
       schedule();
     });
     const count = document.createElement('span');
     count.className = 'rc-public-server-filter-count';
-    toolbar.append(search, stop, reset, count);
+    const actions = document.createElement('div'); actions.className = 'rc-public-server-filter-actions';
+    const randomJoin = document.createElement('button'); randomJoin.type = 'button';
+    randomJoin.className = 'rc-public-server-random-join'; randomJoin.textContent = 'Random server';
+    randomJoin.addEventListener('click', () => {
+      let candidates = filteredPublicServerCards(publicServerCards(container)).filter(card => {
+        const count = publicServerPlayerCount(card), capacity = publicServerCapacity(card);
+        return count === null || capacity === null || count < capacity;
+      }).map(card => ({ card, button: card.querySelector('.game-server-join-btn, [data-testid="join-server-button"]')
+        || [...card.querySelectorAll('button, a[role="button"]')].find(button => /^Join$/i.test(button.textContent.trim())
+          || globalThis.RobloxCustomizerNativeLabels?.matches('join', button.textContent)) }))
+        .filter(({button}) => button && !button.disabled && button.getAttribute('aria-disabled') !== 'true');
+      if (publicServerFilter.locationMode === 'nearest' && publicServerFilter.city !== 'all' && candidates.length) {
+        const preferred = candidates.filter(({card}) => card.dataset.rcServerCity === publicServerFilter.city
+          && (publicServerFilter.country === 'all' || card.dataset.rcServerCountry === publicServerFilter.country));
+        if (preferred.length) candidates = preferred;
+        else if (candidates[0].card.dataset.rcServerCity && Number.isFinite(serverDistance(candidates[0].card))) {
+          const closest = candidates[0].card;
+          candidates = candidates.filter(({card}) => card.dataset.rcServerCity === closest.dataset.rcServerCity
+            && card.dataset.rcServerCountry === closest.dataset.rcServerCountry);
+        } else candidates = [];
+      }
+      if (candidates.length) candidates[Math.floor(Math.random() * candidates.length)].button.click();
+      else { publicServerBrowser(container).message = 'No joinable servers match these filters.'; schedule(); }
+    });
+    actions.append(search, stop, randomJoin, reset, count); toolbar.append(actions);
 
-    toolbar.addEventListener('input', event => {
+    const changeFilter = event => {
       const key = event.target?.getAttribute('data-rc-server-filter');
       if (!key || !(key in publicServerFilter)) return;
-      publicServerFilter[key] = event.target.value;
-      publicServerBrowser(container);
-      schedule();
-    });
-    toolbar.addEventListener('change', event => {
-      const key = event.target?.getAttribute('data-rc-server-filter');
-      if (!key || !(key in publicServerFilter)) return;
-      publicServerFilter[key] = event.target.value;
-      publicServerBrowser(container);
-      schedule();
-    });
+      publicServerFilter[key] = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
+      if (key === 'excludeFull') excludeNativeFullServers(container, publicServerFilter.excludeFull);
+      if (key === 'country') { publicServerFilter.city = 'all'; publicServerFilter.latitude = publicServerFilter.longitude = null; }
+      if (key === 'city') {
+        const option = event.target.selectedOptions?.[0];
+        if (option?.dataset.country) publicServerFilter.country = option.dataset.country;
+        publicServerFilter.latitude = option?.dataset.latitude ? Number(option.dataset.latitude) : null;
+        publicServerFilter.longitude = option?.dataset.longitude ? Number(option.dataset.longitude) : null;
+      }
+      publicServerBrowser(container); schedule();
+    };
+
+    toolbar.addEventListener('input', changeFilter);
+    toolbar.addEventListener('change', changeFilter);
     toolbar.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && !fields.hidden) {
+        fields.hidden = true; disclosure.setAttribute('aria-expanded', 'false'); disclosure.focus(); schedule(); return;
+      }
       if (event.key !== 'Enter' || !event.target?.matches('input')) return;
       event.preventDefault();
       void searchPublicServers(page, container);
@@ -1647,13 +1902,17 @@
     let toolbar = page.querySelector('.rc-public-server-filters');
     let pagination = page.querySelector('.rc-public-server-pagination');
     if (!publicContainer) {
+      if (toolbar) globalThis.RobloxCustomizerServerGlobe?.destroy(toolbar.querySelector('.rc-public-server-map-canvas'));
       toolbar?.remove();
       pagination?.remove();
       syncPublicServerVisibility(page, null, [], [], new Set(), false);
       return;
     }
     // Recreate listeners when Roblox replaces the native container.
-    if (toolbar && !publicContainer.contains(toolbar)) { toolbar.remove(); toolbar = null; }
+    if (toolbar && !publicContainer.contains(toolbar)) {
+      globalThis.RobloxCustomizerServerGlobe?.destroy(toolbar.querySelector('.rc-public-server-map-canvas'));
+      toolbar.remove(); toolbar = null;
+    }
     if (pagination && !publicContainer.contains(pagination)) { pagination.remove(); pagination = null; }
     if (!toolbar) toolbar = createPublicServerFilters(page, publicContainer);
     if (!pagination) pagination = createPublicServerPagination(page, publicContainer);
@@ -1689,7 +1948,9 @@
     const options = [...countries].sort((a, b) => a[1].localeCompare(b[1]));
     if (/^[A-Z]{2}$/.test(publicServerFilter.country)
       && !countries.has(publicServerFilter.country)) {
-      options.push([publicServerFilter.country, publicServerFilter.country]);
+      let name = publicServerFilter.country;
+      try { name = new Intl.DisplayNames([globalThis.RobloxCustomizerI18n?.locale() || 'en'], {type:'region'}).of(name) || name; } catch {}
+      options.push([publicServerFilter.country, name]);
     }
     const signature = JSON.stringify(options);
     const country = toolbar.querySelector('[data-rc-server-filter="country"]');
@@ -1704,10 +1965,93 @@
       }
     }
     country.value = publicServerFilter.country;
-    for (const key of ['minLatency', 'maxPing', 'minPlayers', 'maxPlayers', 'playerSort']) {
+    const cities = new Map(), globeCities = new Map(), countryCounts = {};
+    for (const card of cards) {
+      const name = card.dataset.rcServerCity, code = card.dataset.rcServerCountry;
+      if (/^[A-Z]{2}$/.test(code || '')) countryCounts[code] = (countryCounts[code] || 0) + 1;
+      if (!name) continue;
+      const key = `${code}:${name}`;
+      const item = globeCities.get(key) || { name, country: code, count: 0,
+        latitude: card.dataset.rcServerLatitude, longitude: card.dataset.rcServerLongitude };
+      item.count++; globeCities.set(key, item);
+      if (publicServerFilter.country === 'all' || code === publicServerFilter.country) cities.set(key, item);
+    }
+    const city = toolbar.querySelector('[data-rc-server-filter="city"]');
+    const citiesPending = cards.some(card => card.dataset.rcServerLocationPending === 'true');
+    const citySignature = JSON.stringify([[...cities], citiesPending]);
+    if (city.dataset.rcOptions !== citySignature) {
+      city.dataset.rcOptions = citySignature; city.replaceChildren();
+      for (const item of [{name:'all'}, ...[...cities.values()].sort((a,b)=>a.name.localeCompare(b.name))]) {
+        const option = document.createElement('option'); option.value = item.name;
+        option.textContent = item.name === 'all' ? !cities.size && citiesPending ? 'Loading...' : 'All cities'
+          : `${item.name}, ${item.country || ''} (${item.count})`;
+        if (item.name !== 'all') option.dataset.rcI18nIgnore = '';
+        if (item.country) option.dataset.country = item.country;
+        if (item.latitude != null && item.longitude != null) {
+          option.dataset.latitude = item.latitude; option.dataset.longitude = item.longitude;
+        }
+        city.append(option);
+      }
+      if (publicServerFilter.city !== 'all' && ![...cities.values()].some(item => item.name === publicServerFilter.city)) {
+        const selected = document.createElement('option'); selected.value = publicServerFilter.city;
+        selected.textContent = publicServerFilter.city; selected.dataset.rcI18nIgnore = ''; city.append(selected);
+      }
+      const map = toolbar.querySelector('.rc-public-server-map-canvas');
+      if (!globalThis.RobloxCustomizerServerGlobe) map.replaceChildren();
+      const cityList = toolbar.querySelector('.rc-public-server-city-list'); cityList.replaceChildren();
+      for (const item of cities.values()) {
+        const selectCity = () => {
+          publicServerFilter.country = item.country || 'all'; publicServerFilter.city = item.name;
+          publicServerFilter.latitude = item.latitude == null ? null : Number(item.latitude);
+          publicServerFilter.longitude = item.longitude == null ? null : Number(item.longitude);
+          publicServerFilter.locationMode = 'nearest'; publicServerBrowser(publicContainer); schedule();
+        };
+        const cityButton = document.createElement('button'); cityButton.type = 'button'; cityButton.dataset.rcI18nIgnore = '';
+        cityButton.textContent = `${item.name} (${item.count})`; cityButton.addEventListener('click', selectCity); cityList.append(cityButton);
+        if (globalThis.RobloxCustomizerServerGlobe || item.latitude == null || item.longitude == null) continue;
+        const marker = document.createElement('button'); marker.type = 'button';
+        marker.className = 'rc-public-server-city-marker'; marker.dataset.rcI18nIgnore = '';
+        marker.textContent = String(item.count); marker.title = `${item.name} (${item.count})`;
+        marker.setAttribute('aria-label', marker.title);
+        marker.style.left = `${(Number(item.longitude) + 180) / 360 * 100}%`;
+        marker.style.top = `${(90 - Number(item.latitude)) / 180 * 100}%`;
+        marker.addEventListener('click', selectCity);
+        map.append(marker);
+      }
+    }
+    city.value = publicServerFilter.city;
+    globalThis.RobloxCustomizerServerGlobe?.sync(toolbar.querySelector('.rc-public-server-map-canvas'), {
+      visible: toolbar.querySelector('.rc-public-server-map').open && !toolbar.querySelector('.rc-public-server-filter-fields').hidden,
+      country: publicServerFilter.country, city: publicServerFilter.city,
+      counts: countryCounts, cities: [...globeCities.values()], total: cards.length,
+      onCountry(code) {
+        publicServerFilter.country = code; publicServerFilter.city = 'all'; publicServerFilter.locationMode = 'exact';
+        publicServerFilter.latitude = publicServerFilter.longitude = null;
+        publicServerBrowser(publicContainer); schedule();
+      },
+      onCity(item) {
+        publicServerFilter.country = item.country || 'all'; publicServerFilter.city = item.name;
+        publicServerFilter.latitude = item.latitude == null ? null : Number(item.latitude);
+        publicServerFilter.longitude = item.longitude == null ? null : Number(item.longitude);
+        publicServerFilter.locationMode = 'nearest';
+        publicServerBrowser(publicContainer); schedule();
+      }
+    });
+    for (const key of ['minLatency', 'maxPing', 'minPlayers', 'maxPlayers', 'playerSort', 'locationMode']) {
       const input = toolbar.querySelector(`[data-rc-server-filter="${key}"]`);
       if (input.value !== publicServerFilter[key]) input.value = publicServerFilter[key];
     }
+    toolbar.querySelector('[data-rc-server-filter="excludeFull"]').checked = publicServerFilter.excludeFull;
+    for (const button of toolbar.querySelectorAll('[data-rc-server-preset]')) {
+      const key = button.dataset.rcServerPreset;
+      button.setAttribute('aria-pressed', String(key === 'not-full' ? publicServerFilter.excludeFull : publicServerFilter.playerSort === key));
+    }
+    const hasUptime = cards.some(card => publicServerStartedAt(card) !== null);
+    const sort = toolbar.querySelector('[data-rc-server-filter="playerSort"]');
+    for (const option of sort.options) if (['newest','oldest'].includes(option.value)) option.disabled = !hasUptime;
+    setText(toolbar.querySelector('.rc-public-server-filter-hint'), hasUptime
+      ? 'Filters combine. Unknown values sort last. Location fallback uses only loaded servers.'
+      : 'Filters combine. Newest and oldest need verified server start times, which are unavailable for this list.');
 
     const firstServer = cards[0] && (publicServerIdFromCard(cards[0]) || cards[0]);
     if (state.firstServer && firstServer && state.firstServer !== firstServer) {
@@ -1721,7 +2065,7 @@
     state.page = Math.min(state.page, Math.max(0, pages - 1));
     const start = state.page * PUBLIC_SERVER_PAGE_SIZE;
     const visible = new Set(matching.slice(start, start + PUBLIC_SERVER_PAGE_SIZE));
-    const sorted = publicServerFilter.playerSort !== 'default';
+    const sorted = publicServerFilter.playerSort !== 'default' || publicServerFilter.locationMode === 'nearest' && publicServerFilter.city !== 'all';
     syncPublicServerVisibility(page, grid, cards, matching, visible, sorted);
     setText(toolbar.querySelector('.rc-public-server-filter-count'),
       matching.length ? `${start + 1}\u2013${start + visible.size} of ${matching.length} matches loaded`
@@ -1804,6 +2148,8 @@
     };
     const sort = findWrapper(sortLabel, 'select');
     const exclude = findWrapper(excludeLabel, 'input[type="checkbox"]');
+    const nativeExclude = exclude?.matches('input[type="checkbox"]') ? exclude : exclude?.querySelector('input[type="checkbox"]');
+    nativeExclude?.setAttribute('data-rc-native-server-exclude', '');
     sortLabel?.setAttribute('data-rc-native-server-controls', '');
     excludeLabel?.setAttribute('data-rc-native-server-controls', '');
     const nativeSort = sort?.matches('select') ? sort : sort?.querySelector('select');
@@ -1825,13 +2171,18 @@
   }
 
   function syncPublicServerStatuses() {
+    if (document.hidden) return;
     const page = document.querySelector('#game-detail-page');
     const placeId = Number(placeIdFromPath());
     if (!pageMatchesPath(page) || !Number.isSafeInteger(placeId) || placeId <= 0) return;
     const publicContainer = page.querySelector(PUBLIC_SERVER_CONTAINER_SELECTOR);
     hideNativePublicServerControls(page, publicContainer);
-    if (publicStatusPlaceId !== placeId) {
+    const userId = Number(document.querySelector('meta[name="user-data"]')?.getAttribute('data-userid')) || 0;
+    const languageCode = robloxServerLanguage();
+    const scope = `${userId}:${languageCode}`;
+    if (publicStatusPlaceId !== placeId || publicStatusScope !== scope) {
       publicStatusPlaceId = placeId;
+      publicStatusScope = scope;
       publicStatusFetchedAt = 0;
       publicStatusRetryAfter = 0;
       publicStatuses.clear();
@@ -1842,6 +2193,8 @@
     const serverIds = new Set();
     const shortIds = new Set();
     const publicCards = publicServerCards(publicContainer);
+    const needsCities = publicServerFilter.city !== 'all'
+      || publicContainer?.querySelector('.rc-public-server-filter-fields')?.hidden === false;
     // The native cards may have mounted before the MAIN-world factory hooks.
     // Ask that world to recover their current identity from the mounted tree.
     if (publicCards.length) document.dispatchEvent(new CustomEvent('rc-server-metrics-request'));
@@ -1852,10 +2205,20 @@
       const shortPending = !id && !!shortId && !shortState && Date.now() >= publicStatusRetryAfter;
       if (shortId && (!shortState || Date.now() >= shortState.retryAfter)) shortIds.add(shortId);
       const details = combinedServerMetrics(card, id ? publicStatuses.get(id) : null);
-      if (id && !details.ping) serverIds.add(id);
-      if (id && !details.countryCode) queuePublicServerCountry(placeId, id);
+      if (id && (!details.ping || details.fps == null || details.languageMatchCount == null)) serverIds.add(id);
+      const needsLocation = !details.countryCode || needsCities && !card.getAttribute('data-rc-server-city');
+      if (id && (needsLocation || !details.placeVersion && !card.hasAttribute('data-rc-server-page-hidden')
+        && !card.hasAttribute('data-rc-server-filtered'))) queuePublicServerCountry(placeId, id, needsLocation, card);
       const countryState = id ? publicCountries.get(id) : null;
       const countryCode = details.countryCode || countryState?.countryCode || '';
+      card.dataset.rcServerLocationPending = String(!!countryState?.pending && countryState.locationRequested);
+      const status = id ? publicStatuses.get(id) : null;
+      if (status?.maxPlayers) card.dataset.rcMaxPlayers = String(status.maxPlayers);
+      if (Number.isSafeInteger(status?.playing) && !card.hasAttribute('data-rc-playing')) card.dataset.rcPlaying = String(status.playing);
+      if (countryState?.city) card.dataset.rcServerCity = countryState.city;
+      for (const [key, value] of [['rcServerLatitude', countryState?.latitude], ['rcServerLongitude', countryState?.longitude]]) {
+        if (typeof value === 'number' && Number.isFinite(value)) card.dataset[key] = String(value);
+      }
       if (details.ping) card.dataset.rcServerPing = String(Math.round(details.ping));
       else card.removeAttribute('data-rc-server-ping');
       if (countryCode) card.dataset.rcServerCountry = countryCode.toUpperCase();
@@ -1866,6 +2229,7 @@
         pending: shortPending,
         unavailable: !id && (!shortId || !!shortState) });
     }
+    processPublicCountryQueue();
     syncPublicServerFilters(page, publicContainer, publicCards);
     if ((!serverIds.size && !shortIds.size) || publicStatusRequest || Date.now() < publicStatusRetryAfter
       || Date.now() - publicStatusFetchedAt < 90_000
@@ -1874,10 +2238,10 @@
     const requestedIds = [...serverIds].filter(id => Date.now() - publicStatusFetchedAt >= 90_000
       || !publicStatuses.has(id)).slice(0, 100);
     const requestedShortIds = [...shortIds].slice(0, 100 - requestedIds.length);
-    sendMessage({ type: 'rc-public-server-status', placeId,
+    sendMessage({ type: 'rc-public-server-status', placeId, includeMetadata: true, userId, languageCode,
       serverIds: requestedIds, ...(requestedShortIds.length ? { shortIds: requestedShortIds } : {}) }, response => {
       publicStatusRequest = false;
-      if (publicStatusPlaceId !== placeId) { schedule(); return; }
+      if (publicStatusPlaceId !== placeId || publicStatusScope !== scope) { schedule(); return; }
       if (chrome.runtime.lastError || !Array.isArray(response?.servers)) {
         publicStatusRetryAfter = Date.now() + 30_000;
         setTimeout(schedule, 30_000);
@@ -3111,6 +3475,7 @@
 
   new MutationObserver(records => {
     const routeChanged = observedFeaturePath !== routePath();
+    if (routeChanged) Object.assign(publicServerFilter, publicServerFilterDefaults);
     observedFeaturePath = routePath();
     const scope = GAME_PATH.test(routePath()) ? '#game-detail-page'
       : COMMUNITY_PATH.test(routePath()) ? '#group-container'
@@ -3136,6 +3501,7 @@
       [`data-rc-hide-${kind}-x-feed`, `data-rc-hide-${kind}-youtube-feed`]),
     'data-rc-profile-social-user-id', 'data-rc-profile-x-url', 'data-rc-profile-youtube-url',
     'data-rc-instance-id', 'data-rc-ping', 'data-rc-ping-level', 'data-country-code', 'data-btr-instance-id', 'data-rc-playing',
+    'data-rc-server-fps', 'data-rc-language-match-count', 'data-rc-place-version', 'data-language-code', 'data-userid',
     'data-playing', 'data-player-count', 'src', 'srcset', 'sizes', 'alt',
     'data-private-server-id', 'data-vip-server-id', 'data-server-id', 'data-serverid',
     'data-rc-server-source'
@@ -3152,6 +3518,7 @@
     for (const time of document.querySelectorAll('#rc-x-feed-panel time[datetime], #rc-youtube-feed-panel time[datetime]')) {
       time.textContent = badgeDateTimeFormatter.format(new Date(time.dateTime));
     }
+    syncPublicServerStatuses();
     schedule();
   });
   document.addEventListener('DOMContentLoaded', () => {

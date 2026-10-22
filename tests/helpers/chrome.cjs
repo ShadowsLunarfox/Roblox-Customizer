@@ -25,6 +25,10 @@ class Browser {
     await this.send('Input.dispatchMouseEvent',{type:'mousePressed',button:'left',clickCount:1,...point});
     await this.send('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',clickCount:1,...point});
   }
+  async clickAt(point) {
+    await this.send('Input.dispatchMouseEvent',{type:'mousePressed',button:'left',buttons:1,clickCount:1,...point});
+    await this.send('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',clickCount:1,...point});
+  }
   async waitFor(expression) {
     for(let i=0;i<100;i++){if(await this.evaluate(expression))return;await pause(30)}
     assert.fail(`Timed out: ${expression}`);

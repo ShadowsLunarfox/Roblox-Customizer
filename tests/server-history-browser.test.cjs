@@ -84,7 +84,11 @@ test('recent servers stay off Home and use separate six-server game lists across
     await browser.evaluate("const search=document.querySelector('#rc-server-history-dialog input');search.value='Second game';search.dispatchEvent(new Event('input'))");
     assert.equal(await browser.evaluate("document.querySelectorAll('#rc-server-history-dialog .rc-server-history-group').length"), 1);
     assert.equal(await browser.evaluate("document.querySelector('.rc-server-history-group').dataset.universeId"), '654');
-    await browser.evaluate("document.querySelector('#rc-server-history-dialog').close();RobloxCustomizerI18n.setLanguage('en');document.querySelector('#rc-close').click()");
+    await browser.clickAt({ x: 5, y: 5 });
+    await browser.waitFor("!document.querySelector('#rc-server-history-dialog')");
+    assert.equal(await browser.evaluate("!!document.querySelector('#rc-settings-overlay')"),true,'Outside dismissal only closes server history above settings');
+    assert.equal(await browser.evaluate("document.activeElement.matches('#rc-server-history-settings button')"),true,'Focus returns to the history opener');
+    await browser.evaluate("RobloxCustomizerI18n.setLanguage('en');document.querySelector('#rc-close').click()");
     await browser.waitFor("!document.querySelector('#rc-settings-overlay')");
     await browser.evaluate('navigateGame(700,456)');
     await browser.waitFor("document.querySelectorAll('#rc-server-history-game .rc-server-history-row').length===6");

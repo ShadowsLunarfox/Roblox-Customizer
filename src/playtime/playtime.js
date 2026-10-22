@@ -190,6 +190,11 @@
     gameSection.querySelector('.rc-playtime-hint').textContent = t(lastError || (!data.enabled
       ? game ? 'Tracking is paused. Saved totals are kept.' : 'Enable playtime tracking to start recording this game.'
       : !game ? 'No playtime recorded yet. Join a game with tracking enabled to start.' : 'Local estimate for this game.'));
+    // Keep routine information available on hover without repeating it in the
+    // compact stats strip. Loading, errors and setup guidance stay visible.
+    const routine = !!game && data.enabled && !lastError;
+    gameSection.querySelector('.rc-playtime-hint').hidden = routine;
+    gameSection.querySelector('h2').title = routine ? t('Local estimate for this game.') : '';
     const toggle = gameSection.querySelector('button');
     toggle.textContent = t('Enable playtime tracking'); toggle.hidden = data.enabled; toggle.disabled = busy;
   }
@@ -432,21 +437,7 @@
     dialog.append(header, summary, status, tools, element('div', 'rc-playtime-list'), element('p', 'rc-playtime-empty'),
       button('Show more games', () => { limit += 20; renderHistory(); }, 'rc-playtime-more'), actions,
       confirmation, element('p', 'rc-playtime-note'));
-    // Backdrop events target the dialog too; distinguish them from its padding.
-    // Require both ends outside so selecting text or dragging out keeps it open.
-    const onBackdrop = event => {
-      const panel = event.currentTarget, bounds = panel.getBoundingClientRect();
-      return event.target === panel && (event.clientX < bounds.left || event.clientX >= bounds.right
-        || event.clientY < bounds.top || event.clientY >= bounds.bottom);
-    };
-    let backdropPress = false;
-    dialog.addEventListener('pointerdown', event => { backdropPress = event.button === 0 && onBackdrop(event); });
-    dialog.addEventListener('pointercancel', () => { backdropPress = false; });
-    dialog.addEventListener('click', event => {
-      const dismiss = backdropPress && onBackdrop(event);
-      backdropPress = false;
-      if (dismiss) { event.stopPropagation(); event.currentTarget.close(); }
-    });
+    globalThis.RobloxCustomizerDialogs?.dismissOnOutside(dialog);
     dialog.addEventListener('close', () => { dialog.remove(); dialog = null; opener?.isConnected && opener.focus(); });
     document.body.append(dialog); renderHistory(); dialog.showModal(); search.focus(); load('refresh');
   }

@@ -6,7 +6,9 @@ const { test } = require('node:test');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'src/shared/frosted-ui.js'), 'utf8');
 const exposed = source.replace(/  queueSync\(\);\s*\}\);\s*$/, `
-  globalThis.frost = { panelFor, panelForHeader, syncPanels, queueSync, markSurface, introNotice, syncPanelSurfaces };
+  const drain = iterator => { for (const step of iterator) {} };
+  globalThis.frost = { panelFor, panelForHeader, syncPanels: () => drain(updatePanels()), queueSync, markSurface, introNotice,
+    syncPanelSurfaces: panel => drain(syncPanelSurfaces(panel)) };
 });`);
 assert.notEqual(exposed, source, 'Load the actual chat discovery code');
 
@@ -67,11 +69,13 @@ function harness() {
   const body = new Element(null, { tag: 'body', rect: { width: 1000, height: 700, bottom: 700 } });
   const timers = [];
   const documentQueries = [];
+  const walks = [];
   let observeChanges;
   const context = {
-    Element, innerHeight: 700,
+    Element, innerHeight: 700, performance: { now: () => 0 },
     NodeFilter: { SHOW_ELEMENT: 1, FILTER_ACCEPT: 1, FILTER_REJECT: 2, FILTER_SKIP: 3 },
     document: { body, addEventListener() {}, createTreeWalker(root, whatToShow, filter) {
+      walks.push(root);
       const queue = [...(root.children || [body])];
       return { nextNode() {
         while (queue.length) {
@@ -93,7 +97,7 @@ function harness() {
     setTimeout(callback) { timers.push(callback); return timers.length; }
   };
   vm.runInNewContext(exposed, context, { filename: 'src/shared/frosted-ui.js' });
-  return { body, timers, documentQueries, observeChanges, ...context.frost };
+  return { body, timers, documentQueries, walks, observeChanges, ...context.frost };
 }
 
 test('chat keeps its glass during the loading gap and the closing animation', () => {
@@ -263,16 +267,18 @@ test('unrelated page changes do not trigger a document-wide chat scan', () => {
   assert.equal(card.hasAttribute('data-rc-chat-panel'), false);
 });
 
-test('streaming game cards named Chat do not schedule chat discovery or acquire chat glass', () => {
-  const { body, syncPanels, observeChanges, timers } = harness();
+test('streaming game cards named Chat are discarded before chat discovery and never acquire chat glass', () => {
+  const { body, syncPanels, observeChanges, timers, walks } = harness();
   syncPanels();
+  const initialWalks = walks.length;
   const card = new Element(body, { className: 'game-card-container',
     rect: { width: 250, height: 310, bottom: 700 }, style: { position: 'fixed', bottom: '0px' } });
   const title = new Element(card, { tag: 'span', text: 'Chat' });
   observeChanges([{ type: 'childList', target: body, addedNodes: [card] },
     { type: 'characterData', target: title, addedNodes: [] }]);
-  assert.equal(timers.length, 0, 'Game-card updates cannot start a chat scan');
+  assert.equal(timers.length, 1, 'The observer only schedules deferred classification');
   syncPanels();
+  assert.equal(walks.length, initialWalks, 'Game-card updates cannot start a chat scan');
   assert.equal(card.hasAttribute('data-rc-chat-panel'), false);
 });
 

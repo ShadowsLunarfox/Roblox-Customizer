@@ -176,6 +176,7 @@ function environment(count = 0) {
   const document = new Element('document');
   document.documentElement = { lang: 'en' };
   document.createElement = tag => tag === 'select' ? new Select(tag) : new Element(tag);
+  document.createElementNS = (_namespace, tag) => new Element(tag);
   document.createTreeWalker = root => {
     const texts = [];
     const visit = element => {
@@ -266,6 +267,37 @@ test('player ranges combine with country and ping, include zero, and exclude unk
   assert.equal(api.publicServerPlayerCount(textCard), 0);
   textCard.textContent = 'Players unavailable';
   assert.equal(api.publicServerPlayerCount(textCard), null);
+});
+
+test('not-full, best connection, stable shuffle, verified age and nearest city filters combine', () => {
+  const {api,card}=environment();
+  const first=card(4,'US',120),second=card(2,'MY',30),full=card(10,'MY',10),unknown=card(1,'MY',0);
+  for(const node of [first,second,full,unknown])node.setAttribute('data-max-players','10');
+  Object.assign(first.dataset,{rcServerCity:'Seattle',rcServerLatitude:'47.6',rcServerLongitude:'-122.3'});
+  Object.assign(second.dataset,{rcServerCity:'Kuala Lumpur',rcServerLatitude:'3.1',rcServerLongitude:'101.7'});
+  Object.assign(full.dataset,{rcServerCity:'Singapore',rcServerLatitude:'1.35',rcServerLongitude:'103.8'});
+  const nodes=[first,second,full,unknown];
+  Object.assign(api.filter,{excludeFull:true,playerSort:'ping'});
+  assert.deepEqual([...api.filteredPublicServerCards(nodes)],[second,first,unknown],'Full servers are excluded and unknown ping sorts last');
+  Object.assign(api.filter,{country:'US',city:'Seattle',locationMode:'exact'});
+  assert.deepEqual([...api.filteredPublicServerCards(nodes)],[first]);
+  Object.assign(api.filter,{country:'SG',city:'Singapore',locationMode:'nearest',latitude:1.35,longitude:103.8});
+  assert.deepEqual([...api.filteredPublicServerCards(nodes)],[second,first,unknown],'Nearest fallback works across countries without using missing coordinates');
+  Object.assign(api.filter,{country:'all',city:'all',locationMode:'exact',playerSort:'random'});
+  const shuffled=[...api.filteredPublicServerCards(nodes)];
+  assert.deepEqual([...api.filteredPublicServerCards(nodes)],shuffled,'Repainting does not reshuffle');
+  first.setAttribute('data-server-started-at',Date.now()-100000);second.setAttribute('data-server-started-at',Date.now()-50000);
+  api.filter.playerSort='oldest';assert.deepEqual([...api.filteredPublicServerCards(nodes)],[first,second,unknown]);
+  api.filter.playerSort='newest';assert.deepEqual([...api.filteredPublicServerCards(nodes)],[second,first,unknown]);
+});
+
+test('best connection Search checks later batches instead of stopping at its first loaded match',async()=>{
+  const env=environment(2);let batches=0;
+  env.api.filter.playerSort='ping';
+  env.loader(button=>{batches++;env.grid.append(env.card(3,'MY',80-batches*10));if(batches===5)button.remove();});
+  await env.api.searchPublicServers(env.page,env.container);
+  assert.equal(batches,5);
+  assert.equal(env.api.filteredPublicServerCards(env.api.publicServerCards(env.container))[0].dataset.rcServerPing,'30');
 });
 
 test('filters and Search keep matching cards visible inside a shared list wrapper', async () => {

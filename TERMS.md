@@ -3,7 +3,7 @@
 
 English · [简体中文](TERMS.zh-CN.md) · [繁體中文](TERMS.zh-TW.md) · [Bahasa Indonesia](TERMS.id.md) · [日本語](TERMS.ja.md) · [ไทย](TERMS.th.md) · [한국어](TERMS.ko.md)
 
-Last updated: 2026-10-20<br>
+Last updated: 2026-10-22<br>
 Publisher: Lunarfox 月狐
 
 These terms describe use of Roblox Customizer, provided by the publisher named above. Read them together with the Privacy Policy. Use the extension only if you can agree to these terms under applicable law; obtain a parent or guardian's permission where required.
@@ -35,6 +35,27 @@ Saved extension data belongs to your browser profile and is not a cloud backup. 
 ## Open-source license
 
 The extension's software is licensed under GNU General Public License version 3, as provided in the repository's LICENSE file. Your rights to run, copy, modify, and redistribute the software are governed by that license. These terms do not restrict or replace those rights. Third-party content remains subject to its own rights and licenses.
+
+## Third-party software libraries and their purposes
+
+This release packages 10 distinct third-party runtime libraries, including indirect dependencies embedded in other libraries. A library used by several features is counted once. Build/test tools and reference datasets are not included in this count.
+
+Each library remains subject to its own license and copyright notices. This list does not replace those licenses or applicable source-distribution requirements. RoAvatar Renderer’s corresponding source is currently included at third_party/roavatar-renderer-1.9.12-source.tar.gz; naming the library in these documents is not a substitute for providing that source.
+
+Reference data is listed separately from software libraries: Natural Earth 5.1.2 supplies public-domain country boundaries; RoAvatar supplies the GPLv3-licensed base R15 rig and compositing meshes; Roblox’s published Studio API data supplies property categories and enum names. React and React DOM are dependencies of the upstream renderer source and their MIT notices are retained; they are not used as this extension’s interface framework or counted as runtime libraries here.
+
+See the [animation preview dependency notices](src/assets/animation-preview/vendor/README.md), [resource decoder notice](src/assets/vendor/README.md), and [globe notices](src/servers/globe/NOTICE.txt) for provenance and accompanying license files.
+
+- RoAvatar Renderer 1.9.12 (GPL-3.0-only): Reads avatar models and animation resources for the optional preview on your avatar.
+- Three.js 0.185.1 (MIT): Renders the 3D scene, meshes, lighting and camera with WebGL.
+- N8AO 2.0.1 (CC0-1.0): Provides ambient-occlusion and shading support within the avatar renderer.
+- postprocessing 6.39.4 (Zlib): Provides rendering effects within the avatar renderer.
+- fflate 0.8.3 (MIT): Decodes compressed resource data used by the avatar renderer.
+- fzstd 0.1.1 (MIT): Decodes Zstandard-compressed Roblox model/resource data in the resource explorer and avatar renderer.
+- Google Draco (Apache-2.0): Decodes compressed 3D mesh geometry using the decoder shipped with RoAvatar Renderer.
+- d3-geo 3.1.1 (ISC): Projects country boundaries and globe graticules for server location selection.
+- d3-array 3.2.4 (ISC): Provides numeric and array operations used by the globe projection engine.
+- InternMap / InternSet (internmap) (ISC): Provides keyed collections embedded in d3-array; an indirect dependency of the globe engine.
 
 ## Warranty and liability
 

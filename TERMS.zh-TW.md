@@ -3,7 +3,7 @@
 
 [English](TERMS.md) · [简体中文](TERMS.zh-CN.md) · 繁體中文 · [Bahasa Indonesia](TERMS.id.md) · [日本語](TERMS.ja.md) · [ไทย](TERMS.th.md) · [한국어](TERMS.ko.md)
 
-最後更新: 2026-10-20<br>
+最後更新: 2026-10-22<br>
 發布者: Lunarfox 月狐
 
 這些條款說明如何使用由上述發布者提供的 Roblox Customizer，請結合隱私權政策閱讀。僅在適用法律允許你同意這些條款時使用擴充功能；如有要求，請取得家長或監護人的許可。
@@ -35,6 +35,27 @@ Roblox Customizer 是用於 Roblox 外觀自訂及便利工具的獨立瀏覽器
 ## 開源授權條款
 
 擴充功能軟體採用儲存庫 LICENSE 檔案所載的 GNU 通用公共授權條款第 3 版。執行、複製、修改及再散布軟體的權利由該授權條款規定；這些條款不限制或取代這些權利。第三方內容仍適用各自權利和授權條款。
+
+## 第三方軟體函式庫與用途
+
+本版本封裝了 10 個不同的第三方執行期函式庫，包含其他函式庫內部整合的間接相依套件。同一函式庫即使用於多項功能，也只計算一次；建置、測試工具和參考資料集不計入此數量。
+
+各函式庫仍適用其自身的授權條款和著作權聲明。本清單不能取代授權條款原文或適用的原始碼散布要求。目前 RoAvatar Renderer 的對應原始碼隨套件附於 third_party/roavatar-renderer-1.9.12-source.tar.gz；僅在這些文件列出函式庫名稱，不能取代提供對應原始碼。
+
+參考資料與軟體函式庫分開列明：Natural Earth 5.1.2 提供公有領域的國家邊界；RoAvatar 提供採 GPLv3 授權的基礎 R15 骨架和合成網格；Roblox 公開的 Studio API 資料提供屬性分類與列舉名稱。React 和 React DOM 是上游繪圖器原始碼的相依套件，套件內保留其 MIT 聲明；它們未用作本擴充功能的介面框架，不計入這裡的執行期函式庫數量。
+
+來源和隨附授權條款見[動畫預覽相依套件說明](src/assets/animation-preview/vendor/README.md)、[資源解碼器說明](src/assets/vendor/README.md)及[地球元件說明](src/servers/globe/NOTICE.txt)。
+
+- RoAvatar Renderer 1.9.12 (GPL-3.0-only): 讀取模型和動畫資源，用於選用的「在我的模型上預覽」功能。
+- Three.js 0.185.1 (MIT): 透過 WebGL 繪製三維場景、網格、燈光和相機。
+- N8AO 2.0.1 (CC0-1.0): 為模型繪圖器提供環境光遮蔽與陰影效果支援。
+- postprocessing 6.39.4 (Zlib): 為模型繪圖器提供畫面後製效果。
+- fflate 0.8.3 (MIT): 解碼模型繪圖器使用的壓縮資源資料。
+- fzstd 0.1.1 (MIT): 在資源瀏覽器和模型繪圖器中解碼以 Zstandard 壓縮的 Roblox 模型與資源。
+- Google Draco (Apache-2.0): 使用隨 RoAvatar Renderer 散布的解碼器解碼壓縮的三維網格。
+- d3-geo 3.1.1 (ISC): 繪製國家邊界和地球經緯網，用於選擇伺服器位置。
+- d3-array 3.2.4 (ISC): 提供地球投影引擎使用的數值與陣列運算。
+- InternMap / InternSet (internmap) (ISC): 提供整合於 d3-array 內部的鍵值集合，是地球引擎的間接相依套件。
 
 ## 保證與責任
 

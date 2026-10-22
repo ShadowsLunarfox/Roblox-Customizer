@@ -1,0 +1,158 @@
+/* Preserve native styling while features are disabled for the page language. */
+/* The edit route has its own shell; public profile enhancements stay separate. */
+html[data-rc-ui-active][data-rc-frost-page="profile-edit"] #container-main:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  min-width: 0;
+  max-width: none !important;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="profile-edit"] #content:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  width: min(960px, calc(100% - 32px)) !important;
+  min-width: 0 !important;
+  max-width: 960px !important;
+  margin: 24px auto !important;
+  padding: clamp(16px, 3vw, 28px) !important;
+  border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 18%);
+  border-radius: 20px;
+  background: transparent !important;
+  color: var(--rc-text);
+  color-scheme: var(--rc-color-scheme);
+}
+
+/* A separate backing avoids creating a containing block for native dialogs.
+   The editor and each row do not need additional layers of backdrop blur. */
+html[data-rc-ui-active][data-rc-frost-page="profile-edit"] #content:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *))::before {
+  content: "";
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background: rgb(var(--rc-glass-color) / var(--rc-surface-opacity));
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  box-shadow: 0 12px 32px rgb(0 0 0 / 14%);
+}
+
+html[data-rc-ui-active][data-rc-frost-page="profile-edit"] #content
+  :is(.container-header, .content-header, .section-header):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  background: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Native full-width edit entries keep their links, handlers, icons and values.
+   Use component utility classes rather than matching translated field names. */
+html[data-rc-ui-active][data-rc-frost-page="profile-edit"] #content
+  :is(button, a, [role="button"]).width-full:not(.bg-action-emphasis, .bg-action-soft-emphasis, [role="radio"], [role="option"], [role="tab"]):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  min-height: 56px;
+  margin-block: 4px;
+  padding: 12px 16px;
+  border: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 15%);
+  border-radius: 12px;
+  background: var(--rc-inset-bg) !important;
+  color: var(--rc-text);
+  text-align: start;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="profile-edit"] #content
+  :is(button, a, [role="button"]).width-full > *:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  min-width: 0;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="profile-edit"] #content
+  :is(button, a, [role="button"]).width-full :is(.text-truncate-end, .text-truncate-split, .text-no-wrap):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="profile-edit"] #content
+  :is(button, a, [role="button"]).width-full :is(svg, .icon):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  flex-shrink: 0;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="profile-edit"] #content
+  :is(button, a, [role="button"]).width-full:not(.bg-action-emphasis, .bg-action-soft-emphasis, :disabled, [aria-disabled="true"]):hover:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  border-color: var(--rc-control-border);
+  background: var(--rc-control-hover) !important;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="profile-edit"] #content
+  a[href*="/profile"]:not([href*="/profile/edit"], .width-full):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  max-width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--rc-control-border);
+  border-radius: 10px;
+  color: var(--rc-text);
+  background: var(--rc-inset-bg);
+  overflow-wrap: anywhere;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="profile-edit"] :is(#content, [role="dialog"])
+  .content-emphasis:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  color: var(--rc-text) !important;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="profile-edit"] :is(#content, [role="dialog"])
+  :is(.content-default, .content-muted):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  color: var(--rc-text-secondary) !important;
+}
+
+html[data-rc-ui-active][data-rc-frost-page="profile-edit"] :is([role="dialog"]:not(:has(.modal-content)), .modal-content):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  min-width: 0;
+  border: 1px solid var(--rc-control-border);
+  border-radius: 16px;
+  background: rgb(var(--rc-glass-color) / var(--rc-surface-opacity)) !important;
+  color: var(--rc-text);
+  color-scheme: var(--rc-color-scheme);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+}
+
+html[data-rc-ui-active][data-rc-frost-page="profile-edit"]
+  :is(#content, [role="dialog"], .modal-content) :is(input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="hidden"], [type="button"], [type="submit"]), textarea, select):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--rc-control-border);
+  border-radius: 10px;
+  background: var(--rc-control-bg) !important;
+  color: var(--rc-text);
+  font-size: 16px;
+  color-scheme: var(--rc-color-scheme);
+}
+
+html[data-rc-ui-active][data-rc-frost-page="profile-edit"]
+  :is(#content, [role="dialog"], .modal-content) :is(a, button, input, textarea, select, [tabindex="0"]):focus-visible:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+  outline: 2px solid var(--rc-focus) !important;
+  outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  html[data-rc-ui-active][data-rc-frost-page="profile-edit"] #content:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+    width: calc(100% - 24px) !important;
+    margin-block: 16px !important;
+  }
+
+  html[data-rc-ui-active][data-rc-frost-page="profile-edit"] #content
+    :is(button, a, [role="button"]).width-full:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
+    gap: 8px;
+    padding-inline: 12px;
+  }
+}

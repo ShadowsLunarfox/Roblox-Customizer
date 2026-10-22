@@ -22,6 +22,7 @@
   let gameFolder = '';
   let pinPromptPlaceId = 0;
   let focusPinPrompt = false;
+  let expandedFolderPlaceId = 0;
   const folderSelects = new WeakMap();
   let homeSection = null;
   let rendered = '';
@@ -92,9 +93,11 @@
 
   function cancelPinPrompt() {
     if (busy) return;
+    const folderWasOpen = expandedFolderPlaceId !== 0;
+    expandedFolderPlaceId = 0;
     pinPromptPlaceId = 0; focusPinPrompt = false;
     queueSync();
-    pinControl?.querySelector('button')?.focus();
+    (folderWasOpen ? pinFolderControl?.querySelector('.rc-game-pin-folder-toggle') : pinControl?.querySelector('button'))?.focus();
   }
 
   async function updatePin(context, existing) {
@@ -164,6 +167,7 @@
       gameFolderPlaceId = context.placeId;
       gameFolder = existing?.folderId || '';
       pinPromptPlaceId = 0; focusPinPrompt = false;
+      expandedFolderPlaceId = 0;
     }
     if (existing && pinPromptPlaceId === context.placeId) pinPromptPlaceId = 0;
     if (!busy && existing) gameFolder = existing.folderId || '';
@@ -172,7 +176,12 @@
       pinFolderControl = document.createElement('form');
       pinFolderControl.id = 'rc-game-pin-folder-panel';
       pinFolderControl.className = 'rc-game-pin-folder';
-      pinFolderControl.innerHTML = '<label for="rc-pin-game-folder">Pinned game folder</label><select id="rc-pin-game-folder" aria-describedby="rc-pin-game-folder-help"></select><p id="rc-pin-game-folder-help"></p><div class="rc-game-pin-folder-actions"><button type="submit" id="rc-confirm-pin-game">Pin Game</button><button type="button" class="rc-cancel-pin-game">Cancel</button></div>';
+      pinFolderControl.innerHTML = '<button type="button" class="rc-game-pin-folder-toggle" aria-controls="rc-game-pin-folder-fields" aria-expanded="false"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10H3z"/></svg><span class="rc-game-pin-folder-name"></span><span class="rc-game-pin-folder-chevron" aria-hidden="true"></span></button><div id="rc-game-pin-folder-fields"><label for="rc-pin-game-folder">Pinned game folder</label><select id="rc-pin-game-folder" aria-describedby="rc-pin-game-folder-help"></select><p id="rc-pin-game-folder-help"></p><div class="rc-game-pin-folder-actions"><button type="submit" id="rc-confirm-pin-game">Pin Game</button><button type="button" class="rc-cancel-pin-game">Cancel</button></div></div>';
+      pinFolderControl.querySelector('.rc-game-pin-folder-toggle').addEventListener('click', () => {
+        if (busy || !ready) return;
+        expandedFolderPlaceId = expandedFolderPlaceId === gameFolderPlaceId ? 0 : gameFolderPlaceId;
+        queueSync();
+      });
       pinFolderControl.querySelector('select').addEventListener('change', changeGameFolder);
       pinFolderControl.querySelector('.rc-cancel-pin-game').addEventListener('click', cancelPinPrompt);
       pinFolderControl.addEventListener('keydown', event => {
@@ -194,7 +203,24 @@
     select.value = gameFolder;
     select.disabled = !ready || busy;
     const promptOpen = pinPromptPlaceId === context.placeId;
+    if (!existing) expandedFolderPlaceId = 0;
     pinFolderControl.hidden = !existing && !promptOpen;
+    pinFolderControl.dataset.saved = String(!!existing);
+    const expanded = !!existing && expandedFolderPlaceId === context.placeId;
+    const disclosure = pinFolderControl.querySelector('.rc-game-pin-folder-toggle');
+    disclosure.hidden = !existing;
+    disclosure.setAttribute('aria-expanded', String(expanded));
+    const folderName = pinFolderControl.querySelector('.rc-game-pin-folder-name');
+    const folder = folders.find(item => item.id === gameFolder);
+    if (folder) {
+      folderName.dataset.rcI18nIgnore = '';
+      if (folderName.textContent !== folder.name) folderName.textContent = folder.name;
+    } else {
+      delete folderName.dataset.rcI18nIgnore;
+      if (!(globalThis.RobloxCustomizerI18n?.matches(folderName, 'Uncategorized') ?? folderName.textContent === 'Uncategorized')) folderName.textContent = 'Uncategorized';
+    }
+    globalThis.RobloxCustomizerI18n?.attribute(disclosure, 'title', 'Pinned game folder');
+    pinFolderControl.querySelector('#rc-game-pin-folder-fields').hidden = !!existing && !expanded;
     pinFolderControl.querySelector('.rc-game-pin-folder-actions').hidden = !!existing;
     for (const button of pinFolderControl.querySelectorAll('button')) button.disabled = !ready || busy;
     const pinButton = pinControl.querySelector('button');
@@ -228,6 +254,7 @@
       pinFolderControl?.remove(); pinFolderControl = null;
       gameFolderPlaceId = 0; gameFolder = '';
       pinPromptPlaceId = 0; focusPinPrompt = false;
+      expandedFolderPlaceId = 0;
       return;
     }
     const anchor = favoriteAnchor || row?.querySelector(':scope > :not(.rc-game-pin-control)');

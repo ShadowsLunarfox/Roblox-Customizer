@@ -135,6 +135,26 @@ test('profiles without a named wrapper use inner content instead of the main pag
   assert.equal(profile.fallbackProfileRoot(), main);
 });
 
+test('English Games headings retain their section boundary while native names change', () => {
+  // Exercise the local English fallback as well as the shared label table.
+  const { profile, document } = environment();
+  const root = new Element('div', { id: 'profile-container' });
+  const games = section('Games');
+  const favorites = section('Favorites');
+  const card = new Element('div', { className: 'game-card-container' });
+  card.append(new Element('h3', { text: 'Games' }));
+  games.items.append(card);
+  root.append(games.wrapper, favorites.wrapper);
+  document.append(root);
+  for (const title of ['Games', 'Experiences', 'Creations', 'Games']) {
+    games.heading.text = title;
+    const marked = profile.markSections(root);
+    assert.equal(marked.get('experiences'), games.wrapper, title);
+    assert.equal(marked.get('favorites'), favorites.wrapper);
+    assert.equal(card.dataset.rcProfileSection, undefined, 'A game title cannot become a profile section');
+  }
+});
+
 test('the current native information panel is styled without an h1 or English follower label', () => {
   for (const label of ['1 Follower', '0 Followers', '1 位粉絲']) {
     const { profile, document } = environment();
