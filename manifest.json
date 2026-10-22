@@ -25,6 +25,7 @@
   ],
   "host_permissions": [
     "https://users.roblox.com/*",
+    "https://friends.roblox.com/*",
     "https://presence.roblox.com/*",
     "https://accountinformation.roblox.com/*",
     "https://inventory.roblox.com/*",
@@ -96,7 +97,6 @@
         "src/shared/compatibility.js",
         "src/shared/runtime.js",
         "src/shared/native-labels.js",
-        "src/privacy/streamer-mode.js",
         "src/shared/i18n.js",
         "src/shared/fonts.js",
         "src/currency/robux-currency-core.js",
@@ -105,8 +105,7 @@
       "css": [
         "src/shared/theme.css",
         "src/shared/fonts.css",
-        "src/currency/robux-currency.css",
-        "src/privacy/streamer-mode.css"
+        "src/currency/robux-currency.css"
       ],
       "all_frames": true,
       "run_at": "document_start"
@@ -129,6 +128,8 @@
       ],
       "css": [
         "src/home/friends.css",
+        "src/home/pinned-friends.css",
+        "src/home/friends-manager.css",
         "src/settings/settings.css",
         "src/settings/extension-warning.css",
         "src/servers/server-history.css",
@@ -162,6 +163,11 @@
         "src/shared/routes.js",
         "src/shared/compatibility.js",
         "src/home/friends.js",
+        "src/home/pinned-friends-core.js",
+        "src/home/pinned-friend-menu.js",
+        "src/home/pinned-friends.js",
+        "src/home/friends-manager.js",
+        "src/home/follower-count.js",
         "src/notes/game-notes-core.js",
         "src/settings/backup-core.js",
         "src/servers/server-history-core.js",

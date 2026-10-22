@@ -34,6 +34,8 @@ function harness(url, script, cached = null) {
   const location = new URL(url, 'https://www.roblox.com');
   const context = {
     location,
+    enhancementsEnabled: () => true,
+    routePath: () => location.pathname,
     document: { documentElement: root, readyState: 'loading',
       addEventListener() {}, querySelector() { return null; } },
     localStorage: { getItem() { return cached && JSON.stringify(cached); }, setItem() {} },

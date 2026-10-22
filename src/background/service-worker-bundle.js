@@ -855,6 +855,439 @@
 })();
 ;
 
+// src/home/pinned-friends-core.js
+(function (root) {
+  'use strict';
+  const STORAGE_KEY = 'rcPinnedFriends';
+  const validId = value => Number.isSafeInteger(value) && value > 0;
+  const text = value => typeof value === 'string' ? value.trim().slice(0, 100) : '';
+  function imageUrl(value) {
+    try {
+      const url = new URL(value);
+      return url.protocol === 'https:' && /^(?:[a-z0-9-]+\.)?rbxcdn\.com$/i.test(url.hostname)
+        && !url.username && !url.password ? url.href : '';
+    } catch { return ''; }
+  }
+  function friends(value) {
+    const result = [], seen = new Set();
+    for (const item of Array.isArray(value) ? value : []) {
+      if (!validId(item?.userId) || seen.has(item.userId)) continue;
+      seen.add(item.userId);
+      result.push({ userId: item.userId, name: text(item.name), displayName: text(item.displayName),
+        imageUrl: imageUrl(item.imageUrl) });
+    }
+    return result;
+  }
+  function filter(items, options = {}) {
+    const query = String(options.query || '').trim().toLocaleLowerCase();
+    const pins = new Set((options.pins || []).map(item => item.userId));
+    const presence = id => options.presences?.[id];
+    const result = items.filter(item => (!query || `${item.displayName} ${item.name} ${item.userId}`.toLocaleLowerCase().includes(query))
+      && (!options.status || options.status === 'all' || (options.status === 'pinned' ? pins.has(item.userId)
+        : options.status === 'online' ? presence(item.userId) > 0
+        : options.status === 'ingame' ? presence(item.userId) === 2
+        : options.status === 'offline' ? presence(item.userId) === 0 : presence(item.userId) === 3)));
+    const name = (a, b) => (a.displayName || a.name).localeCompare(b.displayName || b.name, undefined, { numeric: true }) || a.userId - b.userId;
+    if (options.sort === 'name') result.sort(name);
+    else if (options.sort === 'username') result.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }) || a.userId - b.userId);
+    else if (options.sort === 'online') result.sort((a, b) => (presence(b.userId) > 0 ? 1 : 0) - (presence(a.userId) > 0 ? 1 : 0) || name(a, b));
+    else if (options.sort === 'pinned') result.sort((a, b) => Number(pins.has(b.userId)) - Number(pins.has(a.userId)) || name(a, b));
+    return result;
+  }
+  function normalize(value) {
+    const accounts = [], seen = new Set();
+    for (const account of value?.version === 1 && Array.isArray(value.accounts) ? value.accounts : []) {
+      if (!validId(account?.userId) || seen.has(account.userId)) continue;
+      seen.add(account.userId);
+      accounts.push({ userId: account.userId, friends: friends(account.friends) });
+    }
+    return { version: 1, accounts };
+  }
+  function validate(value) {
+    const clean = normalize(value);
+    if (value?.version !== 1 || !Array.isArray(value.accounts) || clean.accounts.length !== value.accounts.length
+      || value.accounts.some((account, index) => !Array.isArray(account.friends)
+        || account.friends.length !== clean.accounts[index].friends.length
+        || account.friends.some(item => typeof item.name !== 'string' || typeof item.displayName !== 'string'
+          || typeof item.imageUrl !== 'string' || item.imageUrl !== imageUrl(item.imageUrl)))) {
+      throw new Error('Invalid backup file. No data was imported.');
+    }
+    return clean;
+  }
+  const api = Object.freeze({ STORAGE_KEY, validId, imageUrl, friends, filter, normalize, validate });
+  root.RobloxCustomizerPinnedFriends = api;
+  if (typeof module === 'object' && module.exports) module.exports = api;
+})(globalThis);
+;
+
+// src/background/pinned-friends-background.js
+(() => {
+  'use strict';
+  const core = globalThis.RobloxCustomizerPinnedFriends;
+  const ERROR = 'Could not load friends. Please try again.';
+  const CHANGED = 'Your Roblox account changed. Please reload this page.';
+  let queue = Promise.resolve();
+  const rosters = new Map();
+  const activities = new Map();
+  function serial(task) {
+    const result = queue.then(task);
+    queue = result.catch(() => {});
+    return result;
+  }
+  globalThis.RobloxCustomizerPinnedFriendsBackground = Object.freeze({ withStorageLock: serial, account, roster, avatars,
+    invalidate(userId) { rosters.delete(userId); for (const key of activities.keys()) if (key.startsWith(`${userId}:`)) activities.delete(key); } });
+  async function json(url, options = {}) {
+    const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 8000);
+    try {
+      const response = await fetch(url, { credentials: 'include', ...options, signal: controller.signal });
+      if (!response.ok) throw new Error(ERROR);
+      return await response.json();
+    } finally { clearTimeout(timer); }
+  }
+  async function account() {
+    const user = await json('https://users.roblox.com/v1/users/authenticated');
+    if (!core.validId(user?.id)) throw new Error('Sign in to manage pinned friends.');
+    return user.id;
+  }
+  async function roster(userId) {
+    const cached = rosters.get(userId);
+    if (cached && Date.now() - cached.at < 60000) return cached.friends;
+    const entries = new Map(), cursors = new Set(), deadline = Date.now() + 35000;
+    let cursor = '';
+    for (let page = 0; page < 40; page++) {
+      const url = new URL(`https://friends.roblox.com/v1/users/${userId}/friends/find`);
+      url.search = new URLSearchParams({ limit: '50', userSort: '0', ...(cursor ? { cursor } : {}) });
+      const data = await json(url.href);
+      if (!Array.isArray(data?.PageItems)) throw new Error(ERROR);
+      for (const item of data.PageItems) if (core.validId(item?.id) && item.id !== userId) {
+        entries.set(item.id, { userId: item.id, name: item.name || '', displayName: item.displayName || '', imageUrl: '' });
+      }
+      cursor = data.NextCursor;
+      if (!cursor) break;
+      if (typeof cursor !== 'string' || cursors.has(cursor) || page === 39 || Date.now() > deadline) throw new Error(ERROR);
+      cursors.add(cursor);
+    }
+    // The current friends API may return only IDs. Resolve names using Roblox's user service.
+    const missing = [...entries.values()].filter(item => !item.name);
+    for (let index = 0; index < missing.length; index += 100) {
+      if (Date.now() > deadline) throw new Error(ERROR);
+      const result = await json('https://users.roblox.com/v1/users', { method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userIds: missing.slice(index, index + 100).map(item => item.userId), excludeBannedUsers: false }) });
+      if (!Array.isArray(result?.data)) throw new Error(ERROR);
+      for (const user of result.data) if (entries.has(user.id)) {
+        Object.assign(entries.get(user.id), { name: user.name, displayName: user.displayName });
+      }
+    }
+    const friends = core.friends([...entries.values()]);
+    if (rosters.size >= 3) rosters.delete(rosters.keys().next().value);
+    rosters.set(userId, { friends, at: Date.now() });
+    return friends;
+  }
+  async function avatars(ids) {
+    if (!ids.length) return [];
+    const url = new URL('https://thumbnails.roblox.com/v1/users/avatar-headshot');
+    url.search = new URLSearchParams({ userIds: ids.join(','), size: '150x150', format: 'Png', isCircular: 'false' });
+    const data = await json(url.href, { credentials: 'omit' });
+    return (Array.isArray(data?.data) ? data.data : []).filter(item => ids.includes(item.targetId)
+      && item.state === 'Completed' && core.imageUrl(item.imageUrl))
+      .map(item => ({ userId: item.targetId, imageUrl: core.imageUrl(item.imageUrl) }));
+  }
+  async function activity(accountId, userId) {
+    const key = `${accountId}:${userId}`, cached = activities.get(key);
+    if (cached && Date.now() - cached.at < 15000) return cached.value;
+    const response = await json('https://presence.roblox.com/v1/presence/users', { method: 'POST',
+      headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userIds: [userId] }) });
+    const presence = response?.userPresences?.find(item => item.userId === userId);
+    if (!presence || ![0, 1, 2, 3].includes(presence.userPresenceType)) throw new Error('Could not load friend activity. Please try again.');
+    const value = { userId, status: presence.userPresenceType,
+      placeId: core.validId(presence.placeId) ? presence.placeId : 0,
+      universeId: core.validId(presence.universeId) ? presence.universeId : 0,
+      gameId: typeof presence.gameId === 'string' && /^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i.test(presence.gameId) ? presence.gameId : '',
+      location: typeof presence.lastLocation === 'string' ? presence.lastLocation.slice(0, 200) : '', iconUrl: '' };
+    if (value.status === 2 && value.universeId) {
+      try {
+        const url = new URL('https://thumbnails.roblox.com/v1/games/icons');
+        url.search = new URLSearchParams({ universeIds: String(value.universeId), size: '150x150', format: 'Png', isCircular: 'false' });
+        const thumbnails = await json(url.href, { credentials: 'omit' });
+        const icon = thumbnails?.data?.find(item => item.targetId === value.universeId && item.state === 'Completed');
+        value.iconUrl = core.imageUrl(icon?.imageUrl);
+      } catch { /* Activity remains usable if a game thumbnail is unavailable. */ }
+    }
+    return value;
+  }
+  async function handle(message) {
+    const userId = await account();
+    if (message.action !== 'list' && message.accountId !== userId) throw new Error(CHANGED);
+    const saved = await chrome.storage.local.get(core.STORAGE_KEY);
+    const state = core.normalize(saved[core.STORAGE_KEY]);
+    let owner = state.accounts.find(item => item.userId === userId);
+    const pins = owner?.friends || [];
+    if (message.action === 'list') return { ok: true, accountId: userId, pins };
+    if (message.action === 'activity') {
+      if (!pins.some(friend => friend.userId === message.userId)) throw new Error('This friend is no longer pinned.');
+      const info = await activity(userId, message.userId);
+      if (await account() !== userId) throw new Error(CHANGED);
+      const key = `${userId}:${message.userId}`;
+      if (activities.get(key)?.value !== info) {
+        if (activities.size >= 30) activities.delete(activities.keys().next().value);
+        activities.set(key, { value: info, at: Date.now() });
+      }
+      return { ok: true, accountId: userId, activity: info };
+    }
+    if (message.action === 'roster') {
+      const friends = await roster(userId);
+      if (await account() !== userId) throw new Error(CHANGED);
+      return { ok: true, accountId: userId, friends, pins };
+    }
+    if (message.action === 'avatars') {
+      const allowed = new Set([...pins, ...(rosters.get(userId)?.friends || [])].map(item => item.userId));
+      const images = await avatars(message.userIds.filter(id => allowed.has(id)));
+      if (await account() !== userId) throw new Error(CHANGED);
+      return { ok: true, accountId: userId, images };
+    }
+    if (message.action === 'set') {
+      const friends = message.pinned ? await roster(userId) : [];
+      const friend = friends.find(item => item.userId === message.userId);
+      if (message.pinned && !friend) throw new Error('This user is no longer in your friends list.');
+      // Recheck after network reads; account switches must never modify the previous account's pins.
+      if (await account() !== userId) throw new Error(CHANGED);
+      if (!owner) { owner = { userId, friends: [] }; state.accounts.push(owner); }
+      if (message.pinned && !owner.friends.some(item => item.userId === message.userId)) {
+        owner.friends.push({ ...friend, imageUrl: core.imageUrl(message.imageUrl) });
+      } else if (!message.pinned) owner.friends = owner.friends.filter(item => item.userId !== message.userId);
+      await chrome.storage.local.set({ [core.STORAGE_KEY]: state });
+      return { ok: true, accountId: userId, pins: owner.friends };
+    }
+    throw new Error(ERROR);
+  }
+  chrome.runtime.onMessage.addListener((message, sender, respond) => {
+    if (message?.type !== 'rc-pinned-friends') return;
+    let url;
+    try { url = new URL(sender.url); } catch { return; }
+    if (sender.id !== chrome.runtime.id || (sender.frameId ?? 0) !== 0 || url.protocol !== 'https:'
+      || !['www.roblox.com', 'roblox.com'].includes(url.hostname)) return;
+    const actions = ['list', 'roster', 'avatars', 'set', 'activity'];
+    const valid = actions.includes(message.action) && (message.action === 'list' || core.validId(message.accountId))
+      && (message.action !== 'set' || core.validId(message.userId) && typeof message.pinned === 'boolean')
+      && (message.action !== 'activity' || core.validId(message.userId))
+      && (message.action !== 'avatars' || Array.isArray(message.userIds) && message.userIds.length <= 50
+        && message.userIds.every(core.validId));
+    if (!valid) { respond({ ok: false, error: ERROR }); return; }
+    serial(() => handle(message)).then(respond, error => respond({ ok: false, error: error.message || ERROR }));
+    return true;
+  });
+})();
+;
+
+// src/background/friends-manager-background.js
+(() => {
+  'use strict';
+  const core = globalThis.RobloxCustomizerPinnedFriends;
+  const shared = globalThis.RobloxCustomizerPinnedFriendsBackground;
+  const ERROR = 'Could not load friends. Please try again.';
+  const CHANGED = 'Your Roblox account changed. Please reload this page.';
+  const collections = new Map(), presences = new Map(), nextWrite = new Map(), followerCounts = new Map();
+  const kinds = ['friends', 'following', 'requests'];
+  const operations = { unfriend: 'friends', unfollow: 'following', accept: 'requests', decline: 'requests' };
+  let csrf = '', csrfAccount = 0;
+  async function assertAccount(owner) {
+    if (await shared.account() !== owner) throw new Error(CHANGED);
+  }
+  async function json(url, options = {}, owner = 0, retry = true) {
+    const controller = new AbortController(), timeout = setTimeout(() => controller.abort(), 10000);
+    try {
+      const response = await fetch(url, { credentials: 'include', ...options, signal: controller.signal });
+      const challenge = response.headers?.get('rblx-challenge-id');
+      if (challenge) throw new Error('Roblox requires verification. Complete it on Roblox, then try again.');
+      const token = response.headers?.get('x-csrf-token');
+      if (owner && retry && response.status === 403 && token) {
+        csrf = token; csrfAccount = owner;
+        await response.body?.cancel(); await assertAccount(owner);
+        return await json(url, { ...options, headers: { ...options.headers, 'x-csrf-token': csrf } }, owner, false);
+      }
+      if (response.status === 429) throw new Error('Roblox asked you to wait. Try again later.');
+      if (response.status === 401) throw new Error(CHANGED);
+      if (!response.ok) throw new Error(options.method === 'POST' && owner
+        ? 'Roblox could not complete this action. Refresh the list before trying again.' : ERROR);
+      if (response.status === 204) return {};
+      return await response.json();
+    } finally { clearTimeout(timeout); }
+  }
+  async function names(items) {
+    const missing = items.filter(item => !item.name);
+    for (let index = 0; index < missing.length; index += 100) {
+      const result = await json('https://users.roblox.com/v1/users', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userIds: missing.slice(index, index + 100).map(item => item.userId), excludeBannedUsers: false }) });
+      if (!Array.isArray(result?.data)) throw new Error(ERROR);
+      for (const user of result.data) {
+        const item = items.find(item => item.userId === user.id);
+        if (item) Object.assign(item, { name: user.name, displayName: user.displayName });
+      }
+    }
+    return core.friends(items);
+  }
+  async function collection(owner, kind, refresh = false) {
+    const key = `${owner}:${kind}`, cached = collections.get(key);
+    if (!refresh && cached && Date.now() - cached.at < 60000) return cached.items;
+    let items, nativeItems;
+    if (kind === 'friends') {
+      if (refresh) shared.invalidate(owner);
+      items = await shared.roster(owner);
+    } else {
+      const records = new Map(), nativeRecords = new Map(), cursors = new Set(), deadline = Date.now() + 40000;
+      let cursor = '';
+      for (let page = 0; page < 100; page++) {
+        const url = new URL(kind === 'following' ? `https://friends.roblox.com/v1/users/${owner}/followings` : 'https://friends.roblox.com/v1/my/friends/requests');
+        url.search = new URLSearchParams({ limit: kind === 'following' ? '100' : '50', ...(cursor ? { cursor } : {}) });
+        const result = await json(url.href);
+        if (!Array.isArray(result?.data)) throw new Error(ERROR);
+        for (const item of result.data) {
+          const id = item.id ?? item.friendRequest?.senderId;
+          if (core.validId(id) && id !== owner) {
+            records.set(id, { userId: id, name: item.name || '', displayName: item.displayName || '', imageUrl: '' });
+            if (kind === 'requests') nativeRecords.set(id, { friendRequest: {
+              senderId: id, sentAt: typeof item.friendRequest?.sentAt === 'string' ? item.friendRequest.sentAt : null,
+              sourceUniverseId: core.validId(item.friendRequest?.sourceUniverseId) ? item.friendRequest.sourceUniverseId : null,
+              originSourceType: item.friendRequest?.originSourceType === 2 ? 'QrCode' : item.friendRequest?.originSourceType ?? null },
+              mutualFriendsList: (Array.isArray(item.mutualFriendsList) ? item.mutualFriendsList : []).filter(name => typeof name === 'string') });
+          }
+        }
+        cursor = result.nextPageCursor;
+        if (!cursor) break;
+        if (typeof cursor !== 'string' || cursors.has(cursor) || page === 99 || Date.now() > deadline) throw new Error(ERROR);
+        cursors.add(cursor);
+      }
+      items = await names([...records.values()]);
+      nativeItems = items.map(item => ({ id: item.userId, name: item.name, displayName: item.displayName, ...nativeRecords.get(item.userId) }));
+    }
+    await assertAccount(owner);
+    if (collections.size >= 9) collections.delete(collections.keys().next().value);
+    collections.set(key, { items, nativeItems: nativeItems || items.map(item => ({ id: item.userId, name: item.name, displayName: item.displayName })), at: Date.now() });
+    return items;
+  }
+  async function followerCount(sender, refresh) {
+    let url = new URL(sender.url);
+    if (globalThis.RobloxCustomizerPageContext?.canResolve(sender)) {
+      url = await globalThis.RobloxCustomizerPageContext.resolve(sender);
+      if (!url) throw new Error(CHANGED);
+    }
+    const path = globalThis.RobloxCustomizerRoutes?.pathname(url.pathname) || url.pathname;
+    const match = path.match(/^\/users\/(?:(\d+)\/)?friends\/?$/i);
+    if (!match) throw new Error(ERROR);
+    const userId = match[1] ? Number(match[1]) : await shared.account();
+    if (!core.validId(userId)) throw new Error(ERROR);
+    const cached = followerCounts.get(userId);
+    let count;
+    if (!refresh && cached && Date.now() - cached.at < 60000) count = cached.count;
+    else {
+      const result = await json(`https://friends.roblox.com/v1/users/${userId}/followers/count`, { credentials: 'omit' });
+      if (!Number.isSafeInteger(result?.count) || result.count < 0) throw new Error(ERROR);
+      count = result.count;
+      if (followerCounts.size >= 10) followerCounts.delete(followerCounts.keys().next().value);
+      followerCounts.set(userId, { count, at: Date.now() });
+    }
+    if (!match[1]) await assertAccount(userId);
+    return { ok: true, userId, count };
+  }
+  async function state(owner) {
+    const saved = await chrome.storage.local.get(core.STORAGE_KEY);
+    const value = core.normalize(saved[core.STORAGE_KEY]);
+    let account = value.accounts.find(item => item.userId === owner);
+    if (!account) { account = { userId: owner, friends: [] }; value.accounts.push(account); }
+    return { value, account };
+  }
+  async function handle(message, sender) {
+    const owner = await shared.account();
+    if (message.accountId && message.accountId !== owner) throw new Error(CHANGED);
+    let url = new URL(sender.url);
+    if (globalThis.RobloxCustomizerPageContext?.canResolve(sender)) {
+      url = await globalThis.RobloxCustomizerPageContext.resolve(sender);
+      if (!url) throw new Error(CHANGED);
+    }
+    const pathname = globalThis.RobloxCustomizerRoutes?.pathname(url.pathname) || url.pathname;
+    const match = pathname.match(/^\/users\/(?:(\d+)\/)?friends\/?$/i);
+    if (!match) throw new Error(CHANGED);
+    if (match[1] && Number(match[1]) !== owner) {
+      if (message.action === 'list') return { ok: true, accountId: owner, items: [], pins: [] };
+      throw new Error(CHANGED);
+    }
+    if (message.action === 'list') {
+      const items = await collection(owner, message.kind, message.refresh === true);
+      const { account } = await state(owner);
+      return { ok: true, accountId: owner, items, nativeItems: collections.get(`${owner}:${message.kind}`)?.nativeItems || [], pins: account.friends };
+    }
+    if (message.accountId !== owner) throw new Error(CHANGED);
+    if (message.action === 'avatars' || message.action === 'presence') {
+      const items = await collection(owner, message.action === 'presence' ? 'friends' : message.kind);
+      const allowed = new Set(items.map(item => item.userId));
+      if (message.userIds.some(id => !allowed.has(id))) throw new Error(ERROR);
+      if (message.action === 'avatars') {
+        const images = await shared.avatars(message.userIds); await assertAccount(owner);
+        return { ok: true, accountId: owner, images };
+      }
+      const key = `${owner}:${message.userIds.join(',')}`, cached = presences.get(key);
+      if (cached && Date.now() - cached.at < 30000) return { ok: true, accountId: owner, presences: cached.items };
+      const result = await json('https://presence.roblox.com/v1/presence/users', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userIds: message.userIds }) });
+      if (!Array.isArray(result?.userPresences)) throw new Error(ERROR);
+      const allowedIds = new Set(message.userIds);
+      const values = result.userPresences.filter(item => allowedIds.has(item.userId) && [0, 1, 2, 3].includes(item.userPresenceType))
+        .map(item => ({ userId: item.userId, status: item.userPresenceType }));
+      await assertAccount(owner);
+      if (presences.size >= 30) presences.delete(presences.keys().next().value);
+      presences.set(key, { items: values, at: Date.now() });
+      return { ok: true, accountId: owner, presences: values };
+    }
+    if (message.action === 'relationship') {
+      const kind = operations[message.operation];
+      const items = await collection(owner, kind);
+      if (!items.some(item => item.userId === message.userId)) throw new Error('This person is no longer in this list. Refresh and try again.');
+      const wait = Math.max(0, (nextWrite.get(owner) || 0) - Date.now());
+      if (wait) await new Promise(resolve => setTimeout(resolve, wait));
+      await assertAccount(owner);
+      const endpoint = { unfriend: 'unfriend', unfollow: 'unfollow', accept: 'accept-friend-request', decline: 'decline-friend-request' }[message.operation];
+      nextWrite.set(owner, Date.now() + 6500);
+      await json(`https://friends.roblox.com/v1/users/${message.userId}/${endpoint}`, { method: 'POST', headers: {
+        'Content-Type': 'application/json', ...(csrfAccount === owner && csrf ? { 'x-csrf-token': csrf } : {}) }, body: '{}' }, owner);
+      // Once Roblox confirms a write, never retry it because local cleanup or a later account read failed.
+      const cached = collections.get(`${owner}:${kind}`);
+      if (cached) { cached.items = cached.items.filter(item => item.userId !== message.userId); cached.nativeItems = cached.nativeItems.filter(item => item.id !== message.userId); }
+      let cleanupFailed = false;
+      if (message.operation === 'unfriend') {
+        shared.invalidate(owner);
+        try {
+          const { value, account } = await state(owner);
+          account.friends = account.friends.filter(item => item.userId !== message.userId);
+          await chrome.storage.local.set({ [core.STORAGE_KEY]: value });
+        } catch { cleanupFailed = true; }
+      } else if (message.operation === 'accept') { shared.invalidate(owner); collections.delete(`${owner}:friends`); }
+      presences.clear();
+      return { ok: true, accountId: owner, userId: message.userId, cleanupFailed };
+    }
+    throw new Error(ERROR);
+  }
+  chrome.runtime.onMessage.addListener((message, sender, respond) => {
+    if (message?.type !== 'rc-friends-manager') return;
+    let url;
+    try { url = new URL(sender.url); } catch { return; }
+    if (sender.id !== chrome.runtime.id || (sender.frameId ?? 0) !== 0 || url.protocol !== 'https:' || !['www.roblox.com', 'roblox.com'].includes(url.hostname)) return;
+    const ids = value => Array.isArray(value) && value.length > 0 && value.length <= 100 && value.every(core.validId) && new Set(value).size === value.length;
+    const countRequest = message.action === 'follower-count' && message.accountId === 0
+      && (message.refresh === undefined || typeof message.refresh === 'boolean');
+    const valid = countRequest || (message.accountId === 0 && message.action === 'list' || core.validId(message.accountId)) && (
+      message.action === 'list' && kinds.includes(message.kind)
+      || message.action === 'avatars' && kinds.includes(message.kind) && ids(message.userIds) && message.userIds.length <= 50
+      || message.action === 'presence' && ids(message.userIds)
+      || message.action === 'relationship' && Object.hasOwn(operations, message.operation) && core.validId(message.userId));
+    if (!valid) { respond({ ok: false, error: ERROR }); return; }
+    const task = countRequest ? followerCount(sender, message.refresh === true) : shared.withStorageLock(() => handle(message, sender));
+    task.then(respond, failure => respond({ ok: false, error: failure.message || ERROR }));
+    return true;
+  });
+})();
+;
+
 // src/notes/game-notes-core.js
 (function (root) {
   'use strict';
@@ -1396,7 +1829,7 @@
   const VERSION = 1;
   const MAX_BYTES = 256 * 1024 * 1024;
   const KEYS = Object.freeze(['customBackground', 'robuxCurrency', 'pinnedGames',
-    'pinnedGameFolders', 'playtimeTrackingEnabled', 'rcPlaytimeHistory', 'rcGameNotes']);
+    'pinnedGameFolders', 'playtimeTrackingEnabled', 'rcPlaytimeHistory', 'rcGameNotes', 'rcPinnedFriends']);
   const fail = () => { throw new Error('Invalid backup file. No data was imported.'); };
   const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
   const count = value => Number.isSafeInteger(value) && value >= 0;
@@ -1415,6 +1848,7 @@
     if (!object(value)) fail();
     const settings = { ...value };
     delete settings._writer;
+    for (const key of ['streamerMode', 'streamerHideRobux', 'streamerHideFriends', 'streamerHideMessages']) delete settings[key];
     const options = { source: ['none', 'file', 'url'], fit: ['cover', 'contain'],
       urlType: ['auto', 'image', 'video'], uiLanguage: ['auto', 'en', 'zh-CN', 'zh-TW', 'id', 'ja', 'th', 'ko'] };
     for (const [key, allowed] of Object.entries(options)) {
@@ -1425,7 +1859,7 @@
       if (key in settings && (!Number.isFinite(settings[key]) || settings[key] < min || settings[key] > max)) fail();
     }
     for (const [key, item] of Object.entries(settings)) {
-      if (/^(?:hide|show|disable|clockShow|clockHour|streamer)|^(?:experimentalCustomColors|customFontEnabled)$/.test(key)
+      if (/^(?:hide|show|disable|clockShow|clockHour)|^(?:experimentalCustomColors|customFontEnabled)$/.test(key)
         && key !== 'hiddenRecommendedGames' && typeof item !== 'boolean') fail();
       if (/^custom(?:Text|Background|Accent)Color$/.test(key) && !/^#[0-9a-f]{6}$/i.test(item)) fail();
       if (['url','fileKey','fileName','fontFileKey','fontFileName','greetingMorning','greetingAfternoon','greetingEvening'].includes(key)
@@ -1447,8 +1881,8 @@
   }
   function data(value) {
     jsonValue(value);
-    // Notes were added to version 1 backups later; older files contain no notes.
-    if (!object(value) || KEYS.some(key => key !== 'rcGameNotes' && !Object.hasOwn(value, key))
+    // Notes and friend pins were added later; older version 1 files contain neither.
+    if (!object(value) || KEYS.some(key => !['rcGameNotes', 'rcPinnedFriends'].includes(key) && !Object.hasOwn(value, key))
       || Object.keys(value).some(key => !KEYS.includes(key) && key !== 'rcServerLocation')) fail();
     if (typeof value.playtimeTrackingEnabled !== 'boolean' || !object(value.robuxCurrency)
       || typeof value.robuxCurrency.enabled !== 'boolean'
@@ -1475,11 +1909,15 @@
     let notes;
     try { notes = value.rcGameNotes === undefined ? root.RobloxCustomizerGameNotes.normalize(null)
       : root.RobloxCustomizerGameNotes.validate(value.rcGameNotes); } catch { fail(); }
+    let friendPins;
+    try { friendPins = value.rcPinnedFriends === undefined ? root.RobloxCustomizerPinnedFriends.normalize(null)
+      : root.RobloxCustomizerPinnedFriends.validate(value.rcPinnedFriends); } catch { fail(); }
     // Ignore legacy saved server selections; filters now exist only on the page.
     return { customBackground: background(value.customBackground),
       robuxCurrency: root.RobloxCustomizerCurrencyCore.normalizeSettings(value.robuxCurrency),
       pinnedGames: pins.games, pinnedGameFolders: pins.folders,
-      playtimeTrackingEnabled: value.playtimeTrackingEnabled, rcPlaytimeHistory: cleanHistory, rcGameNotes: notes };
+      playtimeTrackingEnabled: value.playtimeTrackingEnabled, rcPlaytimeHistory: cleanHistory,
+      rcGameNotes: notes, rcPinnedFriends: friendPins };
   }
   function snapshot(saved) {
     const pins = root.RobloxCustomizerPinnedGames.state(saved.pinnedGames, saved.pinnedGameFolders);
@@ -1489,7 +1927,8 @@
       pinnedGameFolders: pins.folders,
       playtimeTrackingEnabled: saved.playtimeTrackingEnabled !== false,
       rcPlaytimeHistory: root.RobloxCustomizerPlaytime.normalize(saved.rcPlaytimeHistory),
-      rcGameNotes: root.RobloxCustomizerGameNotes.normalize(saved.rcGameNotes) });
+      rcGameNotes: root.RobloxCustomizerGameNotes.normalize(saved.rcGameNotes),
+      rcPinnedFriends: root.RobloxCustomizerPinnedFriends.normalize(saved.rcPinnedFriends) });
   }
   function validate(value) {
     if (!object(value) || value.format !== FORMAT) fail();
@@ -1533,9 +1972,10 @@
     try { url = new URL(sender.url); } catch { return; }
     if (sender.id !== chrome.runtime.id || url.protocol !== 'https:'
       || !['www.roblox.com', 'roblox.com'].includes(url.hostname) || (sender.frameId ?? 0) !== 0) return;
-    // Share both mutation queues: an in-flight presence poll or pin refresh
+    // Share mutation queues: an in-flight presence poll or pin refresh
     // must finish before the snapshot/restore, never overwrite restored data.
-    const result = queue.then(() => globalThis.RobloxCustomizerPinnedGamesBackground.withStorageLock(() =>
+    const result = queue.then(() => globalThis.RobloxCustomizerPinnedFriendsBackground.withStorageLock(() =>
+      globalThis.RobloxCustomizerPinnedGamesBackground.withStorageLock(() =>
       globalThis.RobloxCustomizerPlaytimeBackground.withStorageLock(() =>
       globalThis.RobloxCustomizerGameNotesBackground.withStorageLock(async () => {
         if (message.action === 'export') {
@@ -1561,7 +2001,7 @@
           return { ok: true };
         }
         return { ok: false, error: 'Invalid backup action.' };
-      }))));
+      })))));
     queue = result.catch(() => {});
     result.then(respond, error => respond({ ok: false, rejected: true,
       error: error.message || 'Could not access backup data.' }));

@@ -15,14 +15,14 @@ function fixture() {
     ${styles.map(file => `<link rel="stylesheet" href="/${file}">`).join('')}
     <style>body{font:14px Arial;margin:20px;background:#34465a;color:white}.game-card-container{display:inline-block;width:120px;padding:8px}.friend-tile-dropdown{position:fixed;top:100px;left:20px;z-index:1000}.friend-tile-dropdown button{display:block}</style></head><body class="dark-theme">
     <nav><button id="hover-trigger">Hover</button><button id="native-action">Native action</button><ul id="settings-popover-menu"><li><a href="/my/account">Settings</a></li></ul></nav>
-    <main id="HomeContainer"><div class="friend-carousel-container"><div class="react-friends-carousel-container"><div><div class="friends-carousel-list-container">
+    <main id="HomeContainer"><div id="native-friends-wrapper"><div class="friend-carousel-container"><div class="react-friends-carousel-container"><div><div class="friends-carousel-list-container">
       ${Array.from({length:51}, (_,i) => `<div class="friends-carousel-tile">Friend ${i}</div>`).join('')}
-    </div></div></div></div><section id="recommendations"><h2>Recommended For You</h2><div class="game-grid">
+    </div></div></div></div></div><section id="recommendations"><h2>Recommended For You</h2><div class="game-grid">
       ${Array.from({length:500}, (_,i) => `<div class="game-card-container"><a href="https://www.roblox.com/games/${1000+i}/Test"><span class="game-card-name">Game ${i}</span></a><div class="item-card-price"><span class="icon-robux-16x16"></span><span class="text-robux">${100+i}</span></div><div><span>Stats</span><button>Details</button><div><span>About this game</span><p>Description</p></div></div></div>`).join('')}
     </div></section></main>
     <script>
       const listeners=[];window.saved={robloxCustomizerTermsAccepted:true,customBackground:{source:'none',clockShowSeconds:false}};
-      window.chrome={i18n:{getUILanguage:()=> 'en-US'},storage:{local:{async get(keys){return Object.fromEntries((Array.isArray(keys)?keys:[keys]).map(key=>[key,saved[key]]))},async set(values){Object.assign(saved,values)}},onChanged:{addListener(fn){listeners.push(fn)}}},runtime:{lastError:null,getURL:file=>'/'+file,sendMessage(message,callback){queueMicrotask(()=>callback(message.type==='rc-home-user'?{id:123,name:'Player',displayName:'Player'}:message.type==='rc-playtime'?{ok:true,enabled:false,account:null,games:[],status:{kind:'disabled',checkedAt:0}}:{ok:true,games:[],folders:[]}))}}};
+      window.chrome={i18n:{getUILanguage:()=> 'en-US'},storage:{local:{async get(keys){return Object.fromEntries((Array.isArray(keys)?keys:[keys]).map(key=>[key,saved[key]]))},async set(values){Object.assign(saved,values)}},onChanged:{addListener(fn){listeners.push(fn)}}},runtime:{lastError:null,getURL:file=>'/'+file,sendMessage(message,callback){queueMicrotask(()=>callback(message.type==='rc-home-user'?{id:123,name:'Player',displayName:'Player'}:message.type==='rc-playtime'?{ok:true,enabled:false,account:null,games:[],status:{kind:'disabled',checkedAt:0}}:message.type==='rc-pinned-friends'?{ok:true,accountId:123,pins:[1,2].map(userId=>({userId,name:'Friend'+userId,displayName:'Friend '+userId,imageUrl:''})),images:[],activity:{userId:message.userId,status:2,placeId:10,universeId:20,gameId:'11111111-2222-3333-4444-555555555555',location:'A game',iconUrl:''}}:{ok:true,games:[],folders:[]}))}}};
       window.resetWork=()=>window.work={currencyScans:0,homeScans:0,formats:0,friendWrites:0,chatScans:0,accountScans:0,gameScans:0};resetWork();
       const query=Element.prototype.querySelectorAll;
       Element.prototype.querySelectorAll=function(selector){if(this===document.body&&selector.includes('icon-robux'))work.currencyScans++;if(this.id==='HomeContainer'&&selector.includes('/games/'))work.homeScans++;if(this.id==='HomeContainer'&&selector.includes('Search for friends'))work.chatScans++;return query.call(this,selector)};
@@ -53,6 +53,19 @@ test('Hover portals do not rescan the page or reformat unrelated prices; live co
       await browser.waitFor("document.querySelectorAll('.text-robux + .rc-robux-equivalent').length===500");
       // Let startup discovery settle before measuring native hover activity.
       await browser.evaluate('new Promise(resolve=>setTimeout(resolve,650))');
+      if (route === '/home') {
+        const frames = await browser.evaluate(`(async()=>{
+          const samples=[];
+          for(let frame=0;frame<20;frame++){
+            await new Promise(requestAnimationFrame);
+            samples.push([document.querySelector('.friend-carousel-container').getBoundingClientRect().top,
+              document.querySelector('#recommendations').getBoundingClientRect().top,document.documentElement.scrollHeight,scrollY]);
+          }
+          return samples;
+        })()`);
+        for (const index of [0, 1, 2, 3]) assert.ok(Math.max(...frames.map(frame=>frame[index]))-Math.min(...frames.map(frame=>frame[index]))<1,
+          'The full Home page stays still while its native friends carousel is nested');
+      }
       await browser.evaluate('resetWork()');
       const point = await browser.evaluate("(()=>{const r=document.querySelector('#hover-trigger').getBoundingClientRect();return {x:r.left+5,y:r.top+5}})()");
       await browser.send('Input.dispatchMouseEvent', { type: 'mouseMoved', ...point });
@@ -85,6 +98,31 @@ test('Hover portals do not rescan the page or reformat unrelated prices; live co
       await browser.waitFor("!!document.querySelector('.friend-tile-dropdown .rc-robux-equivalent')");
       assert.equal(await browser.evaluate("document.querySelectorAll('#HomeContainer .rc-robux-equivalent').length"), 500);
       if (route === '/home') {
+        await browser.waitFor("document.querySelectorAll('#rc-pinned-friends li').length===2");
+        await browser.evaluate('resetWork()');
+        await browser.send('Emulation.setCPUThrottlingRate', {rate:4});
+        const hover = await browser.evaluate(`(async()=>{
+          const times=[];let controls;
+          for(const id of [1,2,1,2,1,2]){
+            const a=document.querySelector('#rc-pinned-friends li[data-user-id="'+id+'"] > a'),start=performance.now();
+            a.dispatchEvent(new PointerEvent('pointerenter',{pointerType:'mouse'}));
+            await new Promise((resolve,reject)=>{function check(){const menu=document.querySelector('#rc-pinned-friend-menu');
+              if(menu?.matches(':popover-open')&&menu.dataset.userId===String(id)&&getComputedStyle(menu).visibility==='visible')resolve();
+              else if(performance.now()-start>3000)reject(new Error('Menu did not open'));else requestAnimationFrame(check)}check()});
+            times.push(performance.now()-start);
+            controls ||= [...document.querySelectorAll('#rc-pinned-friend-menu [data-rc-friend-action]')];
+            await new Promise(resolve=>setTimeout(resolve,100));
+          }
+          const stable=controls.every(node=>node.isConnected&&node.closest('#rc-pinned-friend-menu'));
+          document.querySelector('#rc-pinned-friends li[data-user-id="2"] > a').dispatchEvent(new PointerEvent('pointerleave',{pointerType:'mouse'}));
+          return {times,stable,chatMarked:document.querySelector('#rc-pinned-friend-menu').hasAttribute('data-rc-chat-panel')};
+        })()`);
+        await browser.send('Emulation.setCPUThrottlingRate', {rate:1});
+        assert.equal(hover.stable, true, 'Changing friends and loading activity retain the same action buttons');
+        assert.equal(hover.chatMarked, false, 'A friend menu is not rediscovered as a native chat window');
+        assert.ok(Math.max(...hover.times.slice(1))<160, `Warm menu switches avoid another hover delay: ${hover.times.map(Math.round).join(', ')} ms`);
+        await browser.waitFor("!document.querySelector('#rc-pinned-friend-menu').matches(':popover-open')");
+        assert.deepEqual(await browser.evaluate('work'), { currencyScans:0, homeScans:0, formats:0, friendWrites:0, chatScans:0, accountScans:0, gameScans:0 }, 'Pinned-friend hovers do not rescan unrelated content');
         await browser.evaluate("const tile=document.createElement('div');tile.className='friends-carousel-tile';tile.textContent='New friend';document.querySelector('.friends-carousel-list-container').append(tile)");
         await browser.waitFor("document.querySelector('.friends-carousel-list-container').lastElementChild.hasAttribute('data-rc-native-friend-cell')");
         await browser.evaluate("const card=document.createElement('div');card.className='game-card-container';card.innerHTML='<a href=\"https://www.roblox.com/games/9999/New\"><span class=\"game-card-name\">New game</span></a>';document.querySelector('.game-grid').append(card)");

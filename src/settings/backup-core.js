@@ -4,7 +4,7 @@
   const VERSION = 1;
   const MAX_BYTES = 256 * 1024 * 1024;
   const KEYS = Object.freeze(['customBackground', 'robuxCurrency', 'pinnedGames',
-    'pinnedGameFolders', 'playtimeTrackingEnabled', 'rcPlaytimeHistory', 'rcGameNotes']);
+    'pinnedGameFolders', 'playtimeTrackingEnabled', 'rcPlaytimeHistory', 'rcGameNotes', 'rcPinnedFriends']);
   const fail = () => { throw new Error('Invalid backup file. No data was imported.'); };
   const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
   const count = value => Number.isSafeInteger(value) && value >= 0;
@@ -23,6 +23,7 @@
     if (!object(value)) fail();
     const settings = { ...value };
     delete settings._writer;
+    for (const key of ['streamerMode', 'streamerHideRobux', 'streamerHideFriends', 'streamerHideMessages']) delete settings[key];
     const options = { source: ['none', 'file', 'url'], fit: ['cover', 'contain'],
       urlType: ['auto', 'image', 'video'], uiLanguage: ['auto', 'en', 'zh-CN', 'zh-TW', 'id', 'ja', 'th', 'ko'] };
     for (const [key, allowed] of Object.entries(options)) {
@@ -33,7 +34,7 @@
       if (key in settings && (!Number.isFinite(settings[key]) || settings[key] < min || settings[key] > max)) fail();
     }
     for (const [key, item] of Object.entries(settings)) {
-      if (/^(?:hide|show|disable|clockShow|clockHour|streamer)|^(?:experimentalCustomColors|customFontEnabled)$/.test(key)
+      if (/^(?:hide|show|disable|clockShow|clockHour)|^(?:experimentalCustomColors|customFontEnabled)$/.test(key)
         && key !== 'hiddenRecommendedGames' && typeof item !== 'boolean') fail();
       if (/^custom(?:Text|Background|Accent)Color$/.test(key) && !/^#[0-9a-f]{6}$/i.test(item)) fail();
       if (['url','fileKey','fileName','fontFileKey','fontFileName','greetingMorning','greetingAfternoon','greetingEvening'].includes(key)
@@ -55,8 +56,8 @@
   }
   function data(value) {
     jsonValue(value);
-    // Notes were added to version 1 backups later; older files contain no notes.
-    if (!object(value) || KEYS.some(key => key !== 'rcGameNotes' && !Object.hasOwn(value, key))
+    // Notes and friend pins were added later; older version 1 files contain neither.
+    if (!object(value) || KEYS.some(key => !['rcGameNotes', 'rcPinnedFriends'].includes(key) && !Object.hasOwn(value, key))
       || Object.keys(value).some(key => !KEYS.includes(key) && key !== 'rcServerLocation')) fail();
     if (typeof value.playtimeTrackingEnabled !== 'boolean' || !object(value.robuxCurrency)
       || typeof value.robuxCurrency.enabled !== 'boolean'
@@ -83,11 +84,15 @@
     let notes;
     try { notes = value.rcGameNotes === undefined ? root.RobloxCustomizerGameNotes.normalize(null)
       : root.RobloxCustomizerGameNotes.validate(value.rcGameNotes); } catch { fail(); }
+    let friendPins;
+    try { friendPins = value.rcPinnedFriends === undefined ? root.RobloxCustomizerPinnedFriends.normalize(null)
+      : root.RobloxCustomizerPinnedFriends.validate(value.rcPinnedFriends); } catch { fail(); }
     // Ignore legacy saved server selections; filters now exist only on the page.
     return { customBackground: background(value.customBackground),
       robuxCurrency: root.RobloxCustomizerCurrencyCore.normalizeSettings(value.robuxCurrency),
       pinnedGames: pins.games, pinnedGameFolders: pins.folders,
-      playtimeTrackingEnabled: value.playtimeTrackingEnabled, rcPlaytimeHistory: cleanHistory, rcGameNotes: notes };
+      playtimeTrackingEnabled: value.playtimeTrackingEnabled, rcPlaytimeHistory: cleanHistory,
+      rcGameNotes: notes, rcPinnedFriends: friendPins };
   }
   function snapshot(saved) {
     const pins = root.RobloxCustomizerPinnedGames.state(saved.pinnedGames, saved.pinnedGameFolders);
@@ -97,7 +102,8 @@
       pinnedGameFolders: pins.folders,
       playtimeTrackingEnabled: saved.playtimeTrackingEnabled !== false,
       rcPlaytimeHistory: root.RobloxCustomizerPlaytime.normalize(saved.rcPlaytimeHistory),
-      rcGameNotes: root.RobloxCustomizerGameNotes.normalize(saved.rcGameNotes) });
+      rcGameNotes: root.RobloxCustomizerGameNotes.normalize(saved.rcGameNotes),
+      rcPinnedFriends: root.RobloxCustomizerPinnedFriends.normalize(saved.rcPinnedFriends) });
   }
   function validate(value) {
     if (!object(value) || value.format !== FORMAT) fail();

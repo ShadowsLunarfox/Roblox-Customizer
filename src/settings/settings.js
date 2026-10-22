@@ -35,7 +35,6 @@
     source: 'none', url: '', urlType: 'auto', fileKey: '', fileName: '',
     fit: 'cover', dim: 20, glassBlur: 18, glassOpacity: 62, uiLanguage: 'auto',
     disableTransparency: false, disableBlur: false,
-    streamerMode: false, streamerHideRobux: true, streamerHideFriends: true, streamerHideMessages: true,
     customFontEnabled: false, fontFileKey: '', fontFileName: '',
     experimentalCustomColors: false,
     customTextColor: '#f4f6fb', customBackgroundColor: '#14161c', customAccentColor: '#335fff',
@@ -122,8 +121,7 @@
     if (!['auto', 'en', 'zh-CN', 'zh-TW', 'id', 'ja', 'th', 'ko'].includes(saved.uiLanguage)) saved.uiLanguage = 'auto';
     saved.disableTransparency = saved.disableTransparency === true;
     saved.disableBlur = saved.disableBlur === true;
-    saved.streamerMode = saved.streamerMode === true;
-    for (const key of ['streamerHideRobux','streamerHideFriends','streamerHideMessages']) saved[key] = saved[key] !== false;
+    for (const key of ['streamerMode', 'streamerHideRobux', 'streamerHideFriends', 'streamerHideMessages']) delete saved[key];
     saved.experimentalCustomColors = saved.experimentalCustomColors === true;
     for (const control of HOME_BANNER) saved[control.key] = saved[control.key] !== false;
     saved.showPinnedGames = saved.showPinnedGames !== false;
@@ -452,7 +450,7 @@
 
   function markHomeSections(home, cardSelector, gameSelector) {
     const sections = new Map();
-    const protectedSections = '.friend-carousel-container, #rc-pinned-games, #rc-home-greeting, #rc-settings-overlay';
+    const protectedSections = '.friend-carousel-container, #rc-pinned-friends, #rc-pinned-games, #rc-home-greeting, #rc-settings-overlay';
     const headingSelector = 'h1, h2, h3, h4, [role="heading"], .game-home-page-carousel-title, .game-carousel-title, '
       + '[data-testid="section-header-title-subtitle-container"]';
     const headerSelector = '.home-sort-header-container, [data-testid="section-header"], .container-header';
@@ -1294,7 +1292,6 @@
   }
 
   function applyCurrentSettings(previous) {
-    globalThis.RobloxCustomizerStreamer?.apply(settings);
     void globalThis.RobloxCustomizerFonts?.apply(settings);
     refreshFontControls();
     pendingAppearance = null;
@@ -1564,6 +1561,11 @@
     preview.querySelector('#rc-import-preview-notes').textContent = t(
       '{count} game notes are included. Import replaces saved notes, including when the backup contains none.',
       { count: backup.data.rcGameNotes?.notes.length || 0 });
+    const friendPins = document.createElement('p');
+    friendPins.textContent = t('{count} pinned friends across {accounts} accounts are included. Import replaces saved friend pins, including when this backup contains none.',
+      { count: backup.data.rcPinnedFriends.accounts.reduce((total, account) => total + account.friends.length, 0),
+        accounts: backup.data.rcPinnedFriends.accounts.length });
+    preview.querySelector('#rc-import-preview-notes').after(friendPins);
     preview.querySelector('#rc-import-preview-media').textContent = t(backup.media
       ? 'An uploaded background image or video is included.'
       : backup.data.customBackground.source === 'url'
@@ -1789,7 +1791,6 @@
       { id: 'home', title: 'Home page', nodes: ['.rc-settings-home', '#rc-playtime-settings', '#rc-server-history-settings'] },
       { id: 'pinned-games', title: 'Pinned Games', nodes: ['.rc-settings-pinned-games'] },
       { id: 'social', title: 'Social', nodes: ['.rc-settings-social'] },
-      { id: 'privacy', title: 'Privacy', nodes: ['#rc-streamer-settings'] },
       { id: 'currency', title: 'Currency', nodes: ['#rc-currency-settings'] },
       { id: 'data', title: 'Language & data', nodes: ['.rc-settings-language', '.rc-settings-backup'] }
     ];
@@ -1908,7 +1909,6 @@
           </select>
         </div>
         <div id="rc-currency-settings" class="rc-settings-currency"></div>
-        <div id="rc-streamer-settings"></div>
         <label class="rc-source-label rc-default-source"><input type="radio" name="rc-source" value="none"> Roblox default background</label>
         <div class="rc-settings-field">
           <label class="rc-source-label"><input type="radio" name="rc-source" value="file"> Local file</label>
@@ -2082,9 +2082,6 @@
         </footer>
       </div>`;
     document.body.append(modal);
-    globalThis.RobloxCustomizerStreamer?.mountSettings(modal.querySelector('#rc-streamer-settings'), {
-      get: () => settings, onChange: patch => changeSettings({ ...settings, ...patch }, true)
-    });
     updateLegalLinks();
     if (enhancementsEnabled()) {
       globalThis.RobloxCustomizerCurrency?.mountSettings(modal.querySelector('#rc-currency-settings'));
@@ -2345,7 +2342,7 @@
   });
 
   const HOME_CONTENT_SELECTOR = '#HomeContainer, .home-container, [data-testid="home-page"], main';
-  const FLOATING_UI_SELECTOR = '.friend-tile-dropdown, .popover, .tooltip, [role="tooltip"], [role="menu"], '
+  const FLOATING_UI_SELECTOR = '#rc-pinned-friend-menu, .friend-tile-dropdown, .popover, .tooltip, [role="tooltip"], [role="menu"], '
     + '[data-radix-popper-content-wrapper], [data-popper-placement]';
   const SETTINGS_MENU_SELECTOR = '#navbar-settings, #settings-popover-menu, #navbar-robux, '
     + '#buy-robux-popover-menu, #robux-popover-menu, [data-rc-header-menu], '
@@ -2371,7 +2368,7 @@
   }
   function settingsMenuMutation(record) {
     const target = record.target instanceof Element ? record.target : record.target.parentElement;
-    const excluded = '#rc-settings-overlay, .rc-settings-menu-entry, .rc-hide-recommended-game, '
+    const excluded = '#rc-settings-overlay, #rc-pinned-friend-menu, #rc-friends-manager, #rc-friends-bulk-dialog, .rc-settings-menu-entry, .rc-hide-recommended-game, '
       + '.game-card-container, .game-card, .hover-game-tile, .game-tile, .grid-item-container, '
       + '[data-testid="game-card"], [data-testid="game-tile"]';
     if (target?.closest(excluded)) return false;
@@ -2404,7 +2401,7 @@
       menuDirty ||= routeChanged;
       for (const record of records) {
         yield;
-        if (record.target instanceof Element && record.target.closest('#rc-home-greeting')) continue;
+        if (record.target instanceof Element && record.target.closest('#rc-home-greeting, #rc-pinned-friend-menu, #rc-friends-manager, #rc-friends-bulk-dialog')) continue;
         if (record.attributeName === 'style' && !hiddenHomeSections.has(record.target)) continue;
         homeDirty ||= homeContentMutation(record);
         if (record.type === 'childList' || record.type === 'attributes' && record.attributeName !== 'style') {
@@ -2466,6 +2463,8 @@
   });
   document.addEventListener('DOMContentLoaded', () => { if (modalOpeningPending) openModal(); }, { once: true });
 
+  // Discard the retired early-page visibility cache from older installations.
+  try { localStorage.removeItem('roblox-customizer-streamer-v1'); } catch { /* Site storage can be unavailable. */ }
   chrome.storage.local.get(STORAGE_KEY).then(result => {
     if (settingsChanged) return;
     settings = currentSettings(result[STORAGE_KEY]);

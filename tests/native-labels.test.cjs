@@ -51,6 +51,8 @@ test('avatar navigation recognizes current English and Chinese filter names', ()
     't-shirts': ['T 恤'], sweaters: ['织衫', '織衫'], bottoms: ['裤裙', '褲裙'],
     'dresses & skirts': ['裙子'], 'classic shirts': ['经典上衣', '經典上衣'],
     'classic t-shirts': ['经典 T 恤', '經典 T 恤'],
+    shoes: ['鞋', '鞋子'], 'left shoe': ['左鞋', '左脚鞋子', '左腳鞋子'],
+    'right shoe': ['右鞋', '右脚鞋子', '右腳鞋子'],
     emotes: ['Actions', '动作', '動作'], walk: ['Walking', '步行'], fall: ['Falling', '跌落']
   };
   for (const [expected, names] of Object.entries(cases)) {

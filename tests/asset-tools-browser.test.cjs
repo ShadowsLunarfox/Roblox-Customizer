@@ -6,11 +6,11 @@ const { test } = require('node:test');
 const { isolatedChrome, waitForDocument, pause } = require('./helpers/chrome.cjs');
 const workspace = path.resolve(__dirname, '..');
 const binaryFixture=require('./fixtures/resource-model.cjs');
-const scripts = ['src/shared/dialogs.js', 'src/privacy/streamer-mode.js', 'src/shared/routes.js', 'src/shared/runtime.js',
+const scripts = ['src/shared/dialogs.js', 'src/shared/routes.js', 'src/shared/runtime.js',
   'src/shared/native-labels.js', 'src/shared/i18n.js', 'src/shared/startup.js', 'src/settings/settings.js',
   'src/pages/catalog/catalog-item-page.js', 'src/pages/avatar/avatar-page.js',
   'src/assets/vendor/fzstd-0.1.1.js','src/assets/model-reader.js','src/assets/asset-core.js', 'src/assets/tools-ui.js', 'src/assets/model-schema.js', 'src/assets/resource-explorer.js', 'src/assets/asset-tools.js', 'src/assets/avatar-tools.js'];
-const styles = ['src/shared/theme.css', 'src/settings/settings.css', 'src/privacy/streamer-mode.css', 'src/assets/tools.css',
+const styles = ['src/shared/theme.css', 'src/settings/settings.css', 'src/assets/tools.css',
   'src/pages/catalog/catalog-item-page.css','src/pages/avatar/avatar-page.css'];
 const xml = '<roblox version="4"><Item class="Model" referent="RBX0"><Properties><string name="Name">&lt;img src=x onerror=alert(1)&gt;</string></Properties><Item class="Animation" referent="RBX1"><Properties><string name="Name">Dance</string><Content name="AnimationId"><url>rbxassetid://1234</url></Content></Properties></Item></Item></roblox>';
 const setup = `
@@ -118,26 +118,23 @@ async function screenshot(browser,root,name) {
   }
 }
 
-test('Streamer settings hide late sensitive content, persist on reload, and restore native UI', {skip:!process.env.CHROME_BIN,timeout:45000},async t=>{
-  const {browser,url}=await launch(t,'streamer-tools','/home');
-  await browser.waitFor("!!document.querySelector('.rc-settings-menu-entry')");
-  assert.equal(await browser.evaluate("getComputedStyle(document.querySelector('#nav-robux-amount')).visibility"),'visible');
-  await browser.click('.rc-settings-menu-entry');
-  await browser.waitFor("!!document.querySelector('#rc-streamer-settings input')");
-  await browser.click('[data-rc-settings-category=privacy]');
-  assert.equal(await browser.evaluate("document.querySelector('[name=streamerHideFriends]').disabled"),true);
-  await browser.click('[name=streamerMode]');
-  const hidden="['#nav-robux-amount','.friend-carousel-container','#chat-container','#messages-web-app'].map(s=>getComputedStyle(document.querySelector(s)).visibility)";
-  await browser.waitFor("document.documentElement.hasAttribute('data-rc-streamer-active')");
-  assert.deepEqual(await browser.evaluate(hidden),['hidden','hidden','hidden','hidden']);
-  await browser.evaluate("document.querySelector('.friend-carousel-container').outerHTML='<section class=friend-carousel-container>Late private friends</section>';document.querySelector('#chat-container').outerHTML='<div id=chat-container>Late chat</div>'");
-  assert.deepEqual(await browser.evaluate(hidden),['hidden','hidden','hidden','hidden']);
-  await browser.click('[name=streamerHideFriends]');
-  assert.deepEqual(await browser.evaluate(hidden),['hidden','visible','hidden','hidden']);
+test('retired visibility settings cannot hide native content or add a Privacy category', {skip:!process.env.CHROME_BIN,timeout:45000},async t=>{
+  const {browser,url}=await launch(t,'retired-visibility','/home');
+  await browser.evaluate("localStorage.setItem('preferences',JSON.stringify({streamerMode:true,streamerHideRobux:true,streamerHideFriends:true,streamerHideMessages:true}));localStorage.setItem('roblox-customizer-streamer-v1',localStorage.getItem('preferences'))");
   await browser.send('Page.reload');await waitForDocument(browser,'main',url);
-  assert.deepEqual(await browser.evaluate(hidden),['hidden','visible','hidden','hidden']);
-  await browser.click('.rc-settings-menu-entry');await browser.click('[data-rc-settings-category=privacy]');await browser.click('[name=streamerMode]');
-  assert.deepEqual(await browser.evaluate(hidden),['visible','visible','visible','visible']);
+  await browser.waitFor("!!document.querySelector('.rc-settings-menu-entry')");
+  const visibility="['#nav-robux-amount','.friend-carousel-container','#chat-container','#messages-web-app'].map(s=>getComputedStyle(document.querySelector(s)).visibility)";
+  assert.deepEqual(await browser.evaluate(visibility),['visible','visible','visible','visible']);
+  assert.equal(await browser.evaluate("localStorage.getItem('roblox-customizer-streamer-v1')"),null);
+  assert.equal(await browser.evaluate("[...document.documentElement.attributes].some(n=>n.name.startsWith('data-rc-streamer-'))"),false);
+  await browser.click('.rc-settings-menu-entry');
+  await browser.waitFor("!!document.querySelector('#rc-settings-overlay')");
+  assert.equal(await browser.evaluate("!!document.querySelector('#rc-streamer-settings,[name=streamerMode],.rc-settings-nav [data-rc-settings-category=privacy],#rc-settings-category-privacy')"),false);
+  assert.equal(await browser.evaluate("!!document.querySelector('[data-rc-legal-document=privacy]')"),true,'The Privacy Policy link stays available');
+  await browser.evaluate("document.querySelector('.friend-carousel-container').outerHTML='<section class=friend-carousel-container>Late private friends</section>';document.querySelector('#chat-container').outerHTML='<div id=chat-container>Late chat</div>'");
+  assert.deepEqual(await browser.evaluate(visibility),['visible','visible','visible','visible']);
+  await browser.send('Page.reload');await waitForDocument(browser,'main',url);
+  assert.deepEqual(await browser.evaluate(visibility),['visible','visible','visible','visible']);
   assert.equal(await browser.evaluate("document.querySelector('#messages-web-app').textContent"),'Private messages');
   assert.deepEqual(browser.errors,[]);
 });

@@ -5,6 +5,7 @@ const vm = require('node:vm');
 const { test } = require('node:test');
 require('../src/currency/robux-currency-core.js');
 require('../src/home/pinned-games-core.js');
+require('../src/home/pinned-friends-core.js');
 const gameNotes = require('../src/notes/game-notes-core.js');
 const playtime = require('../src/playtime/playtime-core.js');
 const backup = require('../src/settings/backup-core.js');
@@ -26,6 +27,23 @@ function savedData() {
     robuxCurrencyRates:{doNotExport:true},'rc-youtube-cache':{doNotExport:true}};
 }
 const envelope = data => ({format:backup.FORMAT,version:backup.VERSION,createdAt:'2026-10-13T00:00:00.000Z',extensionVersion:'1.0',data,media:null});
+
+test('friend pins round-trip by account, old backups clear pins, and invalid friend records are rejected', () => {
+  const rcPinnedFriends = { version: 1, accounts: [100, 200].map(userId => ({ userId,
+    friends: [{ userId: 1, name: 'Friend', displayName: 'Friends', imageUrl: '' }] })) };
+  const data = backup.snapshot({ ...savedData(), rcPinnedFriends });
+  assert.deepEqual(backup.validate(envelope(data)).data.rcPinnedFriends, rcPinnedFriends);
+  const grouped = copy(data); grouped.rcPinnedFriends.accounts[0].groups = [{ id: 'team', name: '一起玩', color: '#648bff', userIds: [1, 2] }];
+  assert.deepEqual(backup.validate(envelope(grouped)).data.rcPinnedFriends, rcPinnedFriends, 'Old group metadata does not prevent restoring friend pins');
+  const legacy = copy(data); delete legacy.rcPinnedFriends;
+  assert.deepEqual(backup.validate(envelope(legacy)).data.rcPinnedFriends, { version: 1, accounts: [] });
+  for (const change of [value => value.accounts.push(value.accounts[0]),
+    value => value.accounts[0].friends.push(value.accounts[0].friends[0]),
+    value => { value.accounts[0].friends[0].imageUrl = 'https://evil.example/track'; }]) {
+    const invalid = copy(rcPinnedFriends); change(invalid);
+    assert.throws(() => backup.validate(envelope({ ...data, rcPinnedFriends: invalid })));
+  }
+});
 test('backup includes every preference and account, preserves folder links, and excludes caches and live sessions', () => {
   const source = savedData();
   const data = backup.snapshot(source);
@@ -52,6 +70,17 @@ test('backup includes every preference and account, preserves folder links, and 
   assert.equal(defaults.playtimeTrackingEnabled, true);
   assert.deepEqual(defaults.pinnedGames, []);
   assert.equal(backup.validate(envelope(backup.snapshot({...source,playtimeTrackingEnabled:false}))).data.rcPlaytimeHistory.status.kind, 'disabled');
+});
+
+test('retired visibility preferences are discarded without losing other backed-up settings', () => {
+  const source = savedData(), original = copy(source);
+  const retired = { streamerMode: true, streamerHideRobux: true, streamerHideFriends: true, streamerHideMessages: true };
+  const expected = backup.snapshot(source);
+  const legacy = { ...source, customBackground: { ...source.customBackground, ...retired } };
+  assert.deepEqual(backup.snapshot(legacy), expected);
+  assert.deepEqual(backup.validate(envelope({ ...expected, customBackground: { ...expected.customBackground, ...retired } })).data, expected);
+  assert.deepEqual(source, original);
+  assert.equal(legacy.customBackground.streamerMode, true, 'Reading an old backup never mutates its input');
 });
 
 test('server selections are excluded from exports and discarded from legacy imports',()=>{
@@ -118,6 +147,7 @@ function worker() {
       session:{async clear(){sessionClears++;}},onChanged:{addListener:fn=>changes.push(fn)}}};
   const context = vm.createContext({chrome,URL,crypto,Date,setTimeout,clearTimeout});
   for (const file of ['src/currency/robux-currency-core.js','src/home/pinned-games-core.js','src/background/pinned-games-background.js',
+    'src/home/pinned-friends-core.js','src/background/pinned-friends-background.js',
     'src/playtime/playtime-core.js','src/background/playtime-background.js',
     'src/notes/game-notes-core.js','src/background/game-notes-background.js','src/settings/backup-core.js','src/background/backup-background.js']) {
     vm.runInContext(fs.readFileSync(path.resolve(__dirname,'..',file),'utf8'),context,{filename:file});
@@ -222,4 +252,20 @@ test('reset preserves a genuine terms acceptance without exporting or importing 
   assert.equal(w.state.robloxCustomizerTermsAccepted, true);
   assert.equal((await w.message('reset')).ok, true);
   assert.deepEqual(w.state, { robloxCustomizerTermsAccepted: true });
+});
+
+test('import and reset serialize with pending friend pin writes', async () => {
+  for (const action of ['import', 'reset']) {
+    const w = worker(); let finish;
+    const pending = w.context.RobloxCustomizerPinnedFriendsBackground.withStorageLock(async () => {
+      await new Promise(resolve => { finish = resolve; });
+      w.state.rcPinnedFriends = { version: 1, accounts: [{ userId: 100, friends: [] }] };
+    });
+    const incoming = backup.snapshot(savedData());
+    const result = w.message(action, action === 'import' ? incoming : undefined);
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(w.writes, 0); finish(); await pending;
+    assert.equal((await result).ok, true);
+    assert.deepEqual(w.state.rcPinnedFriends, action === 'import' ? incoming.rcPinnedFriends : undefined);
+  }
 });

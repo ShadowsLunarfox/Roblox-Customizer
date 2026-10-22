@@ -8,9 +8,10 @@
     try { url = new URL(sender.url); } catch { return; }
     if (sender.id !== chrome.runtime.id || url.protocol !== 'https:'
       || !['www.roblox.com', 'roblox.com'].includes(url.hostname) || (sender.frameId ?? 0) !== 0) return;
-    // Share both mutation queues: an in-flight presence poll or pin refresh
+    // Share mutation queues: an in-flight presence poll or pin refresh
     // must finish before the snapshot/restore, never overwrite restored data.
-    const result = queue.then(() => globalThis.RobloxCustomizerPinnedGamesBackground.withStorageLock(() =>
+    const result = queue.then(() => globalThis.RobloxCustomizerPinnedFriendsBackground.withStorageLock(() =>
+      globalThis.RobloxCustomizerPinnedGamesBackground.withStorageLock(() =>
       globalThis.RobloxCustomizerPlaytimeBackground.withStorageLock(() =>
       globalThis.RobloxCustomizerGameNotesBackground.withStorageLock(async () => {
         if (message.action === 'export') {
@@ -36,7 +37,7 @@
           return { ok: true };
         }
         return { ok: false, error: 'Invalid backup action.' };
-      }))));
+      })))));
     queue = result.catch(() => {});
     result.then(respond, error => respond({ ok: false, rejected: true,
       error: error.message || 'Could not access backup data.' }));

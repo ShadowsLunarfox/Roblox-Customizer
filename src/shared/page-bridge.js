@@ -179,7 +179,8 @@
           const previous = renderingFriends;
           renderingFriends = isHomeFriends(args[0]) ? { props: args[0], matched: false } : null;
           try {
-            let result = Reflect.apply(target, receiver, args);
+            let result = window.RobloxCustomizerFriendsNativeView?.matches(args[0])
+              ? window.RobloxCustomizerFriendsNativeView.render(target, receiver, args) : Reflect.apply(target, receiver, args);
             if (isPrivateServerCard(args[0])) {
               try { result = exposePrivateServerIdentity(result, args[0]); }
               catch { /* Keep unfamiliar native cards usable. */ }
@@ -263,7 +264,8 @@
 
   function patchFactory(runtime, name) {
     patchMethod(runtime, name, (target, receiver, args) => {
-      if (isHomeFriends(args[1]) || isServerList(args[1]) || isServerCard(args[1]) || isPrivateServerCard(args[1])) {
+      if (isHomeFriends(args[1]) || isServerList(args[1]) || isServerCard(args[1]) || isPrivateServerCard(args[1])
+        || window.RobloxCustomizerFriendsNativeView?.matches(args[1])) {
         args[0] = wrapComponent(args[0]);
       }
       return Reflect.apply(target, receiver, args);
@@ -284,7 +286,11 @@
         frame.matched = true;
         return [frame.props.friendsList, result[1]];
       }
-      return result;
+      return window.RobloxCustomizerFriendsNativeView?.useState(result, args[0]) || result;
+    });
+    patchMethod(react, 'useContext', (target, receiver, args) => {
+      const result = Reflect.apply(target, receiver, args);
+      return window.RobloxCustomizerFriendsNativeView?.useContext(result) || result;
     });
   }
 
@@ -357,6 +363,10 @@
       // Extend the response before Roblox hydrates names, avatars and presence.
       // All rendered friends still go through the official component pipeline.
       return Promise.resolve(result).then(first => readRemainingFriends(first, url, target, receiver, args));
+    });
+    patchMethod(http, 'post', (target, receiver, args) => {
+      const result = Reflect.apply(target, receiver, args);
+      return window.RobloxCustomizerFriendsNativeView?.observeWrite(args[0], result) || result;
     });
   }
 

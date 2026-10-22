@@ -1,0 +1,65 @@
+﻿/* Only additions to Roblox's existing toolbar and cards; native presentation stays in charge. */
+#rc-friends-manager { flex-basis: 100%; min-width: 0; order: 2; }
+.rc-friends-native-tools, .rc-friends-bulk { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-block: 8px; }
+#rc-friends-manager .rc-friends-tool {
+  box-sizing: border-box; min-height: 40px; max-width: 100%; min-width: 0; padding: 7px 12px;
+  border: 1px solid var(--rc-control-border, #727c90); border-radius: 9px;
+  background: var(--rc-control-bg, #292b35); color: var(--rc-text, #f4f6fb);
+  color-scheme: var(--rc-color-scheme, dark); font: inherit; font-size: 14px; line-height: 1.4; white-space: normal; overflow-wrap: anywhere; cursor: pointer;
+}
+#rc-friends-manager select { width: auto; }
+#rc-friends-manager select option { background: var(--rc-control-bg, #292b35); color: var(--rc-text, #f4f6fb); font: inherit; }
+#rc-friends-manager .rc-friends-tool:disabled { opacity: .55; cursor: not-allowed; }
+#rc-friends-manager button.rc-friends-tool:not(:disabled):hover { background: var(--rc-control-hover, #383d49); }
+#rc-friends-manager [data-rc-multi-select][aria-pressed="true"] { background: var(--rc-control-hover, #383d49); box-shadow: inset 0 0 0 1px var(--rc-focus, #8bc4ff); }
+#rc-friends-manager .rc-friends-tool:focus-visible { outline: 2px solid var(--rc-focus, #8bc4ff); outline-offset: 2px; }
+[data-rc-native-friend] { position: relative; }
+[data-rc-friends-filtered] { display: none !important; }
+[data-rc-friend-selected] { outline: 2px solid var(--color-selection-start, var(--rc-focus, #8bc4ff)); outline-offset: 2px; }
+[data-rc-friend-selecting] .avatar-card-menu { visibility: hidden; }
+.rc-friends-checkbox { position: absolute; inset-block-start: 8px; inset-inline-start: auto; inset-inline-end: 8px; z-index: 2; width: 16px; height: 16px; margin: 0; }
+.rc-friends-checkbox.checkbox input[type="checkbox"] + label { display: block; width: 100%; height: 100%; margin: 0; padding: 0; }
+@media (max-width: 991px) { .rc-friends-checkbox { width: 24px; height: 24px; } }
+.rc-friends-notice { display: block; margin-block: 8px; }
+.rc-friends-notice[role="alert"] { color: var(--color-system-alert, var(--rc-error, #ff9f9f)); }
+.rc-friends-results { max-height: 180px; overflow: auto; padding-inline-start: 24px; overflow-wrap: anywhere; }
+#rc-friends-bulk-dialog {
+  box-sizing: border-box; width: min(640px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); overflow: auto; padding: 16px;
+  border: 1px solid var(--rc-control-border, #727c90); border-radius: 16px;
+  background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, .62));
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  box-shadow: 0 18px 48px rgb(0 0 0 / 28%);
+  color: var(--rc-text, #f4f6fb); color-scheme: var(--rc-color-scheme, dark); font-size: 14px; line-height: 1.5;
+}
+#rc-friends-bulk-dialog::backdrop {
+  background: rgb(0 0 0 / .5);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(min(8px, var(--rc-glass-blur, 18px))));
+  backdrop-filter: var(--rc-backdrop-filter, blur(min(8px, var(--rc-glass-blur, 18px))));
+}
+#rc-friends-bulk-dialog :is(.modal-header, .modal-footer) { background: transparent; border-color: var(--rc-control-border, #727c90); color: inherit; }
+#rc-friends-bulk-dialog :is(h2, p, li) { color: inherit; }
+#rc-friends-bulk-dialog button {
+  box-sizing: border-box; min-height: 36px; max-width: 100%; min-width: 0; padding: 7px 10px;
+  border: 1px solid var(--rc-control-border, #727c90); border-radius: 9px;
+  background: var(--rc-control-bg, #292b35); color: var(--rc-text, #f4f6fb);
+  font: inherit; font-size: 12px; line-height: 1.4; white-space: normal; overflow-wrap: anywhere; cursor: pointer;
+}
+#rc-friends-bulk-dialog button:disabled { opacity: .55; cursor: wait; }
+#rc-friends-bulk-dialog button:focus-visible { outline: 2px solid var(--rc-focus, #8bc4ff); outline-offset: 3px; }
+#rc-friends-bulk-dialog .modal-footer button { min-height: 48px; min-width: 128px; padding: 12px 20px; font-size: 16px; font-weight: 600; }
+@media (max-width: 480px) {
+  #rc-friends-bulk-dialog .modal-footer button { flex: 1 1 100%; width: 100%; margin-inline: 0; }
+}
+#rc-friends-bulk-dialog button.rc-friends-danger { background: #b42332; border-color: #b42332; color: #fff; }
+#rc-friends-bulk-dialog button.rc-friends-danger:not(:disabled):hover { background: #941c29; border-color: #941c29; }
+#rc-friends-bulk-dialog button.rc-friends-danger:not(:disabled):active { background: #7e1823; border-color: #7e1823; }
+#rc-friends-bulk-dialog .rc-friends-review-warning {
+  margin-block: 12px; padding: 10px 12px; border: 1px solid rgb(180 35 50 / 65%); border-radius: 8px;
+  background: rgb(180 35 50 / 12%); color: inherit; font-weight: 600;
+}
+.rc-friends-dialog-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+#rc-friends-bulk-dialog h2 { margin: 0; font-size: 20px; line-height: 1.4; }
+.rc-friends-review-list { max-height: 300px; overflow: auto; padding-inline-start: 24px; overflow-wrap: anywhere; }
+#rc-friends-manager [hidden], .rc-friends-dialog [hidden], .rc-friends-checkbox[hidden] { display: none !important; }
+html[data-rc-features-disabled] :is(#rc-friends-manager, #rc-friends-bulk-dialog, .rc-friends-checkbox) { display: none !important; }

@@ -10,7 +10,7 @@ const manifest = JSON.parse(fs.readFileSync(path.join(workspace, 'manifest.json'
 const entries = manifest.content_scripts.filter(entry => entry.world !== 'MAIN');
 const scripts = [...new Set(entries.flatMap(entry => entry.js || [])),
   'src/background/pinned-games-background.js','src/background/playtime-background.js',
-  'src/background/game-notes-background.js','src/background/backup-background.js'];
+  'src/background/game-notes-background.js','src/background/pinned-friends-background.js','src/background/backup-background.js'];
 const styles = [...new Set(entries.flatMap(entry => entry.css || []))];
 const game = {universeId:456,placeId:789,name:'Private game',iconUrl:'',totalMs:123456,sessions:2,
   firstPlayedAt:1800000000000,lastPlayedAt:1800000123456,metadataCheckedAt:1800000000000};
@@ -90,7 +90,7 @@ test('Settings backup previews account ownership before restoring data and media
     assert.ok(downloaded,'Export produces a downloadable JSON file');
     const backupPath=path.join(files,downloaded);
     const backup=JSON.parse(fs.readFileSync(backupPath,'utf8'));
-    assert.deepEqual(Object.keys(backup.data).sort(),['customBackground','pinnedGameFolders','pinnedGames','playtimeTrackingEnabled','rcPlaytimeHistory','robuxCurrency','rcGameNotes'].sort());
+    assert.deepEqual(Object.keys(backup.data).sort(),['customBackground','pinnedGameFolders','pinnedGames','playtimeTrackingEnabled','rcPlaytimeHistory','robuxCurrency','rcGameNotes','rcPinnedFriends'].sort());
     assert.equal(backup.data.rcGameNotes.notes[0].text, '私人攻略\n第二行');
     assert.equal(backup.data.customBackground.glassBlur,29);
     assert.equal(backup.data.customBackground._writer,undefined);

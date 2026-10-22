@@ -94,6 +94,10 @@ test('Japanese, Thai and Korean legal documents cover every source section and g
       }
     });
   }
+  for (const locale of ['zh-CN', 'zh-TW', 'ja', 'th', 'ko']) {
+    assert.doesNotMatch(content.locales[locale].privacy.sections[1].paragraphs.at(-1), /\?{3,}/,
+      'Friend tools policy text must retain its original Unicode characters');
+  }
   for (const [file, expected] of Object.entries(require('../scripts/build-legal-docs.cjs').build())) {
     assert.equal(fs.readFileSync(path.join(root, file), 'utf8'), expected, file);
   }

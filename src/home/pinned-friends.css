@@ -1,0 +1,196 @@
+#rc-pinned-friends, #rc-pinned-friends-dialog {
+  box-sizing: border-box;
+  padding: 18px;
+  border: 1px solid var(--rc-control-border, #727c90);
+  border-radius: 16px;
+  background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, .62));
+  color: var(--rc-text, #f4f6fb);
+  color-scheme: var(--rc-color-scheme, dark);
+  font-size: 14px;
+  line-height: 1.5;
+}
+#rc-pinned-friends { margin-block: 16px; width: 100%; }
+#rc-pinned-friends.rc-pinned-friends-manage-only {
+  flex: 0 1 auto;
+  width: auto;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
+  margin-inline-start: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+#rc-pinned-friends.rc-pinned-friends-manage-only .rc-pinned-friends-header { justify-content: flex-end; }
+:is(.container-header, .content-header, .section-header):has(> #rc-pinned-friends.rc-pinned-friends-manage-only) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+#rc-pinned-friends.rc-pinned-friends-manage-only button { max-width: 100%; overflow-wrap: anywhere; }
+@media (max-width: 767px) {
+  #rc-pinned-friends.rc-pinned-friends-manage-only { max-width: 60%; }
+  #content :is(.container-header, .content-header, .section-header):has(> #rc-pinned-friends.rc-pinned-friends-manage-only) > .friends-subtitle { flex: 1 1 0; min-width: min-content; }
+  :is(.container-header, .content-header, .section-header):has(> #rc-pinned-friends.rc-pinned-friends-manage-only) > .friends-filter { order: 1; }
+}
+.rc-pinned-friends-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.rc-pinned-friends-header h2 { margin: 0; font-size: 20px; line-height: 1.4; color: inherit; }
+#rc-pinned-friends p, #rc-pinned-friends-dialog p { margin: 12px 0; }
+#rc-pinned-friends button, #rc-pinned-friends-dialog button, .rc-friend-pin {
+  box-sizing: border-box;
+  min-height: 36px; padding: 7px 10px;
+  border: 1px solid var(--rc-control-border, #727c90); border-radius: 9px;
+  background: var(--rc-control-bg, #292b35); color: var(--rc-text, #f4f6fb);
+  font: inherit; font-size: 12px; line-height: 1.4; cursor: pointer;
+}
+.rc-pinned-friends-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(125px, 1fr)); gap: 12px; margin: 14px 0 0; padding: 0; list-style: none; }
+.rc-pinned-friend { display: flex; flex-direction: column; align-items: stretch; gap: 8px; min-width: 0; padding: 12px 8px; border-radius: 12px; background: rgb(var(--rc-glass-color, 20 22 28) / .2); }
+.rc-pinned-friend-profile { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; color: inherit; text-align: center; text-decoration: none; }
+.rc-pinned-friend-profile > img, .rc-pinned-friend-profile > span { display: grid; place-items: center; width: 72px; height: 72px; margin-bottom: 4px; border-radius: 50%; background: var(--rc-control-bg, #292b35); object-fit: cover; font-size: 22px; }
+.rc-pinned-friend-profile strong, .rc-pinned-friend-profile small { display: block; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: inherit; }
+.rc-pinned-friend-profile small { opacity: .8; }
+.rc-friend-pin { display: inline-flex; align-items: center; justify-content: center; gap: 5px; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+.rc-friend-pin svg { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; }
+.rc-friend-pin[aria-pressed="true"] svg { fill: var(--rc-accent, #8bc4ff); }
+.rc-friend-pin-compact { position: relative; z-index: 2; margin: 6px; }
+[data-rc-profile-pin-actions] { flex-wrap: wrap; }
+.rc-friend-pin-profile {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-width: 0; min-height: 40px; max-width: 100%; white-space: normal; overflow-wrap: anywhere;
+}
+.user-profile-header .button-container > .rc-friend-pin-profile { flex: 1 0 100%; width: 100%; }
+.rc-friend-pin-profile svg { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; }
+.rc-friend-pin-profile[aria-pressed="true"] svg { fill: currentColor; }
+.rc-friend-pin-profile:disabled { opacity: .55; cursor: wait; }
+.rc-friend-pin-profile:focus-visible { outline: 2px solid var(--rc-focus, #8bc4ff); outline-offset: 3px; }
+.rc-profile-pin-error { flex: 1 0 100%; margin: 0; font-size: 12px; overflow-wrap: anywhere; }
+.rc-profile-pin-error[hidden] { display: none !important; }
+@media (max-width: 767px) {
+  .profile-header-buttons > .rc-friend-pin-profile { flex-basis: 100%; }
+}
+#rc-pinned-friends button:disabled, #rc-pinned-friends-dialog button:disabled, .rc-friend-pin:disabled { opacity: .55; cursor: wait; }
+#rc-pinned-friends :is(a, button):focus-visible, #rc-pinned-friends-dialog :is(a, button, input):focus-visible, .rc-friend-pin:focus-visible { outline: 2px solid var(--rc-focus, #8bc4ff); outline-offset: 3px; }
+#rc-pinned-friends-dialog {
+  width: min(800px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); overflow: auto;
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2));
+  box-shadow: 0 18px 48px rgb(0 0 0 / 28%);
+}
+#rc-pinned-friends-dialog::backdrop {
+  background: rgb(0 0 0 / .5);
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(min(8px, var(--rc-glass-blur, 18px))));
+  backdrop-filter: var(--rc-backdrop-filter, blur(min(8px, var(--rc-glass-blur, 18px))));
+}
+#rc-pinned-friends-dialog :is(h2, p, li) { color: inherit; }
+#rc-pinned-friends-dialog input { box-sizing: border-box; width: 100%; min-width: 0; min-height: 40px; padding: 8px 12px; border: 1px solid var(--rc-control-border, #727c90); border-radius: 9px; background: var(--rc-control-bg, #292b35); color: inherit; font: inherit; }
+#rc-pinned-friends-dialog > button { margin-top: 16px; }
+#rc-pinned-friends [hidden], #rc-pinned-friends-dialog [hidden] { display: none !important; }
+html[data-rc-features-disabled] :is(#rc-pinned-friends, #rc-pinned-friends-dialog, .rc-friend-pin, .rc-friend-pin-profile, .rc-profile-pin-error) { display: none !important; }
+@media (max-width: 420px) {
+  #rc-pinned-friends, #rc-pinned-friends-dialog { padding: 12px; }
+  .rc-pinned-friends-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+}
+
+/* Home follows the adjacent native friend row: circular avatars and names. */
+#HomeContainer #rc-pinned-friends {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+#HomeContainer #rc-pinned-friends .rc-pinned-friends-header > button {
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  font-size: 14px;
+  text-align: start;
+}
+#HomeContainer #rc-pinned-friends .rc-pinned-friends-header > button:hover { text-decoration: underline; }
+#HomeContainer #rc-pinned-friends .rc-pinned-friends-list {
+  grid-template-columns: repeat(17, minmax(0, 1fr));
+  gap: 12px 0;
+}
+#HomeContainer #rc-pinned-friends .rc-pinned-friend {
+  position: relative;
+  padding: 0 2px;
+  border-radius: 0;
+  background: transparent;
+}
+#HomeContainer #rc-pinned-friends .rc-pinned-friend-profile { gap: 6px; }
+#HomeContainer #rc-pinned-friends .rc-pinned-friend-profile > :is(img, span) {
+  width: calc(100% - 4px);
+  max-width: 90px;
+  height: auto;
+  aspect-ratio: 1;
+  margin: 0 auto;
+}
+#HomeContainer #rc-pinned-friends .rc-pinned-friend-profile strong {
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+}
+#HomeContainer #rc-pinned-friends .rc-pinned-friend-profile small { display: none; }
+#HomeContainer #rc-pinned-friends .rc-friend-pin {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-end: max(0px, calc((100% - 90px) / 2 - 6px));
+  width: 26px;
+  min-height: 26px;
+  height: 26px;
+  padding: 4px;
+  border-radius: 50%;
+  gap: 0;
+  font-size: 0;
+  line-height: 0;
+}
+@media (max-width: 1000px) {
+  #HomeContainer #rc-pinned-friends .rc-pinned-friends-list {
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  }
+}
+
+#rc-pinned-friend-menu {
+  position: fixed;
+  inset: auto;
+  box-sizing: border-box;
+  width: 260px;
+  max-width: calc(100vw - 16px);
+  max-height: calc(100dvh - 16px);
+  margin: 0;
+  padding: 12px;
+  overflow: auto;
+  border: 1px solid var(--rc-control-border, #727c90);
+  border-radius: 14px;
+  background: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, .82));
+  -webkit-backdrop-filter: var(--rc-backdrop-filter, blur(min(8px, var(--rc-glass-blur, 18px))) saturate(1.2));
+  backdrop-filter: var(--rc-backdrop-filter, blur(min(8px, var(--rc-glass-blur, 18px))) saturate(1.2));
+  box-shadow: 0 10px 28px rgb(0 0 0 / 24%);
+  color: var(--rc-text, #f4f6fb);
+  color-scheme: var(--rc-color-scheme, dark);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+}
+#rc-pinned-friend-menu .rc-friend-menu-summary { display: flex; align-items: center; gap: 8px; min-height: 40px; margin-bottom: 10px; min-width: 0; }
+#rc-pinned-friend-menu .rc-friend-menu-thumbnail { display: grid; place-items: center; flex: none; width: 40px; height: 40px; overflow: hidden; border-radius: 6px; background: var(--rc-control-bg, #292b35); }
+#rc-pinned-friend-menu .rc-friend-menu-thumbnail img { display: block; width: 40px; height: 40px; object-fit: cover; }
+#rc-pinned-friend-menu .rc-friend-menu-summary > div { flex: 1; min-width: 0; }
+#rc-pinned-friend-menu .rc-friend-menu-summary > div :is(strong, span, a) { display: block; color: inherit; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 20px; }
+#rc-pinned-friend-menu .rc-friend-menu-summary span { color: var(--rc-text-secondary, #c3cad6); }
+#rc-pinned-friend-menu :is(button, .rc-friend-menu-join, .rc-friend-menu-profile) {
+  display: flex; align-items: center; justify-content: center;
+  box-sizing: border-box; width: 100%; min-height: 38px; padding: 8px 10px; margin-top: 8px;
+  border: 1px solid var(--rc-control-border, #727c90); border-radius: 8px;
+  background: var(--rc-control-bg, #292b35); color: inherit; font: inherit; font-weight: 600;
+  text-decoration: none; text-align: center; cursor: pointer; overflow-wrap: anywhere;
+}
+#rc-pinned-friend-menu .rc-friend-menu-join { background: var(--rc-accent, #335fff); border-color: transparent; color: var(--rc-accent-text, #fff); }
+#rc-pinned-friend-menu .rc-friend-menu-profile { border-color: transparent; background: transparent; }
+#rc-pinned-friend-menu .rc-friend-menu-close { flex: none; width: 28px; min-height: 28px; margin: 0; padding: 0; border: 0; background: transparent; font-size: 22px; }
+#rc-pinned-friend-menu :is(button:disabled, [aria-disabled="true"]) { opacity: .5; cursor: default; }
+#rc-pinned-friend-menu :is(a, button):focus-visible { outline: 2px solid var(--rc-focus, #8bc4ff); outline-offset: 2px; }
+#rc-pinned-friend-menu .rc-friend-menu-status { margin: 10px 0 0; font-size: 12px; overflow-wrap: anywhere; }
+#rc-pinned-friend-menu [hidden] { display: none !important; }
+html[data-rc-features-disabled] #rc-pinned-friend-menu { display: none !important; }

@@ -1,6 +1,7 @@
 if (typeof importScripts === 'function') {
   importScripts('../shared/routes.js', 'page-context.js', '../assets/vendor/fzstd-0.1.1.js', '../assets/model-reader.js', '../assets/asset-core.js', 'asset-tools-background.js', 'animation-preview-background.js', '../currency/robux-currency-core.js', 'robux-currency-background.js',
     '../home/pinned-games-core.js', 'pinned-games-background.js',
+    '../home/pinned-friends-core.js', 'pinned-friends-background.js', 'friends-manager-background.js',
     '../notes/game-notes-core.js', 'game-notes-background.js',
     '../servers/server-history-core.js', '../playtime/playtime-core.js', 'playtime-background.js', 'server-history-background.js',
     '../settings/backup-core.js', 'backup-background.js');

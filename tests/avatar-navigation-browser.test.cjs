@@ -24,7 +24,7 @@ const locales = {
     main: ['最近穿戴', '饰品', '服装', '身体部位', '动画', '已过期', '最近新增', '角色'],
     accessories: ['头部', '脸部', '颈部', '肩部', '正面', '背部', '腰部', '装备'],
     clothing: [['上衣', 'T 恤', '织衫', '外套'], ['外衣', '夹克'],
-      ['裤裙', '裙子', '裤子', '短裤'], ['鞋子', '左鞋', '右鞋'], ['经典', '经典上衣', '经典 T 恤', '经典裤子']],
+      ['裤裙', '裙子', '裤子', '短裤'], ['鞋', '左脚鞋子', '右脚鞋子'], ['经典', '经典上衣', '经典 T 恤', '经典裤子']],
     animations: ['动作', '步行', '跌落', '奔跑', '跳跃', '游泳', '攀爬', '闲置'],
     recent: ['目前穿戴', '最近新增', '角色'],
     body: ['体型', '身高', '宽度', '头部', '比例']
@@ -33,7 +33,7 @@ const locales = {
     main: ['最近穿戴', '飾品', '服裝', '身體部位', '動畫', '已過期', '最近新增', '角色'],
     accessories: ['頭部', '臉部', '頸部', '肩部', '正面', '背部', '腰部', '裝備'],
     clothing: [['上衣', 'T 恤', '織衫', '外套'], ['外衣', '夾克'],
-      ['褲裙', '裙子', '褲子', '短褲'], ['鞋子', '左鞋', '右鞋'], ['經典', '經典上衣', '經典 T 恤', '經典褲子']],
+      ['褲裙', '裙子', '褲子', '短褲'], ['鞋子', '左腳鞋子', '右腳鞋子'], ['經典', '經典上衣', '經典 T 恤', '經典褲子']],
     animations: ['動作', '步行', '跌落', '奔跑', '跳躍', '游泳', '攀爬', '閒置'],
     recent: ['目前穿戴', '最近新增', '角色'],
     body: ['體型', '身高', '寬度', '頭部', '比例']
@@ -116,7 +116,7 @@ function fixture(locale) {
     <div class="inventory-column"><nav id="avatar-categories"><ul id="main-row">
       ${l.main.map((name, i) => action(name, `main-${i}`, i === 0)).join('')}
     </ul><ul id="accessories" class="avatar-subcategories">${l.accessories.map((name, i) => action(name, `accessory-${i}`, i === 0 || locale === 'ko' && [4, 5].includes(i))).join('')}</ul>
-    <div id="clothing" class="avatar-subcategories" hidden>${l.clothing.map((row, i) => `<div id="clothing-row-${i}" class="clothing-row"><div class="native-heading" data-native-key="heading-${i}"><span id="heading-${i}">${escape(row[0])}</span></div><ul class="native-options">${row.slice(1).map((name, j) => action(name, `clothing-${i}-${j}`, locale === 'ko')).join('')}</ul></div>`).join('')}</div>
+    <div id="clothing" class="avatar-subcategories" hidden>${l.clothing.map((row, i) => `<div id="clothing-row-${i}" class="clothing-row"><div class="native-heading" data-native-key="heading-${i}"><span id="heading-${i}">${escape(row[0])}</span></div><ul class="native-options">${row.slice(1).map((name, j) => action(name, `clothing-${i}-${j}`, locale === 'ko' || ['zh-cn', 'zh-tw'].includes(locale) && i === 3)).join('')}</ul></div>`).join('')}</div>
     <ul id="animations" class="avatar-subcategories" hidden>${l.animations.map((name, i) => action(name, `animation-${i}`, i < 3 || locale === 'ko')).join('')}</ul>
     <ul id="recent" class="avatar-subcategories" hidden>${l.recent.map((name, i) => action(name, `recent-${i}`, true)).join('')}</ul>
     ${l.avatars ? `<ul id="avatars" class="avatar-subcategories" hidden>${l.avatars.map((name, i) => action(name, `avatar-${i}`, true)).join('')}</ul>` : ''}
@@ -284,6 +284,12 @@ test('avatar filters stay aligned, localized, and native across menu changes and
         }
       }
       // A keyboard-generated native click must work, too.
+      await browser.click(`#main-${tabs.clothing}`);
+      for (const id of ['clothing-3-0', 'clothing-3-1']) {
+        await browser.click(`#${id}`);
+        assert.equal(await browser.evaluate('nativeCalls.at(-1)'), id, 'Each original shoe option still runs its native action');
+        assert.equal(await browser.evaluate(`document.querySelector('#${id}').hasAttribute('data-rc-avatar-sub-control')`), true);
+      }
       await browser.click(`#main-${tabs.accessories}`);await browser.evaluate("document.querySelector('#accessory-2').focus()");
       await browser.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 });
       await browser.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 });
