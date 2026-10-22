@@ -304,6 +304,22 @@ test('Home visibility preferences are cached independently and missing flags rem
   assert.equal(defaults.root.hasAttribute('data-rc-hide-recommended-lower'), false);
 });
 
+test('Home friend sections restore separate visibility choices before page content mounts', () => {
+  const fresh = harness('/home', startup, { version: 1 });
+  assert.equal(fresh.startup.homePreferences().showHomeFriends, true);
+  assert.equal(fresh.startup.homePreferences().showPinnedFriends, true);
+  const cached = harness('/home', startup, { version: 1, showHomeFriends: false, showPinnedFriends: true });
+  assert.equal(cached.root.hasAttribute('data-rc-hide-home-friends'), true);
+  assert.equal(cached.root.hasAttribute('data-rc-hide-pinned-friends'), false);
+  cached.startup.setPreferences({ showHomeFriends: true, showPinnedFriends: false });
+  assert.equal(cached.root.hasAttribute('data-rc-hide-home-friends'), false);
+  assert.equal(cached.root.hasAttribute('data-rc-hide-pinned-friends'), true);
+  assert.equal(cached.startup.homePreferences().showPinnedFriends, false);
+  cached.startup.setPreferences({});
+  assert.equal(cached.root.hasAttribute('data-rc-hide-home-friends'), false);
+  assert.equal(cached.root.hasAttribute('data-rc-hide-pinned-friends'), false);
+});
+
 function normalizeSettings() {
   const defaultsStart = settings.indexOf('  const FEED_PAGES =');
   const defaultsEnd = settings.indexOf('  let settings =', defaultsStart);
@@ -312,6 +328,19 @@ function normalizeSettings() {
   assert.ok(defaultsStart >= 0 && defaultsEnd > defaultsStart && normalizeStart >= 0 && normalizeEnd > normalizeStart);
   return vm.runInNewContext(`${settings.slice(defaultsStart, defaultsEnd)}\n${settings.slice(normalizeStart, normalizeEnd)}\ncurrentSettings`);
 }
+
+test('Home banner background defaults on and caches independently from banner contents', () => {
+  const normalize = normalizeSettings();
+  assert.equal(normalize().showHomeBannerBackground, true);
+  assert.equal(normalize({ showHomeBannerBackground: false }).showHomeBannerBackground, false);
+  const env = harness('/home', startup, { version: 1, showHomeBannerBackground: false });
+  assert.equal(env.root.hasAttribute('data-rc-hide-home-banner-background'), true);
+  assert.equal(env.root.hasAttribute('data-rc-hide-home-banner'), false);
+  assert.equal(env.startup.homePreferences().showHomeBannerBackground, false);
+  env.startup.setPreferences({});
+  assert.equal(env.root.hasAttribute('data-rc-hide-home-banner-background'), false);
+  assert.equal(env.startup.homePreferences().showHomeBannerBackground, true);
+});
 
 test('Saved recommendation preferences migrate without overriding independent choices', () => {
   const normalize = normalizeSettings();

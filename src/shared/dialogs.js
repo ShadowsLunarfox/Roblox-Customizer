@@ -4,6 +4,18 @@
   if (globalThis.RobloxCustomizerDialogs) return;
   const bound = new WeakSet();
 
+  function blockingDialog({ exclude, allowSettings = false } = {}) {
+    // Roblox leaves closed React/Bootstrap modals mounted with aria-modal="true".
+    // Only a visible modal can delay our first-use prompts.
+    return [...document.querySelectorAll('dialog[open], #rc-settings-overlay, '
+      + '[role="dialog"][aria-modal="true"], [role="alertdialog"][aria-modal="true"]')].find(node => {
+      if (node === exclude || allowSettings && node.closest('#rc-settings-overlay')) return false;
+      if (node.localName === 'dialog' && !node.open || node.closest('[hidden], [aria-hidden="true"]')) return false;
+      if (!node.checkVisibility()) return false;
+      return !['hidden', 'collapse'].includes(getComputedStyle(node).visibility);
+    }) || null;
+  }
+
   function dismissOnOutside(surface, dismiss) {
     if (!surface || bound.has(surface)) return;
     bound.add(surface);
@@ -48,5 +60,5 @@
     }, true);
   }
 
-  globalThis.RobloxCustomizerDialogs = Object.freeze({ dismissOnOutside });
+  globalThis.RobloxCustomizerDialogs = Object.freeze({ dismissOnOutside, blockingDialog });
 })();

@@ -98,7 +98,7 @@
       new MutationObserver(() => {
         if (!canShow()) close();
       }).observe(document.documentElement, { attributes: true,
-        attributeFilter: ['data-rc-features-disabled'] });
+        attributeFilter: ['data-rc-features-disabled', 'data-rc-hide-pinned-friends'] });
     }
     function renderStatus(value, alert = false) {
       const label = t(value), changed = ui.status.hidden !== !label || ui.status.textContent !== label;

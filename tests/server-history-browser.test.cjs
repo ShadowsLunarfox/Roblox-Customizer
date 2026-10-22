@@ -13,7 +13,7 @@ const styles = [...new Set(entries.flatMap(entry => entry.css || []))];
 const id = n => `00000000-0000-0000-0000-${String(n).padStart(12, '0')}`;
 const record = (n, universeId, placeId, name, visitedAt) => ({ serverId: id(n), universeId, placeId, name, visitedAt });
 const firstName = '<img src=x onerror=alert(1)> Game';
-const initial = { robloxCustomizerTermsAccepted: true, playtimeTrackingEnabled: false,
+const initial = { robloxCustomizerTermsAccepted: true,robloxCustomizerSettingsGuideSeen:true, playtimeTrackingEnabled: false,
   customBackground: { source: 'none', uiLanguage: 'en', clockShowSeconds: false },
   rcServerHistory: { version: 1, accounts: [{ userId: 123, servers: [
     ...Array.from({ length: 7 }, (_, n) => record(n + 1, 456, n % 2 ? 790 : 789, firstName, 1800000000100 - n)),

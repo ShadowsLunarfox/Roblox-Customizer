@@ -14,8 +14,8 @@ const controls = { showHomeAvatar: 'avatar', showHomeLabel: 'label', showHomeDis
 const id = key => key === 'clockShowDate' ? '#rc-clock-date' : `#rc-home-show-${controls[key]}`;
 const games = [0, 1, 2].map(i => ({ universeId: 100 + i, placeId: 200 + i, name: `Game ${i + 1}`, iconUrl: '',
   totalMs: (i + 1) * 60000, sessions: 1, firstPlayedAt: 1800000000000, lastPlayedAt: 1800000060000, metadataCheckedAt: 1800000000000 }));
-const initial = { robloxCustomizerTermsAccepted: true, playtimeTrackingEnabled: true,
-  customBackground: { source: 'none', uiLanguage: 'en', clockShowSeconds: false,
+const initial = { robloxCustomizerTermsAccepted: true,robloxCustomizerSettingsGuideSeen:true, playtimeTrackingEnabled: true,
+  customBackground: { source: 'none', uiLanguage: 'en', clockShowSeconds: false, showPinnedFriends: false,
     greetingMorning: 'hello again!', greetingAfternoon: 'hello again!', greetingEvening: 'hello again!' },
   rcPlaytimeHistory: { version: 1, currentUserId: 123, accounts: [{ userId: 123, name: 'Player', displayName: 'Display Player', games }],
     active: null, status: { kind: 'idle', checkedAt: 1800000060000 } } };
@@ -57,7 +57,30 @@ test('every Home banner component can be hidden independently and stays hidden t
     await browser.waitFor("document.querySelectorAll('#rc-playtime-home .rc-playtime-tile').length===3 && document.querySelector('.rc-home-greeting-username').textContent==='@Player'");
     assert.equal(await visible('#rc-home-greeting'), true);
     const history = await browser.evaluate('JSON.stringify(saved.rcPlaytimeHistory)');
+    const bareBanner = "(()=>{const s=getComputedStyle(document.querySelector('#rc-home-greeting'));return s.backgroundColor==='rgba(0, 0, 0, 0)'&&s.borderTopColor==='rgba(0, 0, 0, 0)'&&s.boxShadow==='none'&&s.backdropFilter==='none'})()";
+    const screenshot = async state => {
+      if (!process.env.HOME_BANNER_FRAME_SCREENSHOTS) return;
+      const shot = await browser.send('Page.captureScreenshot', { format: 'png' });
+      fs.writeFileSync(path.join(workspace, `.tmp-home-banner-frame-${state}.png`), Buffer.from(shot.data, 'base64'));
+    };
+    await screenshot('on');
     await open();
+    assert.equal(await browser.evaluate("document.querySelector('#rc-home-show-banner-background').checked"), true);
+    assert.equal(await browser.evaluate(bareBanner), false);
+    const bannerHeight = await browser.evaluate("document.querySelector('#rc-home-greeting').getBoundingClientRect().height");
+    await set('#rc-home-show-banner-background', false);
+    assert.equal(await browser.evaluate('saved.customBackground.showHomeBannerBackground'), false);
+    assert.equal(await browser.evaluate(bareBanner), true, 'The outer background, border and blur are removed together');
+    for (const selector of ['.rc-home-greeting-avatar', '.rc-home-greeting-title', '.rc-home-greeting-time', '#rc-playtime-home']) assert.equal(await visible(selector), true, selector);
+    assert.equal(await browser.evaluate("document.querySelector('#rc-home-greeting').getBoundingClientRect().height"), bannerHeight, 'Toggling the frame preserves layout');
+    assert.notEqual(await browser.evaluate("getComputedStyle(document.querySelector('#rc-playtime-home')).backgroundColor"), 'rgba(0, 0, 0, 0)', 'The playtime card retains its own surface');
+    await browser.click('#rc-done');
+    await screenshot('off');
+    await open();
+    assert.equal(await browser.evaluate("document.querySelector('#rc-home-show-banner-background').checked"), false);
+    await set('#rc-home-show-banner-background', true);
+    assert.equal(await browser.evaluate(bareBanner), false, 'Re-enabling the frame restores the glass surface');
+    await set('#rc-home-show-banner-background', false);
     for (const [key, selector] of [['showHomeAvatar', '.rc-home-greeting-avatar'], ['showHomeLabel', '.rc-home-greeting-eyebrow'], ['showHomeUsername', '.rc-home-greeting-username']]) {
       await set(id(key), false); assert.equal(await visible(selector), false, key);
       await set(id(key), true); assert.equal(await visible(selector), true, key);
@@ -96,6 +119,7 @@ test('every Home banner component can be hidden independently and stays hidden t
     for (const [locale, title] of [['zh-CN', '首页横幅'], ['zh-TW', '首頁橫幅'], ['id', 'Banner beranda'], ['ja', 'ホームバナー'], ['th', 'แบนเนอร์หน้าหลัก'], ['ko', '홈 배너'], ['en', 'Home banner']]) {
       await browser.evaluate(`chrome.storage.local.set({customBackground:{...saved.customBackground,uiLanguage:'${locale}'}})`);
       await browser.waitFor(`document.querySelector('#rc-home-banner-title').textContent===${JSON.stringify(title)}`);
+      assert.equal(await browser.evaluate("document.querySelector('#rc-home-show-banner-background').parentElement.textContent.trim()===RobloxCustomizerI18n.t('Show banner background and border')"), true, locale);
     }
     for (const key of Object.keys(controls)) await set(id(key), false);
     await browser.waitFor("!document.querySelector('#rc-playtime-home')");
@@ -134,6 +158,7 @@ test('every Home banner component can be hidden independently and stays hidden t
       await waitForDocument(browser, '#HomeContainer', origin + route);
       await browser.waitFor("!!document.querySelector('#rc-home-greeting')");
       assert.equal(await visible('#rc-home-greeting'), false, route);
+      assert.equal(await browser.evaluate(bareBanner), true, 'The frame stays disabled during reloads and delayed preference reads');
       assert.equal(await browser.evaluate(noGap), true, route);
       assert.equal(await browser.evaluate('userRequests'), 0, 'A disabled banner does not fetch avatar or identity details');
       await browser.evaluate('releasePreferences()');
@@ -145,6 +170,9 @@ test('every Home banner component can be hidden independently and stays hidden t
     await browser.waitFor("document.querySelectorAll('#rc-playtime-home .rc-playtime-tile').length===3");
     assert.equal(await visible('.rc-home-greeting-clock'), false);
     assert.equal(await visible('.rc-home-greeting-copy'), false);
+    assert.equal(await browser.evaluate(bareBanner), true, 'SPA remounts preserve the frame preference');
+    await set('#rc-home-show-banner-background', true);
+    assert.equal(await browser.evaluate(bareBanner), false);
     assert.equal(await browser.evaluate('JSON.stringify(saved.rcPlaytimeHistory)'), history);
     assert.equal(await visible('#continue'), true, 'Other Home content is unaffected');
     assert.deepEqual(browser.errors, []);

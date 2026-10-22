@@ -121,7 +121,6 @@
     else updateWarning();
   }
 
-  globalThis.RobloxCustomizerLanguageWarning = Object.freeze({ onOpen: () => checkLanguage(true) });
   i18n.onChange(updateWarning);
   i18n.onRobloxLanguageChange(() => checkLanguage());
   globalThis.RobloxCustomizerCompatibility?.onBeforeReload(() => {
@@ -140,10 +139,11 @@
     ? new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, { once: true }))
     : Promise.resolve();
   // Read the final page metadata and saved state before deciding whether to warn.
-  Promise.all([chrome.storage.local.get(STORAGE_KEY).catch(() => ({})), documentReady]).then(([result]) => {
+  const loaded = Promise.all([chrome.storage.local.get(STORAGE_KEY).catch(() => ({})), documentReady]).then(([result]) => {
     const saved = result[STORAGE_KEY];
     state = { opened: state.opened || saved?.opened === true, language: languageKey(saved?.language) };
     ready = true;
     checkLanguage();
   });
+  globalThis.RobloxCustomizerLanguageWarning = Object.freeze({ onOpen: () => checkLanguage(true), ready: loaded });
 })();

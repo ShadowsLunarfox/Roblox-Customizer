@@ -14,7 +14,7 @@ const scripts = [...new Set(entries.flatMap(entry => entry.js || [])),
 const styles = [...new Set(entries.flatMap(entry => entry.css || []))];
 const game = {universeId:456,placeId:789,name:'Private game',iconUrl:'',totalMs:123456,sessions:2,
   firstPlayedAt:1800000000000,lastPlayedAt:1800000123456,metadataCheckedAt:1800000000000};
-const initial = {robloxCustomizerTermsAccepted:true,customBackground:{source:'none',uiLanguage:'en',clockShowSeconds:false,glassBlur:23,glassOpacity:67,
+const initial = {robloxCustomizerTermsAccepted:true,robloxCustomizerSettingsGuideSeen:true,customBackground:{source:'none',uiLanguage:'en',clockShowSeconds:false,glassBlur:23,glassOpacity:67,
   experimentalCustomColors:true,customTextColor:'#ddeeff',customBackgroundColor:'#203040',customAccentColor:'#aa3399',
   hideFavorites:true,showGameXFeed:false,hiddenRecommendedGames:[{placeId:'100',name:'Hidden game'}],greetingMorning:'Hello player'},
   robuxCurrency:{enabled:false,currency:'CNY'},pinnedGames:[{universeId:456,placeId:789,name:'Private game',iconUrl:'',updatedAt:123,folderId:'favorites'}],

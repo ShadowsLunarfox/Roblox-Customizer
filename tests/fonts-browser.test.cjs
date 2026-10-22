@@ -11,7 +11,7 @@ const scripts = [...new Set(entries.filter(entry => entry.world !== 'MAIN').flat
 const styles = [...new Set(entries.flatMap(entry => entry.css || []))];
 
 const setup = `
-  window.saved=JSON.parse(localStorage.getItem('fixture-font-settings')||'null')||{customBackground:{source:'none',uiLanguage:'en'},robloxCustomizerTermsAccepted:true};
+  window.saved=JSON.parse(localStorage.getItem('fixture-font-settings')||'null')||{customBackground:{source:'none',uiLanguage:'en'},robloxCustomizerTermsAccepted:true,robloxCustomizerSettingsGuideSeen:true};
   window.fontLoads=0;window.fileReads=0;window.clicks=0;
   const NativeFontFace=FontFace;window.FontFace=class extends NativeFontFace{constructor(...args){super(...args);fontLoads++}};
   const get=IDBObjectStore.prototype.get;IDBObjectStore.prototype.get=function(...args){fileReads++;return get.apply(this,args)};

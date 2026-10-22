@@ -22,6 +22,7 @@
   ]);
   const HOME_BANNER = [
     { key: 'showHomeBanner', part: 'banner', label: 'Show Home banner' },
+    { key: 'showHomeBannerBackground', part: 'banner-background', label: 'Show banner background and border' },
     { key: 'showHomeAvatar', part: 'avatar', label: 'Show avatar' },
     { key: 'showHomeLabel', part: 'label', label: 'Show Home label' },
     { key: 'showHomeDisplayName', part: 'display-name', label: 'Show display name' },
@@ -31,6 +32,10 @@
     { key: 'clockShowDate', part: 'date', label: 'Show date' },
     { key: 'showHomeMostPlayed', part: 'most-played', label: 'Show most played' }
   ].map(control => ({ ...control, id: control.key === 'clockShowDate' ? 'rc-clock-date' : `rc-home-show-${control.part}` }));
+  const HOME_FRIENDS = [
+    { key: 'showHomeFriends', id: 'rc-show-home-friends', attribute: 'data-rc-hide-home-friends', label: 'Show Roblox friends list' },
+    { key: 'showPinnedFriends', id: 'rc-show-pinned-friends', attribute: 'data-rc-hide-pinned-friends', label: 'Show pinned friends' }
+  ];
   const DEFAULTS = {
     source: 'none', url: '', urlType: 'auto', fileKey: '', fileName: '',
     fit: 'cover', dim: 20, glassBlur: 18, glassOpacity: 62, uiLanguage: 'auto',
@@ -44,6 +49,7 @@
     greetingMorning: '', greetingAfternoon: '', greetingEvening: '',
     clockShowSeconds: true, clockShowDate: true, clockHour12: false,
     ...Object.fromEntries(HOME_BANNER.map(control => [control.key, true])),
+    ...Object.fromEntries(HOME_FRIENDS.map(control => [control.key, true])),
     ...Object.fromEntries(FEED_VISIBILITY.map(control => [control.key, true]))
   };
   let settings = { ...DEFAULTS };
@@ -124,6 +130,7 @@
     for (const key of ['streamerMode', 'streamerHideRobux', 'streamerHideFriends', 'streamerHideMessages']) delete saved[key];
     saved.experimentalCustomColors = saved.experimentalCustomColors === true;
     for (const control of HOME_BANNER) saved[control.key] = saved[control.key] !== false;
+    for (const control of HOME_FRIENDS) saved[control.key] = saved[control.key] !== false;
     saved.showPinnedGames = saved.showPinnedGames !== false;
     if (globalThis.RobloxCustomizerFonts) Object.assign(saved, globalThis.RobloxCustomizerFonts.normalize(saved));
     for (const key of ['customTextColor', 'customBackgroundColor', 'customAccentColor']) {
@@ -715,6 +722,16 @@
     for (const id of ['rc-clock-seconds', 'rc-clock-hour-format']) {
       modal.querySelector(`#${id}`).disabled = settings.showHomeBanner === false || settings.showHomeClock === false;
     }
+  }
+
+  function applyHomeFriendsPreferences() {
+    for (const control of HOME_FRIENDS) {
+      document.documentElement?.toggleAttribute(control.attribute, settings[control.key] === false);
+      const input = modal?.querySelector(`#${control.id}`);
+      if (input) input.checked = settings[control.key] !== false;
+    }
+    const rows = modal?.querySelector('#rc-friend-rows');
+    if (rows) rows.disabled = settings.showHomeFriends === false;
   }
 
   function applyPinnedGamesVisibility() {
@@ -1329,6 +1346,7 @@
       applyHomeBannerPreferences();
     }
     if (!previous || previous.showPinnedGames !== settings.showPinnedGames) applyPinnedGamesVisibility();
+    if (!previous || HOME_FRIENDS.some(control => previous[control.key] !== settings[control.key])) applyHomeFriendsPreferences();
     if (!previous || previous.friendRows !== settings.friendRows) {
       document.dispatchEvent(new CustomEvent('rc-friend-rows-changed', {
         detail: { rows: settings.friendRows }
@@ -1854,6 +1872,7 @@
 
   function updateLegalLinks() {
     if (!modal) return;
+    modal.querySelector('#rc-view-updates').hidden = !globalThis.RobloxCustomizerUpdateAnnouncement?.available();
     const locale = globalThis.RobloxCustomizerI18n?.locale() || 'en';
     const language = ['en', 'zh-CN', 'zh-TW', 'id', 'ja', 'th', 'ko'].includes(locale) ? locale : 'en';
     const suffix = language === 'en' ? '' : `.${language}`;
@@ -1876,6 +1895,8 @@
       void terms.request().then(accepted => { if (accepted) openModal(); });
       return;
     }
+    globalThis.RobloxCustomizerSettingsGuide?.dismiss();
+    globalThis.RobloxCustomizerUpdateAnnouncement?.dismiss();
     lastFocus = document.activeElement;
     modal = document.createElement('div');
     modal.id = 'rc-settings-overlay';
@@ -2002,6 +2023,9 @@
             <div id="rc-hidden-recommended-games"></div>
           </div>
           <div class="rc-settings-friends">
+            <h4>Home friends</h4>
+            ${HOME_FRIENDS.map(control => `<label for="${control.id}" class="rc-settings-toggle"><input id="${control.id}" type="checkbox"> ${control.label}</label>`).join('')}
+            <p class="rc-settings-hint">Hidden Home sections keep your friendships and saved pins.</p>
             <label for="rc-friend-rows">Maximum friend list rows</label>
             <select id="rc-friend-rows">
               <option value="1">1 row</option><option value="2">2 rows</option>
@@ -2073,6 +2097,7 @@
           <div class="rc-settings-legal-links">
             <a class="rc-button rc-button-secondary rc-legal-link" data-rc-legal-document="terms" target="_blank" rel="noopener noreferrer">Terms of Service</a>
             <a class="rc-button rc-button-secondary rc-legal-link" data-rc-legal-document="privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+            <button class="rc-button rc-button-secondary rc-legal-link" type="button" id="rc-view-updates" hidden>Update Changelog</button>
           </div>
           <span><span>Author:</span> <span translate="no">Shadows_Lunarfox 月狐</span></span>
           <a href="https://github.com/ShadowsLunarfox/Roblox-Customizer" target="_blank" rel="noopener noreferrer">
@@ -2083,6 +2108,7 @@
       </div>`;
     document.body.append(modal);
     updateLegalLinks();
+    modal.querySelector('#rc-view-updates').addEventListener('click', () => globalThis.RobloxCustomizerUpdateAnnouncement?.open());
     if (enhancementsEnabled()) {
       globalThis.RobloxCustomizerCurrency?.mountSettings(modal.querySelector('#rc-currency-settings'));
       globalThis.RobloxCustomizerPlaytimeUI?.mountSettings(modal.querySelector('#rc-playtime-settings'));
@@ -2104,6 +2130,7 @@
     modal.querySelector('#rc-glass-opacity-value').value = `${settings.glassOpacity}%`;
     for (const control of HOME_VISIBILITY) modal.querySelector(`#${control.id}`).checked = settings[control.key] === true;
     modal.querySelector('#rc-show-pinned-games').checked = settings.showPinnedGames !== false;
+    applyHomeFriendsPreferences();
     for (const control of FEED_VISIBILITY) modal.querySelector(`#${control.id}`).checked = settings[control.key] === true;
     renderHiddenRecommendedGames();
     modal.querySelector('#rc-friend-rows').value = String(Math.max(1, Math.min(3,
@@ -2214,6 +2241,9 @@
     });
     modal.querySelector('#rc-show-pinned-games').addEventListener('change', event => {
       changeSettings({ ...settings, showPinnedGames: event.target.checked }, true);
+    });
+    for (const control of HOME_FRIENDS) modal.querySelector(`#${control.id}`).addEventListener('change', event => {
+      changeSettings({ ...settings, [control.key]: event.target.checked }, true);
     });
     modal.querySelector('#rc-saved-pinned-folder').addEventListener('change', event => {
       pinnedLibraryFolder = event.target.value;
@@ -2450,9 +2480,11 @@
   globalThis.RobloxCustomizerI18n?.onChange(updateHomeGreeting);
   document.addEventListener('rc-home-banner-content-changed', updateHomeGreeting);
   globalThis.RobloxCustomizerI18n?.onChange(updateLegalLinks);
+  document.addEventListener('rc-update-announcement-ready', updateLegalLinks);
   globalThis.RobloxCustomizerI18n?.onChange(renderPinnedLibrary);
   globalThis.RobloxCustomizerFonts?.onChange(refreshFontControls);
   globalThis.RobloxCustomizerCompatibility?.onBeforeReload(() => persistTimer ? flushSettingsSave() : saveQueue);
+  globalThis.RobloxCustomizerSettings = Object.freeze({ open: openModal });
   chrome.runtime.onMessage?.addListener((message, sender) => {
     if (message?.type === 'rc-open-settings' && sender.id === chrome.runtime.id) openModal();
   });

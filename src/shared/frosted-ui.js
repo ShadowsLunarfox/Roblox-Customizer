@@ -22,7 +22,7 @@
   const DISCOVERY_SELECTOR = `${NATIVE_HOST}, ${NATIVE_PANEL}, ${CHAT_LIST_PANEL}, ${CHAT_INPUT}, ${CHAT_HEADER}`;
   const NON_CHAT = 'head, script, style, link, meta, .game-card-container, .game-card, .hover-game-tile, .game-tile, .grid-item-container, '
     + '[data-testid="game-card"], [data-testid="game-tile"], #rc-settings-overlay, #rc-pinned-games, '
-    + '#rc-home-greeting, #rc-pinned-friends, #rc-pinned-friends-dialog, #rc-pinned-friend-menu, .rc-friend-pin, .rc-hide-recommended-game, '
+    + '#rc-home-greeting, #rc-pinned-friends, #rc-pinned-friends-dialog, #rc-pinned-friend-menu, #rc-settings-guide-dialog, #rc-update-announcement-dialog, .rc-friend-pin, .rc-hide-recommended-game, '
     + '#rc-friends-manager, #rc-friends-bulk-dialog';
   const panels = new Set();
   const discoveryRoots = new Set([document]);

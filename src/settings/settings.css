@@ -1774,7 +1774,7 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
   font-size: 12px;
 }
 
-#rc-settings-overlay .rc-settings-footer a:focus-visible {
+#rc-settings-overlay .rc-settings-footer :is(a, button):focus-visible {
   outline: 2px solid var(--rc-focus);
   outline-offset: 3px;
 }

@@ -4,7 +4,8 @@
   const routePath = value => globalThis.RobloxCustomizerRoutes?.pathname(value) ?? value ?? location.pathname;
 
   const CACHE_KEY = 'roblox-customizer-visuals-v1';
-  const HOME_BANNER = [['showHomeBanner', 'banner'], ['showHomeAvatar', 'avatar'], ['showHomeLabel', 'label'],
+  const HOME_BANNER = [['showHomeBanner', 'banner'], ['showHomeBannerBackground', 'banner-background'],
+    ['showHomeAvatar', 'avatar'], ['showHomeLabel', 'label'],
     ['showHomeDisplayName', 'display-name'], ['showHomeUsername', 'username'], ['showHomeGreeting', 'greeting'],
     ['showHomeClock', 'clock'], ['clockShowDate', 'date'], ['showHomeMostPlayed', 'most-played']];
   const FROST_ROUTES = [
@@ -135,6 +136,8 @@
     root.toggleAttribute('data-rc-background-active', visuals.backgroundActive === true);
     for (const [key, part] of HOME_BANNER) root.toggleAttribute(`data-rc-hide-home-${part}`, visuals[key] === false);
     root.toggleAttribute('data-rc-hide-pinned-games', visuals.showPinnedGames === false);
+    root.toggleAttribute('data-rc-hide-home-friends', visuals.showHomeFriends === false);
+    root.toggleAttribute('data-rc-hide-pinned-friends', visuals.showPinnedFriends === false);
     root.removeAttribute('data-rc-hide-recommended');
     for (const part of ['Upper', 'Lower']) {
       const value = visuals[`hideRecommended${part}`];
@@ -373,7 +376,9 @@
     syncRoute,
     homePreferences: () => ({
       ...Object.fromEntries(HOME_BANNER.map(([key]) => [key, cachedVisuals?.[key] !== false])),
-      showPinnedGames: cachedVisuals?.showPinnedGames !== false
+      showPinnedGames: cachedVisuals?.showPinnedGames !== false,
+      showHomeFriends: cachedVisuals?.showHomeFriends !== false,
+      showPinnedFriends: cachedVisuals?.showPinnedFriends !== false
     }),
     setPreferences(settings) {
       // Cache only appearance flags, numbers and validated colors, never media data.
@@ -392,6 +397,8 @@
         hideFavorites: settings.hideFavorites === true,
         hideStandoutGames: settings.hideStandoutGames === true,
         showPinnedGames: settings.showPinnedGames !== false,
+        showHomeFriends: settings.showHomeFriends !== false,
+        showPinnedFriends: settings.showPinnedFriends !== false,
         ...Object.fromEntries(HOME_BANNER.map(([key]) => [key, settings[key] !== false])),
         ...colorPreferences(settings),
         ...feedPreferences(settings)

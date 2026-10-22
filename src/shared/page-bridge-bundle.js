@@ -221,7 +221,7 @@
     if (!event.isTrusted || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey
       || !/^\/home\/?$/i.test(path())) return;
     const root = document.documentElement;
-    if (root.hasAttribute('data-rc-features-disabled')) return;
+    if (root.hasAttribute('data-rc-features-disabled') || root.hasAttribute('data-rc-hide-pinned-friends')) return;
     const control = event.target?.closest?.('#rc-pinned-friend-menu [data-rc-friend-action]');
     if (!control || control.disabled || control.getAttribute('aria-disabled') === 'true') return;
     const menu = control.closest('#rc-pinned-friend-menu');

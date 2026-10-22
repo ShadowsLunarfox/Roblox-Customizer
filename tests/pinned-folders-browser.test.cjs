@@ -33,7 +33,7 @@ function fixture() {
     const messageListeners=[],storageListeners=[];
     const record=id=>({placeId:id,universeId:id+1000,name:id===1?'Search':'Adventure '+id+' — 長名稱 <img onerror=alert(1)>',iconUrl:'',updatedAt:Date.now()});
     if(!localStorage.getItem('seeded')){localStorage.setItem('pinnedGames',JSON.stringify(Array.from({length:60},(_,i)=>record(i+1))));localStorage.setItem('seeded','yes')}
-    const read=()=>({robloxCustomizerTermsAccepted:true,pinnedGames:JSON.parse(localStorage.getItem('pinnedGames')||'[]'),pinnedGameFolders:JSON.parse(localStorage.getItem('pinnedGameFolders')||'[]'),customBackground:{source:'none',uiLanguage:'auto'}});
+    const read=()=>({robloxCustomizerTermsAccepted:true,robloxCustomizerSettingsGuideSeen:true,pinnedGames:JSON.parse(localStorage.getItem('pinnedGames')||'[]'),pinnedGameFolders:JSON.parse(localStorage.getItem('pinnedGameFolders')||'[]'),customBackground:{source:'none',uiLanguage:'auto'}});
     function emit(changes){storageListeners.forEach(fn=>fn(changes,'local'))}
     window.chrome={i18n:{getUILanguage:()=> 'en'},runtime:{id:'test-extension',lastError:null,getURL:file=>'/'+file,
       onMessage:{addListener:fn=>messageListeners.push(fn)},

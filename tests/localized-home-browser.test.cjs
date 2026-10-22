@@ -23,7 +23,7 @@ function fixture() {
     window.releasePreferences=()=>{window.preferencesReleased=true;waiting.splice(0).forEach(resolve=>resolve(readSaved()));};
     const pin=id=>({placeId:id,universeId:id+1000,name:'Game '+id,iconUrl:'https://tr.rbxcdn.com/fixture/'+id+'.png',updatedAt:Date.now()});
     const game=id=>({...pin(id),totalMs:180000,sessions:1,firstPlayedAt:1800000000000,lastPlayedAt:1800000000000,metadataCheckedAt:1800000000000});
-    if(!localStorage.getItem('data'))localStorage.setItem('data',JSON.stringify({robloxCustomizerTermsAccepted:true,
+    if(!localStorage.getItem('data'))localStorage.setItem('data',JSON.stringify({robloxCustomizerTermsAccepted:true,robloxCustomizerSettingsGuideSeen:true,
       customBackground:{source:'none',uiLanguage:'auto'},pinnedGames:[pin(1),pin(2)],pinnedGameFolders:[],
       rcPlaytimeHistory:{version:1,currentUserId:123,accounts:[{userId:123,name:'Player',displayName:'Player',games:[game(1),game(2),game(3)]}],active:null,status:{kind:'idle',checkedAt:1800000000000}}}));
     window.readSaved=()=>JSON.parse(localStorage.getItem('data'));

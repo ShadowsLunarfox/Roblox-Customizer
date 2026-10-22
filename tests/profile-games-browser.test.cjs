@@ -46,7 +46,7 @@ test('English Games sections use the profile theme for sparse and remounted nati
     const browser = await isolatedChrome(t,'profile-games');
     await browser.send('Emulation.setFocusEmulationEnabled',{enabled:true});
     await browser.send('Page.addScriptToEvaluateOnNewDocument',{source:`
-      window.chrome={i18n:{getUILanguage:()=> 'en-US'},storage:{local:{async get(){return {robloxCustomizerTermsAccepted:true,
+      window.chrome={i18n:{getUILanguage:()=> 'en-US'},storage:{local:{async get(){return {robloxCustomizerTermsAccepted:true,robloxCustomizerSettingsGuideSeen:true,
         customBackground:{source:'url',url:location.origin+'/wallpaper.svg',urlType:'image',glassOpacity:51,
           experimentalCustomColors:location.search.includes('custom'),customTextColor:'#ffffff',customBackgroundColor:'#394b84',customAccentColor:'#fc33ff'}}},
         async set(){},async remove(){}},onChanged:{addListener(){}}},runtime:{lastError:null,getURL:file=>'/'+file,

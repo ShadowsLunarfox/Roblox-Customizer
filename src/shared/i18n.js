@@ -17,6 +17,10 @@
     ["Roblox could not join this friend. Check their game status and try again.","Roblox 未能加入这位好友，请检查游戏状态后重试。","Roblox 未能加入這位好友，請檢查遊戲狀態後重試。","Roblox tidak dapat bergabung dengan teman ini. Periksa status game mereka dan coba lagi.","このフレンドに参加できませんでした。ゲームの状態を確認して再試行してください。","Roblox เข้าร่วมเพื่อนคนนี้ไม่ได้ โปรดตรวจสอบสถานะเกมแล้วลองอีกครั้ง","이 친구와 함께할 수 없습니다. 게임 상태를 확인하고 다시 시도하세요."],
     ["{count} pinned friends across {accounts} accounts are included. Import replaces saved friend pins, including when this backup contains none.","包含 {accounts} 个账号的 {count} 位置顶好友。导入会替换现有置顶列表，即使备份中没有置顶好友。","包含 {accounts} 個帳號的 {count} 位置頂好友。匯入會取代現有置頂清單，即使備份中沒有置頂好友。","Berisi {count} teman disematkan dari {accounts} akun. Impor mengganti sematan tersimpan, termasuk jika cadangan ini tidak berisi sematan.","{accounts}件のアカウントのピン留めしたフレンド{count}人を含みます。バックアップが空の場合も、インポートは保存済みのピン留めを置き換えます。","มีเพื่อนที่ปักหมุด {count} คนจาก {accounts} บัญชี การนำเข้าจะแทนที่รายการเดิม แม้ข้อมูลสำรองนี้ไม่มีรายการปักหมุด","{accounts}개 계정의 고정한 친구 {count}명이 포함됩니다. 백업에 고정한 친구가 없어도 가져오기는 저장된 목록을 대체합니다."],
     ["Pinned friends","置顶好友","置頂好友","Teman disematkan","ピン留めしたフレンド","เพื่อนที่ปักหมุด","고정한 친구"],
+    ["Home friends","首页好友","首頁好友","Teman di Beranda","ホームのフレンド","เพื่อนบนหน้าหลัก","홈 친구"],
+    ["Show Roblox friends list","显示原版好友列表","顯示原版好友清單","Tampilkan daftar teman Roblox","Roblox標準のフレンド一覧を表示","แสดงรายชื่อเพื่อนเดิมของ Roblox","Roblox 기본 친구 목록 표시"],
+    ["Show pinned friends","显示置顶好友","顯示置頂好友","Tampilkan teman disematkan","ピン留めしたフレンドを表示","แสดงเพื่อนที่ปักหมุด","고정한 친구 표시"],
+    ["Hidden Home sections keep your friendships and saved pins.","隐藏首页模块不会删除好友关系或已保存的置顶名单。","隱藏首頁區塊不會刪除好友關係或已儲存的置頂清單。","Menyembunyikan bagian Beranda tidak menghapus pertemanan atau sematan tersimpan.","ホームの項目を非表示にしても、フレンド関係や保存済みのピン留めは保持されます。","การซ่อนส่วนต่าง ๆ บนหน้าหลักจะไม่ลบเพื่อนหรือรายการปักหมุดที่บันทึกไว้","홈 영역을 숨겨도 친구 관계와 저장된 고정 목록은 유지됩니다."],
     ["Manage pinned friends","管理置顶好友","管理置頂好友","Kelola teman disematkan","ピン留めしたフレンドを管理","จัดการเพื่อนที่ปักหมุด","고정한 친구 관리"],
     ["Friend tools","好友工具","好友工具","Alat teman","フレンドツール","เครื่องมือเพื่อน","친구 도구"],
     ["All statuses","全部状态","全部狀態","Semua status","すべての状態","ทุกสถานะ","모든 상태"],
@@ -282,6 +286,7 @@
     ["{count} folders","{count} 个文件夹","{count} 個資料夾","{count} folder","{count}個のフォルダー","{count} โฟลเดอร์","폴더 {count}개"],
     ["Home banner","首页横幅","首頁橫幅","Banner beranda","ホームバナー","แบนเนอร์หน้าหลัก","홈 배너"],
     ["Show Home banner","显示首页横幅","顯示首頁橫幅","Tampilkan banner beranda","ホームバナーを表示","แสดงแบนเนอร์หน้าหลัก","홈 배너 표시"],
+    ["Show banner background and border","显示横幅背景框","顯示橫幅背景框","Tampilkan latar belakang dan bingkai banner","バナーの背景と枠線を表示","แสดงพื้นหลังและกรอบแบนเนอร์","배너 배경과 테두리 표시"],
     ["Banner contents","横幅内容","橫幅內容","Isi banner","バナーの表示内容","เนื้อหาในแบนเนอร์","배너 내용"],
     ["Show avatar","显示头像","顯示頭像","Tampilkan avatar","アバターを表示","แสดงอวาตาร์","아바타 표시"],
     ["Show Home label","显示「你的主页」标题","顯示「你的首頁」標題","Tampilkan label beranda","ホームの見出しを表示","แสดงหัวข้อหน้าหลัก","홈 제목 표시"],
@@ -345,6 +350,16 @@
     ["Terms of Service","服务条款","服務條款","Ketentuan Layanan","利用規約","ข้อกำหนดการใช้งาน","이용 약관"],
     ["Privacy Policy","隐私政策","隱私權政策","Kebijakan Privasi","プライバシーポリシー","นโยบายความเป็นส่วนตัว","개인정보 처리방침"],
     ["Welcome to Roblox Customizer","欢迎使用 Roblox Customizer","歡迎使用 Roblox Customizer","Selamat datang di Roblox Customizer","Roblox Customizerへようこそ","ยินดีต้อนรับสู่ Roblox Customizer","Roblox Customizer에 오신 것을 환영합니다"],
+    ["Find your Customizer settings","找到插件设置","找到擴充功能設定","Temukan pengaturan Customizer","Customizer設定の開き方","เปิดการตั้งค่า Customizer","Customizer 설정 찾기"],
+    ["Open settings in either of these two ways.","你可以通过以下两种方式打开设置。","你可以透過以下兩種方式開啟設定。","Buka pengaturan dengan salah satu dari dua cara berikut.","次の2つの方法で設定を開けます。","คุณสามารถเปิดการตั้งค่าได้สองวิธีต่อไปนี้","다음 두 가지 방법으로 설정을 열 수 있습니다."],
+    ["From the Roblox website","从 Roblox 网页打开","從 Roblox 網頁開啟","Dari situs web Roblox","Robloxのウェブサイトから","จากเว็บไซต์ Roblox","Roblox 웹사이트에서 열기"],
+    ["Click the gear in Roblox's top-right corner, then choose Roblox Customizer.","点击 Roblox 网页右上角的齿轮，再选择 Roblox Customizer。","點擊 Roblox 網頁右上角的齒輪，再選擇 Roblox Customizer。","Klik roda gigi di sudut kanan atas Roblox, lalu pilih Roblox Customizer.","Robloxの右上にある歯車をクリックし、Roblox Customizerを選びます。","คลิกรูปเฟืองที่มุมขวาบนของ Roblox แล้วเลือก Roblox Customizer","Roblox 오른쪽 위의 톱니바퀴를 클릭한 다음 Roblox Customizer를 선택하세요."],
+    ["From your browser toolbar","从浏览器工具栏打开","從瀏覽器工具列開啟","Dari bilah alat browser","ブラウザーのツールバーから","จากแถบเครื่องมือของเบราว์เซอร์","브라우저 도구 모음에서 열기"],
+    ["On a Roblox page, click the Roblox Customizer icon in your browser's top-right toolbar.","在 Roblox 网页中，点击浏览器右上角工具栏里的 Roblox Customizer 图标。","在 Roblox 網頁中，點擊瀏覽器右上角工具列裡的 Roblox Customizer 圖示。","Saat berada di halaman Roblox, klik ikon Roblox Customizer di bilah alat kanan atas browser.","Robloxのページで、ブラウザー右上のツールバーにあるRoblox Customizerアイコンをクリックします。","ขณะอยู่บนหน้า Roblox ให้คลิกไอคอน Roblox Customizer ที่แถบเครื่องมือมุมขวาบนของเบราว์เซอร์","Roblox 페이지에서 브라우저 오른쪽 위 도구 모음의 Roblox Customizer 아이콘을 클릭하세요."],
+    ["If the icon is hidden, open your browser's Extensions menu and pin Roblox Customizer.","如果找不到图标，请打开浏览器的扩展菜单，并将 Roblox Customizer 固定到工具栏。","如果找不到圖示，請開啟瀏覽器的擴充功能選單，並將 Roblox Customizer 釘選到工具列。","Jika ikon tidak terlihat, buka menu Ekstensi browser dan sematkan Roblox Customizer.","アイコンが見つからない場合は、ブラウザーの拡張機能メニューからRoblox Customizerをツールバーに固定してください。","หากไม่พบไอคอน ให้เปิดเมนูส่วนขยายของเบราว์เซอร์แล้วปักหมุด Roblox Customizer","아이콘이 보이지 않으면 브라우저의 확장 프로그램 메뉴에서 Roblox Customizer를 도구 모음에 고정하세요."],
+    ["Got it","知道了","知道了","Mengerti","わかりました","เข้าใจแล้ว","알겠습니다"],
+    ["Update Changelog","更新公告","更新公告","Catatan pembaruan","更新のお知らせ","ประกาศอัปเดต","업데이트 안내"],
+    ["Open settings","打开设置","開啟設定","Buka pengaturan","設定を開く","เปิดการตั้งค่า","설정 열기"],
     ["Please read and accept the Terms of Service for Roblox Customizer.","请阅读并接受 Roblox Customizer 的服务条款。","請閱讀並接受 Roblox Customizer 的服務條款。","Silakan baca dan setujui Ketentuan Layanan Roblox Customizer.","Roblox Customizerの利用規約をお読みのうえ、同意してください。","โปรดอ่านและยอมรับข้อกำหนดการใช้งานของ Roblox Customizer","Roblox Customizer 이용 약관을 읽고 동의해 주세요."],
     ["The Privacy Policy explains how the extension handles your data.","隐私政策说明扩展如何处理你的数据。","隱私權政策說明擴充功能如何處理你的資料。","Kebijakan Privasi menjelaskan cara ekstensi menangani data Anda.","データの取り扱いについては、プライバシーポリシーをご確認ください。","นโยบายความเป็นส่วนตัวอธิบายวิธีที่ส่วนขยายจัดการข้อมูลของคุณ","개인정보 처리방침에서 확장 프로그램의 데이터 처리 방식을 확인할 수 있습니다."],
     ["Accept and continue","接受并继续","接受並繼續","Setujui dan lanjutkan","同意して続ける","ยอมรับและดำเนินการต่อ","동의하고 계속"],
@@ -831,7 +846,7 @@
   let timer = null;
   let localeDirty = false;
 
-  const ROOTS = '#rc-playtime-home, #rc-playtime-game-page, #rc-playtime-dialog, #rc-playtime-settings, #rc-settings-overlay, #rc-terms-dialog, #rc-language-warning-dialog, #rc-extension-warning-dialog, .rc-settings-menu-entry, .rc-hide-recommended-game, #rc-home-greeting, '
+  const ROOTS = '#rc-playtime-home, #rc-playtime-game-page, #rc-playtime-dialog, #rc-playtime-settings, #rc-settings-overlay, #rc-terms-dialog, #rc-language-warning-dialog, #rc-extension-warning-dialog, #rc-settings-guide-dialog, #rc-update-announcement-dialog, .rc-settings-menu-entry, .rc-hide-recommended-game, #rc-home-greeting, '
     + '#rc-asset-tools, .rc-asset-owned, #rc-avatar-enhancements, #rc-avatar-loading, #rc-avatar-diagnostics, .rc-game-pin-control, .rc-game-pin-folder, #rc-pinned-games, #rc-pinned-games-notification, #rc-avatar-2d, #rc-catalog-item-2d, '
     + '#rc-pinned-friends, #rc-pinned-friends-dialog, #rc-pinned-friend-menu, .rc-friend-pin, .rc-friend-pin-profile, .rc-profile-pin-error, '
     + '#rc-friends-manager, #rc-friends-bulk-dialog, '

@@ -13,7 +13,7 @@ const styles=[...new Set(manifest.content_scripts.flatMap(entry=>entry.css||[]))
 const reactBundle=process.env.SERVER_VIEW_REACT_BUNDLE;
 const setup=`
   window.actions=[];window.privateRequests=[];window.serverStatusRequests=[];
-  window.chrome={storage:{local:{async get(){return {robloxCustomizerTermsAccepted:true,customBackground:{source:'none',hideXFeed:true,hideYouTubeFeed:true}}},async set(){}},onChanged:{addListener(){}}},
+  window.chrome={storage:{local:{async get(){return {robloxCustomizerTermsAccepted:true,robloxCustomizerSettingsGuideSeen:true,customBackground:{source:'none',hideXFeed:true,hideYouTubeFeed:true}}},async set(){}},onChanged:{addListener(){}}},
     runtime:{lastError:null,getURL:file=>'/'+file,sendMessage(message,callback){
       if(message.type==='rc-private-server-details'){privateRequests.push({message,callback});return}
       if(message.type==='rc-public-server-status'){serverStatusRequests.push({message,callback});return}

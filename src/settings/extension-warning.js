@@ -25,8 +25,17 @@
   let dialog = null;
   let previousFocus = null;
   let saveQueue = Promise.resolve();
+  let resolveReady;
+  const loaded = new Promise(resolve => { resolveReady = resolve; });
+  const announce = () => document.dispatchEvent(new Event('rc-extension-warning-changed'));
   const i18n = globalThis.RobloxCustomizerI18n;
   const unacknowledged = () => extensions.some(extension => detected.has(extension.key) && !acknowledged.has(extension.key));
+  const modalObserver = new MutationObserver(queueCheck);
+  function watchModals() {
+    modalObserver.disconnect();
+    if (unacknowledged()) modalObserver.observe(document, { subtree: true, attributes: true,
+      attributeFilter: ['class', 'style', 'hidden', 'aria-hidden', 'aria-modal'] });
+  }
 
   function updateDialog() {
     if (!dialog) return;
@@ -62,6 +71,8 @@
     current.remove();
     if (previousFocus?.isConnected) previousFocus.focus?.({ preventScroll: true });
     previousFocus = null;
+    watchModals();
+    announce();
   }
 
   function check() {
@@ -73,7 +84,7 @@
     // Onboarding, language warnings and native modal interactions finish first.
     // Do not open or accept the Terms of Service on behalf of this notice.
     if (globalThis.RobloxCustomizerTerms && !globalThis.RobloxCustomizerTerms.accepted()) return;
-    if (document.querySelector('dialog[open], #rc-settings-overlay, [role="dialog"][aria-modal="true"]:not([hidden])')) return;
+    if (globalThis.RobloxCustomizerDialogs?.blockingDialog()) return;
     previousFocus = document.activeElement;
     dialog = document.createElement('dialog');
     dialog.id = 'rc-extension-warning-dialog';
@@ -112,6 +123,8 @@
   function mark(key) {
     if (!extensions.some(extension => extension.key === key) || detected.has(key)) return;
     detected.add(key);
+    watchModals();
+    announce();
     queueCheck();
   }
 
@@ -151,6 +164,8 @@
       }
     }
     queueCheck();
+    resolveReady?.();
+    resolveReady = null;
   }
 
   function flushScan() {
@@ -171,7 +186,9 @@
   }
 
   globalThis.RobloxCustomizerExtensionWarning = Object.freeze({
-    detected: () => extensions.filter(extension => detected.has(extension.key)).map(extension => extension.name)
+    detected: () => extensions.filter(extension => detected.has(extension.key)).map(extension => extension.name),
+    ready: loaded,
+    pending: () => !ready || unacknowledged()
   });
   new MutationObserver(queueScan).observe(document, { childList: true, subtree: true, attributes: true,
     attributeFilter: ['src', 'href', 'btr-loaded', 'open'] });
@@ -188,6 +205,7 @@
       if (change.newValue === true) acknowledged.add(extension.key);
       else acknowledged.delete(extension.key);
     }
+    watchModals();
     queueCheck();
   });
   const documentReady = document.readyState === 'loading'
@@ -195,6 +213,7 @@
   Promise.all([chrome.storage.local.get(extensions.map(keyFor)).catch(() => ({})), documentReady]).then(([saved]) => {
     for (const extension of extensions) if (saved[keyFor(extension)] === true) acknowledged.add(extension.key);
     ready = true;
+    watchModals();
     queueScan([{ type: 'childList', addedNodes: document.documentElement ? [document.documentElement] : [] }]);
   });
 })();

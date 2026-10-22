@@ -14,7 +14,8 @@
   const profileControls = new Map();
   const controlNodes = new WeakSet();
   const path = () => globalThis.RobloxCustomizerRoutes?.pathname() || location.pathname;
-  const hidden = () => document.documentElement.hasAttribute('data-rc-features-disabled');
+  const hidden = () => document.documentElement.hasAttribute('data-rc-features-disabled')
+    || home() && document.documentElement.hasAttribute('data-rc-hide-pinned-friends');
   const home = () => /^\/home\/?$/i.test(path());
   const profileId = () => Number(path().match(/^\/users\/(\d+)\/profile\/?$/i)?.[1]) || 0;
   const friendsRoute = () => /^\/users\/(?:\d+\/)?friends\/?$/i.test(path())
@@ -330,7 +331,7 @@
       || !record.target.closest?.(owned) && [...record.addedNodes, ...record.removedNodes].some(node =>
         node instanceof Element && !node.matches(owned) && (node.matches(`${nativeRoots}, ${nativeHeaders}, ${profileRoots}, ${profileActions}, #HomeContainer, .friend-carousel-container, .avatar-card, .avatar-card-container, a[href*="/users/"]`)
           || node.querySelector(`${nativeRoots}, ${nativeHeaders}, ${profileRoots}, ${profileActions}, #HomeContainer, .friend-carousel-container, a[href*="/users/"]`))))) queue();
-  }).observe(document, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['data-rc-features-disabled', 'data-userid', 'href'] });
+  }).observe(document, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['data-rc-features-disabled', 'data-rc-hide-pinned-friends', 'data-userid', 'href'] });
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local' || !changes[core.STORAGE_KEY]) return;
     revision++;

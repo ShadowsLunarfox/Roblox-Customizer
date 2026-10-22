@@ -18,9 +18,9 @@ function savedData() {
   history.accounts.push({userId:321,name:'Second',displayName:'第二个账号',games:copy(history.accounts[0].games)});
   return {customBackground:{source:'none',glassBlur:23,glassOpacity:67,uiLanguage:'zh-TW',
     customAccentColor:'#aabbcc',hideFavorites:true,hiddenRecommendedGames:[{placeId:'111',name:'Hidden'}],
-    greetingMorning:'Good morning',showHomeBanner:false,showHomeAvatar:false,showHomeLabel:true,
+    greetingMorning:'Good morning',showHomeBanner:false,showHomeBannerBackground:false,showHomeAvatar:false,showHomeLabel:true,
     showHomeDisplayName:false,showHomeUsername:true,showHomeGreeting:false,showHomeClock:false,
-    clockShowDate:false,showHomeMostPlayed:true,showPinnedGames:false,_writer:'do-not-export'},
+    clockShowDate:false,showHomeMostPlayed:true,showPinnedGames:false,showHomeFriends:false,showPinnedFriends:false,_writer:'do-not-export'},
     robuxCurrency:{enabled:false,currency:'CNY'},pinnedGames:[{universeId:456,placeId:789,name:'Private game',folderId:'favorites',iconUrl:'',updatedAt:123}],
     pinnedGameFolders:[{id:'favorites',name:'我的游戏'}],rcPlaytimeHistory:history,playtimeTrackingEnabled:true,
     rcGameNotes:gameNotes.update(null,{placeId:789,name:'Private game'},'私人攻略\n第二行',12345),
@@ -54,6 +54,9 @@ test('backup includes every preference and account, preserves folder links, and 
   assert.equal(data.rcPlaytimeHistory.accounts[0].games[0].totalMs, 30000);
   assert.equal(data.pinnedGames[0].folderId, data.pinnedGameFolders[0].id);
   assert.equal(data.customBackground.showPinnedGames, false);
+  assert.equal(data.customBackground.showHomeFriends, false);
+  assert.equal(data.customBackground.showPinnedFriends, false);
+  assert.equal(data.customBackground.showHomeBannerBackground, false);
   assert.equal(data.rcGameNotes.notes[0].text, '私人攻略\n第二行');
   assert.deepEqual(backup.validate(copy(envelope(data))).data, data);
   assert.equal(JSON.stringify(data).includes('live-session'), false);
@@ -98,7 +101,9 @@ test('backup validates the envelope, nested preferences, complete records and me
     b=>{b.data.rcPlaytimeHistory.accounts[0].games[0].totalMs=-1;},b=>{b.data.rcPlaytimeHistory.accounts.push(b.data.rcPlaytimeHistory.accounts[0]);},
     b=>{b.data.pinnedGames[0].folderId='missing';},b=>{b.data.customBackground.glassBlur=100;},b=>{b.data.robuxCurrency.currency='INVALID';},
     b=>{b.data.playtimeTrackingEnabled='false';},b=>{b.data.customBackground.showHomeBanner='false';},
+    b=>{b.data.customBackground.showHomeBannerBackground='false';},
     b=>{b.data.customBackground.showHomeMostPlayed=1;},b=>{b.data.customBackground.showPinnedGames='false';},
+    b=>{b.data.customBackground.showHomeFriends='false';},b=>{b.data.customBackground.showPinnedFriends=0;},
     b=>{b.data.customBackground.source='url';b.data.customBackground.url='javascript:alert(1)';},
     b=>{b.data.rcGameNotes.notes[0].text='x'.repeat(gameNotes.MAX_LENGTH+1);},
     b=>{b.data.rcGameNotes.notes.push(b.data.rcGameNotes.notes[0]);},

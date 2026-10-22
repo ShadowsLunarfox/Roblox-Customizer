@@ -29,7 +29,7 @@ const nativeCard = nativeBundle && (() => {
 })();
 const setup = `
   window.statusRequests=[];window.actions=[];
-  window.chrome={storage:{local:{async get(){return {robloxCustomizerTermsAccepted:true,customBackground:{source:'none',hideXFeed:true,hideYouTubeFeed:true}}},async set(){}},onChanged:{addListener(){}}},
+  window.chrome={storage:{local:{async get(){return {robloxCustomizerTermsAccepted:true,robloxCustomizerSettingsGuideSeen:true,customBackground:{source:'none',hideXFeed:true,hideYouTubeFeed:true}}},async set(){}},onChanged:{addListener(){}}},
     runtime:{lastError:null,getURL:file=>'/'+file,sendMessage(message,callback){
       if(message.type==='rc-public-server-status'){statusRequests.push({message,callback});return}
       setTimeout(()=>callback(message.type==='rc-public-server-country'?{countryCode:'SG'}

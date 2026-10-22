@@ -17,7 +17,7 @@ const setup = `
   const listeners=[];
   window.heldRates=[];window.ratesAvailable=false;window.fixtureClicks=0;window.fixtureNavigations=0;
   window.chrome={storage:{local:{
-    async get(){return {robloxCustomizerTermsAccepted:true,customBackground:{source:new URLSearchParams(location.search).get('appearance')==='light'?'none':'url',url:location.origin+'/image.svg',hideXFeed:true,hideYouTubeFeed:true}}},
+    async get(){return {robloxCustomizerTermsAccepted:true,robloxCustomizerSettingsGuideSeen:true,customBackground:{source:new URLSearchParams(location.search).get('appearance')==='light'?'none':'url',url:location.origin+'/image.svg',hideXFeed:true,hideYouTubeFeed:true}}},
     async set(){}
   },onChanged:{addListener:fn=>listeners.push(fn)}},runtime:{getURL:file=>'/'+file,lastError:null,
     sendMessage(message,callback){

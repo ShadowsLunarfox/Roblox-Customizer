@@ -1,0 +1,41 @@
+#rc-settings-guide-dialog {
+  position: fixed;
+  inset: 0;
+  box-sizing: border-box;
+  width: min(560px, calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 26px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--rc-control-border, #42444d);
+  border-radius: 16px;
+  background: var(--rc-surface, #1c1d24);
+  color: var(--rc-text, #f7f7f8);
+  box-shadow: 0 24px 80px rgb(0 0 0 / 45%);
+  font: 14px/1.6 system-ui, sans-serif;
+  overflow-wrap: anywhere;
+}
+#rc-settings-guide-dialog::backdrop { background: rgb(0 0 0 / 55%); }
+#rc-settings-guide-dialog .rc-guide-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; font-weight: 700; }
+#rc-settings-guide-dialog .rc-guide-brand img { flex-shrink: 0; }
+#rc-settings-guide-dialog h2 { margin: 0 0 8px; color: inherit; font-size: 24px; line-height: 1.3; }
+#rc-settings-guide-dialog p { margin: 0; color: var(--rc-text-secondary, #b8bac5); }
+#rc-settings-guide-dialog .rc-guide-methods { display: grid; gap: 12px; margin: 20px 0; padding: 0; list-style: none; }
+#rc-settings-guide-dialog li { padding: 16px; border: 1px solid var(--rc-control-border, #42444d); border-radius: 12px; }
+#rc-settings-guide-dialog h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; color: inherit; font-size: 16px; line-height: 1.4; }
+#rc-settings-guide-dialog .rc-guide-number { display: grid; place-items: center; flex: 0 0 28px; height: 28px; border-radius: 8px; background: var(--rc-accent, #335fff); color: var(--rc-accent-text, #fff); font-size: 14px; }
+#rc-settings-guide-dialog .rc-guide-menu-preview { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+#rc-settings-guide-dialog .rc-guide-gear { font-size: 24px; }
+#rc-settings-guide-dialog .rc-guide-menu-brand { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 8px; background: var(--rc-control-bg, #292c35); font-weight: 600; }
+#rc-settings-guide-dialog .rc-guide-tip { margin-top: 10px; font-size: 13px; }
+#rc-settings-guide-dialog .rc-guide-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+#rc-settings-guide-dialog button { flex: 1 1 160px; min-height: 44px; padding: 10px 16px; border: 1px solid var(--rc-control-border, #42444d); border-radius: 8px; background: var(--rc-control-bg, #292c35); color: inherit; font: 600 14px/1.4 system-ui, sans-serif; cursor: pointer; }
+#rc-settings-guide-dialog button:hover { background: var(--rc-control-hover, #383b46); }
+#rc-settings-guide-dialog #rc-settings-guide-open { border-color: transparent; background: var(--rc-accent, #335fff); color: var(--rc-accent-text, #fff); }
+#rc-settings-guide-dialog #rc-settings-guide-open:hover { background: var(--rc-accent-hover, #244de0); }
+#rc-settings-guide-dialog button:focus-visible { outline: 2px solid var(--rc-focus, #aacaff); outline-offset: 3px; }
+@media (max-width: 420px) {
+  #rc-settings-guide-dialog { padding: 20px; }
+  #rc-settings-guide-dialog h2 { font-size: 22px; }
+}

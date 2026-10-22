@@ -1,6 +1,10 @@
 /* Preserve native styling while features are disabled for the page language. */
 /* Apply saved visibility before Home content mounts on a reload. */
 html[data-rc-hide-pinned-games] #rc-pinned-games,
+html[data-rc-hide-home-friends] #HomeContainer .friend-carousel-container,
+html[data-rc-home-friends][data-rc-hide-home-friends] .friend-tile-dropdown,
+html[data-rc-hide-pinned-friends] #HomeContainer #rc-pinned-friends,
+html[data-rc-hide-pinned-friends] #rc-pinned-friend-menu,
 html[data-rc-hide-pinned-games] .rc-game-pin-control,
 html[data-rc-hide-pinned-games] .rc-game-pin-folder,
 html[data-rc-hide-pinned-games] #rc-pinned-games-notification,
@@ -14,6 +18,14 @@ html[data-rc-hide-home-most-played] #rc-playtime-home,
 html[data-rc-hide-home-clock][data-rc-hide-home-date] #rc-home-greeting .rc-home-greeting-clock,
 html[data-rc-hide-home-display-name][data-rc-hide-home-greeting] #rc-home-greeting .rc-home-greeting-title {
   display: none !important;
+}
+/* The banner can keep its content and spacing without an outer glass surface. */
+html[data-rc-hide-home-banner-background] #rc-home-greeting {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
 }
 /* Keep native layout and canvas initialization running behind the gate. */
 html[data-rc-avatar-boot="pending"] :is(#content, #container-main, main, [role="main"], #avatar-container, #avatar-editor, .avatar-container, .avatar-editor-container, [data-testid="avatar-editor"]),
