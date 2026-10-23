@@ -79,6 +79,18 @@ test('Thai avatar filters recognize the native clothing, body, avatar and recent
   }
 });
 
+test('Indonesian avatar filters recognize native jump and classic pants labels', () => {
+  const cases = {
+    jump: ['Loncat', 'Lompat', 'Melompat'],
+    'classic pants': ['Celana Panjang Klasik', 'Celana Klasik']
+  };
+  for (const [expected, names] of Object.entries(cases)) for (const name of names) {
+    assert.equal(labels.classify('avatar', name), expected, name);
+    assert.equal(labels.classify('avatar', `${name} ▼`), expected, `${name}: native dropdown label`);
+    assert.equal(labels.classify('avatar', `${name} Simulator`), '', `${name}: exact filter label only`);
+  }
+});
+
 test('Japanese avatar filters recognize the current short and alternate labels shown by Roblox', () => {
   const cases = {
     animations: ['アニメ', 'アニメーション'], expired: ['有効期限切れ'], body: ['ボディパーツ'],
@@ -232,7 +244,8 @@ test('Indonesian native sections, controls, preview modes and player counts are 
     ['home', 'Direkomendasikan untuk Anda', 'recommended'], ['home', 'Game Unggulan', 'standout'],
     ['home', 'Direkomendasikan untukmu', 'recommended'], ['home', 'Direkomendasikan Lihat Semua →', 'recommended'],
     ['home', 'Recommended', 'recommended'],
-    ['profile', 'Pengalaman Virtual', 'experiences'], ['profile', 'Sedang Dipakai', 'wearing'],
+    ['profile', 'Pengalaman Virtual', 'experiences'], ['profile', 'Game', 'experiences'],
+    ['profile', 'Game (5) Lihat Semua →', 'experiences'], ['profile', 'Sedang Dipakai', 'wearing'],
     ['profile', 'Saat Ini Memakai', 'wearing'], ['profile', 'Saat Ini Memakai Lihat Semua →', 'wearing'],
     ['profile', 'Teman (200)', 'friends'], ['profile', 'Komunitas', 'communities'], ['profile', 'Koleksi', 'collections'],
     ['store', 'Langganan', 'subscriptions'], ['store', 'Subscription', 'subscriptions'],
@@ -255,6 +268,8 @@ test('Indonesian native sections, controls, preview modes and player counts are 
     assert.equal(labels.playerCount(text)?.maxPlayers, max, text);
   }
   assert.equal(labels.classify('home', 'Favorit Simulator'), '');
+  assert.equal(labels.classify('home', 'Game'), '');
+  assert.equal(labels.classify('profile', 'Game Simulator'), '');
   for (const title of ['Direkomendasikan Simulator', 'Direkomendasikan untukmu Adventure', 'Recommended Simulator']) {
     assert.equal(labels.classify('home', title), '', title);
   }

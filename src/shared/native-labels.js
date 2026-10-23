@@ -65,7 +65,7 @@
     },
     profile: {
       wearing: ['sedang dipakai', 'saat ini dipakai', 'saat ini dikenakan', 'sedang dikenakan', 'saat ini memakai'],
-      store: ['toko'], experiences: ['pengalaman virtual', 'pengalaman', 'kreasi'], favorites: ['favorit'],
+      store: ['toko'], experiences: ['game', 'pengalaman virtual', 'pengalaman', 'kreasi'], favorites: ['favorit'],
       collections: ['koleksi'], friends: ['teman', 'koneksi'], communities: ['komunitas', 'grup'], badges: ['lencana']
     },
     store: { subscriptions: ['langganan'], passes: ['pas', 'pass', 'pas game', 'pass game', 'tiket game'], products: ['produk', 'produk developer', 'produk pengembang'] },
@@ -82,10 +82,10 @@
       't-shirts': ['kaus', 'kaos'], pants: ['celana'], jackets: ['jaket'], sweaters: ['sweter'], shorts: ['celana pendek'],
       'dresses & skirts': ['gaun & rok', 'gaun dan rok'], shoes: ['sepatu'], classic: ['klasik'],
       'left shoe': ['sepatu kiri'], 'right shoe': ['sepatu kanan'], 'classic shirts': ['kemeja klasik', 'baju klasik'],
-      'classic t-shirts': ['kaus klasik', 'kaos klasik'], 'classic pants': ['celana klasik'], looks: ['penampilan', 'tampilan'],
+      'classic t-shirts': ['kaus klasik', 'kaos klasik'], 'classic pants': ['celana klasik', 'celana panjang klasik'], looks: ['penampilan', 'tampilan'],
       eyes: ['mata'], lips: ['bibir'], eyelashes: ['bulu mata'], eyebrows: ['alis'], faces: ['wajah'],
       emotes: ['emote', 'aksi'], idle: ['diam', 'siaga'], walk: ['berjalan', 'jalan'], run: ['berlari', 'lari'],
-      jump: ['melompat', 'lompat'], fall: ['jatuh'], climb: ['memanjat', 'panjat'], swim: ['berenang', 'renang'],
+      jump: ['melompat', 'lompat', 'loncat'], fall: ['jatuh'], climb: ['memanjat', 'panjat'], swim: ['berenang', 'renang'],
       bundles: ['bundel'], characters: ['karakter'], costumes: ['kostum']
     }
   };

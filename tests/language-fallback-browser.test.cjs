@@ -153,7 +153,7 @@ test('Unsupported languages preserve native UI, allow only image backgrounds and
     await browser.click('.rc-settings-menu-entry');
     assert.equal(await browser.evaluate(`document.querySelector('${notice}').checkVisibility()`), true, 'Every settings opening retains the explanation in fallback');
     assert.equal(await browser.evaluate("!!document.querySelector('#rc-language-warning-dialog')"), false, 'Reopening settings does not repeat the dismissed pop-up');
-    assert.deepEqual(await browser.evaluate("[...document.querySelectorAll('.rc-settings-nav-button')].filter(n=>n.checkVisibility()).map(n=>n.dataset.rcSettingsCategory)"), ['appearance']);
+    assert.deepEqual(await browser.evaluate("[...document.querySelectorAll('.rc-settings-nav-button')].filter(n=>n.checkVisibility()).map(n=>n.dataset.rcSettingsCategory)"), ['appearance', 'support']);
     assert.equal(await browser.evaluate("document.querySelector('.rc-settings-glass').checkVisibility()"), false);
     assert.equal(await browser.evaluate("document.querySelector('#rc-file').accept"), 'image/*');
     const dom = await browser.send('DOM.getDocument');

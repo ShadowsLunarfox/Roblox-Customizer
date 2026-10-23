@@ -10,6 +10,18 @@ const styles = [...new Set(manifest.content_scripts.flatMap(entry => entry.css |
 const scripts = ['src/shared/routes.js', 'src/shared/native-labels.js', 'src/pages/avatar/avatar-page.js',
   'src/assets/asset-core.js', 'src/assets/tools-ui.js', 'src/assets/avatar-tools.js'];
 const locales = {
+  id: {
+    main: ['Terbaru', 'Aksesori', 'Pakaian', 'Bagian Tubuh', 'Animasi', 'Avatar', 'Riasan', 'Latar Belakang'],
+    accessories: ['Kepala', 'Wajah', 'Leher', 'Bahu', 'Depan', 'Belakang', 'Pinggang', 'Perlengkapan'],
+    clothing: [['Atasan', 'Kaus', 'Kemeja', 'Sweter'], ['Pakaian Luar', 'Jaket'],
+      ['Bawahan', 'Celana', 'Celana Pendek', 'Gaun & Rok'], ['Sepatu', 'Sepatu Kiri', 'Sepatu Kanan'],
+      ['Klasik', 'Kemeja Klasik', 'Celana Panjang Klasik', 'Kaus Klasik']],
+    animations: ['Loncat', 'Emote', 'Jalan', 'Lari', 'Jatuh', 'Renang', 'Panjat', 'Diam'],
+    recent: ['Baru Ditambahkan', 'Sedang Dipakai', 'Aksesori', 'Pakaian', 'Bagian Tubuh', 'Animasi', 'Karakter', 'Kedaluwarsa'],
+    avatars: ['Dibeli', 'Kreasi'], bodyFilters: ['Warna Kulit', 'Kepala', 'Skala', 'Rambut', 'Batang Tubuh', 'Lengan Kiri', 'Lengan Kanan', 'Kaki Kiri', 'Kaki Kanan'],
+    makeup: ['Alis', 'Penampilan', 'Mata', 'Bibir', 'Bulu Mata'],
+    body: ['Tipe Tubuh', 'Tinggi', 'Lebar', 'Kepala', 'Proporsi']
+  },
   en: {
     main: ['Recently Worn', 'Accessories', 'Clothing', 'Body Parts', 'Animations', 'Expired', 'Recently Added', 'Characters'],
     accessories: ['Head', 'Face', 'Neck', 'Shoulders', 'Front', 'Back', 'Waist', 'Gear'],
@@ -116,7 +128,7 @@ function fixture(locale) {
     <div class="inventory-column"><nav id="avatar-categories"><ul id="main-row">
       ${l.main.map((name, i) => action(name, `main-${i}`, i === 0)).join('')}
     </ul><ul id="accessories" class="avatar-subcategories">${l.accessories.map((name, i) => action(name, `accessory-${i}`, i === 0 || locale === 'ko' && [4, 5].includes(i))).join('')}</ul>
-    <div id="clothing" class="avatar-subcategories" hidden>${l.clothing.map((row, i) => `<div id="clothing-row-${i}" class="clothing-row"><div class="native-heading" data-native-key="heading-${i}"><span id="heading-${i}">${escape(row[0])}</span></div><ul class="native-options">${row.slice(1).map((name, j) => action(name, `clothing-${i}-${j}`, locale === 'ko' || ['zh-cn', 'zh-tw'].includes(locale) && i === 3)).join('')}</ul></div>`).join('')}</div>
+    <div id="clothing" class="avatar-subcategories" hidden>${l.clothing.map((row, i) => `<div id="clothing-row-${i}" class="clothing-row"><div class="native-heading" data-native-key="heading-${i}"><span id="heading-${i}">${escape(row[0])}</span></div><ul class="native-options">${row.slice(1).map((name, j) => action(name, `clothing-${i}-${j}`, ['id','ko'].includes(locale) || ['zh-cn', 'zh-tw'].includes(locale) && i === 3)).join('')}</ul></div>`).join('')}</div>
     <ul id="animations" class="avatar-subcategories" hidden>${l.animations.map((name, i) => action(name, `animation-${i}`, i < 3 || locale === 'ko')).join('')}</ul>
     <ul id="recent" class="avatar-subcategories" hidden>${l.recent.map((name, i) => action(name, `recent-${i}`, true)).join('')}</ul>
     ${l.avatars ? `<ul id="avatars" class="avatar-subcategories" hidden>${l.avatars.map((name, i) => action(name, `avatar-${i}`, true)).join('')}</ul>` : ''}
@@ -164,6 +176,7 @@ const layout = `(() => {
     bodyUnchanged:originalBodyControls===document.getElementById('body-controls')&&originalBodyInputs.every(node=>node.isConnected),
     bodyMarkedAsFilter:!!originalBodyControls.querySelector('[data-rc-avatar-main-control], [data-rc-avatar-sub-control]'),
     menu:bounds([...document.querySelectorAll('.avatar-subcategories')].find(node=>node.checkVisibility())),
+    menuBlur:getComputedStyle([...document.querySelectorAll('.avatar-subcategories')].find(node=>node.checkVisibility())).backdropFilter,
     headings:[...document.querySelectorAll('[data-rc-avatar-clothing-heading]')].map(node=>node.id),
     sections:[...document.querySelectorAll('[data-rc-avatar-clothing-section]')].map(bounds),
     overflow:document.documentElement.scrollWidth>innerWidth+1,
@@ -176,7 +189,7 @@ test('avatar filters stay aligned, localized, and native across menu changes and
   { skip: !process.env.CHROME_BIN }, async t => {
     const server = http.createServer((request, response) => {
       const url = new URL(request.url, 'http://localhost');
-      if (['/my/avatar', '/ja/my/avatar', '/th/my/avatar', '/ko/my/avatar'].includes(url.pathname)) { response.setHeader('Content-Type', 'text/html; charset=utf-8');response.end(fixture(url.searchParams.get('locale') || 'en'));return; }
+      if (['/my/avatar', '/id/my/avatar', '/ja/my/avatar', '/th/my/avatar', '/ko/my/avatar'].includes(url.pathname)) { response.setHeader('Content-Type', 'text/html; charset=utf-8');response.end(fixture(url.searchParams.get('locale') || 'en'));return; }
       if (url.pathname === '/image.svg') { response.setHeader('Content-Type', 'image/svg+xml');response.end('<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect width="300" height="300" fill="#789"/></svg>');return; }
       const file = url.pathname.slice(1);
       if (![...styles, ...scripts].includes(file)) { response.writeHead(404);response.end();return; }
@@ -187,7 +200,7 @@ test('avatar filters stay aligned, localized, and native across menu changes and
     const browser = await isolatedChrome(t, 'avatar-navigation');
     for (const locale of Object.keys(locales)) {
       const tabs=tabsFor(locales[locale]);
-      const url = `http://127.0.0.1:${server.address().port}${['ja','th','ko'].includes(locale)?'/'+locale:''}/my/avatar?locale=${locale}`;
+      const url = `http://127.0.0.1:${server.address().port}${['id','ja','th','ko'].includes(locale)?'/'+locale:''}/my/avatar?locale=${locale}`;
       await browser.send('Page.navigate', { url });await waitForDocument(browser, '#main-row', url);
       await browser.waitFor("document.querySelectorAll('[data-rc-avatar-main-control]').length===8");
       await browser.waitFor("!!document.querySelector('[data-rc-avatar-body-controls]')");
@@ -251,6 +264,7 @@ test('avatar filters stay aligned, localized, and native across menu changes and
           assert.equal(state.nested, false, `${label}: no nested button borders`);
           assert.equal(state.unchanged, true, `${label}: native action nodes remain mounted`);
           assert.equal(state.controls.length, 8 + count, `${label}: every filter has a styled control`);
+          assert.match(state.menuBlur, /blur\(/, `${label}: the menu retains its frosted background`);
           assert.equal(state.overflow, false, `${label}: no page overflow ${JSON.stringify(state.overflowNodes)}`);
           assert.equal(state.inventoryMarked, false, `${label}: inventory titles are not filters`);
           assert.equal(state.bodyUnchanged,true,`${label}: native body controls remain mounted`);
@@ -263,6 +277,7 @@ test('avatar filters stay aligned, localized, and native across menu changes and
           for (const control of state.controls) {
             assert.ok(control.width > 20 && control.height >= 42, `${label}: usable control ${control.id}`);
             assert.equal(control.border, '1px', `${label}: consistent border ${control.id}`);
+            assert.notEqual(control.background, 'rgba(0, 0, 0, 0)', `${label}: visible button background ${control.id}`);
             assert.ok(control.left >= state.row.left - 1 && control.right <= state.row.right + 1, `${label}: contained control ${control.id}`);
           }
           const mainRows = new Map();
@@ -277,7 +292,7 @@ test('avatar filters stay aligned, localized, and native across menu changes and
           assert.equal(await browser.evaluate('nativeCalls.at(-1)'), key, `${label}: native filtering still fires`);
           assert.equal(await browser.evaluate(`getComputedStyle(document.querySelector('#${key}')).backgroundColor`), 'rgb(51, 95, 255)', `${label}: selected option is visible`);
           if (process.env.AVATAR_SCREENSHOT_DIR && theme === 'dark-theme' && width !== 700
-            && (['ja','th','ko'].includes(locale) || locale === 'zh-tw' && menu === 'clothing')) {
+            && (['id','ja','th','ko'].includes(locale) || locale === 'zh-tw' && menu === 'clothing')) {
             const shot = await browser.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
             fs.writeFileSync(path.join(process.env.AVATAR_SCREENSHOT_DIR, `avatar-${locale}-${menu}-${width}.png`), Buffer.from(shot.data, 'base64'));
           }

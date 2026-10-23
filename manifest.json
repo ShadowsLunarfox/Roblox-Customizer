@@ -60,6 +60,7 @@
       "resources": [
         "icons/icon-48.png",
         "icons/icon-128.png",
+        "src/settings/assets/qq-group-qr.jpg",
         "UPDATE.md",
         "UPDATE.zh-CN.md",
         "UPDATE.zh-TW.md",

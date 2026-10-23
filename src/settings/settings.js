@@ -6,6 +6,11 @@
     || ((...args) => chrome.runtime.sendMessage(...args));
 
   const STORAGE_KEY = 'customBackground';
+  const SUPPORT = Object.freeze({
+    discord: 'https://discord.gg/dndMGNPW3P',
+    qq: '1129354987',
+    email: 'lunar@lunarfox.my'
+  });
   const enhancementsEnabled = () => !globalThis.RobloxCustomizerCompatibility || globalThis.RobloxCustomizerCompatibility.enabled();
   const DB_NAME = 'roblox-customizer-media';
   const STORE_NAME = 'backgrounds';
@@ -1810,7 +1815,8 @@
       { id: 'pinned-games', title: 'Pinned Games', nodes: ['.rc-settings-pinned-games'] },
       { id: 'social', title: 'Social', nodes: ['.rc-settings-social'] },
       { id: 'currency', title: 'Currency', nodes: ['#rc-currency-settings'] },
-      { id: 'data', title: 'Language & data', nodes: ['.rc-settings-language', '.rc-settings-backup'] }
+      { id: 'data', title: 'Language & data', nodes: ['.rc-settings-language', '.rc-settings-backup'] },
+      { id: 'support', title: 'Support & feedback', nodes: ['.rc-settings-support'] }
     ];
     for (const [index, category] of categories.entries()) {
       const button = document.createElement('button');
@@ -1859,9 +1865,13 @@
         if (!content.isConnected) return;
         const top = content.getBoundingClientRect().top + 20;
         let current = categories[0].id;
-        for (const section of content.querySelectorAll('.rc-settings-category')) {
+        const sections = [...content.querySelectorAll('.rc-settings-category')].filter(section => !section.hidden);
+        for (const section of sections) {
           if (section.getBoundingClientRect().top > top) break;
           current = section.dataset.rcSettingsCategory;
+        }
+        if (content.scrollTop + content.clientHeight >= content.scrollHeight - 2) {
+          current = sections.at(-1)?.dataset.rcSettingsCategory || current;
         }
         selectCategory(current, false);
       });
@@ -2087,6 +2097,40 @@
           </div>
           <input type="file" id="rc-import-file" accept=".json,application/json" hidden tabindex="-1">
         </section>
+        <div class="rc-settings-support">
+          <p class="rc-settings-hint">Get help, report a bug, or share feedback.</p>
+          <div class="rc-support-cards">
+            <article class="rc-support-card" aria-labelledby="rc-support-discord-title">
+              <div>
+                <h4 id="rc-support-discord-title" translate="no">Discord</h4>
+                <p class="rc-settings-hint">Join our Discord community for help and feedback.</p>
+              </div>
+              <a id="rc-support-discord" class="rc-button rc-button-primary" href="${SUPPORT.discord}" target="_blank" rel="noopener noreferrer">Join Discord</a>
+            </article>
+            <article class="rc-support-card" aria-labelledby="rc-support-qq-title">
+              <div>
+                <h4 id="rc-support-qq-title">QQ group</h4>
+                <p id="rc-support-qq-number" class="rc-support-contact" translate="no">${SUPPORT.qq}</p>
+                <p class="rc-settings-hint">Scan the QR code in QQ to join, or copy the group number and search for it.</p>
+                <p id="rc-support-copy-status" role="status" aria-live="polite"></p>
+              </div>
+              <button id="rc-support-copy-qq" class="rc-button rc-button-secondary" type="button">Copy group number</button>
+              <a id="rc-support-qq-qr" class="rc-support-qr-link" href="${chrome.runtime.getURL('src/settings/assets/qq-group-qr.jpg')}" target="_blank" rel="noopener noreferrer" aria-label="Open QQ group QR code">
+                <img src="${chrome.runtime.getURL('src/settings/assets/qq-group-qr.jpg')}" width="1284" height="2286" loading="lazy" decoding="async" alt="QQ group QR code for Roblox Customizer">
+                <span>Open full-size QR code</span>
+              </a>
+            </article>
+            <article class="rc-support-card" aria-labelledby="rc-support-email-title">
+              <div>
+                <h4 id="rc-support-email-title">Email support</h4>
+                <p class="rc-support-contact" translate="no">${SUPPORT.email}</p>
+                <p class="rc-settings-hint">Contact us by email for help or feedback.</p>
+              </div>
+              <a id="rc-support-email" class="rc-button rc-button-secondary" href="mailto:${SUPPORT.email}">Send an email</a>
+            </article>
+          </div>
+          <p class="rc-settings-hint">When reporting a bug, include the page URL, steps to reproduce, and a screenshot.</p>
+        </div>
         <p id="rc-settings-status" role="status" aria-live="polite"></p>
         <div class="rc-settings-actions">
           <button type="button" id="rc-reset-all" class="rc-button rc-button-danger">Reset All</button>
@@ -2115,6 +2159,20 @@
       globalThis.RobloxCustomizerServerHistoryUI?.mountSettings(modal.querySelector('#rc-server-history-settings'));
     }
     organizeSettingsCategories();
+    const support = modal.querySelector('.rc-settings-support');
+    support.querySelector('#rc-support-copy-qq').addEventListener('click', async () => {
+      const status = support.querySelector('#rc-support-copy-status');
+      status.textContent = '';
+      try {
+        await navigator.clipboard.writeText(SUPPORT.qq);
+        status.textContent = 'Copied';
+      } catch {
+        if (!support.isConnected) return;
+        getSelection()?.selectAllChildren(support.querySelector('#rc-support-qq-number'));
+        status.textContent = 'Select the text and copy it.';
+      }
+      globalThis.RobloxCustomizerI18n?.localize(status);
+    });
     pinnedLibraryReady = false;
     void loadPinnedLibrary();
     // Previously saved URL backgrounds still render, but have no source control.
@@ -2306,7 +2364,7 @@
         for (const input of node.querySelectorAll('input, select, button')) input.disabled = true;
       }
       for (const button of modal.querySelectorAll('.rc-settings-nav-button')) {
-        button.hidden = button.dataset.rcSettingsCategory !== 'appearance';
+        button.hidden = !['appearance', 'support'].includes(button.dataset.rcSettingsCategory);
       }
       modal.querySelector('#rc-reset-all').disabled = true;
       modal.querySelector('#rc-file').accept = 'image/*';

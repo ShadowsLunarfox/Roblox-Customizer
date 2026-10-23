@@ -1103,6 +1103,90 @@ html[data-rc-hide-recommended-lower] [data-rc-recommended-section="lower"]:where
   line-height: 1.3;
 }
 
+#rc-settings-overlay .rc-settings-support,
+#rc-settings-overlay .rc-support-cards {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+#rc-settings-overlay .rc-support-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--rc-settings-divider);
+  border-radius: 12px;
+  background: var(--rc-control-bg, #292b35);
+}
+
+#rc-settings-overlay .rc-support-card > div { min-width: 0; }
+
+#rc-settings-overlay .rc-support-card h4 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+#rc-settings-overlay .rc-settings-support p { margin: 0; }
+
+#rc-settings-overlay .rc-support-contact {
+  margin-bottom: 8px !important;
+  color: var(--rc-text);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+
+#rc-settings-overlay .rc-support-card .rc-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  text-align: center;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+#rc-settings-overlay #rc-support-copy-status:not(:empty) {
+  margin-top: 8px;
+  color: var(--rc-text-secondary, #b8bac5);
+  font-size: 14px;
+}
+
+#rc-settings-overlay .rc-support-qr-link {
+  grid-column: 1 / -1;
+  display: grid;
+  justify-items: center;
+  justify-self: center;
+  gap: 8px;
+  width: min(100%, 280px);
+  color: var(--rc-text);
+  font-size: 14px;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+#rc-settings-overlay .rc-support-qr-link img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+#rc-settings-overlay .rc-support-qr-link:focus-visible {
+  outline: 2px solid var(--rc-focus, #8eaaff);
+  outline-offset: 4px;
+  border-radius: 10px;
+}
+
+@media (max-width: 700px) {
+  #rc-settings-overlay .rc-support-card { grid-template-columns: minmax(0, 1fr); }
+  #rc-settings-overlay .rc-support-card .rc-button { justify-self: start; }
+}
+
 #rc-settings-overlay .rc-settings-pinned-filter {
   display: grid;
   gap: 8px;
