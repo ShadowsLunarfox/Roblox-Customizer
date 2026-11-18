@@ -46,8 +46,8 @@
     '.tab-dropdown', '.avatar-subcategories', '.avatar-subcategory-menu', '[role="menu"]'
   ].join(', ');
   const ITEM_SELECTORS = [
-    '.avatar-items-container', '.avatar-inventory-container',
-    '.avatar-item-grid', '.avatar-inventory-grid',
+    '#avatar-items', '#avatar-items-container', '.avatar-items-container', '.avatar-inventory-container',
+    '.avatar-item-grid', '.avatar-inventory-grid', '.item-cards',
     '[data-testid="avatar-items"]', '[data-testid="avatar-item-grid"]'
   ].join(', ');
   const CARD_SELECTORS = [
@@ -56,6 +56,7 @@
     '[role="gridcell"]'
   ].join(', ');
   let panel = null;
+  let previewHeading = null;
   let markedPreview = null;
   let marked3DSquareNodes = [];
   let marked3DSurface = null;
@@ -81,10 +82,17 @@
   let studio = null;
   let viewColumn = null;
   let itemColumn = null;
+  let categoryColumn = null;
+  const categoryResize = new ResizeObserver(() => {
+    if (!studio || !categoryColumn) return;
+    setSize(studio, '--rc-avatar-category-height', `${Math.ceil(categoryColumn.getBoundingClientRect().height)}px`);
+  });
+  let bodyControls = null;
   let markedPage = null;
   let markedShell = null;
   let previewPath = [];
-  let syncQueued = false;
+  let syncFrame = 0;
+  let layoutPending = false;
   let thumbnailTimer = 0;
   let delayedThumbnailTimer = 0;
   let finalThumbnailTimer = 0;
@@ -94,6 +102,7 @@
   let imageBeforeChange = '';
   let last3DClickAt = 0;
   let waitingForNative3D = false;
+  let requestedViewportResize = false;
   const tried3D = new WeakSet();
 
   const onAvatarPage = () => AVATAR_PATH.test(routePath());
@@ -104,20 +113,24 @@
   }
 
   function findPreview(root) {
+    const containsInventory = node => node.querySelector(`${CATEGORY_SELECTORS}, ${ITEM_SELECTORS}, ${CARD_SELECTORS}`);
     const candidates = [...root.querySelectorAll(PREVIEW_SELECTORS)]
       .filter(node => !node.closest('#rc-avatar-2d')
         && node.getClientRects().length > 0
         && node.querySelector('canvas, img, video, [role="img"]')
-        && node.querySelectorAll('a[href*="/catalog/"]').length < 4);
+        && !containsInventory(node));
     // A larger native preview wrapper keeps its Roblox mode and redraw controls.
     const preview = candidates.find(node => !candidates.some(other =>
       other !== node && other.contains(node) && other !== root));
     if (preview) return preview;
-    const canvas = [...root.querySelectorAll('canvas')].find(node => node.getClientRects().length > 0);
+    const canvas = [...root.querySelectorAll('canvas')].find(node =>
+      !node.closest(CARD_SELECTORS) && node.getClientRects().length > 0);
     if (canvas && !canvas.closest('#rc-avatar-2d')) {
       let element = canvas.parentElement;
       for (let depth = 0; depth < 2 && element?.parentElement !== root; depth++) {
-        element = element?.parentElement || element;
+        const parent = element?.parentElement;
+        if (!parent || containsInventory(parent)) break;
+        element = parent;
       }
       return element;
     }
@@ -182,17 +195,21 @@
   }
 
   function markCategoryNavigation(root) {
+    const scope = categoryColumn || itemColumn || root;
+    const controlsRoot = scope.contains(markedCategories) ? scope : root;
+    const isCategoryCandidate = node => !node.closest('#rc-avatar-2d, [data-rc-avatar-body-controls]')
+      && !node.closest(CARD_SELECTORS);
     // Native menus can put the same action on both a row and its link. Style
     // only the innermost action, leaving all native handlers in place.
-    const interactive = [...root.querySelectorAll(CATEGORY_CONTROL_SELECTORS)]
-      .filter(node => !node.querySelector(CATEGORY_CONTROL_SELECTORS));
+    const interactive = [...controlsRoot.querySelectorAll(CATEGORY_CONTROL_SELECTORS)]
+      .filter(node => isCategoryCandidate(node) && !node.querySelector(CATEGORY_CONTROL_SELECTORS));
     // Some categories are text labels with the handler on a surrounding row.
-    const textControls = [...root.querySelectorAll('span, li, div, p, label')].filter(node =>
+    const textControls = [...controlsRoot.querySelectorAll('span, li, div, p, label')].filter(node =>
       node.children.length === 0
+      && isCategoryCandidate(node)
       && (MAIN_CATEGORY_LABELS.has(categoryLabel(node)) || SUBCATEGORY_LABELS.has(categoryLabel(node)))
       && !interactive.some(control => control.contains(node)));
     const allControls = [...interactive, ...textControls]
-      .filter(node => !node.closest('#rc-avatar-2d, [data-rc-avatar-body-controls]') && !node.closest(CARD_SELECTORS))
       .sort((a, b) => a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
     const mainControls = markedCategories
       ? allControls.filter(node => markedCategories.contains(node)
@@ -213,7 +230,6 @@
     }
     markedMainRow = mark(markedMainRow, mainRow, 'data-rc-avatar-main-row');
 
-    const scope = itemColumn || root;
     const subControls = mainRow ? allControls.filter(node => scope.contains(node)
       && !mainControls.includes(node)
       && (!mainRow.contains(node) || categoryPopup(node))
@@ -285,6 +301,7 @@
     }
     if (markedItems?.contains(markedMainRow)
       || !common || !root.contains(common) || common.contains(markedPreview)) common = null;
+    if (categoryColumn?.contains(markedMainRow)) common = categoryColumn;
     markedEditorFlow = mark(markedEditorFlow, common, 'data-rc-avatar-editor-flow');
     const navPath = [];
     const contentPath = [];
@@ -292,8 +309,10 @@
       for (let node = markedMainRow; node && node !== common; node = node.parentElement) {
         navPath.push(node);
       }
-      for (let node = markedItems; node && node !== common; node = node.parentElement) {
-        contentPath.push(node);
+      if (common.contains(markedItems)) {
+        for (let node = markedItems; node && node !== common; node = node.parentElement) {
+          contentPath.push(node);
+        }
       }
     }
     markedNavPath = updateMarkedList(markedNavPath, navPath, 'data-rc-avatar-nav-path');
@@ -321,21 +340,27 @@
   }
 
   function findItems(root, preview) {
-    const known = [...root.querySelectorAll(ITEM_SELECTORS)].find(node =>
-      node.getClientRects().length > 0 && !node.contains(preview)
-      && node.querySelectorAll(CARD_SELECTORS).length >= 2);
-    const cards = [...root.querySelectorAll(CARD_SELECTORS)].filter(node =>
-      node.getClientRects().length > 0 && !preview.contains(node)
-      && !node.closest('#rc-avatar-2d'));
-    if (cards.length < 4) return known || null;
-    let candidate = cards[0].parentElement;
-    const sample = cards.slice(0, Math.min(8, cards.length));
+    // Recognize the native mount before the inventory request fills it with cards.
+    const mounts = [...root.querySelectorAll(ITEM_SELECTORS)].filter(node =>
+      !node.contains(preview) && !node.contains(markedCategories) && !preview.contains(node)
+      && !node.closest('[data-rc-avatar-preview-controls]'));
+    const known = mounts.find(node => node.getClientRects().length > 0) || mounts[0];
+    if (known) return known;
+    const sample = [];
+    for (const node of root.querySelectorAll(CARD_SELECTORS)) {
+      if (preview.contains(node) || node.closest('#rc-avatar-2d, [data-rc-avatar-preview-controls]')
+        || node.parentElement?.closest(CARD_SELECTORS) || !node.getClientRects().length) continue;
+      sample.push(node);
+      if (sample.length === 8) break;
+    }
+    if (sample.length < 2) return null;
+    let candidate = sample[0].parentElement;
     while (candidate && candidate !== root) {
       if (!candidate.contains(preview) && !candidate.contains(markedCategories)
         && sample.every(card => candidate.contains(card))) return candidate;
       candidate = candidate.parentElement;
     }
-    return known || null;
+    return null;
   }
 
   function childUnder(parent, node) {
@@ -356,14 +381,15 @@
       }
     }
     const filters = markedCategories || markedMainRow;
-    if (!filters || !root.contains(filters)) return;
-    const target = itemColumn?.contains(filters) ? itemColumn : filters.parentElement;
-    const before = childUnder(target, filters);
-    if (!before) return;
+    if (!filters || !root.contains(filters) || !markedItems) {
+      restoreBodyControls();
+      return;
+    }
     const isolated = node => node && node !== root && root.contains(node)
-      && ![markedPreview, markedCategories, markedMainRow, markedItems]
+      && node !== bodyControls && node !== itemColumn && node !== categoryColumn
+      && ![markedPreview, markedCategories, markedMainRow, markedItems, panel]
         .some(boundary => boundary && node.contains(boundary))
-      && !node.querySelector(CARD_SELECTORS);
+      && !node.matches(ITEM_SELECTORS) && !node.querySelector(`${ITEM_SELECTORS}, ${CARD_SELECTORS}`);
     const groups = new Set();
     const addGroup = node => {
       if (!isolated(node)) return;
@@ -382,16 +408,21 @@
         }
       }
     }
-    // Scaling may be in a separate native panel. Require multiple scale labels so other sliders stay put.
-    const scaleLabels = [/height|身高|高度/i, /width|宽度|寬度/i, /\bhead|头部|頭部/i,
-      /proportions|比例/i];
-    const scaleSources = [...root.querySelectorAll('input[type="range"], [role="slider"], .noUi-target, .rzslider'),
-      ...[...root.querySelectorAll('label, span, div, p')].filter(node => node.children.length === 0
-        && /^(?:height|width|proportions|身高|高度|宽度|寬度|比例)(?:\s|[:：]|\d|$)/i.test(node.textContent.trim()))];
+    // A resize panel can mount separately from the R6/R15 switch.
+    const scaleLabels = new Map();
+    const scaleSources = [...root.querySelectorAll('input[type="range"], [role="slider"], .noUi-target, .rzslider')];
+    for (const label of root.querySelectorAll('label, span, div, p')) {
+      if ((label.children.length && label.tagName !== 'LABEL') || label.closest(CARD_SELECTORS)) continue;
+      const name = globalThis.RobloxCustomizerNativeLabels?.classify('avatarScale', label.textContent);
+      if (!name) continue;
+      scaleLabels.set(label, name);
+      if (name !== 'head') scaleSources.push(label);
+    }
     for (const slider of scaleSources) {
       if (slider.closest('#rc-avatar-2d') || slider.closest(CARD_SELECTORS)) continue;
       for (let node = slider.parentElement; isolated(node); node = node.parentElement) {
-        if (scaleLabels.filter(pattern => pattern.test(node.textContent)).length >= 2) {
+        const dimensions = new Set([...scaleLabels].filter(([label]) => node.contains(label)).map(([, name]) => name));
+        if (dimensions.size >= 2) {
           addGroup(node);
           break;
         }
@@ -399,9 +430,25 @@
     }
     const panels = [...groups].filter(node => ![...groups].some(other => other !== node && other.contains(node)))
       .sort((a, b) => a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
+    for (const [node, placeholder] of movedBodyControls) {
+      if (panels.includes(node)) continue;
+      placeholder.replaceWith(node);
+      movedBodyControls.delete(node);
+    }
     markedBodyControls = updateMarkedList(markedBodyControls, panels, 'data-rc-avatar-body-controls');
-    // Keep the body menu in the editor section, with the complete native filter menu above it.
-    let insertionPoint = before.nextElementSibling;
+    if (studio && panel.parentElement === studio && panels.length) {
+      if (!bodyControls) {
+        bodyControls = document.createElement('div');
+        bodyControls.setAttribute('data-rc-avatar-preview-controls', '');
+      }
+      if (bodyControls.previousElementSibling !== panel) panel.after(bodyControls);
+    } else if (!panels.length) {
+      bodyControls?.remove();
+    }
+    const inPreviewRail = bodyControls?.parentElement && bodyControls.parentElement === studio;
+    const target = inPreviewRail ? bodyControls : itemColumn?.contains(filters) ? itemColumn : filters.parentElement;
+    const before = inPreviewRail ? null : childUnder(target, filters);
+    let insertionPoint = before?.nextElementSibling || null;
     while (panels.includes(insertionPoint)) insertionPoint = insertionPoint.nextElementSibling;
     for (const node of panels.reverse()) {
       if (node.parentElement !== target || node.nextElementSibling !== insertionPoint) {
@@ -428,28 +475,43 @@
       }
     }
     movedBodyControls.clear();
+    bodyControls?.remove();
+    bodyControls = null;
   }
 
   function arrangeStudio(root, items) {
     let layout = null;
     let view = null;
     let inventory = null;
+    let categories = null;
     // A native inventory refresh can temporarily remove both its categories
     // and item cards. Keep the existing columns while their mount still exists.
     const inventoryTarget = items || markedCategories
       || (itemColumn?.isConnected && root.contains(itemColumn) ? itemColumn : null);
     if (inventoryTarget) {
       for (let parent = compareHost?.parentElement; parent && root.contains(parent); parent = parent.parentElement) {
-        if (!parent.contains(inventoryTarget)) continue;
-        view = childUnder(parent, compareHost);
+        if (!parent.contains(inventoryTarget) || markedCategories && !parent.contains(markedCategories)) continue;
+        view = childUnder(parent, markedPreview);
         inventory = childUnder(parent, inventoryTarget);
-        if (view && inventory && view !== inventory) layout = parent;
-        break;
+        categories = childUnder(parent, markedCategories);
+        if (view && inventory && view !== inventory && view !== categories) {
+          layout = parent;
+          break;
+        }
       }
     }
+    const previousStudio = studio;
+    const previousCategories = categoryColumn;
     studio = mark(studio, layout, 'data-rc-avatar-studio');
     viewColumn = mark(viewColumn, layout ? view : null, 'data-rc-avatar-view-column');
     itemColumn = mark(itemColumn, layout ? inventory : null, 'data-rc-avatar-item-column');
+    categoryColumn = mark(categoryColumn, layout && categories !== inventory ? categories : null,
+      'data-rc-avatar-category-column');
+    if (previousStudio !== studio || previousCategories !== categoryColumn) {
+      previousStudio?.style.removeProperty('--rc-avatar-category-height');
+      categoryResize.disconnect();
+      if (categoryColumn) categoryResize.observe(categoryColumn, { box: 'border-box' });
+    }
   }
 
   function markPreviewPath(preview) {
@@ -471,35 +533,39 @@
 
   function size3DRenderer(preview) {
     const canvas = preview.querySelector('canvas');
-    const path = [];
-    for (let node = canvas; node && preview.contains(node); node = node.parentElement) {
-      path.push(node);
-      if (node === preview) break;
-    }
-    const next = path.filter(node => {
-      const rect = node.getBoundingClientRect();
-      return rect.width >= 200 && rect.height >= 100
-        && (marked3DSquareNodes.includes(node) || rect.height < rect.width * .8);
-    });
-    for (const node of marked3DSquareNodes) {
-      if (next.includes(node)) continue;
-      node.removeAttribute('data-rc-avatar-3d-square');
-      node.style.removeProperty('--rc-avatar-3d-square-size');
-    }
-    for (const node of next) {
-      node.setAttribute('data-rc-avatar-3d-square', '');
-      node.style.setProperty('--rc-avatar-3d-square-size', `${Math.round(node.getBoundingClientRect().width)}px`);
-    }
-    marked3DSquareNodes = next;
-    // Square renderers need the same stage background without being resized.
-    const surface = next.findLast(node => node !== canvas) || canvas?.parentElement || null;
+    const stage = canvas?.parentElement;
+    const surface = stage && !stage.querySelector('button, a, input, [role="button"], [role="slider"]')
+      ? stage : canvas;
+    // A renderer can start at only a few pixels tall. A CSS square gives its
+    // native resize handler a stable viewport as soon as the canvas mounts.
+    const next = canvas ? surface === canvas ? [canvas] : [canvas, surface] : [];
+    marked3DSquareNodes = updateMarkedList(marked3DSquareNodes, next, 'data-rc-avatar-3d-square');
     marked3DSurface = mark(marked3DSurface, surface,
       'data-rc-avatar-3d-surface');
-    mark3DBackdrops(preview, canvas, path);
+    mark3DBackdrops(preview, canvas);
+    if (!canvas || requestedViewportResize || !hasMismatchedViewport(canvas)) return;
+    // Some native renderers only update their camera and buffer on window resize.
+    // Request one initial reflow per editor visit, even if Roblox replaces the canvas.
+    requestedViewportResize = true;
+    requestAnimationFrame(() => {
+      if (onAvatarPage() && markedPreview?.contains(canvas) && hasMismatchedViewport(canvas)) {
+        dispatchEvent(new Event('resize'));
+      }
+    });
   }
 
-  function mark3DBackdrops(preview, canvas, path) {
-    const backdrops = new Set(path);
+  function hasMismatchedViewport(canvas) {
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    return width > 0 && height > 0 && canvas.width > 0 && canvas.height > 0
+      && Math.abs(canvas.width * height / (canvas.height * width) - 1) > .05;
+  }
+
+  function mark3DBackdrops(preview, canvas) {
+    const backdrops = new Set();
+    for (let node = canvas; node && preview.contains(node); node = node.parentElement) {
+      backdrops.add(node);
+    }
     if (canvas) {
       const root = viewColumn?.contains(preview) ? viewColumn : compareHost || preview;
       // Legacy avatar backgrounds also sit on the native wrapper outside the
@@ -554,23 +620,30 @@
     if (!markedPage?.isConnected || !onAvatarPage()) return;
     if (markedShell?.isConnected) {
       const shellLeft = markedShell.getBoundingClientRect().left;
-      const shellWidth = Math.max(320, Math.floor(innerWidth - Math.max(0, shellLeft) - 16));
-      markedShell.style.setProperty('--rc-avatar-shell-width', `${shellWidth}px`);
+      const shellWidth = Math.max(0, Math.floor(innerWidth - Math.max(0, shellLeft)));
+      setSize(markedShell, '--rc-avatar-shell-width', `${shellWidth}px`);
     }
-    const sidebarRight = Math.max(0, ...['#left-navigation-container', '#navigation']
-      .map(selector => document.querySelector(selector)?.getBoundingClientRect())
-      .filter(rect => rect && rect.width > 80 && rect.left < innerWidth / 3
-        && rect.right < innerWidth / 2)
-      .map(rect => rect.right));
+    const sidebarRight = innerWidth < 1024 ? 0 : Math.max(0,
+      ...[...document.querySelectorAll('.left-nav, #left-navigation-container, #navigation')]
+        .filter(node => getComputedStyle(node).visibility === 'visible')
+        .map(node => node.getBoundingClientRect())
+        .filter(rect => rect.width > 80 && rect.left < innerWidth / 3 && rect.right < innerWidth / 2)
+        .map(rect => rect.right));
     const shellLeft = markedShell?.getBoundingClientRect().left || 0;
     const workspaceLeft = Math.max(sidebarRight, shellLeft);
-    const available = Math.max(320, innerWidth - workspaceLeft - 24);
-    const width = Math.min(1480, Math.max(280, available - 32));
-    const targetLeft = workspaceLeft + Math.max(0, (available - width) / 2);
-    markedPage.style.setProperty('--rc-avatar-workspace-width', `${Math.floor(width)}px`);
+    const gutter = innerWidth < 760 ? 12 : 24;
+    const width = Math.min(1680, Math.max(0, innerWidth - workspaceLeft - gutter * 2));
+    const targetLeft = workspaceLeft + gutter;
+    const layout = width >= 760 ? 'split' : width >= 520 ? 'compact' : 'single';
+    if (markedPage.dataset.rcAvatarLayout !== layout) markedPage.dataset.rcAvatarLayout = layout;
+    setSize(markedPage, '--rc-avatar-workspace-width', `${Math.floor(width)}px`);
     const previousShift = parseFloat(markedPage.style.getPropertyValue('--rc-avatar-workspace-shift')) || 0;
     const baseLeft = markedPage.getBoundingClientRect().left - previousShift;
-    markedPage.style.setProperty('--rc-avatar-workspace-shift', `${Math.round(targetLeft - baseLeft)}px`);
+    setSize(markedPage, '--rc-avatar-workspace-shift', `${Math.round(targetLeft - baseLeft)}px`);
+  }
+
+  function setSize(node, property, value) {
+    if (node.style.getPropertyValue(property) !== value) node.style.setProperty(property, value);
   }
 
   function mark(ref, node, attribute) {
@@ -588,8 +661,6 @@
       + '<div class="rc-avatar-image-wrap"><img alt="Your current avatar in 2D" hidden></div>'
       + '<p class="rc-avatar-status" role="status">Loading 2D preview...</p>';
     aside.querySelector('.rc-avatar-refresh').addEventListener('click', () => refresh2D());
-    const diagnostics = globalThis.RobloxCustomizerAvatarDiagnostics?.button();
-    if (diagnostics) aside.querySelector('.rc-avatar-preview-actions').append(diagnostics);
     return aside;
   }
 
@@ -605,7 +676,8 @@
       if (sequence !== requestSequence || !panel?.isConnected || !onAvatarPage()) return;
       button.disabled = false;
       if (chrome.runtime.lastError || result?.error || !result) {
-        status.textContent = result?.error || '2D preview unavailable. Try Refresh.';
+        status.textContent = result?.error === 'Sign in to view your avatar.'
+          ? result.error : '2D preview unavailable. Try Refresh.';
         return;
       }
       if (result.state === 'Pending') {
@@ -659,13 +731,12 @@
 
   function enableNative3D(root, preview) {
     if (preview.querySelector('canvas')) {
-      if (waitingForNative3D) globalThis.RobloxCustomizerAvatarDiagnostics?.native3D('canvas-ready');
-      waitingForNative3D = false; return true;
+      waitingForNative3D = false;
+      return;
     }
-    // The native switch can finish in a later task and replace the editor.
-    // Keep its first enhanced layout gated while that renderer is starting.
+    // The native switch can replace the editor before its canvas appears.
     if (waitingForNative3D || tried3D.has(preview)
-      || Date.now() - last3DClickAt < 15_000) return !waitingForNative3D;
+      || Date.now() - last3DClickAt < 15_000) return;
     const scopes = [preview, preview.parentElement, preview.parentElement?.parentElement]
       .filter(node => node && root.contains(node));
     let button = null;
@@ -678,15 +749,13 @@
       });
       if (button) break;
     }
-    if (!button) return true;
+    if (!button) return;
     tried3D.add(preview);
     waitingForNative3D = true;
     if (button.getAttribute('aria-pressed') !== 'true' && !button.classList.contains('active')) {
       last3DClickAt = Date.now();
-      globalThis.RobloxCustomizerAvatarDiagnostics?.native3D('requested');
       button.click();
-    } else globalThis.RobloxCustomizerAvatarDiagnostics?.native3D('already-active');
-    return !!preview.querySelector('canvas');
+    }
   }
 
   function clearPage() {
@@ -697,19 +766,19 @@
     waitingForUpdatedImage = false;
     imageBeforeChange = '';
     waitingForNative3D = false;
+    requestedViewportResize = false;
     last3DClickAt = 0;
     restoreBodyControls();
     panel?.remove();
+    previewHeading?.remove();
+    previewHeading = null;
     compareHost?.removeAttribute('data-rc-avatar-compare');
     markedPreview?.removeAttribute('data-rc-avatar-3d');
     marked3DSurface?.removeAttribute('data-rc-avatar-3d-surface');
     for (const node of marked3DBackdrops) node.removeAttribute('data-rc-avatar-backdrop');
     marked3DBackdrops = [];
     for (const node of markedNative2DToggles) node.removeAttribute('data-rc-avatar-native-2d-toggle');
-    for (const node of marked3DSquareNodes) {
-      node.removeAttribute('data-rc-avatar-3d-square');
-      node.style.removeProperty('--rc-avatar-3d-square-size');
-    }
+    for (const node of marked3DSquareNodes) node.removeAttribute('data-rc-avatar-3d-square');
     marked3DSquareNodes = [];
     marked3DSurface = null;
     markedNative2DToggles = [];
@@ -733,9 +802,13 @@
     markedNavPath = markedContentPath = markedSubcategoryPath = markedCategoryBranches = [];
     markedSubcategoryBranches = [];
     studio?.removeAttribute('data-rc-avatar-studio');
+    studio?.style.removeProperty('--rc-avatar-category-height');
+    categoryResize.disconnect();
     viewColumn?.removeAttribute('data-rc-avatar-view-column');
     itemColumn?.removeAttribute('data-rc-avatar-item-column');
+    categoryColumn?.removeAttribute('data-rc-avatar-category-column');
     markedPage?.removeAttribute('data-rc-avatar-page');
+    markedPage?.removeAttribute('data-rc-avatar-layout');
     markedPage?.style.removeProperty('--rc-avatar-workspace-width');
     markedPage?.style.removeProperty('--rc-avatar-workspace-shift');
     markedShell?.removeAttribute('data-rc-avatar-shell');
@@ -743,7 +816,7 @@
     for (const node of previewPath) node.removeAttribute('data-rc-avatar-preview-path');
     previewPath = [];
     compareHost = markedPreview = markedCategories = markedItems = markedMainRow = null;
-    studio = viewColumn = itemColumn = markedPage = markedShell = null;
+    studio = viewColumn = itemColumn = categoryColumn = markedPage = markedShell = null;
   }
 
   function sync() {
@@ -752,11 +825,12 @@
       return;
     }
     const root = pageRoot();
-    if (!root) { globalThis.RobloxCustomizerStartup?.avatarReady(null, 'native-page-missing'); return; }
+    if (!root) return;
     const preview = findPreview(root);
-    if (!preview?.parentElement) { globalThis.RobloxCustomizerStartup?.avatarReady(null, 'native-preview-missing'); return; }
+    if (!preview?.parentElement) return;
     if (markedPage && markedPage !== root) {
       markedPage.removeAttribute('data-rc-avatar-page');
+      markedPage.removeAttribute('data-rc-avatar-layout');
       markedPage.style.removeProperty('--rc-avatar-workspace-width');
       markedPage.style.removeProperty('--rc-avatar-workspace-shift');
     }
@@ -776,15 +850,21 @@
     compareHost = host;
     if (!host.hasAttribute('data-rc-avatar-compare')) host.setAttribute('data-rc-avatar-compare', '');
     markedPreview = mark(markedPreview, preview, 'data-rc-avatar-3d');
-    size3DRenderer(preview);
     markedCategories = mark(markedCategories, findCategories(root), 'data-rc-avatar-categories');
     const items = findItems(root, preview);
     markedItems = mark(markedItems, items, 'data-rc-avatar-items');
     arrangeStudio(root, items);
-    hideNative2DToggle(viewColumn || preview);
-    arrangeBodyControls(root);
-    markCategoryNavigation(root);
+    if (viewColumn) {
+      if (!previewHeading) {
+        previewHeading = document.createElement('h2');
+        previewHeading.className = 'rc-avatar-3d-heading';
+        previewHeading.textContent = '3D Preview';
+      }
+      if (previewHeading.parentElement !== viewColumn) viewColumn.prepend(previewHeading);
+    } else previewHeading?.remove();
     markPreviewPath(preview);
+    size3DRenderer(preview);
+    hideNative2DToggle(viewColumn || preview);
     if (!panel) panel = makePanel();
     if (studio && viewColumn) {
       if (panel.parentElement !== studio || panel.previousElementSibling !== viewColumn) {
@@ -793,21 +873,25 @@
     } else if (panel.parentElement !== host || panel.previousElementSibling !== preview) {
       preview.after(panel);
     }
-    const nativePreviewReady = enableNative3D(root, preview);
-    globalThis.RobloxCustomizerStartup?.avatarReady(
-      studio && viewColumn && itemColumn && panel.parentElement === studio
-        ? { page: root, studio, view: viewColumn, inventory: itemColumn, preview,
-          categories: markedCategories, row: markedMainRow, controls: markedMainControls, panel, nativePreviewReady }
-        : null, 'studio-not-arranged');
+    arrangeBodyControls(root);
+    markCategoryNavigation(root);
+    enableNative3D(root, preview);
     if (!panel.querySelector('img').src && !panel.querySelector('.rc-avatar-refresh').disabled) refresh2D();
   }
 
-  function queueSync() {
-    if (syncQueued) return;
-    syncQueued = true;
-    // Mutation batches are styled before the browser paints their native layout.
-    queueMicrotask(() => {
-      syncQueued = false;
+  function queueFrame() {
+    if (syncFrame) return;
+    // Native renderer and extension observers can both react to a DOM write.
+    // Coalesce their work before paint without chaining layout microtasks.
+    syncFrame = requestAnimationFrame(() => {
+      syncFrame = 0;
+      if (!layoutPending) {
+        if (onAvatarPage() && markedPreview?.isConnected) {
+          mark3DBackdrops(markedPreview, markedPreview.querySelector('canvas'));
+        }
+        return;
+      }
+      layoutPending = false;
       observer.disconnect();
       previewObserver.disconnect();
       try { sync(); }
@@ -819,6 +903,11 @@
         }
       }
     });
+  }
+
+  function queueSync() {
+    layoutPending = true;
+    queueFrame();
   }
 
   document.addEventListener('click', event => {
@@ -842,32 +931,32 @@
   addEventListener('popstate', queueSync);
   addEventListener('hashchange', queueSync);
   globalThis.RobloxCustomizerRuntime?.onResume(queueSync);
-  addEventListener('resize', () => {
-    updatePageWidth();
-    queueSync();
-  });
+  addEventListener('resize', queueSync);
   addEventListener('load', queueSync, { once: true });
   document.addEventListener('DOMContentLoaded', queueSync, { once: true });
   const OBSERVER_OPTIONS = { childList: true, characterData: true, subtree: true,
     attributes: true, attributeFilter: ['aria-label', 'title'] };
   const backgroundDeclarations = value => (value || '').match(/(?:^|;)\s*background[^;]*/gi)?.join(';') || '';
   const previewObserver = new MutationObserver(records => {
-    // Background choices may update only a class or inline image. Ignore the
-    // renderer's width/height writes and disconnect during our own layout work.
-    if (records.some(record => record.attributeName === 'class'
-      || backgroundDeclarations(record.oldValue)
-        !== backgroundDeclarations(record.target.getAttribute('style')))) queueSync();
+    // Native background choices can update a class or inline image without
+    // changing the editor layout. Canvas animation classes do neither.
+    if (records.some(record => !record.target.matches('canvas')
+      && (record.attributeName === 'class' || backgroundDeclarations(record.oldValue)
+        !== backgroundDeclarations(record.target.getAttribute('style'))))) queueFrame();
   });
   const observer = new MutationObserver(records => {
     if (!onAvatarPage()) {
       if (markedPage) queueSync();
       return;
     }
-    if (records.some(record => record.type !== 'childList'
-      ? !(record.target.nodeType === Node.ELEMENT_NODE ? record.target : record.target.parentElement)?.closest('#rc-avatar-2d')
-      : [...record.addedNodes, ...record.removedNodes].some(node =>
-      node.nodeType === Node.ELEMENT_NODE && node.id !== 'rc-avatar-2d'
-      && !node.closest?.('#rc-avatar-2d')))) queueSync();
+    if (records.some(record => {
+      const target = record.target instanceof Element ? record.target : record.target.parentElement;
+      if (target?.closest('#rc-avatar-2d, #rc-avatar-enhancements')) return false;
+      if (markedPage?.isConnected && target && !markedPage.contains(target) && !target.contains(markedPage)) return false;
+      if (record.type !== 'childList') return true;
+      return [...record.addedNodes, ...record.removedNodes].some(node =>
+        node instanceof Element && (node === panel ? !panel.isConnected : node.id !== 'rc-avatar-enhancements'));
+    })) queueSync();
   });
   observer.observe(document, OBSERVER_OPTIONS);
   queueSync();

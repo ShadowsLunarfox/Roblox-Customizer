@@ -22,6 +22,7 @@
     [/^\/users\/(?:\d+\/)?friends(?:\/|$)/i, 'friends'],
     [/^\/my\/avatar(?:\/|$)/i, 'avatar'],
     [/^\/users\/(?:\d+\/)?inventory(?:\/|$)/i, 'inventory'],
+    [/^\/users\/\d+\/favorites\/?$/i, 'inventory'],
     [/^\/trades(?:\/|$)/i, 'trades'],
     [/^\/transactions\/?$/i, 'transactions'],
     [/^\/report-abuse\/?$/i, 'report-abuse'],
@@ -34,14 +35,6 @@
     [/^\/charts(?:\/|$)/i, 'charts']
   ];
   let route = null;
-  let preferencesReady = false;
-  let avatarLayout = null;
-  let avatarReportReason = 'layout-not-reported';
-  let avatarLoading = null;
-  let avatarSlowTimer = 0;
-  let avatarGateQueued = false;
-  let avatarRevealTimer = 0;
-  let avatarCandidate = null;
   let cachedVisuals = null;
   let storedVisuals = '';
   let visualRoot = null;
@@ -154,140 +147,6 @@
     }
   }
 
-  function clearAvatarLoading() {
-    clearTimeout(avatarSlowTimer);
-    avatarSlowTimer = 0;
-    avatarLoading?.remove();
-    avatarLoading = null;
-  }
-
-  function setAvatarBoot(value, reason) {
-    const root = document.documentElement;
-    if (!root) return;
-    const previous = root.getAttribute('data-rc-avatar-boot');
-    if (previous === value) return;
-    globalThis.RobloxCustomizerAvatarDiagnostics?.gate(previous, value, reason);
-    if (value === null) root.removeAttribute('data-rc-avatar-boot');
-    else root.setAttribute('data-rc-avatar-boot', value);
-  }
-
-  function avatarShellIssue() {
-    if (!avatarLayout) return avatarReportReason;
-    const { page, studio, view, inventory, preview, panel } = avatarLayout;
-    // Readiness belongs to this native mount. A replacement must be styled
-    // again, even when Roblox keeps the URL and outer page container unchanged.
-    if (!page.isConnected) return 'page-disconnected';
-    if (!page.contains(studio)) return 'studio-disconnected';
-    if (view.parentElement !== studio) return 'view-moved';
-    if (inventory.parentElement !== studio) return 'inventory-moved';
-    if (panel.parentElement !== studio) return 'panel-moved';
-    if (panel.previousElementSibling !== view) return 'panel-order-changed';
-    if (!view.contains(preview)) return 'preview-disconnected';
-    return null;
-  }
-
-  function avatarLayoutIssue() {
-    const shellIssue = avatarShellIssue();
-    if (shellIssue) return shellIssue;
-    const { inventory, categories, row, controls, nativePreviewReady } = avatarLayout;
-    if (nativePreviewReady === false) return 'native-3d-pending';
-    if (!inventory.contains(categories)) return 'categories-missing';
-    if (!categories?.contains(row)) return 'category-row-missing';
-    if (controls.length < 4) return 'category-controls-incomplete';
-    if (!controls.every(node => row.contains(node) && node.hasAttribute('data-rc-avatar-main-control'))) return 'category-controls-moved';
-    return null;
-  }
-
-  const avatarShellReady = () => !avatarShellIssue();
-  const avatarLayoutReady = () => !avatarLayoutIssue();
-
-  function sameAvatarLayout(first, second) {
-    return !!first && !!second
-      && ['page', 'studio', 'view', 'inventory', 'preview', 'categories', 'row', 'panel', 'nativePreviewReady']
-        .every(key => first[key] === second[key])
-      && first.controls.length === second.controls.length
-      && first.controls.every((node, index) => node === second.controls[index]);
-  }
-
-  function cancelAvatarReveal() {
-    clearTimeout(avatarRevealTimer);
-    avatarRevealTimer = 0;
-    avatarCandidate = null;
-  }
-
-  function updateAvatarGate() {
-    const root = document.documentElement;
-    if (!root || route !== 'avatar') { cancelAvatarReveal(); return; }
-    const issue = !preferencesReady ? 'preferences-pending' : avatarLayoutIssue();
-    globalThis.RobloxCustomizerAvatarDiagnostics?.layout(avatarLayout,
-      issue || (avatarReportReason === 'native-preview-refresh' ? avatarReportReason : 'ready'), preferencesReady);
-    // Native category/item updates do not make an already usable model editor
-    // a new page load. Only losing its actual preview/layout shell re-gates it.
-    if (root.getAttribute('data-rc-avatar-boot') === 'ready'
-      && preferencesReady && avatarShellReady()) {
-      cancelAvatarReveal(); clearAvatarLoading(); return;
-    }
-    const ready = preferencesReady && avatarLayoutReady();
-    if (ready) {
-      // Roblox can replace its first complete navigation in a later hydration
-      // task. Reveal only a stable native mount; thumbnail requests stay separate.
-      if (!sameAvatarLayout(avatarCandidate, avatarLayout)) {
-        cancelAvatarReveal();
-        avatarCandidate = { ...avatarLayout, controls: [...avatarLayout.controls] };
-      }
-      if (!avatarRevealTimer) avatarRevealTimer = setTimeout(() => {
-        avatarRevealTimer = 0;
-        if (route === 'avatar' && preferencesReady && avatarLayoutReady()
-          && sameAvatarLayout(avatarCandidate, avatarLayout)) {
-          setAvatarBoot('ready', 'stable-layout');
-          avatarCandidate = null;
-          clearAvatarLoading();
-        } else { cancelAvatarReveal(); syncAvatarGate(); }
-      }, 160);
-    } else cancelAvatarReveal();
-    setAvatarBoot('pending', issue || 'layout-settling');
-    if (!document.body) return;
-    if (avatarLoading?.isConnected) return;
-    clearAvatarLoading();
-    avatarLoading = document.createElement('section');
-    avatarLoading.id = 'rc-avatar-loading';
-    avatarLoading.setAttribute('role', 'status');
-    const label = document.createElement('span');
-    label.textContent = 'Loading…';
-    const slow = document.createElement('p');
-    slow.textContent = 'The avatar editor is taking longer to load. Refresh the page to try again.';
-    slow.hidden = true;
-    const refresh = document.createElement('button');
-    refresh.type = 'button';
-    refresh.textContent = 'Refresh page';
-    refresh.hidden = true;
-    refresh.addEventListener('click', () => location.reload());
-    avatarLoading.append(label, slow, refresh);
-    const diagnostics = globalThis.RobloxCustomizerAvatarDiagnostics?.button();
-    if (diagnostics) avatarLoading.append(diagnostics);
-    document.body.prepend(avatarLoading);
-    globalThis.RobloxCustomizerI18n?.localize(avatarLoading);
-    // A slow connection must never reveal the unfinished native editor. Keep
-    // waiting for its layout; offer an explicit recovery if it never arrives.
-    avatarSlowTimer = setTimeout(() => {
-      avatarSlowTimer = 0;
-      if (root.getAttribute('data-rc-avatar-boot') !== 'pending') return;
-      slow.hidden = refresh.hidden = false;
-    }, 15000);
-  }
-
-  function syncAvatarGate() {
-    if (route !== 'avatar') { cancelAvatarReveal(); return; }
-    if (avatarGateQueued) return;
-    avatarGateQueued = true;
-    // The startup observer runs before the layout adapter. Let that adapter
-    // repair the same DOM batch before deciding whether the shell was lost.
-    void Promise.resolve().then(() => Promise.resolve()).then(() => {
-      avatarGateQueued = false;
-      updateAvatarGate();
-    });
-  }
-
   function syncGameHeader() {
     // Native mounts determine this structure. Keep it out of relational CSS
     // selectors that must be reconsidered whenever an unrelated portal changes.
@@ -319,23 +178,11 @@
     if (!root) return;
     if (globalThis.RobloxCustomizerCompatibility && !globalThis.RobloxCustomizerCompatibility.enabled()) {
       for (const attribute of [...root.attributes]) {
-        if (/^data-rc-(?:ui-active|frost-page|home-friends|hide-|avatar-boot|profile-boot|disable-)/.test(attribute.name)) {
-          if (attribute.name === 'data-rc-avatar-boot') setAvatarBoot(null, 'compatibility-disabled');
-          else root.removeAttribute(attribute.name);
+        if (/^data-rc-(?:ui-active|frost-page|home-friends|hide-|profile-boot|disable-)/.test(attribute.name)) {
+          root.removeAttribute(attribute.name);
         }
       }
-      avatarLayout = null;
-      avatarReportReason = 'compatibility-pending';
       route = null;
-      cancelAvatarReveal();
-      clearAvatarLoading();
-      // Locale metadata may arrive after the native HTML. Gate that first
-      // frame too, but leave unsupported languages on their native interface.
-      if (!globalThis.RobloxCustomizerCompatibility.fallback()
-        && !globalThis.RobloxCustomizerCompatibility.reloading()
-        && /^\/my\/avatar(?:\/|$)/i.test(routePath())) {
-        setAvatarBoot('pending', 'compatibility-pending');
-      }
       applyVisuals(cachedVisuals);
       return;
     }
@@ -354,14 +201,8 @@
     } else if (root.hasAttribute('data-rc-frost-page')) root.removeAttribute('data-rc-frost-page');
     if (route !== next) {
       route = next;
-      avatarLayout = null;
-      avatarReportReason = 'layout-not-reported';
-      cancelAvatarReveal();
-      clearAvatarLoading();
-      setAvatarBoot(next === 'avatar' ? 'pending' : null, 'route-changed');
       root.removeAttribute('data-rc-profile-boot');
     }
-    syncAvatarGate();
   }
 
   try {
@@ -411,21 +252,6 @@
           storedVisuals = serialized;
         } catch { /* Optional cache. */ }
       }
-      preferencesReady = true;
-      syncAvatarGate();
-    },
-    avatarReady(layout, reason = 'layout-not-reported') {
-      syncRoute();
-      // Roblox can temporarily remove the canvas or hide the preview slot while
-      // redrawing the current model. Its adapter then cannot discover a visible
-      // preview, even though the exact enhanced shell is still mounted. Preserve
-      // that ready shell; an actually detached preview/page still gates normally.
-      const previewRefreshing = !layout && reason === 'native-preview-missing'
-        && document.documentElement?.getAttribute('data-rc-avatar-boot') === 'ready'
-        && avatarShellReady();
-      if (!previewRefreshing) avatarLayout = layout;
-      avatarReportReason = previewRefreshing ? 'native-preview-refresh' : reason;
-      syncAvatarGate();
     }
   };
 

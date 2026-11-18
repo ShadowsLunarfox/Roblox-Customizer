@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { test } = require('node:test');
+const routes = require('../src/shared/routes.js');
 
 const startup = fs.readFileSync(path.join(__dirname, '..', 'src/shared/startup.js'), 'utf8');
 const settings = fs.readFileSync(path.join(__dirname, '..', 'src/settings/settings.js'), 'utf8');
@@ -35,7 +36,8 @@ function harness(url, script, cached = null) {
   const context = {
     location,
     enhancementsEnabled: () => true,
-    routePath: () => location.pathname,
+    RobloxCustomizerRoutes: { pathname: (value = location.pathname) => routes.pathname(value) },
+    routePath: () => routes.pathname(location.pathname),
     document: { documentElement: root, readyState: 'loading',
       addEventListener() {}, querySelector() { return null; } },
     localStorage: { getItem() { return cached && JSON.stringify(cached); }, setItem() {} },
@@ -133,7 +135,7 @@ for (const [name, script] of [['startup', startup], ['settings fallback', fallba
     }
   });
 
-  test(`${name} marks own and user-specific friends and inventory URLs before content renders`, () => {
+  test(`${name} marks user-specific account pages before content renders`, () => {
     for (const [url, expected] of [
       ['/users/friends#!/friend-requests', 'friends'],
       ['/users/156/friends#!/friends', 'friends'],
@@ -141,6 +143,9 @@ for (const [name, script] of [['startup', startup], ['settings fallback', fallba
       ['/users/inventory#!/accessories', 'inventory'],
       ['/users/156/inventory/#!/accessories', 'inventory'],
       ['/users/123456789/inventory/?category=accessories', 'inventory'],
+      ['/users/671910625/favorites#!/places', 'inventory'],
+      ['/ja/users/671910625/favorites/#!/places', 'inventory'],
+      ['/zh-tw/users/671910625/favorites#!/accessories', 'inventory'],
       ['/my/messages/#!/inbox', 'messages'],
       ['/trades?tab=Inbound', 'trades'],
       ['/transactions?transactionType=Purchase', 'transactions'],
@@ -193,6 +198,7 @@ for (const [name, script] of [['startup', startup], ['settings fallback', fallba
     for (const [url, expected, hashes] of [
       ['/users/156/friends', 'friends', ['#!/friends', '#!/followers', '#!/friend-requests']],
       ['/users/156/inventory/', 'inventory', ['#!/accessories', '#!/clothing', '#!/badges']],
+      ['/users/671910625/favorites', 'inventory', ['#!/places', '#!/accessories', '#!/decals']],
       ['/my/messages/', 'messages', ['#!/inbox', '#!/sent', '#!/archive']],
       ['/transactions', 'transactions', ['#summary', '#purchases', '#sales']]
     ]) {
@@ -225,6 +231,7 @@ for (const [name, script] of [['startup', startup], ['settings fallback', fallba
     for (const url of ['/users/abc/inventory', '/users/-156/inventory',
       '/users/1.5/friends', '/users/156/friends-extra', '/users/156/inventory-extra',
       '/users/friends-extra', '/users/inventory-extra', '/trades-extra', '/my/messages-extra',
+      '/users/abc/favorites', '/users/671910625/favorites-extra', '/users/671910625/favorites/places',
       '/transactions-extra', '/transactions/purchase', '/my/transactions']) {
       assert.equal(harness(url, script).root.dataset.rcFrostPage, undefined, url);
     }

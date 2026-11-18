@@ -15,7 +15,7 @@ html[data-rc-ui-active]:is([data-rc-frost-page="friends"], [data-rc-frost-page="
   #friends-container, #friends-web-app, .friends-content,
   .friends-list-container, .friend-requests-container,
   #messages-container, #messages-web-app, .messages-container, .roblox-messages-container,
-  #inventory-container, #item-recommendations-container, .assets-explorer-main-content, .current-items,
+  #inventory-container, #favorites-container, #item-recommendations-container, .assets-explorer-main-content, .current-items,
   #trade-system, #trades-container, #trades-web-app, .trade-container,
   .page-content, .tab-content, .rbx-tab-content, .rbx-tabs-horizontal, .horizontal-tabs
 ):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {

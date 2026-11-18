@@ -1,8 +1,9 @@
+
 {
   "manifest_version": 3,
   "name": "__MSG_extensionName__",
   "default_locale": "en",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "description": "__MSG_extensionDescription__",
   "icons": {
     "16": "icons/icon-16.png",
@@ -70,7 +71,8 @@
         "UPDATE.ko.md",
         "src/servers/globe/geo-engine.mjs",
         "src/servers/globe/countries.mjs",
-        "src/assets/animation-preview/renderer.html"
+        "src/assets/animation-preview/renderer.html",
+        "src/settings/background-player.html"
       ],
       "matches": [
         "https://www.roblox.com/*",
@@ -89,7 +91,6 @@
         "src/shared/routes.js",
         "src/shared/compatibility.js",
         "src/shared/dialogs.js",
-        "src/shared/avatar-diagnostics.js",
         "src/shared/startup.js"
       ],
       "run_at": "document_start"

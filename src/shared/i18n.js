@@ -73,10 +73,6 @@
     ["Your Roblox account changed. Please reload this page.","Roblox 账号已切换，请刷新页面。","Roblox 帳號已切換，請重新整理頁面。","Akun Roblox Anda berubah. Muat ulang halaman ini.","Robloxアカウントが変わりました。ページを再読み込みしてください。","บัญชี Roblox เปลี่ยนแล้ว โปรดโหลดหน้านี้ใหม่","Roblox 계정이 변경되었습니다. 페이지를 새로 고침하세요."],
     ["This user is no longer in your friends list.","这位用户已不在你的好友列表中。","這位使用者已不在你的好友清單中。","Pengguna ini sudah tidak ada dalam daftar teman Anda.","このユーザーはフレンド一覧にいません。","ผู้ใช้นี้ไม่อยู่ในรายชื่อเพื่อนของคุณแล้ว","이 사용자는 더 이상 친구 목록에 없습니다."],
     ["This request does not match the current item page.","物品页面已切换，请重试当前物品。","物品頁面已切換，請重試目前物品。","Halaman item telah berubah. Coba lagi pada item saat ini.","アイテムページが変わりました。現在のアイテムで再試行してください。","หน้าไอเท็มเปลี่ยนแล้ว โปรดลองอีกครั้งกับไอเท็มปัจจุบัน","아이템 페이지가 변경되었습니다. 현재 아이템에서 다시 시도하세요."],
-    ["Loading diagnostics","加载诊断","載入診斷","Diagnostik pemuatan","読み込み診断","การวินิจฉัยการโหลด","불러오기 진단"],
-    ["Copy diagnostics","复制诊断","複製診斷","Salin diagnostik","診断をコピー","คัดลอกการวินิจฉัย","진단 복사"],
-    ["Diagnostics stay in this tab. No account details or avatar contents are included.","诊断记录仅保留在当前标签页，不包含账号资料或模型内容。","診斷記錄僅保留在目前分頁，不包含帳號資料或模型內容。","Catatan diagnostik hanya disimpan di tab ini, tanpa detail akun atau isi avatar.","診断記録はこのタブ内にのみ保持され、アカウント情報やアバターの内容は含まれません。","บันทึกการวินิจฉัยจะอยู่ในแท็บนี้เท่านั้น ไม่รวมรายละเอียดบัญชีหรือเนื้อหาอวาตาร์","진단 기록은 이 탭에만 보관되며 계정 정보나 아바타 콘텐츠는 포함하지 않습니다."],
-    ["Select the text and copy it.","请选择文字并复制。","請選取文字並複製。","Pilih teks lalu salin.","テキストを選択してコピーしてください。","เลือกข้อความแล้วคัดลอก","텍스트를 선택하여 복사하세요."],
     ["Other Roblox extensions detected","检测到其他 Roblox 插件","偵測到其他 Roblox 擴充功能","Ekstensi Roblox lain terdeteksi","他のRoblox拡張機能が検出されました","ตรวจพบส่วนขยาย Roblox อื่น","다른 Roblox 확장 프로그램이 감지되었습니다"],
     ["The following extensions were detected running on this page:","当前页面检测到以下插件正在运行：","目前頁面偵測到以下擴充功能正在執行：","Ekstensi berikut terdeteksi berjalan di halaman ini:","このページで次の拡張機能が動作していることが検出されました：","ตรวจพบส่วนขยายต่อไปนี้กำลังทำงานในหน้านี้:","이 페이지에서 다음 확장 프로그램이 실행 중인 것으로 감지되었습니다:"],
     ["Detected extensions","检测到的插件","偵測到的擴充功能","Ekstensi yang terdeteksi","検出された拡張機能","ส่วนขยายที่ตรวจพบ","감지된 확장 프로그램"],
@@ -93,7 +89,6 @@
     ["Server FPS relative to 60 FPS. This is not CPU usage or your display frame rate.","以 60 FPS 为基准换算的服务器运行帧率，不代表 CPU 使用率或你的画面帧率。","以 60 FPS 為基準換算的伺服器運行影格率，不代表 CPU 使用率或你的畫面影格率。","FPS server dibandingkan dengan 60 FPS. Ini bukan penggunaan CPU atau frame rate layar Anda.","60 FPSを基準にしたサーバーの動作フレームレートです。CPU使用率や画面のフレームレートではありません。","อัตราเฟรมของเซิร์ฟเวอร์เทียบกับ 60 FPS ไม่ใช่การใช้ CPU หรืออัตราเฟรมบนหน้าจอของคุณ","60 FPS를 기준으로 환산한 서버 프레임 속도입니다. CPU 사용률이나 화면 프레임 속도가 아닙니다."],
     ["Language matches reported by Roblox for your Roblox language setting; this does not verify what players speak.","Roblox 根据你的 Roblox 语言设置提供的匹配人数，不代表已确认玩家实际使用的语言。","Roblox 根據你的 Roblox 語言設定提供的相符人數，不代表已確認玩家實際使用的語言。","Jumlah kecocokan bahasa dari Roblox berdasarkan pengaturan bahasa Roblox Anda; ini tidak memastikan bahasa yang digunakan pemain.","Robloxの言語設定に対してRobloxが返した一致人数です。プレイヤーが実際に話す言語を確認したものではありません。","จำนวนผู้เล่นที่ภาษาตรงกันตามที่ Roblox รายงานสำหรับการตั้งค่าภาษา Roblox ของคุณ ไม่ได้ยืนยันภาษาที่ผู้เล่นใช้จริง","Roblox 언어 설정을 기준으로 Roblox가 제공한 언어 일치 인원입니다. 플레이어가 실제로 사용하는 언어를 확인한 것은 아닙니다."],
     ["The published place version running on this server, not the Roblox client version.","这台服务器正在运行的地图发布版本，不是 Roblox 客户端版本。","這台伺服器正在運行的地圖發布版本，不是 Roblox 用戶端版本。","Versi place yang diterbitkan dan berjalan di server ini, bukan versi aplikasi Roblox.","このサーバーで動作中の公開済みプレースのバージョンです。Robloxクライアントのバージョンではありません。","เวอร์ชันสถานที่ที่เผยแพร่และกำลังทำงานบนเซิร์ฟเวอร์นี้ ไม่ใช่เวอร์ชันแอป Roblox","이 서버에서 실행 중인 게시된 장소 버전이며 Roblox 클라이언트 버전이 아닙니다."],
-    ["The avatar editor is taking longer to load. Refresh the page to try again.","头像编辑器加载时间较长，请刷新页面重试。","虛擬人偶編輯器載入時間較長，請重新整理頁面再試。","Editor avatar membutuhkan waktu lebih lama untuk dimuat. Muat ulang halaman untuk mencoba lagi.","アバターエディターの読み込みに時間がかかっています。ページを更新して再試行してください。","ตัวแก้ไขอวาตาร์ใช้เวลาโหลดนานกว่าปกติ โปรดรีเฟรชหน้าเพื่อลองอีกครั้ง","아바타 편집기를 불러오는 데 시간이 걸립니다. 페이지를 새로 고침하고 다시 시도하세요."],
     ["Animation preview","动画预览","動畫預覽","Pratinjau animasi","アニメーションプレビュー","ตัวอย่างแอนิเมชัน","애니메이션 미리 보기"],
     ["Your avatar animation","我的模型动画","我的模型動畫","Animasi avatarmu","自分のアバターのアニメーション","แอนิเมชันอวาตาร์ของคุณ","내 아바타 애니메이션"],
     ["Preview on my avatar","在我的模型上预览","在我的模型上預覽","Pratinjau di avatarku","自分のアバターでプレビュー","ดูตัวอย่างบนอวาตาร์ของฉัน","내 아바타로 미리 보기"],
@@ -618,6 +613,7 @@
     ["Refresh","刷新","重新整理","Muat ulang","更新","รีเฟรช","새로 고침"],
     ["Refreshing...","正在刷新…","正在重新整理…","Memuat ulang...","更新中…","กำลังรีเฟรช…","새로 고치는 중…"],
     ["2D Preview","2D 预览","2D 預覽","Pratinjau 2D","2Dプレビュー","ตัวอย่าง 2D","2D 미리 보기"],
+    ["3D Preview","3D 预览","3D 預覽","Pratinjau 3D","3Dプレビュー","ตัวอย่าง 3D","3D 미리 보기"],
     ["2D avatar preview","2D 头像预览","2D 虛擬人偶預覽","Pratinjau avatar 2D","アバターの2Dプレビュー","ตัวอย่างอวาตาร์ 2D","2D 아바타 미리 보기"],
     ["2D item preview","2D 物品预览","2D 物品預覽","Pratinjau item 2D","アイテムの2Dプレビュー","ตัวอย่างไอเท็ม 2D","2D 아이템 미리 보기"],
     ["Refresh 3D preview","刷新 3D 预览","重新整理 3D 預覽","Muat ulang pratinjau 3D","3Dプレビューを再読み込み","โหลดตัวอย่าง 3D ใหม่","3D 미리 보기 새로 고침"],
@@ -626,6 +622,7 @@
     ["Reloading 3D preview...","正在重新加载 3D 预览…","正在重新載入 3D 預覽…","Memuat ulang pratinjau 3D...","3Dプレビューを再読み込み中…","กำลังโหลดตัวอย่าง 3D ใหม่…","3D 미리 보기 다시 불러오는 중…"],
     ["2D preview is still being generated. Try Refresh.","2D 预览仍在生成中，请稍后刷新。","2D 預覽仍在產生中，請稍後重新整理。","Pratinjau 2D masih dibuat. Coba Muat ulang.","2Dプレビューを生成中です。「更新」をお試しください。","ยังสร้างตัวอย่าง 2D ไม่เสร็จ โปรดลองรีเฟรช","2D 미리 보기를 생성 중입니다. 새로 고침을 눌러 보세요."],
     ["2D preview unavailable. Try Refresh.","2D 预览不可用，请尝试刷新。","2D 預覽無法使用，請嘗試重新整理。","Pratinjau 2D tidak tersedia. Coba Muat ulang.","2Dプレビューを利用できません。「更新」をお試しください。","ไม่สามารถใช้ตัวอย่าง 2D ได้ โปรดลองรีเฟรช","2D 미리 보기를 사용할 수 없습니다. 새로 고침을 눌러 보세요."],
+    ["Sign in to view your avatar.","请登录 Roblox 后查看头像。","請登入 Roblox 後查看虛擬人偶。","Masuk ke Roblox untuk melihat avatar Anda.","アバターを表示するにはRobloxにログインしてください。","เข้าสู่ระบบ Roblox เพื่อดูอวาตาร์ของคุณ","아바타를 보려면 Roblox에 로그인하세요."],
     ["Roblox is generating the 2D preview...","Roblox 正在生成 2D 预览…","Roblox 正在產生 2D 預覽…","Roblox sedang membuat pratinjau 2D...","Robloxが2Dプレビューを生成しています…","Roblox กำลังสร้างตัวอย่าง 2D…","Roblox에서 2D 미리 보기를 생성하고 있습니다…"],
     ["Could not display the 2D preview.","无法显示 2D 预览。","無法顯示 2D 預覽。","Tidak dapat menampilkan pratinjau 2D.","2Dプレビューを表示できませんでした。","ไม่สามารถแสดงตัวอย่าง 2D ได้","2D 미리 보기를 표시할 수 없습니다."],
     ["Profile details","个人资料详情","個人檔案詳細資料","Detail profil","プロフィールの詳細","รายละเอียดโปรไฟล์","프로필 상세 정보"],
@@ -862,7 +859,7 @@
   let localeDirty = false;
 
   const ROOTS = '#rc-playtime-home, #rc-playtime-game-page, #rc-playtime-dialog, #rc-playtime-settings, #rc-settings-overlay, #rc-terms-dialog, #rc-language-warning-dialog, #rc-extension-warning-dialog, #rc-settings-guide-dialog, #rc-update-announcement-dialog, .rc-settings-menu-entry, .rc-hide-recommended-game, #rc-home-greeting, '
-    + '#rc-asset-tools, .rc-asset-owned, #rc-avatar-enhancements, #rc-avatar-loading, #rc-avatar-diagnostics, .rc-game-pin-control, .rc-game-pin-folder, #rc-pinned-games, #rc-pinned-games-notification, #rc-avatar-2d, #rc-catalog-item-2d, '
+    + '#rc-asset-tools, .rc-asset-owned, #rc-avatar-enhancements, .rc-game-pin-control, .rc-game-pin-folder, #rc-pinned-games, #rc-pinned-games-notification, .rc-avatar-3d-heading, #rc-avatar-2d, #rc-catalog-item-2d, '
     + '#rc-pinned-friends, #rc-pinned-friends-dialog, #rc-pinned-friend-menu, .rc-friend-pin, .rc-friend-pin-profile, .rc-profile-pin-error, '
     + '#rc-friends-manager, #rc-friends-bulk-dialog, '
     + '#rc-catalog-item-3d-refresh, #rc-catalog-item-3d-status, #rc-profile-enhancements, #rc-profile-inline-about, '

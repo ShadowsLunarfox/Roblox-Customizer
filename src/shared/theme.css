@@ -100,6 +100,53 @@ html[data-rc-custom-colors] body {
   color: var(--rc-text) !important;
 }
 
+/* Sidebar components can declare their own native theme and opaque wrappers. */
+html[data-rc-custom-colors] :is(#navigation, #left-navigation-container, .left-nav) {
+  color: var(--rc-text) !important;
+}
+
+html[data-rc-custom-colors] :is(#navigation, #left-navigation-container, .left-nav)
+  :is(div, aside, nav, ul, li):has(a, button):not(#navigation, .left-nav, .rbx-left-col):where(
+    :not([data-rc-features-disabled], [data-rc-features-disabled] *)
+  ) {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+html[data-rc-custom-colors] :is(#navigation, #left-navigation-container, .left-nav) :is(a, button):where(
+  :not([data-rc-features-disabled], [data-rc-features-disabled] *)
+) {
+  color: var(--rc-text) !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+html[data-rc-custom-colors] :is(#navigation, #left-navigation-container, .left-nav) :is(a, button)
+  :is(.text-nav, .font-header-2, .dynamic-ellipsis-item, .text-body-medium, .text-body-small, .content-emphasis, .content-default):where(
+    :not([data-rc-features-disabled], [data-rc-features-disabled] *)
+  ) {
+  color: inherit !important;
+}
+
+html[data-rc-custom-colors] :is(#navigation, #left-navigation-container, .left-nav)
+  :is(a, button):is(:hover, :focus-visible):where(
+    :not(:disabled, [aria-disabled="true"], [data-rc-features-disabled], [data-rc-features-disabled] *)
+  ) {
+  background-color: var(--rc-control-hover) !important;
+}
+
+html[data-rc-custom-colors] :is(#navigation, #left-navigation-container, .left-nav)
+  :is(a, button):is(.active, .selected, .bg-shift-200, [aria-current="page"], [aria-selected="true"], [data-state="active"]):where(
+    :not([data-rc-features-disabled], [data-rc-features-disabled] *)
+  ),
+html[data-rc-custom-colors] :is(#navigation, #left-navigation-container, .left-nav)
+  :is(.active, .selected, .bg-shift-200, [aria-current="page"], [aria-selected="true"], [data-state="active"]) > :is(a, button):where(
+    :not([data-rc-features-disabled], [data-rc-features-disabled] *)
+  ) {
+  color: var(--rc-accent-text) !important;
+  background-color: var(--rc-accent) !important;
+}
+
 html[data-rc-custom-colors]:not([data-rc-background-active]),
 html[data-rc-custom-colors]:not([data-rc-background-active]) body {
   background-color: var(--rc-surface) !important;

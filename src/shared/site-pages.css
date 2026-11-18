@@ -110,13 +110,10 @@ html[data-rc-ui-active][data-rc-frost-page="messages"] :is(#content, main, [role
   backdrop-filter: var(--rc-backdrop-filter, blur(var(--rc-glass-blur, 18px)) saturate(1.2)) !important;
 }
 
-/* Plus, avatar editor, inventory, and trade views. */
+/* Plus, inventory, and trade views. The avatar stylesheet owns its card surfaces. */
 html[data-rc-ui-active][data-rc-frost-page="plus"] :is(#content, main, [role="main"]) :is(
   .subscription-container,
   .benefits-container
-):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
-html[data-rc-ui-active][data-rc-frost-page="avatar"] :is(#content, main, [role="main"]) :is(
-  .avatar-editor-container
 ):where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
 html[data-rc-ui-active][data-rc-frost-page="inventory"] :is(#content, main, [role="main"]) :is(
   .inventory-category-container

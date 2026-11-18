@@ -41,6 +41,60 @@ function fixture() {
     </script>${scripts.map(file => `<script src="/${file}"></script>`).join('')}</body></html>`;
 }
 
+test('A strict media policy uses the packaged player and the current Roblox sidebar follows custom colors',
+  { skip: !process.env.CHROME_BIN, timeout: 30000 }, async t => {
+    const playerFiles = ['src/settings/background-player.html', 'src/settings/background-player.js', 'src/settings/background-player.css'];
+    const assets = new Set([...scripts, ...styles, ...playerFiles, 'icons/icon-48.png', 'icons/icon-128.png']);
+    const server = http.createServer((request, response) => {
+      const file = new URL(request.url, 'http://localhost').pathname.slice(1);
+      response.setHeader('Cache-Control', 'no-store');
+      response.setHeader('Content-Type', file.endsWith('.js') ? 'text/javascript' : file.endsWith('.css') ? 'text/css' : file.endsWith('.png') ? 'image/png' : 'text/html; charset=utf-8');
+      if (assets.has(file)) {
+        response.end(fs.readFileSync(path.join(workspace, file)));
+        return;
+      }
+      response.setHeader('Content-Security-Policy', "media-src 'self'");
+      response.end(fixture().replace('<main id="HomeContainer">', `<div class="left-nav bg-surface-0" style="position:fixed;left:0;top:0;width:220px;height:100vh"><div><nav><ul>
+        <li><a href="/home" class="content-emphasis"><span class="content-emphasis">Home</span></a></li>
+        <li><a href="/my/avatar" class="content-emphasis bg-shift-200"><span class="content-emphasis">Avatar</span></a></li>
+        </ul></nav></div></div><main id="HomeContainer">`));
+    });
+    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise(resolve => { server.closeAllConnections(); server.close(resolve); }));
+    const browser = await isolatedChrome(t, 'background-policy');
+    await browser.send('Emulation.setFocusEmulationEnabled', { enabled: true });
+    const url = `http://127.0.0.1:${server.address().port}/my/avatar`;
+    await browser.send('Page.navigate', { url });
+    await waitForDocument(browser, '#native-draft', url);
+    await browser.waitFor("!!document.querySelector('.rc-settings-menu-entry')");
+    await browser.evaluate("patchSettings({experimentalCustomColors:true,customBackgroundColor:'#364e96',customTextColor:'#f4f6fb',customAccentColor:'#ff5ce9'})");
+    await browser.evaluate("storeBackground('video')");
+    const ready = "document.querySelector('.rc-background-frame')?.contentDocument?.querySelector('video')?.readyState>=2";
+    await browser.waitFor(ready);
+    const player = "document.querySelector('.rc-background-frame').contentDocument.querySelector('video')";
+    assert.equal(await browser.evaluate(`new Promise(resolve=>{const timeout=setTimeout(()=>resolve(false),2000);${player}.requestVideoFrameCallback(()=>{clearTimeout(timeout);resolve(true)})})`), true, 'The saved MP4 presents decoded frames under the strict parent policy');
+    assert.equal(await browser.evaluate("getComputedStyle(document.querySelector('.left-nav')).backgroundColor"), 'rgba(54, 78, 150, 0.62)');
+    assert.equal(await browser.evaluate("getComputedStyle(document.querySelector('.left-nav a[href=\"/home\"] span')).color"), 'rgb(244, 246, 251)');
+    assert.equal(await browser.evaluate("getComputedStyle(document.querySelector('.left-nav a[href=\"/my/avatar\"]')).backgroundColor"), 'rgb(255, 92, 233)');
+    assert.equal(await browser.evaluate("getComputedStyle(document.querySelector('.left-nav a[href=\"/my/avatar\"] span')).color"), 'rgb(0, 0, 0)');
+    await browser.evaluate("window.savedPlayer=document.querySelector('.rc-background-frame');document.querySelector('#native-draft').value='Unsaved input';patchSettings({fit:'contain',glassBlur:30})");
+    await browser.waitFor(`getComputedStyle(${player}).objectFit==='contain'`);
+    assert.equal(await browser.evaluate("document.querySelector('.rc-background-frame')===savedPlayer"), true, 'Appearance changes preserve the running player');
+    await browser.evaluate(`${player}.pause();dispatchEvent(new Event('focus'))`);
+    await browser.waitFor(`!${player}.paused`);
+    await browser.send('Page.setWebLifecycleState', { state: 'frozen' });
+    await browser.send('Page.setWebLifecycleState', { state: 'active' });
+    await browser.send('Page.bringToFront');
+    await browser.waitFor(ready);
+    assert.equal(await browser.evaluate("document.querySelector('#native-draft').value"), 'Unsaved input');
+    await browser.send('Page.reload');
+    await waitForDocument(browser, '#native-draft', url);
+    await browser.waitFor(ready);
+    await browser.evaluate("patchSettings({source:'none'})");
+    await browser.waitFor("!document.querySelector('.rc-background-frame')");
+    assert.deepEqual(browser.errors, []);
+  });
+
 for (const kind of ['gif', 'video']) test(`${kind} background keeps animating after reload and unrelated preference updates`,
   { skip: !process.env.CHROME_BIN, timeout: 45000 }, async t => {
     const assets = new Set([...scripts, ...styles, 'icons/icon-48.png', 'icons/icon-128.png']);

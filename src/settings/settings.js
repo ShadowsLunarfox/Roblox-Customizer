@@ -165,6 +165,7 @@
       : /^\/users\/(?:\d+\/)?friends(?:\/|$)/i.test(path) ? 'friends'
       : /^\/my\/avatar(?:\/|$)/i.test(path) ? 'avatar'
       : /^\/users\/(?:\d+\/)?inventory(?:\/|$)/i.test(path) ? 'inventory'
+      : /^\/users\/\d+\/favorites\/?$/i.test(path) ? 'inventory'
       : /^\/trades(?:\/|$)/i.test(path) ? 'trades'
       : /^\/transactions\/?$/i.test(path) ? 'transactions'
       : /^\/report-abuse\/?$/i.test(path) ? 'report-abuse'
@@ -855,15 +856,67 @@
     }
   }
 
-  function playBackgroundVideo(video) {
+  function playBackgroundVideo(playback) {
+    if (playback.frame) {
+      playback.port?.postMessage({ type: 'play' });
+      return;
+    }
+    const video = playback.media;
     video.muted = true;
     if (video.paused || video.ended) video.play().catch(() => {});
+  }
+
+  function useBackgroundFrame(playback) {
+    if (!currentBackgroundPlayback(playback) || playback.frame || !chrome.runtime.getURL) return false;
+    stopBackgroundWatch(playback);
+    const previousMedia = playback.media;
+    const frame = document.createElement('iframe');
+    frame.className = 'rc-background-media rc-background-frame';
+    frame.setAttribute('aria-hidden', 'true');
+    frame.tabIndex = -1;
+    frame.allow = 'autoplay';
+    frame.src = chrome.runtime.getURL('src/settings/background-player.html');
+    playback.frame = true;
+    playback.media = frame;
+    frame.addEventListener('load', () => {
+      if (!currentBackgroundPlayback(playback)) return;
+      frame.removeAttribute('data-rc-background-ready');
+      playback.port?.close();
+      const channel = new MessageChannel();
+      playback.port = channel.port1;
+      channel.port1.onmessage = event => {
+        if (!currentBackgroundPlayback(playback)) return;
+        if (event.data?.type === 'ready' || event.data?.type === 'progress') {
+          frame.setAttribute('data-rc-background-ready', '');
+          backgroundError = '';
+          playback.lastProgress = Date.now();
+          playback.progressed = true;
+        } else if (event.data?.type === 'error') {
+          frame.removeAttribute('data-rc-background-ready');
+          backgroundError = 'Could not load this background. Check the file or URL.';
+          if (modal) setStatus(backgroundError, true);
+          recoverBackgroundPlayback(playback);
+        }
+      };
+      const url = new URL(frame.src);
+      const origin = url.protocol === 'chrome-extension:' ? `${url.protocol}//${url.host}` : url.origin;
+      frame.contentWindow.postMessage({ type: 'rc-background-connect' }, origin, [channel.port2]);
+      channel.port1.postMessage({ type: 'load', file: playback.file,
+        url: playback.file ? '' : settings.url, fit: settings.fit, paused: document.hidden });
+    });
+    previousMedia.pause();
+    previousMedia.removeAttribute('src');
+    previousMedia.load();
+    previousMedia.replaceWith(frame);
+    watchBackgroundVideo(playback);
+    return true;
   }
 
   function recoverBackgroundPlayback(playback) {
     if (!currentBackgroundPlayback(playback) || document.hidden || backgroundLoading) return;
     stopBackgroundWatch(playback);
     if (backgroundRecoveries >= 2) {
+      if (playback.frame) playback.media.removeAttribute('data-rc-background-ready');
       backgroundError = 'Could not load this background. Check the file or URL.';
       if (modal) setStatus(backgroundError, true);
       return;
@@ -877,7 +930,7 @@
   function watchBackgroundVideo(playback) {
     if (!currentBackgroundPlayback(playback) || document.hidden || playback.type !== 'video') return;
     const video = playback.media;
-    if (playback.frameRequest === null && typeof video.requestVideoFrameCallback === 'function') {
+    if (!playback.frame && playback.frameRequest === null && typeof video.requestVideoFrameCallback === 'function') {
       playback.frameRequest = video.requestVideoFrameCallback(() => {
         playback.frameRequest = null;
         if (!currentBackgroundPlayback(playback) || document.hidden) return;
@@ -897,11 +950,11 @@
         playback.lastProgress = Date.now();
         playback.healthyChecks = 0;
       }
-      if (typeof video.requestVideoFrameCallback !== 'function' && video.currentTime !== playback.lastTime) {
+      if (!playback.frame && typeof video.requestVideoFrameCallback !== 'function' && video.currentTime !== playback.lastTime) {
         playback.lastProgress = Date.now();
         playback.progressed = true;
       }
-      playback.lastTime = video.currentTime;
+      if (!playback.frame) playback.lastTime = video.currentTime;
       if (Date.now() - playback.lastProgress >= 8000) {
         recoverBackgroundPlayback(playback);
         return;
@@ -910,7 +963,7 @@
         playback.progressed = false;
         if (++playback.healthyChecks >= 3) backgroundRecoveries = 0;
       } else playback.healthyChecks = 0;
-      playBackgroundVideo(video);
+      playBackgroundVideo(playback);
       watchBackgroundVideo(playback);
     }, 2000);
   }
@@ -918,7 +971,8 @@
   function suspendBackgroundMedia() {
     backgroundSuspended = true;
     stopBackgroundWatch(backgroundPlayback);
-    if (backgroundPlayback?.type === 'video') backgroundPlayback.media.pause();
+    if (backgroundPlayback?.frame) backgroundPlayback.port?.postMessage({ type: 'pause' });
+    else if (backgroundPlayback?.type === 'video') backgroundPlayback.media.pause();
   }
 
   function resumeBackgroundMedia() {
@@ -932,7 +986,7 @@
       backgroundSuspended = false;
       backgroundRecoveries = 0;
       playback.lastProgress = Date.now();
-      playback.lastTime = playback.media.currentTime;
+      playback.lastTime = playback.frame ? 0 : playback.media.currentTime;
       playback.healthyChecks = 0;
       // Images have no play() or frame-progress API. A fresh image/Blob URL
       // restarts GIF decoding after a real tab suspension or BFCache restore.
@@ -942,7 +996,7 @@
       }
     }
     if (playback.type === 'video') {
-      playBackgroundVideo(playback.media);
+      playBackgroundVideo(playback);
       watchBackgroundVideo(playback);
     }
   }
@@ -1011,7 +1065,8 @@
       objectUrl = null;
     }
 
-    if (backgroundPlayback?.type === 'video') {
+    backgroundPlayback?.port?.close();
+    if (backgroundPlayback?.type === 'video' && !backgroundPlayback.frame) {
       backgroundPlayback.media.pause();
       backgroundPlayback.media.removeAttribute('src');
       backgroundPlayback.media.load();
@@ -1040,13 +1095,19 @@
     // Set autoplay and muted state before assigning the source during restore.
     media.src = source;
     media.addEventListener('error', () => {
-      if (generation !== applyGeneration) return;
+      if (generation !== applyGeneration || backgroundPlayback?.media !== media) return;
+      media.removeAttribute('data-rc-background-ready');
+      // Some Roblox pages forbid blob media. An extension-owned document can
+      // play the saved file using its own policy and decoder.
+      if (type === 'video' && media.error?.code === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED
+        && useBackgroundFrame(backgroundPlayback)) return;
       backgroundError = 'Could not load this background. Check the file or URL.';
       if (modal) setStatus(backgroundError, true);
       if (type === 'video') recoverBackgroundPlayback(backgroundPlayback);
     });
     media.addEventListener(type === 'video' ? 'loadeddata' : 'load', () => {
       if (generation === applyGeneration) {
+        media.setAttribute('data-rc-background-ready', '');
         backgroundError = '';
         if (type === 'video') resumeBackgroundMedia();
       }
@@ -1377,6 +1438,7 @@
       const layer = ensureLayer();
       layer?.style.setProperty('--rc-background-fit', settings.fit);
       layer?.style.setProperty('--rc-background-dim', String(settings.dim / 100));
+      if (backgroundPlayback?.frame) backgroundPlayback.port?.postMessage({ type: 'fit', fit: settings.fit });
     }
   }
 

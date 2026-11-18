@@ -41,6 +41,15 @@ html:not([data-rc-background-active]) #rc-background-layer {
   object-fit: var(--rc-background-fit, cover);
 }
 
+#rc-background-layer .rc-background-frame {
+  border: 0;
+  color-scheme: normal;
+}
+
+#rc-background-layer .rc-background-media:not([data-rc-background-ready]) {
+  visibility: hidden;
+}
+
 #rc-background-layer .rc-background-shade {
   position: absolute;
   inset: 0;
@@ -60,8 +69,8 @@ html:not([data-rc-background-active]) #rc-background-layer {
   background-image: none !important;
 }
 
-#left-navigation-container .left-nav:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
-#navigation.rbx-left-col:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+.left-nav:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+#navigation:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
 #left-navigation-container > .rbx-left-col:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   background-color: rgb(var(--rc-glass-color, 20 22 28) / var(--rc-surface-opacity, var(--rc-glass-opacity, .62))) !important;
   background-image: none !important;
@@ -244,15 +253,15 @@ html.light-theme[data-rc-ui-active] :is(
   --rc-header-menu-highlight: rgb(0 0 0 / 8%);
 }
 
-#navigation.rbx-left-col:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
-#left-navigation-container .left-nav:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+#navigation:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+.left-nav:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
 #left-navigation-container > .rbx-left-col:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {
   border-right: 1px solid rgb(var(--rc-foreground-rgb, 255 255 255) / 12%);
 }
 
-#left-navigation-container .left-nav > .flex:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
-#left-navigation-container .left-nav > .flex > div:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
-#left-navigation-container .left-nav nav:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+.left-nav > .flex:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+.left-nav > .flex > div:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
+.left-nav nav:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
 #navigation .rbx-scrollbar:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
 #navigation .left-col-list:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)),
 #navigation .simplebar-content:where(:not([data-rc-features-disabled], [data-rc-features-disabled] *)) {

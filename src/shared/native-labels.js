@@ -24,6 +24,12 @@
       passes: ['passes', 'game passes', 'gamepasses', '通行证', '通行證', '游戏通行证', '遊戲通行證'],
       products: ['products', 'developer products', '商品', '产品', '產品', '开发者商品', '開發者商品', '开发者产品', '開發者產品']
     },
+    avatarScale: {
+      height: ['height', '身高', '高度', 'tinggi', '身長', '高さ', 'ความสูง', '키', '높이'],
+      width: ['width', '宽度', '寬度', 'lebar', '幅', 'ความกว้าง', '너비', '폭'],
+      head: ['head', '头部', '頭部', 'kepala', '頭', 'ศีรษะ', '머리'],
+      proportions: ['proportions', '比例', 'proporsi', '比率', 'สัดส่วน', '비율']
+    },
     avatar: {
       recent: ['recent', 'recently worn', '最近', '近期', '最近穿戴', '最近穿着', '最近穿著'],
       avatars: ['avatars', '虚拟形象', '虛擬形象', '虚拟人偶', '虛擬人偶', '化身'],
@@ -306,6 +312,8 @@
       .replace(/\s*\([\d,.]+\)\s*$/, '').trim();
     if (group === 'avatar') label = label.replace(/[⌄⌃▾▴▼▲]+$/, '').trim()
       .replace(/\s*(?: menu| tab|菜单|選單|选项卡|索引標籤|メニュー|タブ|เมนู|แท็บ| 메뉴| 탭)$/, '').trim();
+    if (group === 'avatarScale') label = label.replace(/\s*\d+(?:[.,]\d+)?\s*%$/, '')
+      .replace(/\s*:\s*$/, '').trim();
     const exact = indexes[group]?.get(label);
     if (exact) return exact;
     if (group === 'home') {
